@@ -5,6 +5,12 @@ module top(
   input sw_b,
   output sw_f
 );
-  assign sw_f = sw_a ^ sw_b;
+absw my_absw(
+    .clk(clk),
+    .rst(rst),
+    .a(sw_a),
+    .b(sw_b),
+    .f(sw_f)
+);
   
 endmodule

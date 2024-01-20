@@ -42,6 +42,8 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 all: default
 
 sim: $(BIN)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
+	@echo "Write this Makefile by your self."
 	@$^
 
 trace:$(BIN)
@@ -65,3 +67,5 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 .PHONY: default all clean run
+
+include ../Makefile

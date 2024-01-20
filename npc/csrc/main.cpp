@@ -25,10 +25,6 @@ int main() {
   while(1) {
     nvboard_update();
     single_cycle();
-    int a = rand() & 1;
-    int b = rand() & 1;
-    dut.sw_a = a;
-    dut.sw_b = b;
     dut.eval();
   }
 }

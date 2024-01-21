@@ -46,6 +46,10 @@ sim: $(BIN)
 	@echo "Write this Makefile by your self."
 	@$^
 
+trace: 
+	VERILATOR_CFLAGS += --trace
+	CXXFLAGS += -DWAVE_ON
+
 trace:$(BIN)
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DWAVE_ON)

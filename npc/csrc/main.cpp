@@ -4,7 +4,7 @@
 #include "verilated_vcd_c.h"
 #include <stdio.h>
 
-// #define WAVE_ON
+#define WAVE_ON
 
 Vtop* top;
 

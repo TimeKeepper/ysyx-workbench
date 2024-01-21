@@ -6,19 +6,19 @@
 
 #define WAVE_ON
 
-static TOP_NAME dut;
+Vtop* top;
 
 void nvboard_bind_all_pins(Vtop* top);
 
 static void single_cycle() {
-  dut.clk = 0; dut.eval();
-  dut.clk = 1; dut.eval();
+  top->clk = 0; top->eval();
+  top->clk = 1; top->eval();
 }
 
 static void reset(int n) {
-  dut.rst = 1;
+  top->rst = 1;
   while (n -- > 0) single_cycle();
-  dut.rst = 0;
+  top->rst = 0;
 }
 
 int main(int argc, char** argv) {
@@ -28,15 +28,17 @@ int main(int argc, char** argv) {
 	Verilated::traceEverOn(true);
 
   #endif
+
+  top = new Vtop;
   
-  nvboard_bind_all_pins(&dut);
+  nvboard_bind_all_pins(top);
   nvboard_init();
 
   #ifdef WAVE_ON
 	contextp->commandArgs(argc, argv);
 
 	VerilatedVcdC* tfp = new VerilatedVcdC;
-	dut.trace(tfp, 99);
+	top->trace(tfp, 99);
 	tfp->open("wave.vcd");
   #endif
 
@@ -45,7 +47,7 @@ int main(int argc, char** argv) {
   while(1) {
     nvboard_update();
     single_cycle();
-    dut.eval();
+    top->eval();
 
     #ifdef WAVE_ON
     contextp->timeInc(1);

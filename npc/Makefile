@@ -66,4 +66,4 @@ clean:
 
 .PHONY: default all clean run
 
-include $(NPC_HOME)/../Makefile
+include ../Makefile

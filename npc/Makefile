@@ -5,13 +5,11 @@ INC_PATH ?=
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
-				--trace
+				# --trace
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
-
-WAVE_FILE=./wave.vcd
 
 default: $(BIN)
 
@@ -46,6 +44,10 @@ all: default
 sim: $(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	@echo "Write this Makefile by your self."
+	@$^
+
+trace:$(BIN)
+	$(eval VERILATOR_CFLAGS += --trace)
 	@$^
 
 src:

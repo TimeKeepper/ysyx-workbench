@@ -43,6 +43,7 @@ static char* rl_gets() {
 }
 
 static int cmd_c(char *args) {
+  //input -1 as parameter to cpu_exec means continious execute command forever.
   cpu_exec(-1);
   return 0;
 }

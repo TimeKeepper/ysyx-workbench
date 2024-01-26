@@ -59,6 +59,19 @@ static int cmd_si(char *args) {
   return 0;
 }
 
+static int cmd_info(char *args) {
+  char* show_type = strtok(args, " ");
+  if(strlen(show_type) != 1) {
+    printf("You should only enter an single character.");
+    return 0;
+  }
+  switch(*show_type){
+    case 'r': isa_reg_display();
+    default:printf("you should input the requried info type: r(register) or w(watchpoint)."); 
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -69,7 +82,8 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  { "si", "Let the program step through N instructions and then pause execution", cmd_si}
+  { "si", "Let the program step through N instructions and then pause execution", cmd_si},
+  { "info", "get some machine info", cmd_info}
 
   /* TODO: Add more commands */
 

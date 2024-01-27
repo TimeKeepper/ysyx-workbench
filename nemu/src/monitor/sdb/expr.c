@@ -120,7 +120,9 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   // TODO();
-  int addr = atoi(strtok(e+2, " "));
+  uint32_t addr = 0;
+  
+  sscanf(e, "%x", &addr);
   
   return addr;
 }

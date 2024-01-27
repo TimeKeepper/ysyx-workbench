@@ -123,6 +123,8 @@ word_t expr(char *e, bool *success) {
   uint32_t addr = 0;
   
   sscanf(e, "%x", &addr);
+
+  printf("%x\n", addr);
   
   return addr;
 }

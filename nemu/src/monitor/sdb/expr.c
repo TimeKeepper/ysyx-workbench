@@ -112,9 +112,9 @@ static bool make_token(char *e) {
 }
 
 
-word_t expr(char *e, bool *success) {
+word_t expr(char *e) {
   if (!make_token(e)) {
-    *success = false;
+    // *success = false;
     return 0;
   }
 

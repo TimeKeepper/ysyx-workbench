@@ -76,10 +76,6 @@ static int cmd_info(char *args) {
   return 0;
 }
 
-static int evaluation_Of_exp(char* expressions){
-  return 0x80000000;
-}
-
 static uint32_t print_Ram(uint32_t bias){
   uint32_t result = paddr_read(bias, 4);
   printf("0x%08x ", result);
@@ -87,8 +83,10 @@ static uint32_t print_Ram(uint32_t bias){
 }
 
 static int cmd_x(char *args){
+  static bool* pauseFlag = NULL;
+  *pauseFlag = true;
   int scan_num = atoi(strtok(args, " "));
-  int base_Addr = evaluation_Of_exp(strtok(args, " "));
+  int base_Addr = expr(strtok(args, " "), pauseFlag);
   for(int i = 0; i < scan_num; i++){
     print_Ram(base_Addr + 4 * i);
   }

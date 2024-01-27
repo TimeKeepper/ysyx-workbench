@@ -77,7 +77,7 @@ static int cmd_info(char *args) {
 }
 
 static int evaluation_Of_exp(char* expressions){
-  return 0x8000000;
+  return 0x80000000;
 }
 
 static uint32_t print_Ram(uint32_t bias){

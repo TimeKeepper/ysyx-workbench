@@ -112,19 +112,14 @@ static bool make_token(char *e) {
 }
 
 
-word_t expr(char *e) {
+word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
-    // *success = false;
-    // return 0;
+    *success = false;
+    return 0;
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  // TODO();
-  uint32_t addr = 0;
+  TODO();
   
-  sscanf(e, "%x", &addr);
-
-  printf("%x\n", addr);
-  
-  return addr;
+  return 0;
 }

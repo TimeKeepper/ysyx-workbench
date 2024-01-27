@@ -160,7 +160,7 @@ static bool check_Parentheses(int p, int q){
   return true;
 }
 
-static TokenType find_Op(int p, int q){
+static int find_Op(int p, int q){
   int i;
   int op = 0;
   int op_type = 0;
@@ -178,7 +178,7 @@ static TokenType find_Op(int p, int q){
       }
     }
   }
-  return tokens[op_type].type;
+  return op_type;
 }
 
 word_t eval(int p, int q, bool *success){
@@ -205,7 +205,7 @@ word_t eval(int p, int q, bool *success){
     word_t val1 = eval(p, op - 1, success);
     word_t val2 = eval(op + 1, q, success);
 
-    switch(op){
+    switch(tokens[op].type){
       case TK_PLUS: return val1 + val2;
       case TK_MINUS: return val1 - val2;
       case TK_MULT: return val1 * val2;
@@ -221,5 +221,5 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  return eval(0, nr_token - 1, success);
+  return eval(0, nr_token, success);
 }

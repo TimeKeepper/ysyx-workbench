@@ -67,7 +67,7 @@ static int cmd_info(char *args) {
   }
   switch(*show_type){
     case 'r': isa_reg_display();
-    default:Log("you should input the requried info type: r(register) or w(watchpoint)."); 
+    default:Log("you should input the requried info type: r(register) or w(watchpoint)."); printf("%c",*show_type);
   }
   return 0;
 }

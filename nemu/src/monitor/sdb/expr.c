@@ -212,7 +212,7 @@ word_t eval(int p, int q, bool *success){
       case TK_PLUS: return val1 + val2;
       case TK_MINUS: return val1 - val2;
       case TK_MULT: return val1 * val2;
-      case TK_DIV: return val1 / val2;
+      case TK_DIV: return val2==0? 0: val1 / val2;
       default: panic("Unknown condition, you should check you code again!");
     }
   }

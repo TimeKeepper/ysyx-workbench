@@ -79,7 +79,7 @@ static int cmd_info(char *args) {
 
 static int cmd_test(char *args){
   bool success = true;
-  printf("%d",expr(strtok(args, " "), &success));
+  printf("%d\n",expr(strtok(args, " "), &success));
   return 0;
 }
 

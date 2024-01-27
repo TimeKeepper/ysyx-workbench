@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/paddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -43,6 +44,7 @@ static char* rl_gets() {
 }
 
 static int cmd_c(char *args) {
+  //input -1 as parameter to cpu_exec means continious execute command forever.
   cpu_exec(-1);
   return 0;
 }
@@ -50,6 +52,44 @@ static int cmd_c(char *args) {
 
 static int cmd_q(char *args) {
   return -1;
+}
+
+static int cmd_si(char *args) {
+  int exec_num = atoi(strtok(args, " "));
+  cpu_exec(exec_num);
+  return 0;
+}
+
+extern void wp_display(void);
+
+static int cmd_info(char *args) {
+  char* show_type = strtok(args, " ");
+  if(strlen(show_type) != 1) {
+    Log("You should only enter an single character.");
+    return 0;
+  }
+  switch(*show_type){
+    case 'r': isa_reg_display();break;
+    case 'w': wp_display();break;
+    default:Log("you should input the requried info type: r(register) or w(watchpoint).");break;
+  }
+  return 0;
+}
+
+static uint32_t print_Ram(uint32_t bias){
+  uint32_t result = paddr_read(bias, 4);
+  printf("0x%08x ", result);
+  return result;
+}
+
+static int cmd_x(char *args){
+  int scan_num = atoi(strtok(args, " "));
+  int base_Addr = expr(strtok(args, " "), NULL);
+  for(int i = 0; i < scan_num; i++){
+    print_Ram(base_Addr + 4 * i);
+  }
+  printf("\n");
+  return 0;
 }
 
 static int cmd_help(char *args);
@@ -62,6 +102,9 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "Let the program step through N instructions and then pause execution", cmd_si},
+  { "info", "get some machine info", cmd_info},
+  { "x", "Scan Memory", cmd_x}
 
   /* TODO: Add more commands */
 

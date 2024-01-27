@@ -58,7 +58,7 @@ static struct rule {
   {"\\(", TK_LPAREN},         // left parenthesis
   {"\\)", TK_RPAREN},         // right parenthesis
   {"[0-9]+", TK_DECIMAL},         // decimal
-  {"0[xX]+", TK_HEX},         // hex
+  {"[0][xX]+", TK_HEX},         // hex
   {"==", TK_EQ},        // equal
 };
 

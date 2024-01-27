@@ -90,9 +90,10 @@ static uint32_t print_Ram(uint32_t bias){
 }
 
 static int cmd_x(char *args){
-  int scan_num = atoi(strtok(args, " "));
+  char *scan_num_str = strtok(args, " ");
+  int scan_num = atoi(scan_num_str);
   bool success = true;
-  uint32_t base_Addr = expr(strtok(args, ""), &success);
+  uint32_t base_Addr = expr(scan_num_str+strlen(scan_num_str)+1, &success);
   for(int i = 0; i < scan_num; i++){
     print_Ram(base_Addr + 4 * i);
   }

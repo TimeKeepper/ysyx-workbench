@@ -59,8 +59,7 @@ static int cmd_si(char *args) {
   return 0;
 }
 
-void wp_display(void){
-}
+extern void wp_display(void);
 
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");

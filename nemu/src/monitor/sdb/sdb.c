@@ -92,6 +92,7 @@ static int cmd_x(char *args){
   for(int i = 0; i < scan_num; i++){
     print_Ram(base_Addr + 4 * i);
   }
+  printf("\n");
   return 0;
 }
 

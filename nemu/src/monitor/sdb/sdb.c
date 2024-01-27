@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include <memory/paddr.h>
 #include "sdb.h"
+#include "common.h"
 
 static int is_batch_mode = false;
 
@@ -76,6 +77,11 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+static int cmd_test(char *args){
+  bool success = true;
+  return expr(strtok(args, " "), &success);
+}
+
 static uint32_t print_Ram(uint32_t bias){
   uint32_t result = paddr_read(bias, 4);
   printf("0x%08x ", result);
@@ -105,7 +111,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Let the program step through N instructions and then pause execution", cmd_si},
   { "info", "get some machine info", cmd_info},
-  { "x", "Scan Memory", cmd_x}
+  { "x", "Scan Memory", cmd_x},
+  {"test", "Help me for test my code", cmd_test}
 
   /* TODO: Add more commands */
 

@@ -82,7 +82,7 @@ static int evaluation_Of_exp(char* expressions){
 
 static uint32_t print_Ram(uint32_t bias){
   uint32_t result = paddr_read(bias, 4);
-  printf("%x ", result);
+  printf("0x%08x ", result);
   return result;
 }
 

@@ -62,12 +62,12 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
   if(strlen(show_type) != 1) {
-    printf("You should only enter an single character.");
+    Log("You should only enter an single character.");
     return 0;
   }
   switch(*show_type){
     case 'r': isa_reg_display();
-    default:printf("you should input the requried info type: r(register) or w(watchpoint)."); 
+    default:Log("you should input the requried info type: r(register) or w(watchpoint)."); 
   }
   return 0;
 }

@@ -79,7 +79,8 @@ static int cmd_info(char *args) {
 
 static int cmd_test(char *args){
   bool success = true;
-  return expr(strtok(args, " "), &success);
+  printf("%d",expr(strtok(args, " "), &success));
+  return 0;
 }
 
 static uint32_t print_Ram(uint32_t bias){

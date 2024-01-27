@@ -182,7 +182,6 @@ static int find_Op(int p, int q){
 }
 
 word_t eval(int p, int q, bool *success){
-  printf("%d",*success);
   if(*success == false) return 0;
   else if(p > q){
     *success = false;
@@ -201,11 +200,11 @@ word_t eval(int p, int q, bool *success){
     return eval(p + 1, q - 1, success);
   }
   else {
-    TokenType op = find_Op(p, q);
-    word_t val1 = eval(p, op - 1, success);
-    word_t val2 = eval(op + 1, q, success);
+    int index = find_Op(p, q);
+    word_t val1 = eval(p, index - 1, success);
+    word_t val2 = eval(index + 1, q, success);
 
-    switch(tokens[op].type){
+    switch(tokens[index].type){
       case TK_PLUS: return val1 + val2;
       case TK_MINUS: return val1 - val2;
       case TK_MULT: return val1 * val2;

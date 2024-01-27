@@ -25,6 +25,8 @@ typedef enum {
   TK_NOTYPE = 256, 
   //十进制整数
   TK_DECIMAL,
+  //十六进制整数
+  TK_HEX,
   //运算符号
   TK_EQ, 
   TK_PLUS, 
@@ -56,6 +58,7 @@ static struct rule {
   {"\\(", TK_LPAREN},         // left parenthesis
   {"\\)", TK_RPAREN},         // right parenthesis
   {"[0-9]+", TK_DECIMAL},         // decimal
+  {"0[xX][0-9a-fA-F]+", TK_HEX},         // hex
   {"==", TK_EQ},        // equal
 };
 
@@ -135,6 +138,20 @@ static bool make_token(char *e) {
             }
             break;
           }
+          //十六进制整数
+          case TK_HEX: {
+            tokens[nr_token].type = TK_HEX;
+            if (substr_len >= 32) {
+              printf("hex number is too long!\n");
+              return false;
+            }
+            else {
+              strncpy(tokens[nr_token].str, substr_start, substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+            }
+            break;
+          }
           //等号
           case TK_EQ:     tokens[nr_token++].type = TK_EQ; break;
           //空格
@@ -195,6 +212,9 @@ word_t eval(int p, int q, bool *success){
     if(tokens[p].type == TK_DECIMAL){
       return atoi(tokens[p].str);
     }
+    else if(tokens[p].type == TK_HEX){
+      return strtol(tokens[p].str, NULL, 16);
+    }
     else{
       *success = false;
       return 0;
@@ -212,7 +232,7 @@ word_t eval(int p, int q, bool *success){
       case TK_PLUS: return val1 + val2;
       case TK_MINUS: return val1 - val2;
       case TK_MULT: return val1 * val2;
-      case TK_DIV: return val2==0? 0: val1 / val2;
+      case TK_DIV: return val2 == 0 ? 0: val1 / val2;
       default: panic("Unknown condition, you should check you code again!");
     }
   }

@@ -182,7 +182,7 @@ static TokenType find_Op(int p, int q){
 }
 
 word_t eval(int p, int q, bool *success){
-  printf("log\n");
+  printf("%d",*success);
   if(*success == false) return 0;
   else if(p > q){
     *success = false;

@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/paddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -75,6 +76,25 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+static int evaluation_Of_exp(char* expressions){
+  return 0x8000000;
+}
+
+static uint32_t print_Ram(uint32_t bias){
+  uint32_t result = paddr_read(bias, 4);
+  printf("%x ", result);
+  return result;
+}
+
+static int cmd_x(char *args){
+  int scan_num = atoi(strtok(args, " "));
+  int base_Addr = evaluation_Of_exp(strtok(args, " "));
+  for(int i = 0; i < scan_num; i++){
+    print_Ram(base_Addr + 4 * i);
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -86,7 +106,8 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Let the program step through N instructions and then pause execution", cmd_si},
-  { "info", "get some machine info", cmd_info}
+  { "info", "get some machine info", cmd_info},
+  { "x", "Scan Memory", cmd_x}
 
   /* TODO: Add more commands */
 

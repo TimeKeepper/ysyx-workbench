@@ -59,6 +59,9 @@ static int cmd_si(char *args) {
   return 0;
 }
 
+void wp_display(void){
+}
+
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
   if(strlen(show_type) != 1) {
@@ -67,6 +70,7 @@ static int cmd_info(char *args) {
   }
   switch(*show_type){
     case 'r': isa_reg_display();break;
+    case 'w': wp_display();break;
     default:Log("you should input the requried info type: r(register) or w(watchpoint).");break;
   }
   return 0;

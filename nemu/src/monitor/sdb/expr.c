@@ -171,12 +171,12 @@ static int find_Op(int p, int q){
     else if(tokens[i].type == TK_RPAREN){
       op--;
     }
-    else if(tokens[i].type == TK_MULT || tokens[i].type == TK_DIV){
+    else if(tokens[i].type == TK_PLUS || tokens[i].type == TK_MINUS){
       if(op == 0){
         op_type = i;
       }
     }
-    else if(tokens[i].type == TK_PLUS || tokens[i].type == TK_MINUS){
+    else if(tokens[i].type == TK_MULT || tokens[i].type == TK_DIV){
       if(op == 0 && op_type == TK_NOTYPE){
         op_type = i;
       }

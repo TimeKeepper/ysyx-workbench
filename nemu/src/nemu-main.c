@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   return is_exit_status_bad();
 #else
 
-  FILE *fp = fopen("../tools/gen-expr/build/input", "r");
+  FILE *fp = fopen("../tools/gen-expr/input", "r");
 
   char buf[MAX_EXPR_LENGTH] = {};
 

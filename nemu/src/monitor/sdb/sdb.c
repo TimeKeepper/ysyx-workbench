@@ -83,7 +83,7 @@ char input_buf[INPUT_BUF_LENGTH];
 static int cmd_test(char *args){
   // bool success = true;
 
-  FILE* fp = fopen("../tools/gen-expr/input", "r");
+  FILE* fp = fopen("../../../tools/gen-expr/input", "r");
 
   while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
     char* result_str = strtok(input_buf, " ");

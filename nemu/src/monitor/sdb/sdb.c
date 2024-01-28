@@ -98,7 +98,6 @@ static int cmd_test(char *args){
     printf("expr: %s, result: %d\n", expr_str, result);
     if(expr(expr_str, &success) != result){
       printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
-      return 0;
     }
   }
 

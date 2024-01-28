@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
   return is_exit_status_bad();
 #else
-  init_regex();
+  init_monitor(argc, argv);
 
   FILE *fp = fopen("../tools/gen-expr/input", "r");
 

@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -20,12 +21,25 @@
  */
 #include <regex.h>
 
-enum {
-  TK_NOTYPE = 256, TK_EQ,
+typedef enum {
+  TK_NOTYPE = 256, 
+  //十进制整数
+  TK_DECIMAL,
+  //十六进制整数
+  TK_HEX,
+  //运算符号
+  TK_EQ, 
+  TK_PLUS, 
+  TK_MINUS,
+  TK_MULT,
+  TK_DIV,
+  //括号
+  TK_LPAREN,
+  TK_RPAREN,
 
   /* TODO: Add more token types */
 
-};
+} TokenType;
 
 static struct rule {
   const char *regex;
@@ -37,7 +51,14 @@ static struct rule {
    */
 
   {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
+  {"\\+", TK_PLUS},         // plus,escape the escape character itself and use escaped escape character to escape the character '+' which need to be escaped.
+  {"-", TK_MINUS},         // minus
+  {"\\*", TK_MULT},         // multiply
+  {"/", TK_DIV},         // divide
+  {"\\(", TK_LPAREN},         // left parenthesis
+  {"\\)", TK_RPAREN},         // right parenthesis
+  {"0[xX][0-9a-fA-F]+", TK_HEX},         // hex
+  {"[0-9]+", TK_DECIMAL},         // decimal
   {"==", TK_EQ},        // equal
 };
 
@@ -95,7 +116,47 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          //运算符号
+          case TK_PLUS:   tokens[nr_token++].type = TK_PLUS; break;
+          case TK_MINUS:  tokens[nr_token++].type = TK_MINUS; break;
+          case TK_MULT:   tokens[nr_token++].type = TK_MULT; break;
+          case TK_DIV:    tokens[nr_token++].type = TK_DIV; break;
+          //括号
+          case TK_LPAREN: tokens[nr_token++].type = TK_LPAREN; break;
+          case TK_RPAREN: tokens[nr_token++].type = TK_RPAREN; break;
+          //十进制整数
+          case TK_DECIMAL: {
+            tokens[nr_token].type = TK_DECIMAL;
+            if (substr_len >= 32) {
+              printf("decimal number is too long!\n");
+              return false;
+            }
+            else {
+              strncpy(tokens[nr_token].str, substr_start, substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+            }
+            break;
+          }
+          //十六进制整数
+          case TK_HEX: {
+            tokens[nr_token].type = TK_HEX;
+            if (substr_len >= 32) {
+              printf("hex number is too long!\n");
+              return false;
+            }
+            else {
+              strncpy(tokens[nr_token].str, substr_start, substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+            }
+            break;
+          }
+          //等号
+          case TK_EQ:     tokens[nr_token++].type = TK_EQ; break;
+          //空格
+          case TK_NOTYPE: break;
+          default: Log("You have type some unknown token!"); return false;
         }
 
         break;
@@ -111,6 +172,71 @@ static bool make_token(char *e) {
   return true;
 }
 
+static bool check_Parentheses(int p, int q){
+  if(tokens[p].type != TK_LPAREN || tokens[q].type != TK_RPAREN) return false;
+  return true;
+}
+
+static int find_Op(int p, int q){
+  int i;
+  int op = 0;
+  int op_type = TK_NOTYPE;
+  for(i = p; i <= q; i++){
+    if(tokens[i].type == TK_LPAREN){
+      op++;
+    }
+    else if(tokens[i].type == TK_RPAREN){
+      op--;
+    }
+    else if(tokens[i].type == TK_PLUS || tokens[i].type == TK_MINUS){
+      if(op == 0){
+        op_type = i;
+      }
+    }
+    else if(tokens[i].type == TK_MULT || tokens[i].type == TK_DIV){
+      if(op == 0 && op_type == TK_NOTYPE){
+        op_type = i;
+      }
+    }
+  }
+  return op_type;
+}
+
+word_t eval(int p, int q, bool *success){
+  if(*success == false) return 0;
+  else if(p > q){
+    *success = false;
+    return 0;
+  }
+  else if(p == q){
+    if(tokens[p].type == TK_DECIMAL){
+      return atoi(tokens[p].str);
+    }
+    else if(tokens[p].type == TK_HEX){
+      return strtol(tokens[p].str, NULL, 16);
+    }
+    else{
+      *success = false;
+      return 0;
+    }
+  }
+  else if(check_Parentheses(p , q) == true) {
+    return eval(p + 1, q - 1, success);
+  }
+  else {
+    int index = find_Op(p, q);
+    word_t val1 = eval(p, index - 1, success);
+    word_t val2 = eval(index + 1, q, success);
+
+    switch(tokens[index].type){
+      case TK_PLUS: return val1 + val2;
+      case TK_MINUS: return val1 - val2;
+      case TK_MULT: return val1 * val2;
+      case TK_DIV: return val2 == 0 ? 0: val1 / val2;
+      default: panic("Unknown condition, you should check you code again!");
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -118,10 +244,5 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  /* TODO: Insert codes to evaluate the expression. */
-  // TODO();
-  
-  
-
-  return 0;
+  return eval(0, nr_token-1, success);
 }

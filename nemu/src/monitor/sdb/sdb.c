@@ -93,6 +93,7 @@ static int cmd_test(char *args){
   while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
     char* result_str = strtok(input_buf, " ");
     char* expr_str = result_str + strlen(result_str) + 1;
+    expr_str[strlen(expr_str) - 1] = '\0';
     int result = atoi(result_str);
     printf("expr: %s, result: %d\n", expr_str, result);
     if(expr(expr_str, &success) != result){

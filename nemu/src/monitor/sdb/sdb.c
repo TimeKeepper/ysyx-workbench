@@ -83,7 +83,7 @@ char input_buf[INPUT_BUF_LENGTH];
 static int cmd_test(char *args){
   bool success = true;
 
-  FILE* fp = fopen("../../../tools/gen-expr/input", "r");
+  FILE* fp = fopen("/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/tools/gen-expr/input", "r");
 
   if(fp == NULL){
     printf("Can not open the file!\n");

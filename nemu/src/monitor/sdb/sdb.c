@@ -77,9 +77,24 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+#define INPUT_BUF_LENGTH 65536
+char input_buf[INPUT_BUF_LENGTH];
+
 static int cmd_test(char *args){
   bool success = true;
-  printf("%d\n",expr(args, &success));
+
+  FILE* fp = fopen("../tools/gen-expr/input", "r");
+
+  while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
+    char* result_str = strtok(input_buf, " ");
+    char* expr_str = result_str + strlen(result_str) + 1;
+    int result = atoi(result_str);
+    if(expr(expr_str, &success) != result){
+      printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+      return 0;
+    }
+  }
+
   return 0;
 }
 

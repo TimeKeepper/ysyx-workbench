@@ -85,7 +85,12 @@ static int cmd_test(char *args){
 
   FILE* fp = fopen("../../../tools/gen-expr/input", "r");
 
-  while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
+  if(fp == NULL){
+    printf("Can not open the file!\n");
+    return 0;
+  }
+
+  // while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
     // char* result_str = strtok(input_buf, " ");
     // printf("result: %s\n", result_str);
     // char* expr_str = result_str + strlen(result_str) + 1;
@@ -95,7 +100,7 @@ static int cmd_test(char *args){
     //   printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
     //   return 0;
     // }
-  }
+  // }
 
   return 0;
 }

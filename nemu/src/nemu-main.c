@@ -16,6 +16,7 @@
 #include <common.h>
 #include "monitor/sdb/sdb.h"
 bool success = true;
+extern void init_regex();
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -39,6 +40,7 @@ int main(int argc, char *argv[]) {
 
   return is_exit_status_bad();
 #else
+  init_regex();
 
   FILE *fp = fopen("../tools/gen-expr/input", "r");
 

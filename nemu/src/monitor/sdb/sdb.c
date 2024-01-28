@@ -104,6 +104,17 @@ static int cmd_test(char *args){
   return 0;
 }
 
+static int cmd_single_test(char *args){
+  bool success = true;
+  char* expr_str = args;
+  int result = atoi(strtok(args, " "));
+  printf("expr: %s, result: %d\n", expr_str, result);
+  if(expr(expr_str, &success) != result){
+    printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+  }
+  return 0;
+}
+
 static uint32_t print_Ram(uint32_t bias){
   uint32_t result = paddr_read(bias, 4);
   printf("0x%08x ", result);
@@ -135,7 +146,8 @@ static struct {
   { "si", "Let the program step through N instructions and then pause execution", cmd_si},
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
-  {"test", "Help me for test my code", cmd_test}
+  {"test", "Help me for test my code", cmd_test},
+  {"stest", "Help me for test my code", cmd_single_test},
 
   /* TODO: Add more commands */
 

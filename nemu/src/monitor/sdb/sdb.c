@@ -86,8 +86,8 @@ static int cmd_test(char *args){
   FILE* fp = fopen("../../../tools/gen-expr/input", "r");
 
   while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
-    char* result_str = strtok(input_buf, " ");
-    printf("result: %s\n", result_str);
+    // char* result_str = strtok(input_buf, " ");
+    // printf("result: %s\n", result_str);
     // char* expr_str = result_str + strlen(result_str) + 1;
     // int result = atoi(result_str);
     // printf("expr: %s, result: %d\n", expr_str, result);

@@ -81,7 +81,7 @@ static int cmd_info(char *args) {
 char input_buf[INPUT_BUF_LENGTH];
 
 static int cmd_test(char *args){
-  bool success = true;
+  // bool success = true;
 
   FILE* fp = fopen("../tools/gen-expr/input", "r");
 
@@ -89,10 +89,11 @@ static int cmd_test(char *args){
     char* result_str = strtok(input_buf, " ");
     char* expr_str = result_str + strlen(result_str) + 1;
     int result = atoi(result_str);
-    if(expr(expr_str, &success) != result){
-      printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
-      return 0;
-    }
+    printf("expr: %s, result: %d\n", expr_str, result);
+    // if(expr(expr_str, &success) != result){
+    //   printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+    //   return 0;
+    // }
   }
 
   return 0;

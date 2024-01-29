@@ -107,7 +107,7 @@ static int cmd_test(char *args){
 static int cmd_single_test(char *args){
   bool success = true;
   char* expr_str = args;
-  int result = atoi(strtok(args, " "));
+  int result = atoi(args + strlen(args) + 1);
   printf("expr: %s, result: %d\n", expr_str, result);
   if(expr(expr_str, &success) != result){
     printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));

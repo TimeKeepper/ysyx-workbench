@@ -225,6 +225,11 @@ static int find_Op(int p, int q){
         op_type = i;
       }
     }
+    else if(tokens[i].type == TK_EQ){
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ)){
+        op_type = i;
+      }
+    }
   }
   return op_type;
 }
@@ -264,6 +269,7 @@ word_t eval(int p, int q, bool *success){
       case TK_MINUS: return val1 - val2;
       case TK_MULT: return val1 * val2;
       case TK_DIV: return val2 == 0 ? 0: val1 / val2;
+      case TK_EQ: return val1 == val2;
       default: panic("Unknown condition, you should check you code again!");
     }
   }

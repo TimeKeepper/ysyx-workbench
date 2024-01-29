@@ -206,7 +206,7 @@ static bool  check_Parentheses(int p, int q){
 static int find_Op(int p, int q){
   int i;
   int op = 0;
-  int op_type = TK_NOTYPE;
+  int op_type = 0;
   for(i = p; i <= q; i++){
     if(tokens[i].type == TK_LPAREN){
       op++;
@@ -220,7 +220,7 @@ static int find_Op(int p, int q){
       }
     }
     else if(tokens[i].type == TK_MULT || tokens[i].type == TK_DIV){
-      if(op == 0 && (op_type == TK_NOTYPE || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS)){
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS)){
         op_type = i;
       }
     }

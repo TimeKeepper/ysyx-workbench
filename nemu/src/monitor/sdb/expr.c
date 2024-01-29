@@ -172,9 +172,35 @@ static bool make_token(char *e) {
   return true;
 }
 
-static bool check_Parentheses(int p, int q){
-  if(tokens[p].type != TK_LPAREN || tokens[q].type != TK_RPAREN) return false;
-  return true;
+static bool check_Parenmatch(int p, int q){
+  int i;
+  int op = 0;
+  for(i = p; i <= q; i++){
+    if(tokens[i].type == TK_LPAREN){
+      op++;
+    }
+    else if(tokens[i].type == TK_RPAREN){
+      op--;
+    }
+    if(op < 0){
+      return false;
+    }
+  }
+  if(op == 0){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+static bool  check_Parentheses(int p, int q){
+  if(tokens[p].type == TK_LPAREN && tokens[q].type == TK_RPAREN){
+    return check_Parenmatch(p + 1, q - 1);
+  }
+  else{
+    return false;
+  }
 }
 
 static int find_Op(int p, int q){
@@ -203,6 +229,10 @@ static int find_Op(int p, int q){
 }
 
 word_t eval(int p, int q, bool *success){
+  if(check_Parenmatch(p, q) == false) {
+    *success = false;
+    return 0;
+  }
   if(*success == false) return 0;
   else if(p > q){
     *success = false;

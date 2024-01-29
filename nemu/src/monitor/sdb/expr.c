@@ -221,7 +221,7 @@ static int find_Op(int p, int q){
       }
     }
     else if(tokens[i].type == TK_MULT || tokens[i].type == TK_DIV){
-      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS)){
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
         op_type = i;
       }
     }

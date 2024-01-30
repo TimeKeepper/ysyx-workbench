@@ -41,6 +41,8 @@ typedef enum {
   TK_RPAREN,
   //逻辑运算符号
   TK_AND,
+  //指针解引用
+  TK_DEREF,
 
   /* TODO: Add more token types */
 
@@ -58,7 +60,7 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", TK_PLUS},         // plus,escape the escape character itself and use escaped escape character to escape the character '+' which need to be escaped.
   {"-", TK_MINUS},         // minus
-  {"\\*", TK_MULT},         // multiply
+  {"\\*", TK_MULT},         // multiply or dereference
   {"/", TK_DIV},         // divide
   {"\\(", TK_LPAREN},         // left parenthesis
   {"\\)", TK_RPAREN},         // right parenthesis
@@ -326,6 +328,14 @@ word_t expr(char *e, bool *success) {
     *success = false;
     return 0;
   }
+
+  for (int i = 0; i < nr_token; i ++) {
+  if (tokens[i].type == '*' && (i == 0 || tokens[i - 1].type == TK_AND || tokens[i - 1].type == TK_EQ || tokens[i - 1].type == TK_NEQ || \
+  tokens[i - 1].type == TK_PLUS || tokens[i - 1].type == TK_MINUS || tokens[i - 1].type == TK_MULT || tokens[i - 1].type == TK_DIV || \
+  tokens[i - 1].type == TK_LPAREN || tokens[i - 1].type == TK_DEREF)) {
+    tokens[i].type = TK_DEREF;
+  }
+}
 
   return eval(0, nr_token-1, success);
 }

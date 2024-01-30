@@ -133,6 +133,7 @@ static int cmd_x(char *args){
 
 static int cmd_w(char *args){
   new_wp(args);
+  wp_Value_Update();
   return 0;
 }
 

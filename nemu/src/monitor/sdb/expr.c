@@ -27,6 +27,8 @@ typedef enum {
   TK_DECIMAL,
   //十六进制整数
   TK_HEX,
+  //寄存器
+  TK_REG,
   //运算符号
   TK_EQ, 
   TK_NEQ,
@@ -58,6 +60,7 @@ static struct rule {
   {"/", TK_DIV},         // divide
   {"\\(", TK_LPAREN},         // left parenthesis
   {"\\)", TK_RPAREN},         // right parenthesis
+  {"$[a-zA-Z]+",TK_REG},         // register
   {"0[xX][0-9a-fA-F]+", TK_HEX},         // hex
   {"[0-9]+", TK_DECIMAL},         // decimal
   {"==", TK_EQ},        // equal
@@ -145,6 +148,20 @@ static bool make_token(char *e) {
             tokens[nr_token].type = TK_HEX;
             if (substr_len >= 32) {
               printf("hex number is too long!\n");
+              return false;
+            }
+            else {
+              strncpy(tokens[nr_token].str, substr_start, substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+            }
+            break;
+          }
+          //寄存器
+          case TK_REG: {
+            tokens[nr_token].type = TK_REG;
+            if (substr_len >= 32) {
+              printf("register name is too long!\n");
               return false;
             }
             else {
@@ -263,6 +280,9 @@ word_t eval(int p, int q, bool *success){
     }
     else if(tokens[p].type == TK_HEX){
       return strtol(tokens[p].str, NULL, 16);
+    }
+    else if(tokens[p].type == TK_REG){
+      return isa_reg_str2val(tokens[p].str, success);
     }
     else{
       *success = false;

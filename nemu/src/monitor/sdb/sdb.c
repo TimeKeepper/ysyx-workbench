@@ -77,9 +77,41 @@ static int cmd_info(char *args) {
   return 0;
 }
 
+#define INPUT_BUF_LENGTH 65536
+char input_buf[INPUT_BUF_LENGTH];
+
 static int cmd_test(char *args){
   bool success = true;
-  printf("%d\n",expr(args, &success));
+
+  FILE* fp = fopen("/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/tools/gen-expr/input", "r");
+
+  if(fp == NULL){
+    printf("Can not open the file!\n");
+    return 0;
+  }
+
+  while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
+    char* result_str = strtok(input_buf, " ");
+    char* expr_str = result_str + strlen(result_str) + 1;
+    expr_str[strlen(expr_str) - 1] = '\0';
+    int result = atoi(result_str);
+    printf("expr: %s, result: %d\n", expr_str, result);
+    if(expr(expr_str, &success) != result){
+      printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+    }
+  }
+
+  return 0;
+}
+
+static int cmd_single_test(char *args){
+  bool success = true;
+  char* expr_str = args;
+  int result = atoi(args + strlen(args) + 1);
+  printf("expr: %s, result: %d\n", expr_str, result);
+  if(expr(expr_str, &success) != result){
+    printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+  }
   return 0;
 }
 
@@ -114,7 +146,8 @@ static struct {
   { "si", "Let the program step through N instructions and then pause execution", cmd_si},
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
-  {"test", "Help me for test my code", cmd_test}
+  {"test", "Help me for test my code", cmd_test},
+  {"stest", "Help me for test my code", cmd_single_test},
 
   /* TODO: Add more commands */
 

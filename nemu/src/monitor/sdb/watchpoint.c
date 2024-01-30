@@ -17,18 +17,10 @@
 
 #define NR_WP 32
 
-typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
-
-  /* TODO: Add more members if necessary */
-
-} WP;
-
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
 
-WP* new_wp(){
+WP* new_wp(char* exp){
   if(free_ == NULL){
     printf("No more watchpoint!\n");
     assert(0);
@@ -37,7 +29,13 @@ WP* new_wp(){
   free_ = free_->next;
   p->next = head;
   head = p;
+  p->expr = exp;
+  p->value = expr(exp, NULL);
   return p;
+}
+
+WP* get_head_wp(void){
+  return head;
 }
 
 void free_wp(WP *wp){
@@ -45,6 +43,7 @@ void free_wp(WP *wp){
     printf("No such watchpoint!\n");
     assert(0);
   }
+  free(wp->expr);
   if(wp == head){
     head = head->next;
   }
@@ -76,6 +75,29 @@ void init_wp_pool() {
 
   head = NULL;
   free_ = wp_pool;
+}
+
+void wp_Value_Update(){
+  WP *p = head;
+  while(p != NULL){
+    p->last_time_Value = p->value;
+    p->value = expr(p->expr, NULL);
+    p = p->next;
+  }
+}
+
+WP* get_Changed_wp(int num){
+  WP *p = head;
+  int i = 0;
+  while(p != NULL){
+    word_t new_value = expr(p->expr, NULL);
+    if(new_value != p->value){
+      if(i++ == num)
+        return p;
+    }
+    p = p->next;
+  }
+  return NULL;
 }
 
 /* TODO: Implement the functionality of watchpoint */

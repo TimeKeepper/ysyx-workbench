@@ -61,8 +61,6 @@ static int cmd_si(char *args) {
   return 0;
 }
 
-extern void wp_display(void);
-
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
   if(strlen(show_type) != 1) {
@@ -133,6 +131,11 @@ static int cmd_x(char *args){
   return 0;
 }
 
+static int cmd_w(char *args){
+  new_wp(args);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -146,6 +149,7 @@ static struct {
   { "si", "Let the program step through N instructions and then pause execution", cmd_si},
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
+  {"w", "create watchpoint", cmd_w},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},
 

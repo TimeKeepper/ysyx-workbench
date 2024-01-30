@@ -282,7 +282,7 @@ word_t eval(int p, int q, bool *success){
       return strtol(tokens[p].str, NULL, 16);
     }
     else if(tokens[p].type == TK_REG){
-      return isa_reg_str2val(tokens[p].str, success);
+      return isa_reg_str2val(tokens[p].str+1, success);
     }
     else{
       *success = false;

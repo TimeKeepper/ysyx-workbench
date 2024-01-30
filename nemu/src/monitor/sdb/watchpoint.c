@@ -81,8 +81,9 @@ void init_wp_pool() {
 void wp_Value_Update(){
   WP *p = head;
   while(p != NULL){
+    bool success = true;
     p->last_time_Value = p->value;
-    p->value = expr(p->expr, NULL);
+    p->value = expr(p->expr, &success);
     p = p->next;
   }
 }
@@ -91,7 +92,8 @@ WP* get_Changed_wp(int num){
   WP *p = head;
   int i = 0;
   while(p != NULL){
-    word_t new_value = expr(p->expr, NULL);
+    bool success = true;
+    word_t new_value = expr(p->expr, &success);
     if(new_value != p->value){
       if(i++ == num)
         return p;

@@ -29,6 +29,7 @@ typedef enum {
   TK_HEX,
   //运算符号
   TK_EQ, 
+  TK_NEQ,
   TK_PLUS, 
   TK_MINUS,
   TK_MULT,
@@ -60,6 +61,7 @@ static struct rule {
   {"0[xX][0-9a-fA-F]+", TK_HEX},         // hex
   {"[0-9]+", TK_DECIMAL},         // decimal
   {"==", TK_EQ},        // equal
+  {"!=", TK_NEQ},       // non-equal
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -154,6 +156,8 @@ static bool make_token(char *e) {
           }
           //等号
           case TK_EQ:     tokens[nr_token++].type = TK_EQ; break;
+          //不等号
+          case TK_NEQ:    tokens[nr_token++].type = TK_NEQ; break;
           //空格
           case TK_NOTYPE: break;
           default: Log("You have type some unknown token!"); return false;
@@ -226,9 +230,14 @@ static int find_Op(int p, int q){
       }
     }
     else if(tokens[i].type == TK_EQ){
-      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_NEQ || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
         op_type = i;
       }
+    }
+    else if(tokens[i].type == TK_NEQ){
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_NEQ || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
+        op_type = i;
+      }        
     }
   }
   return op_type;
@@ -270,6 +279,7 @@ word_t eval(int p, int q, bool *success){
       case TK_MULT: return val1 * val2;
       case TK_DIV: return val2 == 0 ? 0: val1 / val2;
       case TK_EQ: return val1 == val2;
+      case TK_NEQ: return val1 != val2;
       default: panic("Unknown condition, you should check you code again!");
     }
   }

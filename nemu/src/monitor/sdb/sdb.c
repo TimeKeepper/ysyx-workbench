@@ -154,7 +154,7 @@ static int cmd_b(char *args){
     printf("The address is out of range!\n");
     return 0;
   }
-  char *expr_str = strcat("$pc == ", args);
+  char *expr_str = strcat("$pc==", args);
   new_wp(expr_str);
   wp_Value_Update();
   return 0;

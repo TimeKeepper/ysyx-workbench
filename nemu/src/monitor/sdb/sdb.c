@@ -56,8 +56,11 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_si(char *args) {
-  int exec_num = atoi(strtok(args, " "));
-  cpu_exec(exec_num);
+  char* parameter_str = strtok(args, " ");
+  if(parameter_str == NULL) cpu_exec(1);
+  int parameter = atoi(parameter_str);
+  cpu_exec(parameter);
+
   return 0;
 }
 

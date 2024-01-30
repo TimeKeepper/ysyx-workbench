@@ -30,7 +30,8 @@ WP* new_wp(char* exp){
   p->next = head;
   head = p;
   p->expr = exp;
-  p->value = expr(exp, NULL);
+  bool success = true;
+  p->value = expr(exp, &success);
   return p;
 }
 

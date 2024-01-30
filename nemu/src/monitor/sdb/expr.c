@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include "common.h"
+#include "memory/paddr.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -244,6 +245,11 @@ static int find_Op(int p, int q){
     case TK_RPAREN:
       op--;
       break;
+    case TK_DEREF:
+      if(op == 0 && (op_type == 0)){
+        op_type = i;
+      }
+      break;
     case TK_MULT:
     case TK_DIV:
       if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
@@ -306,9 +312,14 @@ word_t eval(int p, int q, bool *success){
     return eval(p + 1, q - 1, success);
   }
   else {
+    word_t val1, val2;
+    
     int index = find_Op(p, q);
-    word_t val1 = eval(p, index - 1, success);
-    word_t val2 = eval(index + 1, q, success);
+    val2 = eval(index + 1, q, success);
+    if(tokens[index].type == TK_DEREF)
+      return paddr_read(val2, 4);
+    
+    val1 = eval(p, index - 1, success);
 
     switch(tokens[index].type){
       case TK_PLUS: return val1 + val2;

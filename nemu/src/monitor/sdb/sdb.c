@@ -56,12 +56,16 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_si(char *args) {
-  int exec_num = atoi(strtok(args, " "));
-  cpu_exec(exec_num);
+  char* parameter_str = strtok(args, " ");
+  if(parameter_str == NULL){
+    cpu_exec(1);
+  }
+  else{
+    int parameter = atoi(parameter_str);
+    cpu_exec(parameter);
+  }
   return 0;
 }
-
-extern void wp_display(void);
 
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
@@ -133,6 +137,30 @@ static int cmd_x(char *args){
   return 0;
 }
 
+static int cmd_w(char *args){
+  new_wp(args);
+  wp_Value_Update();
+  return 0;
+}
+
+static int cmd_b(char *args){
+  if(args == NULL){
+    printf("You should input the address of the breakpoint!\n");
+    return 0;
+  }
+  bool success = true;
+  word_t addr = expr(args, &success);
+  if(addr < 0x80000000){
+    printf("The address is out of range!\n");
+    return 0;
+  }
+  char expr_str[20] = "$pc == ";
+  strcat(expr_str, args);
+  new_wp(expr_str);
+  wp_Value_Update();
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -146,6 +174,8 @@ static struct {
   { "si", "Let the program step through N instructions and then pause execution", cmd_si},
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
+  {"w", "create watchpoint", cmd_w},
+  {"b", "create breakpoint", cmd_b},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},
 

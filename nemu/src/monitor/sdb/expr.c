@@ -301,6 +301,7 @@ word_t eval(int p, int q, bool *success){
       return strtol(tokens[p].str, NULL, 16);
     }
     else if(tokens[p].type == TK_REG){
+      if(strcmp(tokens[p].str, "$pc\0") == 0) return cpu.pc;
       return isa_reg_str2val(tokens[p].str+1, success);
     }
     else{

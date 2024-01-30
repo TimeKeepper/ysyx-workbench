@@ -143,6 +143,23 @@ static int cmd_w(char *args){
   return 0;
 }
 
+static int cmd_b(char *args){
+  if(args == NULL){
+    printf("You should input the address of the breakpoint!\n");
+    return 0;
+  }
+  bool success = true;
+  word_t addr = expr(args, &success);
+  if(addr < 0x80000000){
+    printf("The address is out of range!\n");
+    return 0;
+  }
+  char *expr_str = strcat("$pc == ", args);
+  new_wp(expr_str);
+  wp_Value_Update();
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -157,6 +174,7 @@ static struct {
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
   {"w", "create watchpoint", cmd_w},
+  {"b", "create breakpoint", cmd_b},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},
 

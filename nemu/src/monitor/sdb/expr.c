@@ -39,6 +39,8 @@ typedef enum {
   //括号
   TK_LPAREN,
   TK_RPAREN,
+  //逻辑运算符号
+  TK_AND,
 
   /* TODO: Add more token types */
 
@@ -65,6 +67,7 @@ static struct rule {
   {"[0-9]+", TK_DECIMAL},         // decimal
   {"==", TK_EQ},        // equal
   {"!=", TK_NEQ},       // non-equal
+  {"&&", TK_AND},       // and
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -175,6 +178,8 @@ static bool make_token(char *e) {
           case TK_EQ:     tokens[nr_token++].type = TK_EQ; break;
           //不等号
           case TK_NEQ:    tokens[nr_token++].type = TK_NEQ; break;
+          //逻辑运算符号
+          case TK_AND:    tokens[nr_token++].type = TK_AND; break;
           //空格
           case TK_NOTYPE: break;
           default: Log("You have type some unknown token!"); return false;
@@ -237,6 +242,12 @@ static int find_Op(int p, int q){
     case TK_RPAREN:
       op--;
       break;
+    case TK_MULT:
+    case TK_DIV:
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
+        op_type = i;
+      }
+      break;
     case TK_PLUS:
     case TK_MINUS:
       if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || \
@@ -244,15 +255,15 @@ static int find_Op(int p, int q){
         op_type = i;
       }
       break;
-    case TK_MULT:
-    case TK_DIV:
-      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
-        op_type = i;
-      }
-      break;
     case TK_EQ:
     case TK_NEQ:
       if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_NEQ || \
+      tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
+        op_type = i;
+      }
+      break;
+    case TK_AND:
+      if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_AND || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_NEQ || \
       tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
         op_type = i;
       }
@@ -304,6 +315,7 @@ word_t eval(int p, int q, bool *success){
       case TK_DIV: return val2 == 0 ? 0: val1 / val2;
       case TK_EQ: return val1 == val2;
       case TK_NEQ: return val1 != val2;
+      case TK_AND: return val1 && val2;
       default: panic("Unknown condition, you should check you code again!");
     }
   }

@@ -110,7 +110,7 @@ static int cmd_single_test(char *args){
   int result = atoi(args + strlen(args) + 1);
   printf("expr: %s, result: %d\n", expr_str, result);
   if(expr(expr_str, &success) != result){
-    printf("Test failed! The result should be %x, but your result is %d\n", result, expr(expr_str, &success));
+    printf("Test failed! The result should be %x, but your result is %x\n", result, expr(expr_str, &success));
   }
   return 0;
 }

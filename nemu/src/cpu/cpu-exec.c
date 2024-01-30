@@ -40,6 +40,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
+#ifdef CONFIG_WATCHPOINT
   wp_Value_Update();
   WP* wp;
   for(int i = 0; (wp=get_Changed_wp(i))!=NULL; i++){
@@ -54,6 +55,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   //   printf("New value = 0x%08x\n",get_Changed_wp()->value);
   //   nemu_state.state = NEMU_STOP;
   // }
+#endif
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {

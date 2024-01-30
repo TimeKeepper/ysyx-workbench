@@ -93,9 +93,7 @@ WP* get_Changed_wp(int num){
   WP *p = head;
   int i = 0;
   while(p != NULL){
-    bool success = true;
-    word_t new_value = expr(p->expr, &success);
-    if(new_value != p->value){
+    if(p->last_time_Value != p->value){
       if(i++ == num)
         return p;
     }

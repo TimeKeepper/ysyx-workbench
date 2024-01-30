@@ -57,10 +57,13 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args) {
   char* parameter_str = strtok(args, " ");
-  if(parameter_str == NULL) cpu_exec(1);
-  int parameter = atoi(parameter_str);
-  cpu_exec(parameter);
-
+  if(parameter_str == NULL){
+    cpu_exec(1);
+  }
+  else{
+    int parameter = atoi(parameter_str);
+    cpu_exec(parameter);
+  }
   return 0;
 }
 

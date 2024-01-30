@@ -341,7 +341,7 @@ word_t expr(char *e, bool *success) {
   }
 
   for (int i = 0; i < nr_token; i ++) {
-  if (tokens[i].type == '*' && (i == 0 || tokens[i - 1].type == TK_AND || tokens[i - 1].type == TK_EQ || tokens[i - 1].type == TK_NEQ || \
+  if (tokens[i].type == TK_MULT && (i == 0 || tokens[i - 1].type == TK_AND || tokens[i - 1].type == TK_EQ || tokens[i - 1].type == TK_NEQ || \
   tokens[i - 1].type == TK_PLUS || tokens[i - 1].type == TK_MINUS || tokens[i - 1].type == TK_MULT || tokens[i - 1].type == TK_DIV || \
   tokens[i - 1].type == TK_LPAREN || tokens[i - 1].type == TK_DEREF)) {
     tokens[i].type = TK_DEREF;

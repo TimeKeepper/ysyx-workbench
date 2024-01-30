@@ -243,33 +243,6 @@ static int find_Op(int p, int q){
     default:
       break;
     }
-    // if(tokens[i].type == TK_LPAREN){
-    //   op++;
-    // }
-    // else if(tokens[i].type == TK_RPAREN){
-    //   op--;
-    // }
-    // else if(tokens[i].type == TK_PLUS || tokens[i].type == TK_MINUS){
-    //   //同等级的运算符，符号应该取后面的，这样前面的符号才会被视为子表达式的符号而优先计算，才符合运算符的优先级
-    //   if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){ 
-    //     op_type = i;
-    //   }
-    // }
-    // else if(tokens[i].type == TK_MULT || tokens[i].type == TK_DIV){
-    //   if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
-    //     op_type = i;
-    //   }
-    // }
-    // else if(tokens[i].type == TK_EQ){
-    //   if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_NEQ || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
-    //     op_type = i;
-    //   }
-    // }
-    // else if(tokens[i].type == TK_NEQ){
-    //   if(op == 0 && (op_type == 0 || tokens[op_type].type == TK_EQ || tokens[op_type].type == TK_NEQ || tokens[op_type].type == TK_PLUS || tokens[op_type].type == TK_MINUS || tokens[op_type].type == TK_MULT || tokens[op_type].type == TK_DIV)){
-    //     op_type = i;
-    //   }        
-    // }
   }
   return op_type;
 }

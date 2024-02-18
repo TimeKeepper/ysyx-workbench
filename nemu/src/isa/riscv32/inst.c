@@ -22,7 +22,7 @@
 #define R(i) gpr(store_Regs_Value_cache(i))
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
 #define Print_insut_name(name) printf("insut:%s\n,",name)
-#define Print_DBG_Message(name) (Print_rd,Print_insut_name(name))
+#define Print_DBG_Message(name) (printf("imm:%x,",imm),(Print_rd,Print_insut_name(name)))
 #define Mr vaddr_read
 #define Mw vaddr_write
 
@@ -53,7 +53,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_B: src1R(); src2R(); immB(); break;
     case TYPE_J:                   immJ(); break;
   }
-  if(type!=TYPE_R) printf("imm:%x,",*imm);
+  // if(type!=TYPE_R) printf("imm:%x,",*imm);
 }
 
 static int decode_exec(Decode *s) {

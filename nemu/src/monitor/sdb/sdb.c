@@ -31,8 +31,6 @@ void init_wp_pool();
 static char* rl_gets() {
   static char *line_read = NULL;
 
-  HIST_ENTRY *curr_cmd = history_get(history_length);
-
   if (line_read) {
     free(line_read);
     line_read = NULL;
@@ -40,13 +38,7 @@ static char* rl_gets() {
 
   line_read = readline("(nemu) ");
 
-  if(strcmp(line_read, "") == 0 && curr_cmd != NULL){
-    line_read = curr_cmd->line;
-    return line_read;
-  }
-
-  if (line_read && *line_read){
-    Log("test");
+  if (line_read && *line_read) {
     add_history(line_read);
   }
 

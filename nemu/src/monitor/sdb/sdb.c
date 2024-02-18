@@ -42,7 +42,7 @@ static char* rl_gets() {
     line_read = previous_history()->line;
   }
 
-  if (line_read && *line_read) {
+  if (line_read && *line_read && (strcmp(line_read, previous_history()->line) != 0)){
     add_history(line_read);
   }
 

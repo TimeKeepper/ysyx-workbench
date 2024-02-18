@@ -38,7 +38,7 @@ static char* rl_gets() {
 
   line_read = readline("(nemu) ");
 
-  if(history_length == 0){
+  if(history_length != 0){
     HIST_ENTRY *last_cmd = history_get(history_length);
     if(strcmp(last_cmd->line, line_read) == 0){
       return line_read;

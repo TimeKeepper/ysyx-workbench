@@ -25,7 +25,12 @@ const char *regs[] = {
 
 void isa_reg_display(char *reg_name) {
   if(reg_name!=NULL){
+    if(strcmp(reg_name, "pc") == 0){
+      printf("pc: %x\n", cpu.pc);
+      return;
+    }
     printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
+    return;
   }
   printf("pc: %x\n", cpu.pc);
   for(int i = 0; i< 32; i++){

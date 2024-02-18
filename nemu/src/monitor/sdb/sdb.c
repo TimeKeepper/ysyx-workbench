@@ -42,7 +42,7 @@ static char* rl_gets() {
 
   if(strcmp(line_read, "") == 0 && curr_cmd != NULL){
     line_read = curr_cmd->line;
-    add_history(line_read);
+    add_history(line_read);//调用current_history()后，当前命令会被删除，所以需要重新添加
     return line_read;
   }
 

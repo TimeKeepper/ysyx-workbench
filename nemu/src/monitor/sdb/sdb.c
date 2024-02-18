@@ -43,6 +43,10 @@ static char* rl_gets() {
     if(strcmp(last_cmd->line, line_read) == 0){
       return line_read;
     }
+    if(strcmp(line_read, "") == 0){
+      line_read = last_cmd->line;
+      return line_read;
+    }
   }
 
   if (line_read && *line_read) {

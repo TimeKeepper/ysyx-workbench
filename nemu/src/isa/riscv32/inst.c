@@ -20,8 +20,8 @@
 #include <pass_include.h>
 
 #define R(i) gpr(store_Regs_Value_cache(i))
-#define Print_rd (rd==0?printf("\n"):printf("rd:%s\n",isa_id2str(rd)))
-#define Print_insut_name(name) printf("insut:%s,",name)
+#define Print_rd (printf("rd:%s,",isa_id2str(rd)))
+#define Print_insut_name(name) printf("insut:%s\n,",name)
 #define Print_DBG_Message(name) (Print_rd,Print_insut_name(name))
 #define Mr vaddr_read
 #define Mw vaddr_write

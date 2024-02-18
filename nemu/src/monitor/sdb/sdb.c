@@ -41,6 +41,7 @@ static char* rl_gets() {
   if(history_length != 0){
     HIST_ENTRY *last_cmd = history_get(history_length);
     if(strcmp(last_cmd->line, line_read) == 0){
+      free(last_cmd);
       return line_read;
     }
     if(strcmp(line_read, "") == 0){

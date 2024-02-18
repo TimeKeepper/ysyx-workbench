@@ -27,7 +27,6 @@ const char *regs[] = {
 word_t regs_value_cache[33] = {0};
 
 int store_Regs_Value_cache(int id){
-  printf("rd:$s,%s",regs[id]);
   if(id > 32 || id < 0){
     return -1;
   }
@@ -35,6 +34,7 @@ int store_Regs_Value_cache(int id){
     regs_value_cache[id] = cpu.pc;
     return id;
   }
+  printf("rd:$s,%s",regs[id]);
   regs_value_cache[id] = gpr(id);
   return id;
 }

@@ -48,6 +48,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     printf("Watchpoint %d: %s\n",wp->NO,wp->expr);
     printf("Old value = 0x%08x\n",wp->last_time_Value);
     printf("New value = 0x%08x\n",wp->value);
+    nemu_state.state = NEMU_STOP;
   }
   // while(get_Changed_wp()!=NULL){
   //   printf("Watchpoint %d: %s\n",get_Changed_wp()->NO,get_Changed_wp()->expr);
@@ -110,7 +111,7 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  isa_reg_display();
+  isa_reg_display(NULL);
   statistic();
 }
 

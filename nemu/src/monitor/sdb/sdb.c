@@ -20,6 +20,7 @@
 #include <memory/paddr.h>
 #include "sdb.h"
 #include "common.h"
+#include <pass_include.h>
 
 static int is_batch_mode = false;
 
@@ -36,6 +37,18 @@ static char* rl_gets() {
   }
 
   line_read = readline("(nemu) ");
+
+  if(history_length != 0){
+    HIST_ENTRY *last_cmd = history_get(history_length);
+    if(strcmp(last_cmd->line, line_read) == 0){
+      return line_read;
+    }
+    if(strcmp(line_read, "") == 0){
+      line_read = (char*)malloc(strlen(last_cmd->line) + 1);
+      strcpy(line_read, last_cmd->line);
+      return line_read;
+    }
+  }
 
   if (line_read && *line_read) {
     add_history(line_read);
@@ -70,12 +83,17 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
+  if(show_type == NULL){
+    Log("You should input the requried info type: r(register) or w(watchpoint).");
+    return 0;
+  }
   if(strlen(show_type) != 1) {
     Log("You should only enter an single character.");
     return 0;
   }
+  char *specific_info = strtok(NULL, " ");
   switch(*show_type){
-    case 'r': isa_reg_display();break;
+    case 'r': isa_reg_display(specific_info);break;
     case 'w': wp_display();break;
     default:Log("you should input the requried info type: r(register) or w(watchpoint).");break;
   }
@@ -144,6 +162,16 @@ static int cmd_w(char *args){
   return 0;
 }
 
+static int cmd_d(char *args){
+  int wpNO = atoi(args);
+  WP* wp = get_head_wp();
+  for(int i = 0; i < wpNO - 1; i++){
+    wp = wp->next;
+  }
+  free_wp(wp);
+  return 0;
+}
+
 static int cmd_b(char *args){
   if(args == NULL){
     printf("You should input the address of the breakpoint!\n");
@@ -164,6 +192,26 @@ static int cmd_b(char *args){
 
 static int cmd_help(char *args);
 
+static int cmd_crv(char *args){
+  char* reg_name = strtok(args, " ");
+  if(reg_name == NULL){
+    Log("You should input the register name!");
+    return 0;
+  }
+  char* reg_value_str = strtok(NULL, " ");
+  if(reg_value_str == NULL){
+    Log("You should input the register value!");
+    return 0;
+  }
+  bool success = true;
+  word_t reg_value = expr(reg_value_str, &success);
+  if(success){
+    int regNO = isa_str2id(reg_name, &success);
+    change_register_value(regNO, reg_value);
+  }
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -176,9 +224,11 @@ static struct {
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
   {"w", "create watchpoint", cmd_w},
+  {"d", "delete watchpoint", cmd_d},
   {"b", "create breakpoint", cmd_b},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},
+  { "crv", "Changing risgister's value", cmd_crv}
 
   /* TODO: Add more commands */
 

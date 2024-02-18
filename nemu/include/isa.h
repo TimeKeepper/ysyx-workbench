@@ -30,8 +30,9 @@ void init_isa();
 
 // reg
 extern CPU_state cpu;
-void isa_reg_display();
+void isa_reg_display(char *reg_name);
 word_t isa_reg_str2val(const char *name, bool *success);
+int isa_str2id(const char *s, bool *success);
 
 // exec
 struct Decode;

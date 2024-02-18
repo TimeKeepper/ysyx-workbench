@@ -26,9 +26,16 @@ const char *regs[] = {
 
 word_t regs_value_cache[33] = {0};
 
-void store_Regs_Value_cache(int id){
-  regs_value_cache[32] = cpu.pc;
+int store_Regs_Value_cache(int id){
+  if(id > 32 || id < 0){
+    return -1;
+  }
+  if(id == 32){
+    regs_value_cache[id] = cpu.pc;
+    return id;
+  }
   regs_value_cache[id] = gpr(id);
+  return id;
 }
 
 void isa_reg_display(char *reg_name) {

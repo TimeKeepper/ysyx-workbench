@@ -44,6 +44,7 @@ static char* rl_gets() {
       return line_read;
     }
     if(strcmp(line_read, "") == 0){
+      free(last_cmd);
       line_read = last_cmd->line;
       return line_read;
     }

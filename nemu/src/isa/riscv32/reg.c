@@ -109,3 +109,10 @@ int isa_str2id(const char *s, bool *success) {
   }
   return 0;
 }
+
+char* isa_id2str(int id) {
+  if(id < 0 || id > 32){
+    return NULL;
+  }
+  return (char*)regs[id];
+}

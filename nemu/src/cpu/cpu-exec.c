@@ -110,7 +110,7 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
-  isa_reg_display();
+  isa_reg_display(NULL);
   statistic();
 }
 

@@ -78,8 +78,9 @@ static int cmd_info(char *args) {
     Log("You should only enter an single character.");
     return 0;
   }
+  char *specific_info = strtok(NULL, " ");
   switch(*show_type){
-    case 'r': isa_reg_display();break;
+    case 'r': isa_reg_display(specific_info);break;
     case 'w': wp_display();break;
     default:Log("you should input the requried info type: r(register) or w(watchpoint).");break;
   }

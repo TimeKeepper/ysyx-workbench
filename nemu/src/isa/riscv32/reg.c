@@ -23,7 +23,10 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-void isa_reg_display() {
+void isa_reg_display(char *reg_name) {
+  if(reg_name!=NULL){
+    printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
+  }
   printf("pc: %x\n", cpu.pc);
   for(int i = 0; i< 32; i++){
     printf("reg: %s val: %x\n", regs[i], gpr(i));

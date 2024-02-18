@@ -49,6 +49,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       return gpr(i);
     }
   }
+  Log("The register name is not valid.\n");
   return 0;
 }
 

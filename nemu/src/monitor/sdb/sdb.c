@@ -205,7 +205,7 @@ static struct {
   {"b", "create breakpoint", cmd_b},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},
-  { "change_rigister_value", "Changing risgister's value", cmd_crv}
+  { "crv", "Changing risgister's value", cmd_crv}
 
   /* TODO: Add more commands */
 

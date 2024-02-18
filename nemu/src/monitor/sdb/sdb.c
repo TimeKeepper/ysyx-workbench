@@ -32,6 +32,7 @@ static char* rl_gets() {
   static char *line_read = NULL;
 
   HIST_ENTRY *curr_cmd = history_get(history_length);
+  if(curr_cmd != NULL)add_history(curr_cmd->line);
 
   if (line_read) {
     free(line_read);

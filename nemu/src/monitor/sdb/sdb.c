@@ -70,6 +70,10 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
+  if(show_type == NULL){
+    Log("You should input the requried info type: r(register) or w(watchpoint).");
+    return 0;
+  }
   if(strlen(show_type) != 1) {
     Log("You should only enter an single character.");
     return 0;

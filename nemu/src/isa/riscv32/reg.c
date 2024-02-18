@@ -55,7 +55,7 @@ void isa_reg_display(char *reg_name) {
     printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
     return;
   }
-  reg_name = strtok(reg_name, " ");
+  reg_name = strtok(NULL, " ");
   if(reg_name == NULL){
     for(int i = 0; i< 32; i++){
       printf("reg: %s cache_val: %x\n", regs[i], regs_value_cache[i]);

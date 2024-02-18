@@ -37,7 +37,11 @@ static char* rl_gets() {
   }
 
   line_read = readline("(nemu) ");
-  printf("line_read:%s!\n", line_read);
+
+  if(strcmp(line_read, "") == 0){
+    line_read = previous_history()->line;
+  }
+
   if (line_read && *line_read) {
     add_history(line_read);
   }

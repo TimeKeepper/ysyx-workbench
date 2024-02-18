@@ -44,6 +44,7 @@ static char* rl_gets() {
       return line_read;
     }
     if(strcmp(line_read, "") == 0){
+      line_read = (char*)malloc(strlen(last_cmd->line) + 1);
       strcpy(line_read, last_cmd->line);
       return line_read;
     }

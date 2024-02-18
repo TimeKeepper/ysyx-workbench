@@ -31,7 +31,7 @@ void init_wp_pool();
 static char* rl_gets() {
   static char *line_read = NULL;
 
-  HIST_ENTRY *curr_cmd = current_history();
+  HIST_ENTRY *curr_cmd = history_get(history_length);
 
   if (line_read) {
     free(line_read);
@@ -42,7 +42,6 @@ static char* rl_gets() {
 
   if(strcmp(line_read, "") == 0 && curr_cmd != NULL){
     line_read = curr_cmd->line;
-    add_history(line_read);//调用current_history()后，当前命令会被删除，所以需要重新添加
     return line_read;
   }
 

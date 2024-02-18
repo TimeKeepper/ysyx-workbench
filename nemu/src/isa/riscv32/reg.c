@@ -29,7 +29,8 @@ void isa_reg_display(char *reg_name) {
       printf("pc: %x\n", cpu.pc);
       return;
     }
-    printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
+    bool success = true;
+    printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, &success));
     return;
   }
   printf("pc: %x\n", cpu.pc);

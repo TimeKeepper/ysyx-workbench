@@ -40,6 +40,7 @@ void isa_reg_display(char *reg_name) {
 
 word_t isa_reg_str2val(const char *s, bool *success) {
   if(success == NULL) goto just_run;
+  Log("The success pointer is NULL, you may consider if there exicts a bug.\n");
   if(!*success) return 0;
   just_run:
   for(int i = 0; i < 32; i++){

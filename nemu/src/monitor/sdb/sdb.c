@@ -20,6 +20,7 @@
 #include <memory/paddr.h>
 #include "sdb.h"
 #include "common.h"
+#include <pass_include.h>
 
 static int is_batch_mode = false;
 
@@ -169,6 +170,26 @@ static int cmd_b(char *args){
 
 static int cmd_help(char *args);
 
+static int cmd_crv(char *args){
+  char* reg_name = strtok(args, " ");
+  if(reg_name == NULL){
+    Log("You should input the register name!");
+    return 0;
+  }
+  char* reg_value_str = strtok(NULL, " ");
+  if(reg_value_str == NULL){
+    Log("You should input the register value!");
+    return 0;
+  }
+  bool success = true;
+  word_t reg_value = expr(reg_value_str, &success);
+  if(success){
+    int regNO = isa_str2id(reg_name, &success);
+    change_register_value(regNO, reg_value);
+  }
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -184,6 +205,7 @@ static struct {
   {"b", "create breakpoint", cmd_b},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},
+  { "change_rigister_value", "Changing risgister's value", cmd_crv}
 
   /* TODO: Add more commands */
 

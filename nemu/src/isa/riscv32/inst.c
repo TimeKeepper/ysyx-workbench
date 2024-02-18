@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+#include <pass_include.h>
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
@@ -79,6 +80,11 @@ static int decode_exec(Decode *s) {
   R(0) = 0; // reset $zero to 0
 
   return 0;
+}
+
+void change_register_value(int regNO, word_t value){
+  Log("Warn:You are doing a dangerous operation which may causing an unexpect rexsult.\n");
+  R(regNO) = value;
 }
 
 int isa_exec_once(Decode *s) {

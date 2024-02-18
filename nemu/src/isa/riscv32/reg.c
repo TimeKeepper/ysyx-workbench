@@ -51,3 +51,17 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   }
   return 0;
 }
+
+int isa_str2id(const char *s, bool *success) {
+  if(success == NULL) {
+    Log("The success pointer is NULL, you may consider if there exicts a bug.\n");goto just_run;
+  }
+  if(!*success) return 0;
+  just_run:
+  for(int i = 0; i < 32; i++){
+    if(strcmp(regs[i], s) == 0){
+      return i;
+    }
+  }
+  return 0;
+}

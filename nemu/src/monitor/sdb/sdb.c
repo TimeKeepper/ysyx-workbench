@@ -31,7 +31,7 @@ void init_wp_pool();
 static char* rl_gets() {
   static char *line_read = NULL;
 
-  HIST_ENTRY *prev_cmd = previous_history();
+  HIST_ENTRY *curr_cmd = current_history();
 
   if (line_read) {
     free(line_read);
@@ -40,8 +40,8 @@ static char* rl_gets() {
 
   line_read = readline("(nemu) ");
 
-  if(strcmp(line_read, "") == 0 && prev_cmd != NULL){
-    line_read = prev_cmd->line;
+  if(strcmp(line_read, "") == 0 && curr_cmd != NULL){
+    line_read = curr_cmd->line;
     return line_read;
   }
 

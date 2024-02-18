@@ -168,7 +168,7 @@ static int cmd_d(char *args){
   for(int i = 0; i < wpNO - 1; i++){
     wp = wp->next;
   }
-  free_wp(wp);
+  if(wp!=NULL) free_wp(wp);
   return 0;
 }
 

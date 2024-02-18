@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include "local-include/reg.h"
+#include <pass_include.h>
 
 const char *regs[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -23,19 +24,40 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
+word_t regs_value_cache[32] = {0};
+
+void store_Regs_Value_cache(int id){
+  regs_value_cache[id] = gpr(id);
+  Log("The register name is not valid.\n");
+}
+
 void isa_reg_display(char *reg_name) {
-  if(reg_name!=NULL){
-    if(strcmp(reg_name, "pc") == 0){
-      printf("pc: %x\n", cpu.pc);
-      return;
+  // if(reg_name!=NULL){
+  //   if(strcmp(reg_name, "pc") == 0){
+  //     printf("pc: %x\n", cpu.pc);
+  //     return;
+  //   }
+  //   printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
+  //   return;
+  // }
+  
+  if(reg_name == NULL){
+    printf("pc: %x\n", cpu.pc);
+    for(int i = 0; i< 32; i++){
+      printf("reg: %s val: %x\n", regs[i], gpr(i));
     }
+    return;
+  }
+  if(strcmp(reg_name, "pc") == 0){
+    printf("pc: %x\n", cpu.pc);
+    return;
+  }
+  if(strcmp(reg_name, "c") !=0){
     printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
     return;
   }
-  printf("pc: %x\n", cpu.pc);
-  for(int i = 0; i< 32; i++){
-    printf("reg: %s val: %x\n", regs[i], gpr(i));
-  }
+  reg_name = strtok(reg_name, " ");
+  isa_reg_display(reg_name);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

@@ -34,7 +34,6 @@ int store_Regs_Value_cache(int id){
     regs_value_cache[id] = cpu.pc;
     return id;
   }
-  printf("rd:$s,%s",regs[id]);
   regs_value_cache[id] = gpr(id);
   return id;
 }

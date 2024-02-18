@@ -41,7 +41,8 @@ static char* rl_gets() {
   line_read = readline("(nemu) ");
 
   if(strcmp(line_read, "") == 0){
-    return prev_cmd->line;
+    line_read = prev_cmd->line;
+    return line_read;
   }
 
   if (line_read && *line_read){

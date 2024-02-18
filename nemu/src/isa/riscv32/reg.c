@@ -29,8 +29,7 @@ void isa_reg_display(char *reg_name) {
       printf("pc: %x\n", cpu.pc);
       return;
     }
-    bool success = true;
-    printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, &success));
+    printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
     return;
   }
   printf("pc: %x\n", cpu.pc);
@@ -40,7 +39,9 @@ void isa_reg_display(char *reg_name) {
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+  if(success == NULL) goto just_run;
   if(!*success) return 0;
+  just_run:
   for(int i = 0; i < 32; i++){
     if(strcmp(regs[i], s) == 0){
       return gpr(i);

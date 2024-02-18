@@ -42,6 +42,7 @@ static char* rl_gets() {
 
   if(strcmp(line_read, "") == 0 && curr_cmd != NULL){
     line_read = curr_cmd->line;
+    add_history(line_read);
     return line_read;
   }
 

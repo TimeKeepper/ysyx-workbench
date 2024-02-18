@@ -150,6 +150,16 @@ static int cmd_w(char *args){
   return 0;
 }
 
+static int cmd_d(char *args){
+  int wpNO = atoi(args);
+  WP* wp = get_head_wp();
+  for(int i = 0; i < wpNO - 1; i++){
+    wp = wp->next;
+  }
+  free_wp(wp);
+  return 0;
+}
+
 static int cmd_b(char *args){
   if(args == NULL){
     printf("You should input the address of the breakpoint!\n");
@@ -202,6 +212,7 @@ static struct {
   { "info", "get some machine info", cmd_info},
   { "x", "Scan Memory", cmd_x},
   {"w", "create watchpoint", cmd_w},
+  {"d", "delete watchpoint", cmd_d},
   {"b", "create breakpoint", cmd_b},
   {"test", "Help me for test my code", cmd_test},
   {"stest", "Help me for test my code", cmd_single_test},

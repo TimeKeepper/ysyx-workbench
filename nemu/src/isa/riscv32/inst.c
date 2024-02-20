@@ -156,7 +156,7 @@ static int decode_exec(Decode *s) {
   sltu   , R, Print_DBG_Message("sltu")   ,               R(rd) = (src1 < src2) ? 1 : 0);
   
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", \
-  mul    , R, Print_DBG_Message("mul")    ,               R(rd) = src1 * src2);
+  mul    , R, Print_DBG_Message("mul")    ,               R(rd) = (sword_t)src1 * (sword_t)src2);
   
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", \
   mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (word_t)(((int64_t)src1 * (int64_t)src2) >> 32));

@@ -81,7 +81,7 @@ static int decode_exec(Decode *s) {
   jal    , J, Print_DBG_Message("jal")    ,               R(rd) = s->snpc; s->dnpc = s->pc + imm);
   
   INSTPAT("??????? ????? ????? ??? ????? 11001 11", \
-  jalr   , I, Print_DBG_Message("jalr")   ,               R(rd) = s->snpc; s->dnpc = (src1 + imm) & ~1);
+  jalr   , I, Print_DBG_Message("jalr")   ,               R(rd) = s->snpc; s->dnpc = (src1 + imm) & 0xFFFFFFFE);
   
   INSTPAT("??????? ????? ????? 100 ????? 00000 11", \
   lbu    , I, Print_DBG_Message("lbu")    ,               R(rd) = Mr(src1 + imm, 1));

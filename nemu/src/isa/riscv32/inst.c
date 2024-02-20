@@ -78,7 +78,7 @@ static int decode_exec(Decode *s) {
   auipc  , U, Print_DBG_Message("auipc")  ,               R(rd) = s->pc + imm);
   
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", \
-  jal    , J, Print_DBG_Message("jal")    ,               R(rd) = s->snpc; s->dnpc += imm - 4);
+  jal    , J, Print_DBG_Message("jal")    ,               R(rd) = s->snpc; s->dnpc = s->pc + imm);
   
   INSTPAT("??????? ????? ????? ??? ????? 11001 11", \
   jalr   , I, Print_DBG_Message("jalr")   ,               R(rd) = s->snpc; s->dnpc = (src1 + imm) & ~1);

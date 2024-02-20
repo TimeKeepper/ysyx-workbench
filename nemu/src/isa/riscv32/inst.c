@@ -102,10 +102,10 @@ static int decode_exec(Decode *s) {
   xori   , I, Print_DBG_Message("xori")   ,               R(rd) = src1 ^ imm);
   
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", \
-  lh     , I, Print_DBG_Message("lh")     ,               R(rd) = (sword_t)Mr(src1 + imm, 2));
+  lh     , I, Print_DBG_Message("lh")     ,               R(rd) = SEXT(Mr(src1 + imm, 2),16));
   
   INSTPAT("??????? ????? ????? 010 ????? 00000 11", \
-  lw     , I, Print_DBG_Message("lw")     ,               R(rd) = (sword_t)Mr(src1 + imm, 4));
+  lw     , I, Print_DBG_Message("lw")     ,               R(rd) = SEXT(Mr(src1 + imm, 4),32));
   
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
   slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);

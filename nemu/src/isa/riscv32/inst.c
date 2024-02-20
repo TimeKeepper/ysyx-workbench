@@ -162,7 +162,7 @@ static int decode_exec(Decode *s) {
   mul    , R, Print_DBG_Message("mul")    ,               R(rd) = (sword_t)src1 * (sword_t)src2);
   
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", \
-  mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (word_t)(((int64_t)src1 * (int64_t)src2) >> 32));
+  mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (word_t)((SEXT(src1,64) * SEXT(src2,64)) >> 32));
   
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", \
   div    , R, Print_DBG_Message("div")    ,               R(rd) = (sword_t)src1 / (sword_t)src2);

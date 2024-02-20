@@ -22,7 +22,7 @@
 #define R(i) gpr(store_Regs_Value_cache(i))
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
 #define Print_insut_name(name) printf("insut:%s,",name)
-#define Print_DBG_Message(name) ((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm+s->pc,imm,imm))
+#define Print_DBG_Message(name) (1==1 ? :((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm+s->pc,imm,imm)))
 #define Mr vaddr_read
 #define Mw vaddr_write
 
@@ -32,8 +32,8 @@ enum {
   TYPE_N, // none
 };
 
-#define src1R() do { *src1 = R(rs1); printf("src1:%s,",isa_id2str(rs1));} while (0)
-#define src2R() do { *src2 = R(rs2); printf("src2:%s,",isa_id2str(rs2));} while (0)
+#define src1R() do { *src1 = R(rs1); /*printf("src1:%s,",isa_id2str(rs1));*/} while (0)
+#define src2R() do { *src2 = R(rs2); /*printf("src2:%s,",isa_id2str(rs2));*/} while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = SEXT((BITS(i, 31, 25) << 5) | BITS(i, 11, 7), 12); } while(0)

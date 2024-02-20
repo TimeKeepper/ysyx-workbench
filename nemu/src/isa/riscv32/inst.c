@@ -22,7 +22,7 @@
 #define R(i) gpr(store_Regs_Value_cache(i))
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
 #define Print_insut_name(name) printf("insut:%s,",name)
-#define Print_DBG_Message(name) ((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm,imm,imm+s->pc))
+#define Print_DBG_Message(name) ((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm+s->pc,imm,imm))
 #define Mr vaddr_read
 #define Mw vaddr_write
 

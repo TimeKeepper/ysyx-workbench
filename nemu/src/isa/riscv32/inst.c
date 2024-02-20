@@ -168,28 +168,28 @@ static int decode_exec(Decode *s) {
   divu   , R, Print_DBG_Message("divu")   ,               R(rd) = src1 / src2);
   
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", \
-  rem    , R, Print_DBG_Message("rem")    ,               R(rd) = src1 % src2);
+  rem    , R, Print_DBG_Message("rem")    ,               R(rd) = (sword_t)src1 % (sword_t)src2);
   
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", \
-  remu   , R, Print_DBG_Message("remu")   ,               R(rd) = (sword_t)src1 % (sword_t)src2);
+  remu   , R, Print_DBG_Message("remu")   ,               R(rd) = src1 % src2);
   
   INSTPAT("??????? ????? ????? 000 ????? 11000 11", \
-  beq    , B, if (Print_DBG_Message("beq"),src1 == src2)  s->dnpc += (sword_t)imm - 4);
+  beq    , B, if (Print_DBG_Message("beq"),src1 == src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 001 ????? 11000 11", \
-  bne    , B, if (Print_DBG_Message("bne"),src1 != src2)  s->dnpc += (sword_t)imm - 4);
+  bne    , B, if (Print_DBG_Message("bne"),src1 != src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 100 ????? 11000 11", \
-  blt    , B, if (Print_DBG_Message("blt"),(sword_t)src1 < (sword_t)src2)   s->dnpc += imm - 4);
+  blt    , B, if (Print_DBG_Message("blt"),(sword_t)src1 < (sword_t)src2)   s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 101 ????? 11000 11", \
-  bge    , B, if (Print_DBG_Message("bge"),(sword_t)src1 >= (sword_t)src2)  s->dnpc += imm - 4);
+  bge    , B, if (Print_DBG_Message("bge"),(sword_t)src1 >= (sword_t)src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 110 ????? 11000 11", \
-  bltu   , B, if (Print_DBG_Message("bltu"),src1 < src2)  s->dnpc += imm - 4);
+  bltu   , B, if (Print_DBG_Message("bltu"),src1 < src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", \
-  bgeu   , B, if (Print_DBG_Message("bgeu"),src1 >= src2) s->dnpc += imm - 4);
+  bgeu   , B, if (Print_DBG_Message("bgeu"),src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("0000000 00001 00000 000 00000 11100 11", \
   ebreak , N, Print_DBG_Message("ebreak") ,               NEMUTRAP(s->pc, R(10))); // R(10) is $a0

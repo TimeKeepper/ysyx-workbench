@@ -151,6 +151,10 @@ static int cmd_x(char *args){
   uint32_t base_Addr = expr(scan_num_str+strlen(scan_num_str)+1, &success);
   for(int i = 0; i < scan_num; i++){
     print_Ram(base_Addr + 4 * i);
+    for(int j = 0; j < 4; j++){
+      printf("%c", paddr_read(base_Addr + 4 * i + j, 1));
+    }
+    printf("\n");
   }
   printf("\n");
   return 0;

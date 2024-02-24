@@ -5,27 +5,47 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 size_t strlen(const char *s) {
-  panic("Not implemented");
+  size_t len = 0;
+  while(*s++) {
+    len++;
+  }
+  return len;
 }
 
 char *strcpy(char *dst, const char *src) {
-  panic("Not implemented");
+  size_t n = strlen(src);
+  return strncpy(dst, src, n);
 }
 
 char *strncpy(char *dst, const char *src, size_t n) {
-  panic("Not implemented");
+  char *result = dst;
+  while(n--) {
+    *dst++ = *src++;
+  }
+  *dst = '\0';
+  return result;
 }
 
 char *strcat(char *dst, const char *src) {
-  panic("Not implemented");
+  char *result = dst;
+  dst += strlen(dst);
+  strcpy(dst, src);
+  return result;
 }
 
 int strcmp(const char *s1, const char *s2) {
-  panic("Not implemented");
+  size_t len_1 = strlen(s1);
+  if(len_1 != strlen(s2)) return 1;
+  return strncmp(s1, s2, len_1);
 }
 
 int strncmp(const char *s1, const char *s2, size_t n) {
-  panic("Not implemented");
+  while(n--) {
+    if(*s1 != *s2) return *s1 - *s2;
+    s1++;
+    s2++;
+  }
+  return 0;
 }
 
 void *memset(void *s, int c, size_t n) {

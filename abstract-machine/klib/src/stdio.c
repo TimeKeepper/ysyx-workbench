@@ -19,9 +19,23 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 
       if (next == 'd') {
         int num = va_arg(ap, int);
-        while(num != 0) {
-          out[count++] = num % 10 + '0';
-          num /= 10;
+        char buf[32];
+        int i = 0;
+        if (num == 0) {
+          buf[i++] = '0';
+        } 
+        else {
+          if (num < 0) {
+            out[count++] = '-';
+            num = -num;
+          }
+          while (num != 0) {
+            buf[i++] = num % 10 + '0';
+            num /= 10;
+          }
+        }
+        while (i > 0) {
+          out[count++] = buf[--i];
         }
       } 
       else if (next == 's') {

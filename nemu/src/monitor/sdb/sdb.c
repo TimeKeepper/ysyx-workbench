@@ -154,6 +154,7 @@ static int cmd_x(char *args){
     for(int j = 0; j < 3; j++){
       printf("%c", paddr_read(base_Addr + 4 * i + j, 1));
     }
+    printf("\n");
   }
   printf("\n");
   return 0;

@@ -47,6 +47,6 @@ void instr_buf_push(char *instr){
 
 void instr_buf_printf(void){
   for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    printf("%s", INST_BUF[i]);
+    printf("%s\n", INST_BUF[i]);
   }
 }

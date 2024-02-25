@@ -42,7 +42,7 @@ void instr_buf_push(char *instr){
   if(instr_buf_index >= INSTR_BUF_SIZE){
     instr_buf_index = 0;
   }
-  strcpy(INST_BUF[instr_buf_index], instr);
+  strcpy(INST_BUF[instr_buf_index++], instr);
 }
 
 void instr_buf_printf(void){

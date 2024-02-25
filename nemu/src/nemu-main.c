@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
 }
 
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
+  static int instr_buf_index = 0;
 
 void instr_buf_push(char *instr){
-  static int instr_buf_index = 0;
   if(instr_buf_index >= INSTR_BUF_SIZE){
     instr_buf_index = 0;
   }
@@ -46,7 +46,7 @@ void instr_buf_push(char *instr){
 }
 
 void instr_buf_printf(void){
-  for(int i = 0; i < INSTR_BUF_SIZE; i++){
+  for(int i = 0; i < instr_buf_index; i++){
     printf("%s\n", INST_BUF[i]);
   }
 }

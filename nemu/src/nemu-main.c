@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <common.h>
+#include "pass_include.h"
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -32,4 +33,20 @@ int main(int argc, char *argv[]) {
   engine_start();
 
   return is_exit_status_bad();
+}
+
+char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
+
+void instr_buf_push(char *instr){
+  static int instr_buf_index = 0;
+  if(instr_buf_index >= INSTR_BUF_SIZE){
+    instr_buf_index = 0;
+  }
+  strcpy(INST_BUF[instr_buf_index], instr);
+}
+
+void instr_buf_printf(void){
+  for(int i = 0; i < INSTR_BUF_SIZE; i++){
+    printf("%s", INST_BUF[i]);
+  }
 }

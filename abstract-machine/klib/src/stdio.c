@@ -26,7 +26,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
             num = -num;
           }
           while (num != 0) {
-            buf[i++] = num % 10 + '0';
+            buf[i++] = (uint32_t)num % 10 + '0';
             num /= 10;
           }
         }

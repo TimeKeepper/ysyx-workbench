@@ -133,6 +133,7 @@ static long load_elf() {
       }
     }
   }
+  elf_end(elf);
   return symcount;
 }
 

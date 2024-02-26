@@ -99,6 +99,7 @@ static void func_called_detect(vaddr_t pc){
   if(func_name != NULL && last_func_name != func_name){
     printf("call [%s]\n", func_name);
   }
+  last_func_name = func_name;
 }
 
 static void execute(uint64_t n) {

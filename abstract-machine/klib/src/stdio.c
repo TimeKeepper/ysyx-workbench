@@ -21,14 +21,14 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           buf[i++] = '0';
         } 
         else {
-          if (num < 0) {
-            out[count++] = '-';
-            num = -num;
-          }
-          else if (num == 0x80000000) {
+          if (num == 0x80000000) {
             out[count++] = '-';
             buf[i++] = '8';
             num = 214748364;
+          }
+          else if (num < 0) {
+            out[count++] = '-';
+            num = -num;
           }
           while (num != 0) {
             buf[i++] = num % 10 + '0';

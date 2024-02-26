@@ -212,7 +212,22 @@ void change_register_value(int regNO, word_t value){
   R(regNO) = value;
 }
 
+static bool is_ret = false;
+
+static void func_called_detect(Decode *s){
+  static char* last_func_name = NULL;
+  char* func_name = get_func_name(s->pc);
+  if(func_name != NULL && last_func_name != func_name){
+    if(is_ret) {printf("ret"); is_ret = false;}
+    else printf("call");
+    printf("[%s]\n", func_name);
+  }
+  last_func_name = func_name;
+}
+
 int isa_exec_once(Decode *s) {
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  if(s->isa.inst.val == 0x00008067) is_ret = true;
+  func_called_detect(s);
   return decode_exec(s);
 }

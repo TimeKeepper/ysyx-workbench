@@ -93,9 +93,18 @@ static void exec_once(Decode *s, vaddr_t pc) {
   instr_buf_push(s->logbuf);
 }
 
+static void func_called_detect(vaddr_t pc){
+  static char* last_func_name = NULL;
+  char* func_name = get_func_name(pc);
+  if(func_name != NULL && last_func_name != func_name){
+    printf("call [%s]\n", func_name);
+  }
+}
+
 static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
+    func_called_detect(cpu.pc);
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);

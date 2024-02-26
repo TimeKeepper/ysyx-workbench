@@ -18,4 +18,7 @@ char* isa_id2str(int id);
 void instr_buf_push(char *instr);
 void instr_buf_printf(void);
 
+//this function help to declear which funtion is called when numu run
+char* get_func_name(long addr);
+
 #endif

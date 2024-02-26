@@ -15,6 +15,10 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
+#include <fcntl.h>
+#include <gelf.h>
+#include <libelf.h>
+#include <pass_include.h>
 
 void init_rand();
 void init_log(const char *log_file);
@@ -43,8 +47,88 @@ void sdb_set_batch_mode();
 
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
+static char *elf_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
+
+static struct funtion_info {
+  char *name;
+  long addr;
+  long size;
+} funtion_info_table[100];
+
+static int funtion_index = 0;
+
+static void funtion_push(char *name, long addr, long size) {
+  funtion_info_table[funtion_index].name = name;
+  funtion_info_table[funtion_index].addr = addr;
+  funtion_info_table[funtion_index].size = size;
+  funtion_index++;
+}
+
+static int get_funt_index(long addr){
+  for(int i = 0; i < funtion_index; i++){
+    if(funtion_info_table[i].addr <= addr && addr < funtion_info_table[i].addr + funtion_info_table[i].size){
+      return i;
+    }
+  }
+  return -1;
+}
+
+char* get_func_name(long addr){
+  int index = get_funt_index(addr);
+  if(index == -1){
+    return NULL;
+  }
+  return funtion_info_table[index].name;
+}
+
+static long load_elf() {
+  Elf *elf;
+  Elf_Scn *scn = NULL;
+  GElf_Shdr shdr;
+
+  if (elf_file == NULL) {
+    Log("No ELF is given. There will no function message.");
+    return 0;
+  }
+
+  int fd;
+  if((fd = open(elf_file, O_RDONLY, 0)) < 0){
+    Log("Can not open '%s'", elf_file);
+    return 0;
+  }
+  if(elf_version(EV_CURRENT) == EV_NONE){
+    Log("ELF library initialization failed: %s", elf_errmsg(-1));
+    return 0;
+  }
+  if ((elf = elf_begin(fd, ELF_C_READ, NULL)) == NULL){
+    Log("elf_begin() failed: %s.", elf_errmsg(-1));
+    return 0;
+  }
+
+  int symcount = 0;
+
+  while((scn = elf_nextscn(elf, scn)) != NULL) {
+    gelf_getshdr(scn, &shdr);
+    if(shdr.sh_type == SHT_SYMTAB) {
+      Elf_Data *data = NULL;
+      data = elf_getdata(scn, data);
+      symcount = shdr.sh_size / shdr.sh_entsize;
+      GElf_Sym sym;
+      for(int i = 0; i < symcount; i++) {
+        gelf_getsym(data, i, &sym);
+        if(GELF_ST_TYPE(sym.st_info) == STT_FUNC) {
+          char *name = elf_strptr(elf, shdr.sh_link, sym.st_name);
+          if (name != NULL) {
+            funtion_push(name, sym.st_value, sym.st_size);
+          }
+        }
+      }
+    }
+  }
+  return symcount;
+}
 
 static long load_img() {
   if (img_file == NULL) {
@@ -75,15 +159,17 @@ static int parse_args(int argc, char *argv[]) {
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"help"     , no_argument      , NULL, 'h'},
+    {"elf_file" , required_argument, NULL, 'e'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhle:d:p:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
+      case 'e': elf_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -121,6 +207,9 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
+
+  /* Load the ELF file. */
+  load_elf();
 
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);

@@ -231,7 +231,9 @@ static void func_called_detect(Decode *s){
 
 int isa_exec_once(Decode *s) {
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  #if CONFIG_FTRACE
   if(s->isa.inst.val == 0x00008067) is_ret = true;
   func_called_detect(s);
+  #endif
   return decode_exec(s);
 }

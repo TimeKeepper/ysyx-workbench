@@ -212,6 +212,8 @@ void change_register_value(int regNO, word_t value){
   R(regNO) = value;
 }
 
+#if CONFIG_FTRACE
+
 static bool is_ret = false;
 
 static void func_called_detect(Decode *s){
@@ -228,6 +230,8 @@ static void func_called_detect(Decode *s){
   }
   last_func_name = func_name;
 }
+
+#endif
 
 int isa_exec_once(Decode *s) {
   s->isa.inst.val = inst_fetch(&s->snpc, 4);

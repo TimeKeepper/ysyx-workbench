@@ -48,6 +48,7 @@ int sim_stop (void){
 int main() {
   nvboard_bind_all_pins(&dut);
   nvboard_init();
+  inst_ram_init();
 
   reset(10);
 

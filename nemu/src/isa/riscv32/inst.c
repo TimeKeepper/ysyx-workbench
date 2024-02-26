@@ -219,7 +219,7 @@ static void func_called_detect(Decode *s){
   char* func_name = get_func_name(s->pc);
   if(func_name != NULL && last_func_name != func_name){
     if(is_ret) {printf("ret"); is_ret = false;}
-    else printf("call");
+    else printf("call ");
     printf("[%s]\n", func_name);
   }
   last_func_name = func_name;

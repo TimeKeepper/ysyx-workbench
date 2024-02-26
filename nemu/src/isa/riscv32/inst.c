@@ -220,7 +220,7 @@ static void func_called_detect(Decode *s){
   static char* last_func_name = NULL;
   char* func_name = get_func_name(s->pc);
   if(func_name != NULL && last_func_name != func_name){
-    if(is_ret) {printf("ret"); is_ret = false; stack_num--;}
+    if(is_ret) {printf("ret  "); is_ret = false; stack_num--;}
     else {printf("call "); stack_num++;}
 
     for(int i = 0; i < stack_num; i++) printf(" ");

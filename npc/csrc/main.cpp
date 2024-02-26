@@ -41,7 +41,6 @@ bool is_sim_complete = false;
 uint32_t clk_cnt = 0;
 int sim_stop (void){
   is_sim_complete = true;
-  printf("Simulation complete after %d cycles\n", clk_cnt);
   return clk_cnt;
 }
 

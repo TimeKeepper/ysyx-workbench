@@ -25,7 +25,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
             out[count++] = '-';
             num = -num;
           }
-          if (num == 0x80000000) {
+          else if (num == 0x80000000) {
+            out[count++] = '-';
             buf[i++] = '8';
             num = 214748364;
           }

@@ -20,6 +20,5 @@ void instr_buf_printf(void);
 
 //this function help to declear which funtion is called when numu run
 char* get_func_name(long addr);
-void func_free(void);
 
 #endif

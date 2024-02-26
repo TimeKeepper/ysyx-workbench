@@ -65,7 +65,6 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
-  // func_free();
   nemu_state.state = NEMU_QUIT;
   return -1;
 }

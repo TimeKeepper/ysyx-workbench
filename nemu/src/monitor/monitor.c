@@ -83,12 +83,6 @@ char* get_func_name(long addr){
   return funtion_info_table[index].name;
 }
 
-void func_free(void){
-  for(int i = 0; i < funtion_index; i++){
-    free(funtion_info_table[i].name);
-  }
-}
-
 static long load_elf() {
   Elf *elf;
   Elf_Scn *scn = NULL;

@@ -89,7 +89,7 @@ CFLAGS   += -O2 -MMD -Wall -Werror $(INCFLAGS) \
             -Wno-main -U_FORTIFY_SOURCE
 CXXFLAGS +=  $(CFLAGS) -ffreestanding -fno-rtti -fno-exceptions
 # run program automaticlly when program pass AM
-# CXXFLAGS += -CONFIG_TARGET_AM
+CXXFLAGS += -CONFIG_TARGET_AM
 ASFLAGS  += -MMD $(INCFLAGS)
 LDFLAGS  += -z noexecstack
 

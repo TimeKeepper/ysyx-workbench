@@ -223,7 +223,7 @@ static void func_called_detect(Decode *s){
     if(is_ret) {printf("ret"); is_ret = false; stack_num--;}
     else {printf("call "); stack_num++;}
 
-    for(int i = 0; i < stack_num; i++) printf("  ");
+    for(int i = 0; i < stack_num; i++) printf(" ");
     printf("[%s]\n", func_name);
   }
   last_func_name = func_name;

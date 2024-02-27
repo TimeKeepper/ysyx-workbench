@@ -4,7 +4,7 @@ static TOP_NAME dut;
 
 static uint32_t inst_ram[RAM_SIZE];
 
-// #define TRACE
+#define TRACE
 
 uint32_t inst_ram_read(uint32_t addr){
     addr %= RAM_SIZE;

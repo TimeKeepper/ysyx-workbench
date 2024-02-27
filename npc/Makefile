@@ -1,17 +1,17 @@
 TOPNAME = top
 NXDC_FILES = constr/top.nxdc
-INC_PATH ?=
+INC_PATH ?= $(abspath ./include)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
-				# --trace
+				--trace
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
-default: $(BIN)
+default: $(NPC_EXEC)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -39,16 +39,21 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
+override ARGS ?= 
+override IMG ?=
+NPC_EXEC := $(BIN) $(ARGS) $(IMG)
+
 all: default
 
-sim: $(BIN)
+sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	@echo "Write this Makefile by your self."
-	@$^
+	$(NPC_EXEC)
 
-trace:$(BIN)
+trace:$(BIN) $(IMG)
 	$(eval VERILATOR_CFLAGS += --trace)
-	@$^
+	$(eval CXXFLAGS += -DTRACE)
+	$(NPC_EXEC)
 
 src:
 	mkdir -p vsrc csrc

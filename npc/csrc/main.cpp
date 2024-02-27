@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
 
     printf("r1: %d inst: %d\n", dut.test1, dut.inst);
 
+    if(dut.inst == 0x00000000) {
+      sim_stop();
+    }
+
     #ifdef TRACE
     contextp->timeInc(1);
 		tfp->dump(contextp->time());

@@ -44,12 +44,12 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 all: default
 
-sim: all
+sim: $(NPC_EXEC)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	@echo "Write this Makefile by your self."
 	@$^
 
-trace:$(BIN)
+trace:$(NPC_EXEC)
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DTRACE)
 	@$^

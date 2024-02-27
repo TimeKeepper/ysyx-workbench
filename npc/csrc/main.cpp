@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     dut.inst = inst_ram_read((uint32_t)dut.pc);
     dut.eval();
 
-    printf("r1: %d inst: %d\n", dut.test1, dut.inst);
+    printf("r1: %d inst: %08x\n", dut.test1, dut.inst);
 
     if(dut.inst == 0x00000000) {
       sim_stop();

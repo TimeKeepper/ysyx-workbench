@@ -35,6 +35,11 @@ int main(int argc, char **argv) {
   #ifdef TRACE
   const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
 	Verilated::traceEverOn(true);
+	contextp->commandArgs(argc, argv);
+
+	VerilatedVcdC* tfp = new VerilatedVcdC;
+	dut.trace(tfp, 99);
+	tfp->open("wave.vcd");
   #endif
 
   init_monitor(argc, argv, inst_ram);
@@ -43,14 +48,6 @@ int main(int argc, char **argv) {
   nvboard_init();
 
   reset(10);
-
-  #ifdef TRACE
-	contextp->commandArgs(argc, argv);
-
-	VerilatedVcdC* tfp = new VerilatedVcdC;
-	dut.trace(tfp, 99);
-	tfp->open("wave.vcd");
-  #endif
 
   while(!is_sim_complete) {
     clk_cnt++;

@@ -11,7 +11,7 @@ BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
-default: $(BIN)
+default: $(NPC_EXEC)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -39,9 +39,12 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
+IMG ?=
+NPC_EXEC := $(BIN) $(ARGS) $(IMG)
+
 all: default
 
-sim: $(BIN)
+sim: all
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	@echo "Write this Makefile by your self."
 	@$^

@@ -41,13 +41,14 @@ int main(int argc, char **argv) {
 	dut.trace(tfp, 99);
 	tfp->open("wave.vcd");
   #endif
+  Verilated::traceEverOn(true);
 
   init_monitor(argc, argv, inst_ram);
 
   nvboard_bind_all_pins(&dut);
   nvboard_init();
 
-  reset(10);
+  reset(10); 
 
   while(!is_sim_complete) {
     clk_cnt++;

@@ -39,20 +39,22 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-IMG ?=
+override ARGS ?= 
+override IMG ?=
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 all: default
 
-sim: $(NPC_EXEC)
+sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	@echo "Write this Makefile by your self."
-	@$^
+	$(NPC_EXEC)
 
-trace:$(NPC_EXEC)
+trace:$(BIN) $(IMG)
+
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DTRACE)
-	@$^
+	$(NPC_EXEC)
 
 src:
 	mkdir -p vsrc csrc

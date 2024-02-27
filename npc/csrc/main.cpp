@@ -27,11 +27,12 @@ int main(int argc, char **argv) {
 	Verilated::traceEverOn(true);
   #endif
 
+  init_monitor(argc, argv);
+
   nvboard_bind_all_pins(&dut);
   nvboard_init();
 
   reset(10);
-  inst_ram_init();
 
   #ifdef TRACE
 	contextp->commandArgs(argc, argv);

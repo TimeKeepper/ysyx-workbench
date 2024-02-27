@@ -33,8 +33,8 @@ int sim_stop (void){
 
 int main(int argc, char **argv) {
   #ifdef TRACE
+	Verilated::traceEverOn(true);
   const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
-	// Verilated::traceEverOn(true);
 	contextp->commandArgs(argc, argv);
 
 	VerilatedVcdC* tfp = new VerilatedVcdC;

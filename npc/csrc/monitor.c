@@ -56,7 +56,7 @@ static long load_img() {
   fseek(fp, 0, SEEK_SET);
   int ret = fread(inst_ram, 4, size, fp);
   assert(ret == size/4);
-
+inst_ram[0] = 1;
   fclose(fp);
   return size;
 }

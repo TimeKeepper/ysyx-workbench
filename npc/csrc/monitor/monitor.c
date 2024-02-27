@@ -57,10 +57,6 @@ static long load_img(uint32_t *img_ram) {
   int ret = fread(img_ram, 4, size, fp);
   assert(ret == size/4);
 
-    for(int i = 0; i < size/4; i++){
-        printf("%x\n", img_ram[i]);
-    }
-
   fclose(fp);
   return size;
 }

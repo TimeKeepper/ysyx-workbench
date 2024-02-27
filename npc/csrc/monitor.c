@@ -56,7 +56,11 @@ static long load_img() {
   fseek(fp, 0, SEEK_SET);
   int ret = fread(inst_ram, 4, size, fp);
   assert(ret == size/4);
-inst_ram[0] = 1;
+
+    for(int i = 0; i < size/4; i++){
+        printf("%x\n", inst_ram[i]);
+    }
+
   fclose(fp);
   return size;
 }

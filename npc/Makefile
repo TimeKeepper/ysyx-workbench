@@ -48,6 +48,7 @@ sim: $(BIN)
 
 trace:$(BIN)
 	$(eval VERILATOR_CFLAGS += --trace)
+	$(eval CXXFLAGS += -DTRACE)
 	@$^
 
 src:

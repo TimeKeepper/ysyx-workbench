@@ -1,16 +1,6 @@
-#include <cstdint>
-#include <stdio.h>
-#include <nvboard.h>
-#include <Vtop.h>
-#include "verilated.h"
-#include "verilated_vcd_c.h"
-#include "Vtop__Dpi.h"
-
-#include <img.h>
+#include <main.h>
 
 static TOP_NAME dut;
-
-void nvboard_bind_all_pins(Vtop* top);
 
 static void single_cycle() {
   dut.clk = 0; dut.eval();
@@ -31,12 +21,25 @@ int sim_stop (void){
   return clk_cnt;
 }
 
-int main() {
+int main(int argc, char **argv) {
+  #ifdef TRACE
+  const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+	Verilated::traceEverOn(true);
+  #endif
+
   nvboard_bind_all_pins(&dut);
   nvboard_init();
 
   reset(10);
   inst_ram_init();
+
+  #ifdef TRACE
+	contextp->commandArgs(argc, argv);
+
+	VerilatedVcdC* tfp = new VerilatedVcdC;
+	top->trace(tfp, 99);
+	tfp->open("wave.vcd");
+  #endif
 
   while(!is_sim_complete) {
     clk_cnt++;
@@ -47,7 +50,16 @@ int main() {
     dut.eval();
 
     printf("r1: %d inst: %d\n", dut.test1, dut.inst);
+
+    #ifdef TRACE
+    contextp->timeInc(1);
+		tfp->dump(contextp->time());
+		#endif
   }
+
+  #ifdef TRACE
+	tfp->close();
+	#endif
 
   nvboard_quit();
 }

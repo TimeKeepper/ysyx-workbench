@@ -2,6 +2,14 @@
 
 static TOP_NAME dut;
 
+static uint32_t inst_ram[RAM_SIZE];
+
+uint32_t inst_ram_read(uint32_t addr){
+    addr %= RAM_SIZE;
+    addr /= 4;
+    return inst_ram[addr];
+}
+
 static void single_cycle() {
   dut.clk = 0; dut.eval();
   dut.clk = 1; dut.eval();
@@ -27,7 +35,7 @@ int main(int argc, char **argv) {
 	Verilated::traceEverOn(true);
   #endif
 
-  init_monitor(argc, argv);
+  init_monitor(argc, argv, inst_ram);
 
   nvboard_bind_all_pins(&dut);
   nvboard_init();

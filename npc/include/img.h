@@ -7,6 +7,4 @@
 
 uint32_t inst_ram_read(uint32_t addr);
 
-static uint32_t inst_ram[RAM_SIZE];
-
 #endif

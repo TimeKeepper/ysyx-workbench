@@ -40,7 +40,7 @@ static int parse_args(int argc, char *argv[]) {
   return 0;
 }
 
-static long load_img() {
+static long load_img(uint32_t *img_ram) {
   if (img_file == NULL) {
     printf("No image is given. Use the default build-in image.");
     return 4096; // built-in image size
@@ -54,19 +54,19 @@ static long load_img() {
   printf("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(inst_ram, 4, size, fp);
+  int ret = fread(img_ram, 4, size, fp);
   assert(ret == size/4);
 
     for(int i = 0; i < size/4; i++){
-        printf("%x\n", inst_ram[i]);
+        printf("%x\n", img_ram[i]);
     }
 
   fclose(fp);
   return size;
 }
 
-void init_monitor(int argc, char *argv[]){
+void init_monitor(int argc, char *argv[], uint32_t *img_ram) {
     parse_args(argc, argv);
 
-    load_img();
+    load_img(img_ram);
 }

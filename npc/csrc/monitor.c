@@ -54,8 +54,8 @@ static long load_img() {
   printf("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(inst_ram, size, 1, fp);
-  assert(ret == 1);
+  int ret = fread(inst_ram, 4, size, fp);
+  assert(ret == size);
 
   fclose(fp);
   return size;

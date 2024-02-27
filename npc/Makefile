@@ -5,7 +5,7 @@ INC_PATH ?= $(abspath ./include)
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
-				# --trace
+				--trace
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -51,7 +51,6 @@ sim: $(BIN) $(IMG)
 	$(NPC_EXEC)
 
 trace:$(BIN) $(IMG)
-
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DTRACE)
 	$(NPC_EXEC)

@@ -4,6 +4,8 @@ static TOP_NAME dut;
 
 static uint32_t inst_ram[RAM_SIZE];
 
+#define TRACE
+
 uint32_t inst_ram_read(uint32_t addr){
     addr %= RAM_SIZE;
     addr /= 4;
@@ -46,7 +48,7 @@ int main(int argc, char **argv) {
 	contextp->commandArgs(argc, argv);
 
 	VerilatedVcdC* tfp = new VerilatedVcdC;
-	top->trace(tfp, 99);
+	dut.trace(tfp, 99);
 	tfp->open("wave.vcd");
   #endif
 

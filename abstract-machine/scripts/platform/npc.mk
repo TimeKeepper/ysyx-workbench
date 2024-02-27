@@ -22,3 +22,6 @@ image: $(IMAGE).elf
 
 run: image
 	$(MAKE) -C $(NPC_HOME) sim IMG=$(IMAGE).bin
+
+trace: image
+    $(MAKE) -C $(NPC_HOME) trace IMG=$(IMAGE).bin

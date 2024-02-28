@@ -90,7 +90,6 @@ static void execute(uint64_t n){
 }
 
 void cpu_exec(uint64_t n){
-
     clk_cnt++;
 
     if(is_sim_complete) {

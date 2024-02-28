@@ -38,7 +38,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 
 long load_img(char* img_file) {
   if (img_file == NULL) {
-    printf("No image is given. Use the default build-in image.");
+    printf("No image is given. Use the default build-in image.\n");
     return DEFAULT_MSIZE; // built-in image size
   }
 

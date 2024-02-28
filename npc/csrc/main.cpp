@@ -29,7 +29,7 @@ bool is_sim_complete = false;
 uint32_t clk_cnt = 0;
 int sim_stop (int ra){
   is_sim_complete = true;
-  if(ra == 1) printf("Hit good trap\n");
+  if(ra == 1) printf("\033[1;32mHit good trap\033[0m\n");
   else printf("\033[1;31mHit bad trap\033[0m\n");
   return clk_cnt;
 }
@@ -55,12 +55,12 @@ int main(int argc, char **argv) {
   while(!is_sim_complete) {
     clk_cnt++;
 
+    printf("pc: 0x%08x inst: %08x\n", dut.pc, dut.inst);
+
     nvboard_update();
     single_cycle();
     dut.inst = inst_ram_read((uint32_t)dut.pc);
     dut.eval();
-
-    printf("pc: 0x%08x inst: %08x\n", dut.pc, dut.inst);
 
     if(dut.inst == 0x00000000) {
       sim_stop(1);

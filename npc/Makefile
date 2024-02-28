@@ -24,6 +24,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
+$(CSRCS): $(HSRCS)
 HSRCS = $(shell find $(abspath ./include) -name "*.h" -or -name "*.hpp")
 
 # rules for NVBoard
@@ -33,7 +34,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
-$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)  $(HSRCS)
+$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \

@@ -5,6 +5,7 @@
 // #define TRACE
 
 int main(int argc, char **argv) {
+  Verilated::traceEverOn(true);
 
   init_monitor(argc, argv);
 

@@ -1,12 +1,11 @@
-#include <assert.h>
+#include <common.h>
 #include <cstdlib>
-#include <monitor.h>
+#include <monitor/monitor.h>
 #include <fcntl.h>
 #include <gelf.h>
 #include <libelf.h>
 #include <getopt.h>
-#include <stdio.h>
-#include <img.h>
+#include <memory/paddr.h>
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
@@ -40,29 +39,8 @@ static int parse_args(int argc, char *argv[]) {
   return 0;
 }
 
-static long load_img(uint32_t *img_ram) {
-  if (img_file == NULL) {
-    printf("No image is given. Use the default build-in image.");
-    return 4096; // built-in image size
-  }
-
-  FILE *fp = fopen(img_file, "rb");
-
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
-
-  printf("The image is %s, size = %ld\n", img_file, size);
-
-  fseek(fp, 0, SEEK_SET);
-  int ret = fread(img_ram, 4, size, fp);
-  assert(ret == size/4);
-
-  fclose(fp);
-  return size;
-}
-
-void init_monitor(int argc, char *argv[], uint32_t *img_ram) {
+void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
-    load_img(img_ram);
+    load_img(img_file);
 }

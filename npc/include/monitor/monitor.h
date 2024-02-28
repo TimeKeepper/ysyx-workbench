@@ -2,7 +2,7 @@
 #define __MONITOR_H__
 
 #include <cstdint>
-void init_monitor(int argc, char *argv[], uint32_t *img_ram);
+void init_monitor(int argc, char *argv[]);
 
 static char* img_file;
 

@@ -5,7 +5,7 @@
 // #define TRACE
 
 int main(int argc, char **argv) {
-  Verilated::traceEverOn(true);
+  init_WaveTrace(argc, argv);
 
   init_monitor(argc, argv);
 
@@ -16,7 +16,8 @@ int main(int argc, char **argv) {
 
   while(1) {
     if(!cpu_exec(1)) break;
+    trace_Once();
   }
-
+  close_WaveTrace();
   // nvboard_quit();
 }

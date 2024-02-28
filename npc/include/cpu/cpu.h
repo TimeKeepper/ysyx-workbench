@@ -16,6 +16,8 @@ typedef struct {
 bool cpu_exec(uint64_t n);
 void cpu_reset(int n, int argc, char **argv);
 void init_WaveTrace(int argc, char **argv);
+void trace_Once();
+void close_WaveTrace();
 
 extern CPU_State cpu;
 

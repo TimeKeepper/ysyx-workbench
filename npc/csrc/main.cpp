@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     dut.inst = inst_ram_read((uint32_t)dut.pc);
     dut.eval();
 
-    printf("pc: %08x inst: %08x\n", dut.pc, dut.inst);
+    printf("pc: 0x%08x inst: %08x\n", dut.pc, dut.inst);
 
     if(dut.inst == 0x00000000) {
       sim_stop(1);

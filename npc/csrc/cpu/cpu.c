@@ -1,3 +1,4 @@
+#include "Vtop___024root.h"
 #include <cpu/cpu.h>
 #include <memory/paddr.h>
 
@@ -44,8 +45,8 @@ void ram_write(paddr_t addr, int len, word_t data){
 }
 
 static void single_cycle() {
-    dut.clk = 0; dut.eval();
-    dut.clk = 1; dut.eval();
+    dut.clk = 0; dut.eval();wave_Trace_once();
+    dut.clk = 1; dut.eval();wave_Trace_once();
 }
 
 static void reset(int n) {
@@ -74,23 +75,23 @@ void cpu_reset(int n, int argc, char **argv){
 
 bool cpu_exec(uint64_t n){
 
-    if(is_sim_complete) return false;
-
     clk_cnt++;
 
-    printf("pc: 0x%08x inst: %08x\n", dut.pc, dut.inst);
+    if(is_sim_complete) return false;
+    single_cycle();
+    
+    cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;
+
+    printf("pc: 0x%08x inst: %08x\n", cpu.pc, dut.inst);
 
     // nvboard_update();
-    single_cycle();
-    dut.inst = ram_read((uint32_t)dut.pc, 4);
+    dut.inst = ram_read(cpu.pc, 4);
     dut.eval();
 
     if(dut.inst == 0x00000000) {
       sim_stop(1);
     }
 
-    cpu.pc = dut.pc;
-    
     wave_Trace_once();
     
     return true;

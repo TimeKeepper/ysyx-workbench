@@ -48,6 +48,7 @@ all: default
 sim: $(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	@echo "Write this Makefile by your self."
+	@$^
 
 trace:$(BIN) $(IMG)
 	$(eval VERILATOR_CFLAGS += --trace)

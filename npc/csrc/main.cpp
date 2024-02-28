@@ -30,7 +30,7 @@ uint32_t clk_cnt = 0;
 int sim_stop (int ra){
   is_sim_complete = true;
   if(ra == 1) printf("Hit good trap\n");
-  else printf("Hit bad trap\n");
+  else printf("\033[1;31mHit bad trap\033[0m\n");
   return clk_cnt;
 }
 

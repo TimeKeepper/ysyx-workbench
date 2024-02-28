@@ -63,8 +63,8 @@ int sim_stop (int ra){
 }
 
 void cpu_reset(int n, int argc, char **argv){
-    reset(n); 
     init_WaveTrace(argc, argv);
+    reset(n); 
 }
 
 bool cpu_exec(uint64_t n){

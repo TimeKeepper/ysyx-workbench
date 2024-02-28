@@ -48,7 +48,6 @@ all: default
 
 sim: $(BIN) $(IMG) $(HSRCS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
-	@echo "Write this Makefile by your self."
 	$(NPC_EXEC)
 
 trace:$(BIN) $(IMG) $(HSRCS)

@@ -28,8 +28,6 @@ bool is_sim_complete = false;
 uint32_t clk_cnt = 0;
 int sim_stop (int ra){
   is_sim_complete = true;
-  if(ra == 0) printf("Hit good Trap\n");
-  else printf("Hit bad Trap\n");
   return clk_cnt;
 }
 

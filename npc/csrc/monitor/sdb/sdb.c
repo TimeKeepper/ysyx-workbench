@@ -1,3 +1,4 @@
+#include "utils.h"
 #include <common.h>
 #include <sdb/sdb.h>
 #include <cpu/cpu.h>
@@ -39,9 +40,7 @@ static int cmd_help(char *args);
 static int cmd_c(char *args){
     return 0;
 }
-static int cmd_q(char *args){
-    return 0;
-}
+static int cmd_q(char *args);
 
 static struct {
   const char *name;
@@ -59,26 +58,31 @@ static struct {
 #define NR_CMD ARRLEN(cmd_table)
 
 static int cmd_help(char *args) {
-  /* extract the first argument */
-  char *arg = strtok(NULL, " ");
-  int i;
+    /* extract the first argument */
+    char *arg = strtok(NULL, " ");
+    int i;
 
-  if (arg == NULL) {
-    /* no argument given */
-    for (i = 0; i < NR_CMD; i ++) {
-      printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-    }
-  }
-  else {
-    for (i = 0; i < NR_CMD; i ++) {
-      if (strcmp(arg, cmd_table[i].name) == 0) {
+    if (arg == NULL) {
+        /* no argument given */
+        for (i = 0; i < NR_CMD; i ++) {
         printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-        return 0;
-      }
+        }
     }
-    printf("Unknown command '%s'\n", arg);
-  }
-  return 0;
+    else {
+        for (i = 0; i < NR_CMD; i ++) {
+            if (strcmp(arg, cmd_table[i].name) != 0) continue;
+            printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+            return 0;
+        }
+        printf("Unknown command '%s'\n", arg);
+    }
+
+    return 0;
+}
+
+static int cmd_q(char *args){
+    npc_state.state = NPC_QUIT;
+    return -1;
 }
 
 

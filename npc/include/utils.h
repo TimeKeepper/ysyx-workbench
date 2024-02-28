@@ -13,7 +13,7 @@ typedef struct {
   uint32_t halt_ret;
 } NPCState;
 
-extern NPCState nemu_state;
+extern NPCState npc_state;
 
 // ----------- log -----------
 

@@ -1,3 +1,4 @@
+#include "utils.h"
 #include <common.h>
 #include <cpu/cpu.h>
 #include <sdb/sdb.h>

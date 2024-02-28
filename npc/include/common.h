@@ -2,8 +2,6 @@
 #include <assert.h>
 #include <cstdio>
 
-// #define TRACE
-
 #define DEFAULT_MSIZE 0x8000000
 #define DEFAULT_MBASE 0x80000000
 

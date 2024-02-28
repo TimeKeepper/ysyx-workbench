@@ -14,7 +14,7 @@ typedef struct {
 } CPU_State;
 
 bool cpu_exec(uint64_t n);
-void cpu_reset(int n);
+void cpu_reset(int n, int argc, char **argv);
 
 extern CPU_State cpu;
 

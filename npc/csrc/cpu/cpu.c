@@ -8,10 +8,10 @@ CPU_State cpu = {};
 const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
-void init_WaveTrace(){
+void init_WaveTrace(int argc, char **argv){
     #ifdef TRACE
     Verilated::traceEverOn(true);
-    // contextp->commandArgs(argc, argv);
+    contextp->commandArgs(argc, argv);
 
     dut.trace(tfp, 99);
     tfp->open("wave.vcd");
@@ -62,9 +62,9 @@ int sim_stop (int ra){
     close_WaveTrace();
 }
 
-void cpu_reset(int n){
+void cpu_reset(int n, int argc, char **argv){
     reset(n); 
-    init_WaveTrace();
+    init_WaveTrace(argc, argv);
 }
 
 bool cpu_exec(uint64_t n){

@@ -1,35 +1,39 @@
 #include <cpu/cpu.h>
 #include <memory/paddr.h>
 
-static TOP_NAME dut;
+TOP_NAME dut;
 
-CPU_State cpu = {};
-
+struct Helper {
+  Helper() {
+    Verilated::traceEverOn(true);
+  }
+};
+Helper helper;
 const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
-void init_WaveTrace(int argc, char **argv){
+void wave_Trace_init(int argc, char **argv){
     #ifdef TRACE
-    Verilated::traceEverOn(true);
     contextp->commandArgs(argc, argv);
-
     dut.trace(tfp, 99);
     tfp->open("wave.vcd");
     #endif
 }
 
-void trace_Once(){
+void wave_Trace_once(){
     #ifdef TRACE
     contextp->timeInc(1);
     tfp->dump(contextp->time());
     #endif
 }
 
-void close_WaveTrace(){
+void wave_Trace_close(){
     #ifdef TRACE
     tfp->close();
     #endif
 }
+
+CPU_State cpu = {};
 
 uint32_t ram_read(uint32_t addr, int len){
     return paddr_read(addr, len);
@@ -58,16 +62,18 @@ int sim_stop (int ra){
     printf("ra: %d\n", ra);
     if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
+    wave_Trace_close(); 
     return clk_cnt;
-    close_WaveTrace();
 }
 
 void cpu_reset(int n, int argc, char **argv){
-    init_WaveTrace(argc, argv);
+    wave_Trace_init(argc, argv);
+    
     reset(n); 
 }
 
 bool cpu_exec(uint64_t n){
+
     if(is_sim_complete) return false;
 
     clk_cnt++;
@@ -84,8 +90,8 @@ bool cpu_exec(uint64_t n){
     }
 
     cpu.pc = dut.pc;
-
-    trace_Once();
+    
+    wave_Trace_once();
     
     return true;
 }

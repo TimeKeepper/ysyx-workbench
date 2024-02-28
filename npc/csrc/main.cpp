@@ -1,10 +1,11 @@
 #include <main.h>
+#include <stdio.h>
 
 static TOP_NAME dut;
 
 static uint32_t inst_ram[RAM_SIZE];
 
-// #define TRACE
+#define TRACE
 
 uint32_t inst_ram_read(uint32_t addr){
     addr %= RAM_SIZE;
@@ -28,6 +29,8 @@ bool is_sim_complete = false;
 uint32_t clk_cnt = 0;
 int sim_stop (int ra){
   is_sim_complete = true;
+  if(ra == 1) printf("Hit good trap\n");
+  else printf("Hit bad trap\n");
   return clk_cnt;
 }
 

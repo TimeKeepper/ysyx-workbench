@@ -9,8 +9,9 @@
 #include "verilated_vcd_c.h"
 #include "Vtop__Dpi.h"
 
-#include <img.h>
-#include <monitor.h>
+#include <sdb/sdb.h>
+#include <cpu/cpu.h>
+#include <utils.h>
 
 void nvboard_bind_all_pins(Vtop* top);
 

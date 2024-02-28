@@ -24,6 +24,8 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
+$(CSRCS): $(HSRCS)
+HSRCS = $(shell find $(abspath ./include) -name "*.h" -or -name "*.hpp")
 
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
@@ -47,7 +49,6 @@ all: default
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
-	@echo "Write this Makefile by your self."
 	$(NPC_EXEC)
 
 trace:$(BIN) $(IMG)

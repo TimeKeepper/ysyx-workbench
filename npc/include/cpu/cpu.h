@@ -13,7 +13,7 @@ typedef struct {
   vaddr_t pc;
 } CPU_State;
 
-bool cpu_exec(uint64_t n);
+void cpu_exec(uint64_t n);
 void cpu_reset(int n, int argc, char **argv);
 void wave_Trace_init(int argc, char **argv);
 void wave_Trace_once();

@@ -73,26 +73,34 @@ void cpu_reset(int n, int argc, char **argv){
     reset(n); 
 }
 
-bool cpu_exec(uint64_t n){
+static void execute(uint64_t n){
+    for(;n > 0; n--){
+        single_cycle();
+        
+        cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;
+
+        printf("pc: 0x%08x inst: %08x\n", cpu.pc, dut.inst);
+
+        // nvboard_update();
+        dut.inst = ram_read(cpu.pc, 4);
+        dut.eval();
+
+        wave_Trace_once();
+    }
+}
+
+void cpu_exec(uint64_t n){
 
     clk_cnt++;
 
-    if(is_sim_complete) return false;
-    single_cycle();
-    
-    cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;
+    if(is_sim_complete) {
+        printf("Simulation has completed, enter r to restart program\n");
+        return;
+    }
 
-    printf("pc: 0x%08x inst: %08x\n", cpu.pc, dut.inst);
-
-    // nvboard_update();
-    dut.inst = ram_read(cpu.pc, 4);
-    dut.eval();
+    execute(n);
 
     if(dut.inst == 0x00000000) {
       sim_stop(1);
     }
-
-    wave_Trace_once();
-    
-    return true;
 }

@@ -1,4 +1,4 @@
-import "DPI-C" function int sim_stop ();
+import "DPI-C" function int sim_stop (input int ra);
 
 module top(
     input clk,
@@ -19,7 +19,7 @@ module top(
 
 always @(inst) begin
     if(inst == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", sim_stop());
+        $display("sim has been stop at clk_cnt %d", sim_stop(cpu.reg_file.rf.rf[10]));
 end
 
 assign pc = cpu.pc_out;

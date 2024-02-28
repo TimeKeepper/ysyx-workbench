@@ -26,8 +26,10 @@ static void reset(int n) {
 bool is_sim_complete = false;
 
 uint32_t clk_cnt = 0;
-int sim_stop (void){
+int sim_stop (int ra){
   is_sim_complete = true;
+  if(ra == 0) printf("Hit good Trap\n");
+  else printf("Hit bad Trap\n");
   return clk_cnt;
 }
 
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
     printf("r1: %d inst: %08x\n", dut.test1, dut.inst);
 
     if(dut.inst == 0x00000000) {
-      sim_stop();
+      sim_stop(1);
     }
 
     #ifdef TRACE

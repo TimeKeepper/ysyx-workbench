@@ -51,6 +51,7 @@ wire [31:0] busW;
 
 risc_V_Reg_file reg_file (
     .clk(clk),
+    .rst(rst),
     .waddr(inst[11:7]),
     .wdata(busW),
     .wen(RegWr),

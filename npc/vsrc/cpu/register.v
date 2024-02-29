@@ -1,5 +1,6 @@
 module RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
     input clk,
+    input rst,
     input [DATA_WIDTH-1:0] wdata,
     input [ADDR_WIDTH-1:0] waddr,
     input wen,
@@ -12,6 +13,7 @@ module RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
     reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
     always @(posedge clk) begin
         if (wen) rf[waddr] <= wdata;
+        if (rst) for (int i = 0; i < 2**ADDR_WIDTH; i = i + 1) rf[i] <= 0;
     end
 
     assign rdataa = rf[raddra];
@@ -20,6 +22,7 @@ endmodule
 
 module risc_V_Reg_file(
     input clk,
+    input rst,
     input [4:0] waddr,
     input [31:0] wdata,
     input wen,
@@ -33,6 +36,7 @@ module risc_V_Reg_file(
 
     RegisterFile #(5, 32) rf (
         .clk(clk),
+        .rst(rst),
         .wdata(wdata),
         .waddr(waddr),
         .wen(wen),

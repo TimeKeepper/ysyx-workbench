@@ -9,8 +9,8 @@
 #include "Vtop__Dpi.h"
 
 typedef struct {
-  word_t gpr[32];
-  vaddr_t pc;
+    word_t gpr[32];
+    vaddr_t pc;
 } CPU_State;
 
 void cpu_exec(uint64_t n);
@@ -18,6 +18,9 @@ void cpu_reset(int n, int argc, char **argv);
 void wave_Trace_init(int argc, char **argv);
 void wave_Trace_once();
 void wave_Trace_close();
+char* reg_id2name(int id);
+int reg_name2id(char *reg_name);
+void isa_reg_display(char *reg_name);
 
 extern CPU_State cpu;
 

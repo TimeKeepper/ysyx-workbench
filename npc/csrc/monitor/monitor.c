@@ -43,4 +43,6 @@ void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
     load_img(img_file);
+
+    init_sdb();
 }

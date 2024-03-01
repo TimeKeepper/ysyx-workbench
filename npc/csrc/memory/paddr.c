@@ -11,12 +11,12 @@ uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - DEFAULT_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + DEFAULT_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {
-  word_t ret = host_read(guest_to_host(addr), len);
-  return ret;
+    word_t ret = host_read(guest_to_host(addr), len);
+    return ret;
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
-  host_write(guest_to_host(addr), len, data);
+    host_write(guest_to_host(addr), len, data);
 }
 
 static void out_of_bound(paddr_t addr) {
@@ -26,33 +26,33 @@ static void out_of_bound(paddr_t addr) {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))) return pmem_read(addr, len);
-  out_of_bound(addr);
-  return 0;
+    if (likely(in_pmem(addr))) return pmem_read(addr, len);
+    out_of_bound(addr);
+    return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  out_of_bound(addr);
+    if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+    out_of_bound(addr);
 }
 
 long load_img(char* img_file) {
-  if (img_file == NULL) {
-    printf("No image is given. Use the default build-in image.\n");
-    return DEFAULT_MSIZE; // built-in image size
-  }
+    if (img_file == NULL) {
+        printf("No image is given. Use the default build-in image.\n");
+        return DEFAULT_MSIZE; // built-in image size
+    }
 
-  FILE *fp = fopen(img_file, "rb");
+    FILE *fp = fopen(img_file, "rb");
 
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
 
-  printf("The image is %s, size = %ld\n", img_file, size);
+    printf("The image is %s, size = %ld\n", img_file, size);
 
-  fseek(fp, 0, SEEK_SET);
-  int ret = fread(pmem, 4, size, fp);
-  assert(ret == size/4);
+    fseek(fp, 0, SEEK_SET);
+    int ret = fread(pmem, 4, size, fp);
+    assert(ret == size/4);
 
-  fclose(fp);
-  return size;
+    fclose(fp);
+    return size;
 }

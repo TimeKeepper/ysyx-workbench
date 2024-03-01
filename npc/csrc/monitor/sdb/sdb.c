@@ -1,4 +1,3 @@
-#include "utils.h"
 #include <common.h>
 #include <sdb/sdb.h>
 #include <cpu/cpu.h>
@@ -36,57 +35,6 @@ static char* rl_gets() {
     return line_read;
 }
 
-static int cmd_help(char *args);
-static int cmd_c(char *args){
-    cpu_exec(-1);
-    return 0;
-}
-static int cmd_q(char *args);
-
-static struct {
-  const char *name;
-  const char *description;
-  int (*handler) (char *);
-} cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-
-  /* TODO: Add more commands */
-
-};
-
-#define NR_CMD ARRLEN(cmd_table)
-
-static int cmd_help(char *args) {
-    /* extract the first argument */
-    char *arg = strtok(NULL, " ");
-    int i;
-
-    if (arg == NULL) {
-        /* no argument given */
-        for (i = 0; i < NR_CMD; i ++) {
-        printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-        }
-    }
-    else {
-        for (i = 0; i < NR_CMD; i ++) {
-            if (strcmp(arg, cmd_table[i].name) != 0) continue;
-            printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-            return 0;
-        }
-        printf("Unknown command '%s'\n", arg);
-    }
-
-    return 0;
-}
-
-static int cmd_q(char *args){
-    npc_state.state = NPC_QUIT;
-    return -1;
-}
-
-
 void sdb_mainloop() {
 
     for(char *str; (str = rl_gets()) != NULL; ) {
@@ -116,4 +64,8 @@ void sdb_mainloop() {
     // while(1) {
     //     if(!cpu_exec(1)) break;
     // }
+}
+
+void init_sdb(){
+    init_regex();
 }

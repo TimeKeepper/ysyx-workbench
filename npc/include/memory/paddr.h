@@ -2,6 +2,7 @@
 #define __MEMORY_PADDR_H__
 
 #include <common.h>
+#include <cstdint>
 
 #define PMEM_LEFT  ((paddr_t)DEFAULT_MSIZE)
 #define PMEM_RIGHT ((paddr_t)DEFAULT_MBASE + DEFAULT_MSIZE - 1)
@@ -18,6 +19,6 @@ static inline bool in_pmem(paddr_t addr) {
 
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
-long load_img(char* img_file);
+uint8_t* get_pmem(void);
 
 #endif

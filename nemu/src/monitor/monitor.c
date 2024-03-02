@@ -166,12 +166,12 @@ static int parse_args(int argc, char *argv[]) {
   int o;
   while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
     switch (o) {
-      case 'b': sdb_set_batch_mode(); break;
+      case 'b': sdb_set_batch_mode();                           break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
-      case 'l': log_file = optarg; break;
-      case 'd': diff_so_file = optarg; break;
-      case 'e': elf_file = optarg; break;
-      case 1: img_file = optarg; return 0;
+      case 'l': log_file = optarg;                              break;
+      case 'd': diff_so_file = optarg;                          break;
+      case 'e': elf_file = optarg;                              break;
+      case 1  : img_file = optarg;                              return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");

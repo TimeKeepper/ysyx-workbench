@@ -9,8 +9,6 @@ void init_regex();
 word_t expr(char *e, bool *success);
 void init_sdb();
 
-static char* img_file;
-
 static struct {
     const char *name;
     const char *description;

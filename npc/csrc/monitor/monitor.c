@@ -1,3 +1,4 @@
+#include "cpu/cpu.h"
 #include <common.h>
 #include <cstdlib>
 #include <sdb/sdb.h>
@@ -45,4 +46,6 @@ void init_monitor(int argc, char *argv[]) {
     load_img(img_file);
 
     init_sdb();
+
+    init_disasm("riscv32");
 }

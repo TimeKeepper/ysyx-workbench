@@ -1,5 +1,5 @@
-STUID = ysyx_2022280542
-STUNAME = 温九
+STUID = ysyx_23060198
+STUNAME = 林锦晖
 
 # DO NOT modify the following code!!!
 

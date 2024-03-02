@@ -120,7 +120,7 @@ static void execute(uint64_t n){
         // nvboard_update();
         dut.inst = ram_read(cpu.pc, 4);                         //取指
 
-        printf("pc: 0x%08x inst: %08x\n", cpu.pc, dut.inst);        //打印指令
+        printf("0x%08x: %08x\n", cpu.pc, dut.inst);        //打印指令
 
         single_cycle();                                                     //单周期执行
 

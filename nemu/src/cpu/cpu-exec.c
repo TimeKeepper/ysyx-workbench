@@ -81,7 +81,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
   memset(p, ' ', space_len);
   p += space_len;
   printf("test!!!\n");
-  printf("%s",p);
+  printf("%s\n",p);
+  printf("%ld\n",s->logbuf + sizeof(s->logbuf) - p);
+  printf("%s\n",(uint8_t *)&s->isa.inst.val);
+  printf("%d\n",ilen);
 #ifndef CONFIG_ISA_loongarch32r
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,

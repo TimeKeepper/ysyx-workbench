@@ -125,6 +125,7 @@ void itrace_catch(){
     for(int i = 3; i >= 0; i--){
         p += snprintf(p, 4, "%02x ", inst[i]);
     }
+    printf("%s\n", itrace_buf);
     disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
 
     printf("%s\n", itrace_buf);

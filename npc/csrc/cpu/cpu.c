@@ -133,18 +133,18 @@ void itrace_catch(){
 static bool is_ret = false;
 
 static void func_called_detect(){
-  static uint32_t stack_num = 0;
+    static uint32_t stack_num = 0;
 
-  static char* last_func_name = NULL;
-  char* func_name = get_func_name(cpu.pc);
-  if(func_name != NULL && last_func_name != func_name){
-    if(is_ret) {printf("ret  "); is_ret = false; stack_num--;}
-    else {printf("call "); stack_num++;}
+    static char* last_func_name = NULL;
+    char* func_name = get_func_name(cpu.pc);
+    if(func_name != NULL && last_func_name != func_name){
+        if(is_ret) {printf("ret  "); is_ret = false; stack_num--;}
+        else {printf("call "); stack_num++;}
 
-    for(int i = 0; i < stack_num; i++) printf(" ");
-    printf("[%s]\n", func_name);
-  }
-  last_func_name = func_name;
+        for(int i = 0; i < stack_num; i++) printf(" ");
+        printf("[%s]\n", func_name);
+    }
+    last_func_name = func_name;
 }
 
 void check_special_inst(void){
@@ -166,6 +166,7 @@ static void execute(uint64_t n){
         cpu_value_update();          //更新寄存器
         
         check_special_inst();       //检查特殊指令
+        func_called_detect();
 
         if (npc_state.state != NPC_RUNNING) break;
     }

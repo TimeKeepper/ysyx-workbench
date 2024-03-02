@@ -3,6 +3,10 @@
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
+#define __STDC_CONSTANT_MACROS
+#define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
+
 #include <cpu/cpu.h>
 
 #include "llvm/MC/MCAsmInfo.h"

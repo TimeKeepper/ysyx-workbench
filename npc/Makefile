@@ -22,7 +22,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
+CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 CSRCS += $(SRC_AUTO_BIND)
 $(CSRCS): $(HSRCS)
 HSRCS = $(shell find $(abspath ./include) -name "*.h" -or -name "*.hpp")
@@ -32,14 +32,9 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # rules for verilator
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\"" 
-
-SPECIAL_CSRCS = src/utils/disasm.cc
-$(SPECIAL_CSRCS):	
-	CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
-	LDFLAGS += $(shell llvm-config --libs)
-$(SPECIAL_CSRCS):
-
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
+CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
+LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)

@@ -2,6 +2,7 @@
 #define __CPU_CPU_H__
 
 #include <common.h>
+#include <nvboard.h>
 #include <Vtop.h>
 #include "verilated.h"
 #include "verilated_vcd_c.h"
@@ -20,6 +21,7 @@ void wave_Trace_close();
 char* reg_id2name(int id);
 int reg_name2id(char *reg_name);
 void isa_reg_display(char *reg_name);
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 extern CPU_State cpu;
 

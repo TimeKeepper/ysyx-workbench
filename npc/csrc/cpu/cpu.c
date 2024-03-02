@@ -120,12 +120,12 @@ static void execute(uint64_t n){
         // nvboard_update();
         dut.inst = ram_read(cpu.pc, 4);                         //取指
 
-        printf("0x%08x: %08x\n", cpu.pc, dut.inst);        //打印指令
-
         single_cycle();                                                     //单周期执行
 
         if(dut.rootp->mem_wen) memory_write();          //写内存
         else dut.rootp->mem_data = memory_read();  //读内存
+
+        printf("0x%08x: %08x\n", cpu.pc, dut.inst);        //打印指令
 
         cpu_value_update();          //更新寄存器
 

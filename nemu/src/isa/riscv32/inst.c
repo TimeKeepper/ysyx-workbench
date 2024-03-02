@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include "local-include/reg.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
@@ -101,11 +102,17 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 100 ????? 00100 11", \
   xori   , I, Print_DBG_Message("xori")   ,               R(rd) = src1 ^ imm);
   
+  // INSTPAT("??????? ????? ????? 001 ????? 00000 11", 
+  // lh     , I, Print_DBG_Message("lh")     ,               R(rd) = SEXT(Mr(src1 + imm, 2),16));
+  
+  // INSTPAT("??????? ????? ????? 010 ????? 00000 11", 
+  // lw     , I, Print_DBG_Message("lw")     ,               R(rd) = SEXT(Mr(src1 + imm, 4),32));
+
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", \
-  lh     , I, Print_DBG_Message("lh")     ,               R(rd) = SEXT(Mr(src1 + imm, 2),16));
+  lh     , I, Print_DBG_Message("lh")     ,               R(rd) = (sword_t)Mr(src1 + imm, 2));
   
   INSTPAT("??????? ????? ????? 010 ????? 00000 11", \
-  lw     , I, Print_DBG_Message("lw")     ,               R(rd) = SEXT(Mr(src1 + imm, 4),32));
+  lw     , I, Print_DBG_Message("lw")     ,               R(rd) = (sword_t)Mr(src1 + imm, 4));
 
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", \
   lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));

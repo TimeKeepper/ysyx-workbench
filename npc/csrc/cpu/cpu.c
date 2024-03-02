@@ -115,6 +115,21 @@ void memory_write(void){
     }
 }
 
+
+char itrace_buf[256];
+void itrace_catch(){
+    char* p = itrace_buf;
+
+    uint8_t* inst = (uint8_t*)&dut.inst;
+    p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", cpu.pc);
+    for(int i = 3; i >= 0; i--){
+        p += snprintf(p, 4, "%02x ", inst[i]);
+    }
+    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
+
+    printf("%s\n", itrace_buf);
+}
+
 static void execute(uint64_t n){
     for(;n > 0; n--){
         // nvboard_update();
@@ -125,7 +140,7 @@ static void execute(uint64_t n){
         if(dut.rootp->mem_wen) memory_write();          //写内存
         else dut.rootp->mem_data = memory_read();  //读内存
 
-        printf("0x%08x: %08x\n", cpu.pc, dut.inst);        //打印指令
+        itrace_catch();
 
         cpu_value_update();          //更新寄存器
 

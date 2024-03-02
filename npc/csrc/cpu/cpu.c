@@ -125,10 +125,7 @@ void itrace_catch(){
     for(int i = 3; i >= 0; i--){
         p += snprintf(p, 4, "%02x ", inst[i]);
     }
-    printf("%s\n", itrace_buf);
     disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
-
-    printf("%s\n", itrace_buf);
 }
 
 static void execute(uint64_t n){
@@ -141,7 +138,7 @@ static void execute(uint64_t n){
         if(dut.rootp->mem_wen) memory_write();          //写内存
         else dut.rootp->mem_data = memory_read();  //读内存
 
-        itrace_catch();
+        printf("0x%08x: %08x\n", cpu.pc, dut.inst);        //打印指令
 
         cpu_value_update();          //更新寄存器
 

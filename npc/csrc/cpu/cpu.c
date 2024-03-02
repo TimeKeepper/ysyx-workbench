@@ -148,7 +148,12 @@ static void func_called_detect(){
 }
 
 void check_special_inst(void){
-    if(dut.inst == 0x00008067) is_ret = true;
+    switch(dut.inst){
+        case 0x00000000: sim_stop(0);   break; // ecall
+        case 0xffffffff: sim_stop(1);   break; // bad trap
+        case 0x00008067: is_ret = true;     break; // ret
+        default: break;
+    }
 }
 
 static void execute(uint64_t n){
@@ -186,10 +191,6 @@ void cpu_exec(uint64_t n){
     // }
 
     execute(n);
-
-    if(dut.inst == 0x00000000) {
-      sim_stop(1);
-    }
 }
 
 char* reg_id2name(int id){

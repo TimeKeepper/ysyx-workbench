@@ -49,21 +49,21 @@ static long load_elf() {
     GElf_Shdr shdr;
 
     if (elf_file == NULL) {
-        printf("No ELF is given. There will no function message.");
+        printf("No ELF is given. There will no function message.\n");
         return 0;
     }
 
     int fd;
     if((fd = open(elf_file, O_RDONLY, 0)) < 0){
-        printf("Can not open '%s'", elf_file);
+        printf("Can not open '%s'\n", elf_file);
         return 0;
     }
     if(elf_version(EV_CURRENT) == EV_NONE){
-        printf("ELF library initialization failed: %s", elf_errmsg(-1));
+        printf("ELF library initialization failed: %s\n", elf_errmsg(-1));
         return 0;
     }
     if ((elf = elf_begin(fd, ELF_C_READ, NULL)) == NULL){
-        printf("elf_begin() failed: %s.", elf_errmsg(-1));
+        printf("elf_begin() failed: %s.\n", elf_errmsg(-1));
         return 0;
     }
 

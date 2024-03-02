@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory/paddr.h>
 #include <utils.h>
+#include <sdb/sdb.h>
 
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
@@ -115,7 +116,6 @@ void memory_write(void){
     }
 }
 
-
 char itrace_buf[256];
 void itrace_catch(){
     char* p = itrace_buf;
@@ -128,6 +128,27 @@ void itrace_catch(){
     disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
 
     printf("%s\n", itrace_buf);
+}
+
+static bool is_ret = false;
+
+static void func_called_detect(){
+  static uint32_t stack_num = 0;
+
+  static char* last_func_name = NULL;
+  char* func_name = get_func_name(cpu.pc);
+  if(func_name != NULL && last_func_name != func_name){
+    if(is_ret) {printf("ret  "); is_ret = false; stack_num--;}
+    else {printf("call "); stack_num++;}
+
+    for(int i = 0; i < stack_num; i++) printf(" ");
+    printf("[%s]\n", func_name);
+  }
+  last_func_name = func_name;
+}
+
+void check_special_inst(void){
+    if(dut.inst == 0x00008067) is_ret = true;
 }
 
 static void execute(uint64_t n){
@@ -143,6 +164,8 @@ static void execute(uint64_t n){
         itrace_catch();
 
         cpu_value_update();          //更新寄存器
+        
+        check_special_inst();       //检查特殊指令
 
         if (npc_state.state != NPC_RUNNING) break;
     }

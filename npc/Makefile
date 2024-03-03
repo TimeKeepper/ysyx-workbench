@@ -36,8 +36,8 @@ CXXFLAGS += -fsanitize=address
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
 # LDFLAGS += /home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so
-LDFLAGS += $(shell llvm-config --libs)
-LDFLAGS += -lreadline -ldl -pie -lelf -lasan
+LDFLAGS += -lasan $(shell llvm-config --libs)
+LDFLAGS += -lreadline -ldl -pie -lelf
 
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

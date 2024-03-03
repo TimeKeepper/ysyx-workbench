@@ -35,7 +35,7 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += -fsanitize=address
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
-LDFLAGS += $(shell llvm-config --libs)
+LDFLAGS += -lasan $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf -fsanitize=address -static-libasan
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

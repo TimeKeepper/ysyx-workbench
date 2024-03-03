@@ -77,8 +77,8 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 bool isa_difftest_checkregs(CPU_State *ref_r, vaddr_t pc) {
   if(ref_r->pc != cpu.pc){
-    printf("diffter test has detect an error!\n");
-    printf("reg:%s, ref_value:0x%08x, dut_value:0x%08x\n", "pc", ref_r->pc, cpu.pc);
+    printf("\033[1;31mdiffter test has detect an error\033[0m\n");
+    printf("reg:" ANSI_FG_YELLOW "%s" ANSI_NONE ", ref_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", "pc", ref_r->pc, cpu.pc);
     return false;
   }
   for(int i = 0; i < 32; i++){
@@ -93,8 +93,8 @@ bool isa_difftest_checkregs(CPU_State *ref_r, vaddr_t pc) {
 
 static void checkregs(CPU_State *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
-    // npc_state.state = NPC_ABORT;
-    // npc_state.halt_pc = pc;
+    npc_state.state = NPC_ABORT;
+    npc_state.halt_pc = pc;
   }
 }
 

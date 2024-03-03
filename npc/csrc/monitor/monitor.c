@@ -150,12 +150,10 @@ void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
     long img_size = load_img(img_file);
-    printf("test1: %08x\n", paddr_read(0x80000000, 4));
 
     load_elf();
 
     init_difftest(diff_so_file, img_size, difftest_port);
-    printf("test2: %08x\n", paddr_read(0x80000000, 4));
 
     init_sdb();
 

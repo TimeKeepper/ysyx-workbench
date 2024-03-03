@@ -87,7 +87,7 @@ void cpu_value_update(void){
     cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;   
     if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
     uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
-    if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__busW;
+    if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__rf__DOT__rf.m_storage[rd_iddr];
 }
 
 uint32_t memory_read(void){
@@ -149,7 +149,7 @@ static void func_called_detect(){
 
 void check_special_inst(void){
     switch(dut.inst){
-        case 0x00000000: sim_stop(0);   break; // ecall
+        case 0x00000000: sim_stop(1);   break; // ecall
         case 0xffffffff: sim_stop(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
         default: break;
@@ -169,6 +169,8 @@ static void execute(uint64_t n){
         itrace_catch();
 
         cpu_value_update();          //更新寄存器
+        
+        difftest_step(cpu.pc, dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc);
         
         check_special_inst();       //检查特殊指令
         func_called_detect();

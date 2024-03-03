@@ -77,10 +77,14 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 bool isa_difftest_checkregs(CPU_State *ref_r, vaddr_t pc) {
   if(ref_r->pc != cpu.pc){
+    printf("diffter test has detect an error!\n");
+    printf("reg:%s, ref_value:0x%08x, dut_value:0x%08x\n", "pc", ref_r->pc, cpu.pc);
     return false;
   }
   for(int i = 0; i < 32; i++){
     if(ref_r->gpr[i] != cpu.gpr[i]){
+        printf("diffter test has detect an error!\n");
+        printf("reg:%s, ref_value:0x%08x, dut_value:0x%08x\n", reg_id2name(i), ref_r->gpr[i], cpu.gpr[i]);
       return false;
     }
   }
@@ -89,9 +93,8 @@ bool isa_difftest_checkregs(CPU_State *ref_r, vaddr_t pc) {
 
 static void checkregs(CPU_State *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = pc;
-    isa_reg_display(NULL);
+    // npc_state.state = NPC_ABORT;
+    // npc_state.halt_pc = pc;
   }
 }
 

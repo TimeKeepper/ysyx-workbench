@@ -24,6 +24,7 @@ void isa_reg_display(char *reg_name);
 extern "C" void init_disasm(const char *triple);
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 void init_difftest(char *ref_so_file, long img_size, int port);
+void difftest_step(vaddr_t pc, vaddr_t npc);
 
 extern CPU_State cpu;
 

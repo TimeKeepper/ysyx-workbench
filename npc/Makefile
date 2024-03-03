@@ -36,7 +36,7 @@ CXXFLAGS += -fsanitize=address
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
 LDFLAGS += -lasan $(shell llvm-config --libs)
-LDFLAGS += -lreadline -ldl -pie -lelf -fsanitize=address -static-libasan
+LDFLAGS += -lreadline -ldl -pie -lelf -lasan
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \

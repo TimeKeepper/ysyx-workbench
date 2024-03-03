@@ -23,6 +23,7 @@ int reg_name2id(char *reg_name);
 void isa_reg_display(char *reg_name);
 extern "C" void init_disasm(const char *triple);
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+void init_difftest(char *ref_so_file, long img_size, int port);
 
 extern CPU_State cpu;
 

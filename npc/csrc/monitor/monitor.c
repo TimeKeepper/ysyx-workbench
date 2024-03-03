@@ -9,7 +9,9 @@
 #include <memory/paddr.h>
 
 static char* elf_file = NULL;
-static char* img_file;
+static char* img_file = NULL;
+static char* diff_so_file = NULL;
+static int difftest_port = 1234;
 
 static struct funtion_info {
     char *name;
@@ -128,9 +130,9 @@ static int parse_args(int argc, char *argv[]) {
         case 'b': break;
         case 'p': break;
         case 'l': break;
-        case 'd': break;
-        case 'e': elf_file = optarg; break;
-        case 1  : img_file = optarg; return 0;
+        case 'd': diff_so_file = optarg;    break;
+        case 'e': elf_file = optarg;        break;
+        case 1  : img_file = optarg;        return 0;
         default:
           printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
           printf("\t-b,--batch              run with batch mode\n");
@@ -147,9 +149,11 @@ static int parse_args(int argc, char *argv[]) {
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
-    load_img(img_file);
+    long img_size = load_img(img_file);
 
     load_elf();
+
+    init_difftest(diff_so_file, img_size, difftest_port);
 
     init_sdb();
 

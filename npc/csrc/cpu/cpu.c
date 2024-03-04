@@ -93,12 +93,13 @@ void cpu_value_update(void){
 uint32_t memory_read(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!likely(in_pmem(mem_addr))) return 0;
+    printf("%x", dut.rootp->memop);
     switch(dut.rootp->memop){
-        case 0b010: return ram_read(mem_addr,  4);
-        case 0b101: return ram_read(mem_addr,  2);
-        case 0b100: return ram_read(mem_addr,  1);
-        case 0b001: return SEXT(ram_read(mem_addr,  2), 16);
-        case 0b000: return SEXT(ram_read(mem_addr,  1), 8);
+        case 0b010: /*printf("Hit as 0b010!!!\n");*/return ram_read(mem_addr,  4);
+        case 0b101: /*printf("Hit as 0b101!!!\n");*/return ram_read(mem_addr,  2);
+        case 0b100: /*printf("Hit as 0b100!!!\n");*/return ram_read(mem_addr,  1);
+        case 0b001: /*printf("Hit as 0b001!!!\n");*/return SEXT(ram_read(mem_addr,  2), 16);
+        case 0b000: /*printf("Hit as 0b000!!!\n");*/return SEXT(ram_read(mem_addr,  1), 8);
         default: return 0;
     }
 }
@@ -114,6 +115,7 @@ void memory_write(void){
         case 0b100: ram_write(mem_addr,  1, dut.rootp->memdata); break;
         default: break;
     }
+    printf("mem_addr: 0x%08x, mem_data: 0x%08x\n", mem_addr, dut.rootp->memdata);
 }
 
 char itrace_buf[256];

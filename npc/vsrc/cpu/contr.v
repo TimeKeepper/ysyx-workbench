@@ -14,12 +14,13 @@ module Contr_gen(
     output [2:0] MemOp
 );
 
-    MuxKeyWithDefault #(6, 5, 3) ExtOp_mux(ExtOp, op[6:2], 3'b000, {
+    MuxKeyWithDefault #(7, 5, 3) ExtOp_mux(ExtOp, op[6:2], 3'b000, {
         5'b01101, 3'b001,
         5'b00101, 3'b001,
         5'b00100, 3'b000,
         5'b11011, 3'b100,
         5'b11001, 3'b000,
+        5'b01000, 3'b010,
         5'b00000, 3'b000
     });
 

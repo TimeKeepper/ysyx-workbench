@@ -35,7 +35,18 @@ static char* rl_gets() {
     return line_read;
 }
 
+
+static int is_batch_mode = false;
+
+void sdb_set_batch_mode() {
+  is_batch_mode = true;
+}
+
 void sdb_mainloop() {
+    if (is_batch_mode) {
+        cmd_c(NULL);
+        return;
+    }
 
     for(char *str; (str = rl_gets()) != NULL; ) {
         char *str_end = str + strlen(str);

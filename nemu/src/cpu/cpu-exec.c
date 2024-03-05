@@ -89,7 +89,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #endif
 #endif
 
-  // instr_buf_push(s->logbuf);
+  instr_buf_push(s->logbuf);
 }
 
 static void execute(uint64_t n) {

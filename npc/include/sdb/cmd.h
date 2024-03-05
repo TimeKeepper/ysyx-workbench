@@ -10,5 +10,6 @@ int cmd_r(char *args);
 int cmd_si(char *args);
 int cmd_info(char *args);
 int cmd_x(char *args);
+void sdb_set_batch_mode();
 
 #endif

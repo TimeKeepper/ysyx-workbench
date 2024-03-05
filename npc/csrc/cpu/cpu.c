@@ -55,45 +55,9 @@ void ram_write(paddr_t addr, int len, word_t data){
     paddr_write(addr, len, data);
 }
 
-static void single_cycle() {
-    dut.clk = 0; dut.eval();wave_Trace_once();
-    dut.clk = 1; dut.eval();wave_Trace_once();
-    clk_cnt++;
-}
-
-static void reset(int n) {
-    dut.rst = 1;
-    while (n -- > 0) single_cycle();
-    dut.rst = 0;
-}
-
-int sim_stop (int ra){
-    npc_state.state = NPC_STOP;
-    printf("ra: %d\n", ra);
-    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
-    else printf("\033[1;31mHit bad trap\033[0m\n");
-    wave_Trace_close(); 
-    return clk_cnt;
-}
-
-void cpu_reset(int n, int argc, char **argv){
-    if(argv != NULL) wave_Trace_init(argc, argv);
-    
-    reset(n); 
-    clk_cnt = 0;
-}
-
-void cpu_value_update(void){
-    cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;   
-    if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
-    if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__rf__DOT__rf.m_storage[rd_iddr];
-}
-
 uint32_t memory_read(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!likely(in_pmem(mem_addr))) return 0;
-    printf("%x", dut.rootp->memop);
     switch(dut.rootp->memop){
         case 0b010: /*printf("Hit as 0b010!!!\n");*/return ram_read(mem_addr,  4);
         case 0b101: /*printf("Hit as 0b101!!!\n");*/return ram_read(mem_addr,  2);
@@ -115,11 +79,49 @@ void memory_write(void){
         case 0b100: ram_write(mem_addr,  1, dut.rootp->memdata); break;
         default: break;
     }
-    printf("mem_addr: 0x%08x, mem_data: 0x%08x\n", mem_addr, dut.rootp->memdata);
+}
+
+static void single_cycle() {
+    dut.clk = 0; dut.eval();wave_Trace_once();
+    
+    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //读内存
+
+    dut.clk = 1; dut.eval();wave_Trace_once();
+    clk_cnt++;
+}
+
+static void reset(int n) {
+    dut.rst = 1;
+    while (n -- > 0) single_cycle();
+    dut.rst = 0;
+}
+
+int sim_stop (int ra){
+    npc_state.state = NPC_END;
+    printf("ra: %d\n", ra);
+    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
+    else printf("\033[1;31mHit bad trap\033[0m\n");
+    wave_Trace_close(); 
+    return clk_cnt;
+}
+
+void cpu_reset(int n, int argc, char **argv){
+    if(argv != NULL) wave_Trace_init(argc, argv);
+    
+    reset(n); 
+    clk_cnt = 0;
+}
+
+void cpu_value_update(void){
+    cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;   
+    if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
+    uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__rf__DOT__rf.m_storage[rd_iddr];
 }
 
 char itrace_buf[256];
 void itrace_catch(){
+    #ifdef ITRACE
     char* p = itrace_buf;
 
     uint8_t* inst = (uint8_t*)&dut.inst;
@@ -130,11 +132,13 @@ void itrace_catch(){
     disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
 
     printf("%s\n", itrace_buf);
+    #endif
 }
 
 static bool is_ret = false;
 
 static void func_called_detect(){
+    #ifdef FTRACE
     static uint32_t stack_num = 0;
 
     static char* last_func_name = NULL;
@@ -147,6 +151,7 @@ static void func_called_detect(){
         printf("[%s]\n", func_name);
     }
     last_func_name = func_name;
+    #endif
 }
 
 void check_special_inst(void){
@@ -166,7 +171,6 @@ static void execute(uint64_t n){
         single_cycle();                                                     //单周期执行
 
         if(dut.rootp->mem_wen) memory_write();          //写内存
-        else dut.rootp->mem_data = memory_read();  //读内存
 
         itrace_catch();
 

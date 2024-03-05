@@ -4,6 +4,7 @@
 ifeq ($(SHARE),1)
 SO = -so
 CFLAGS  += -fPIC -fvisibility=hidden
+CFLAGS := -fsanitize=address $(CFLAGS)
 LDFLAGS += -shared -fPIC
 endif
 

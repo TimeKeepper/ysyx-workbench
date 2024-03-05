@@ -11,7 +11,7 @@ int rand(void) {
   return (unsigned int)(next/65536) % 32768;
 }
 
-void srand(unsigned int seed) {
+void srand(unsigned int seed) { 
   next = seed;
 }
 

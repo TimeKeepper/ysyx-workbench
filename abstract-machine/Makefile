@@ -87,8 +87,7 @@ CFLAGS   += -O2 -MMD -Wall -Werror $(INCFLAGS) \
             -DARCH_H=\"$(ARCH_H)\" \
             -fno-asynchronous-unwind-tables -fno-builtin -fno-stack-protector \
             -Wno-main -U_FORTIFY_SOURCE
-# run program automaticlly when program pass AM
-CFLAGS += -DCONFIG_TARGET_AM
+CXXFLAGS := -fsanitize=address $(CXXFLAGS)
 CXXFLAGS +=  $(CFLAGS) -ffreestanding -fno-rtti -fno-exceptions
 ASFLAGS  += -MMD $(INCFLAGS)
 LDFLAGS  += -z noexecstack

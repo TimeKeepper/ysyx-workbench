@@ -46,6 +46,28 @@ module zero_Extend (
 
 endmodule
 
+module Barrel_A_Shifter (
+    input signed [31:0] Din,
+    input [4:0] Shamt,
+    input L_R,
+    output [31:0] Y
+);
+
+    assign Y = L_R ? (Din <<< Shamt) : (Din >>> Shamt);
+
+endmodule
+
+module Barrel_L_Shifter (
+    input unsigned [31:0] Din,
+    input [4:0] Shamt,
+    input L_R,
+    output [31:0] Y
+);
+
+    assign Y = L_R ? (Din << Shamt) : (Din >> Shamt);
+
+endmodule
+
 module Barrel_Shifter (
     input [31:0] Din,
     input [4:0] Shamt,
@@ -54,7 +76,23 @@ module Barrel_Shifter (
     output [31:0] Y
 );
 
-    assign Y = A_L ? (L_R ? (Din << Shamt) : (Din >> Shamt)) : (L_R ? (Din <<< Shamt) : (Din >>> Shamt));
+    wire [31:0] Din_A, Din_L;
+
+    Barrel_A_Shifter my_Barrel_A_Shifter (
+        .Din(Din),
+        .Shamt(Shamt),
+        .L_R(L_R),
+        .Y(Din_A)
+    );
+
+    Barrel_L_Shifter my_Barrel_B_Shifter (
+        .Din(Din),
+        .Shamt(Shamt),
+        .L_R(L_R),
+        .Y(Din_L)
+    );
+
+    assign Y = A_L ? Din_A : Din_L;
 
 endmodule
 
@@ -70,8 +108,9 @@ module ALU_Control (
         4'b0000, 1'b0
     });
 
-    MuxKeyWithDefault #(1, 4, 1) mux_AL (A_L, ALUctr, 1'b1, {
-        4'b1010, 1'b0
+    MuxKeyWithDefault #(2, 4, 1) mux_AL (A_L, ALUctr, 1'b1, {
+        4'b1010, 1'b0,
+        4'b0101, 1'b0
     });
 
     MuxKeyWithDefault #(1, 3, 1) mux_LR (L_R, ALUctr[2:0], 1'b0, {
@@ -125,7 +164,7 @@ module Adder (
     wire [31:0] R_B;
     assign R_B = B + {{31{1'b0}},Cin};
 
-    assign {Carry, Result} = A + R_B;
+    assign {Carry, Result} = A + B + {{31{1'b0}},Cin};
     assign Zero = (Result == 0);
     assign Overflow = (A[31] & R_B[31] & ~Result[31]) | (~A[31] & ~R_B[31] & Result[31]);
 
@@ -190,7 +229,8 @@ module ALU (
     );
 
     mux21 mux21_get_less (
-        .a(Result[31] ^ Overflow),
+        //数学上来说，一个负数的相反数不可能是负数，但是这是二进制补码
+        .a((Result[31] ^ Overflow) & !(B == 32'h80000000 & Sub_Add)),
         .b(Sub_Add ^ Carry),
         .s(U_S),
         .y(Less)

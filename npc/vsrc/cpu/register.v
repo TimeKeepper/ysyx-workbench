@@ -12,7 +12,7 @@ module RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
 );
     reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
     always @(posedge clk) begin
-        if (wen) rf[waddr] <= wdata;
+        if (wen && (waddr != 5'b00000)) rf[waddr] <= wdata;
         if (rst) for (int i = 0; i < 2**ADDR_WIDTH; i = i + 1) rf[i] <= 0;
     end
 

@@ -35,9 +35,6 @@ int main(int argc, char *argv[]) {
   return is_exit_status_bad();
 }
 
-
-
-
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
   static int instr_buf_index = 0;
 

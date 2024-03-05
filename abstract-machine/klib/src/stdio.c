@@ -69,6 +69,7 @@ int sprintf(char *out, const char *fmt, ...) {
 }
 
 int printf(const char *fmt, ...) {
+  putch('w');
   char buf[1024];
   va_list args;
   va_start(args, fmt);

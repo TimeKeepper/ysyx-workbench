@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <memory/paddr.h>
 #include <utils.h>
+#include <sdb/sdb.h>
 
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
@@ -54,8 +55,37 @@ void ram_write(paddr_t addr, int len, word_t data){
     paddr_write(addr, len, data);
 }
 
+uint32_t memory_read(void){
+    uint32_t mem_addr = dut.rootp->mem_addr;
+    if (!likely(in_pmem(mem_addr))) return 0;
+    switch(dut.rootp->memop){
+        case 0b010: /*printf("Hit as 0b010!!!\n");*/return ram_read(mem_addr,  4);
+        case 0b101: /*printf("Hit as 0b101!!!\n");*/return ram_read(mem_addr,  2);
+        case 0b100: /*printf("Hit as 0b100!!!\n");*/return ram_read(mem_addr,  1);
+        case 0b001: /*printf("Hit as 0b001!!!\n");*/return SEXT(ram_read(mem_addr,  2), 16);
+        case 0b000: /*printf("Hit as 0b000!!!\n");*/return SEXT(ram_read(mem_addr,  1), 8);
+        default: return 0;
+    }
+}
+
+void memory_write(void){
+    uint32_t mem_addr = dut.rootp->mem_addr;
+    if (!likely(in_pmem(mem_addr))) return;
+    switch(dut.rootp->memop){
+        case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;
+        case 0b001:
+        case 0b101: ram_write(mem_addr,  2, dut.rootp->memdata); break;
+        case 0b000:
+        case 0b100: ram_write(mem_addr,  1, dut.rootp->memdata); break;
+        default: break;
+    }
+}
+
 static void single_cycle() {
     dut.clk = 0; dut.eval();wave_Trace_once();
+    
+    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //读内存
+
     dut.clk = 1; dut.eval();wave_Trace_once();
     clk_cnt++;
 }
@@ -67,7 +97,7 @@ static void reset(int n) {
 }
 
 int sim_stop (int ra){
-    npc_state.state = NPC_STOP;
+    npc_state.state = NPC_END;
     printf("ra: %d\n", ra);
     if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
@@ -85,8 +115,52 @@ void cpu_reset(int n, int argc, char **argv){
 void cpu_value_update(void){
     cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;   
     if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = (dut.rootp->inst >> 7) & 0x1f;
-    if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__busW;
+    uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__rf__DOT__rf.m_storage[rd_iddr];
+}
+
+char itrace_buf[256];
+void itrace_catch(){
+    #ifdef ITRACE
+    char* p = itrace_buf;
+
+    uint8_t* inst = (uint8_t*)&dut.inst;
+    p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", cpu.pc);
+    for(int i = 3; i >= 0; i--){
+        p += snprintf(p, 4, "%02x ", inst[i]);
+    }
+    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
+
+    printf("%s\n", itrace_buf);
+    #endif
+}
+
+static bool is_ret = false;
+
+static void func_called_detect(){
+    #ifdef FTRACE
+    static uint32_t stack_num = 0;
+
+    static char* last_func_name = NULL;
+    char* func_name = get_func_name(cpu.pc);
+    if(func_name != NULL && last_func_name != func_name){
+        if(is_ret) {printf("ret  "); is_ret = false; stack_num--;}
+        else {printf("call "); stack_num++;}
+
+        for(int i = 0; i < stack_num; i++) printf(" ");
+        printf("[%s]\n", func_name);
+    }
+    last_func_name = func_name;
+    #endif
+}
+
+void check_special_inst(void){
+    switch(dut.inst){
+        case 0x00000000: sim_stop(1);   break; // ecall
+        case 0xffffffff: sim_stop(1);   break; // bad trap
+        case 0x00008067: is_ret = true;     break; // ret
+        default: break;
+    }
 }
 
 static void execute(uint64_t n){
@@ -94,11 +168,18 @@ static void execute(uint64_t n){
         // nvboard_update();
         dut.inst = ram_read(cpu.pc, 4);                         //取指
 
-        printf("pc: 0x%08x inst: %08x\n", cpu.pc, dut.inst);        //打印指令
-
         single_cycle();                                                     //单周期执行
 
+        if(dut.rootp->mem_wen) memory_write();          //写内存
+
+        itrace_catch();
+
         cpu_value_update();          //更新寄存器
+        
+        difftest_step(cpu.pc, dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc);
+        
+        check_special_inst();       //检查特殊指令
+        func_called_detect();
 
         if (npc_state.state != NPC_RUNNING) break;
     }
@@ -118,10 +199,6 @@ void cpu_exec(uint64_t n){
     // }
 
     execute(n);
-
-    if(dut.inst == 0x00000000) {
-      sim_stop(1);
-    }
 }
 
 char* reg_id2name(int id){

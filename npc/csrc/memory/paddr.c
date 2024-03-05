@@ -36,23 +36,6 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     out_of_bound(addr);
 }
 
-long load_img(char* img_file) {
-    if (img_file == NULL) {
-        printf("No image is given. Use the default build-in image.\n");
-        return DEFAULT_MSIZE; // built-in image size
-    }
-
-    FILE *fp = fopen(img_file, "rb");
-
-    fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
-
-    printf("The image is %s, size = %ld\n", img_file, size);
-
-    fseek(fp, 0, SEEK_SET);
-    int ret = fread(pmem, 4, size, fp);
-    assert(ret == size/4);
-
-    fclose(fp);
-    return size;
+uint8_t* get_pmem(void) {
+    return pmem;
 }

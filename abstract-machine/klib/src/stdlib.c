@@ -1,6 +1,7 @@
 #include <am.h>
 #include <klib.h>
 #include <klib-macros.h>
+#include <sys/types.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 static unsigned long int next = 1;
@@ -34,7 +35,9 @@ void *malloc(size_t size) {
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-  panic("Not implemented");
+  static void * addr = 0;
+  addr += size;
+  return (addr - size + (uintptr_t)(&(heap.start)));
 #endif
   return NULL;
 }

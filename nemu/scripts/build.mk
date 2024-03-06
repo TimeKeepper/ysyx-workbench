@@ -4,9 +4,9 @@
 ifeq ($(SHARE),1)
 SO = -so
 CFLAGS  += -fPIC -fvisibility=hidden
-CFLAGS := $(CFLAGS)
+CFLAGS := -fsanitize=address $(CFLAGS)
 LDFLAGS += -shared -fPIC
-LDFLAGS := $(LDFLAGS)
+LDFLAGS := -lasan $(LDFLAGS)
 endif
 
 WORK_DIR  = $(shell pwd)

@@ -18,6 +18,7 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 #include <pass_include.h>
+#include <stdint.h>
 
 #define R(i) gpr(store_Regs_Value_cache(i))
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
@@ -163,6 +164,9 @@ static int decode_exec(Decode *s) {
   
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", \
   mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (sword_t)((SEXT(src1,32) * SEXT(src2,32)) >> 32));
+  
+  INSTPAT("0000001 ????? ????? 010 ????? 01100 11", \
+  mulhu  , R, Print_DBG_Message("mulhu")  ,               R(rd) = (sword_t)(((uint64_t)src1 * (uint64_t)src2) >> 32));
   
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", \
   div    , R, Print_DBG_Message("div")    ,               R(rd) = (sword_t)src1 / (sword_t)src2);

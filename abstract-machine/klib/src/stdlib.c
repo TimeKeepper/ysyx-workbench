@@ -37,6 +37,7 @@ void *malloc(size_t size) {
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
   static void * addr = 0;
   addr += size;
+  printf("malloc: %d\n", addr);
   return ((uintptr_t)(&(heap.start)) + addr - size);
 #endif
   return NULL;

@@ -38,7 +38,7 @@ void *malloc(size_t size) {
   static void * addr = 0;
   addr += size;
   printf("start: %d\n", heap.start);
-  return ((uintptr_t)(&(heap.start)) + addr - size);
+  return ((uintptr_t)(heap.start) + addr - size);
 #endif
   return NULL;
 }

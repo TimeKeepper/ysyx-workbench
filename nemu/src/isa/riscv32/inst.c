@@ -18,6 +18,7 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 #include <pass_include.h>
+#include <stdint.h>
 
 #define R(i) gpr(store_Regs_Value_cache(i))
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
@@ -98,8 +99,14 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 00100 11", \
   andi   , I, Print_DBG_Message("andi")   ,               R(rd) = src1 & imm);
   
+  INSTPAT("??????? ????? ????? 110 ????? 00100 11", \
+  ori    , I, Print_DBG_Message("ori")    ,               R(rd) = src1 | imm);
+  
   INSTPAT("??????? ????? ????? 100 ????? 00100 11", \
   xori   , I, Print_DBG_Message("xori")   ,               R(rd) = src1 ^ imm);
+  
+  INSTPAT("??????? ????? ????? 000 ????? 00000 11", \
+  lb     , I, Print_DBG_Message("lb")     ,               R(rd) = SEXT(Mr(src1 + imm, 1),8));
   
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", \
   lh     , I, Print_DBG_Message("lh")     ,               R(rd) = SEXT(Mr(src1 + imm, 2),16));
@@ -163,6 +170,9 @@ static int decode_exec(Decode *s) {
   
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", \
   mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (sword_t)((SEXT(src1,32) * SEXT(src2,32)) >> 32));
+  
+  INSTPAT("0000001 ????? ????? 011 ????? 01100 11", \
+  mulhu  , R, Print_DBG_Message("mulhu")  ,               R(rd) = (sword_t)(((uint64_t)src1 * (uint64_t)src2) >> 32));
   
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", \
   div    , R, Print_DBG_Message("div")    ,               R(rd) = (sword_t)src1 / (sword_t)src2);

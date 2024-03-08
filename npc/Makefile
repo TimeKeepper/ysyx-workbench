@@ -34,8 +34,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
-CXXFLAGS := -fsanitize=address $(CXXFLAGS)
-LDFLAGS := -lasan $(LDFLAGS)
+# CXXFLAGS := -fsanitize=address $(CXXFLAGS)
+# LDFLAGS := -lasan $(LDFLAGS)
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)

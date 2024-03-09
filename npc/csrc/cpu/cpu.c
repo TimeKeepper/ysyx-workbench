@@ -70,6 +70,7 @@ uint32_t memory_read(void){
 
 void memory_write(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
+    printf("addr: 0x%08x\n", mem_addr);
     if (!likely(in_pmem(mem_addr))) return;
     switch(dut.rootp->memop){
         case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;

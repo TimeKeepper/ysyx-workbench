@@ -168,6 +168,8 @@ static void execute(uint64_t n){
         // nvboard_update();
         dut.inst = ram_read(cpu.pc, 4);                         //取指
 
+        // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);
+
         single_cycle();                                                     //单周期执行
 
         if(dut.rootp->mem_wen) memory_write();          //写内存

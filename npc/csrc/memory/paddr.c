@@ -28,7 +28,8 @@ static void out_of_bound(paddr_t addr) {
 
 word_t paddr_read(paddr_t addr, int len) {
     if (likely(in_pmem(addr))) return pmem_read(addr, len);
-    else if(addr - RTC_ADDR < 8) return get_time();
+    else if(addr == RTC_ADDR ) return get_time();
+    else if(addr == RTC_ADDR + 4) return get_time() >> 32;
     out_of_bound(addr);
     return 0;
 }

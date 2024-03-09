@@ -80,10 +80,11 @@ module Contr_gen(
         3'b111, 4'b1010
     });
 
-    MuxKeyWithDefault #(3, 5, 4) ALUctr_mux(ALUctr, op[6:2], 4'b0000, {
+    MuxKeyWithDefault #(4, 5, 4) ALUctr_mux(ALUctr, op[6:2], 4'b0000, {
         5'b00100, ALUctr_sub00100,
         5'b01100, ALUctr_sub01100,
-        5'b11000, ALUctr_sub11000
+        5'b11000, ALUctr_sub11000,
+        5'b01101, 4'b0011
     });
 
     wire [2:0] Sub_Branch;

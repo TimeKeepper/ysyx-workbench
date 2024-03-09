@@ -4,6 +4,10 @@
 #include <common.h>
 #include <cstdint>
 
+# define DEVICE_BASE 0xa0000000
+#define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
+#define RTC_ADDR        (DEVICE_BASE + 0x0000048)
+
 #define PMEM_LEFT  ((paddr_t)DEFAULT_MSIZE)
 #define PMEM_RIGHT ((paddr_t)DEFAULT_MBASE + DEFAULT_MSIZE - 1)
 #define RESET_VECTOR (PMEM_LEFT)

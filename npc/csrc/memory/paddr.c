@@ -1,3 +1,4 @@
+#include "utils.h"
 #include <cassert>
 #include <common.h>
 #include <memory/paddr.h>
@@ -27,12 +28,14 @@ static void out_of_bound(paddr_t addr) {
 
 word_t paddr_read(paddr_t addr, int len) {
     if (likely(in_pmem(addr))) return pmem_read(addr, len);
+    else if(addr - RTC_ADDR < 8) return get_time();
     out_of_bound(addr);
     return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
     if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+    else if(addr == SERIAL_PORT) putchar(data);
     out_of_bound(addr);
 }
 

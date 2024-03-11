@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #define R(i) gpr(store_Regs_Value_cache(i))
+#define SR(i) sr(i)
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
 #define Print_insut_name(name) printf("insut:%s,",name)
 #define Print_DBG_Message(name) (1==1 ? :((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm+s->pc,imm,imm)))
@@ -116,6 +117,9 @@ static int decode_exec(Decode *s) {
 
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", \
   lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));
+  
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", \
+  csrrw  , I, imm &= 0x1f,Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1);
   
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
   slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);

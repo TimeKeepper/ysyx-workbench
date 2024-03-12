@@ -8,7 +8,8 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      default: ev.event = EVENT_ERROR; break;
+      case 0x0000000b:  ev.event = EVENT_YIELD;  break;
+      default:          ev.event = EVENT_ERROR;  break;
     }
 
     printf("ev.event = %d, c->mepc = 0x%08x .\n", ev.event, c->mepc);

@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "isa.h"
 #include "local-include/reg.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
@@ -216,6 +217,9 @@ static int decode_exec(Decode *s) {
   
   INSTPAT("0000000 00001 00000 000 00000 11100 11", \
   ebreak , N, Print_DBG_Message("ebreak") ,               NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", \
+  mret   , N, Print_DBG_Message("mret ")  ,               s->dnpc = cpu.sr[ADDR_MEPC]); 
   
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", \
   inv    , N, Print_DBG_Message("inv")    ,               INV(s->pc));

@@ -209,7 +209,7 @@ static int decode_exec(Decode *s) {
   bgeu   , B, if (Print_DBG_Message("bgeu"),src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("0000000 00000 00000 000 00000 11100 11", \
-  ecall  , N, Print_DBG_Message("ecall ") ,               isa_raise_intr(8, s->pc)); 
+  ecall  , N, Print_DBG_Message("ecall ") ,               s->dnpc = isa_raise_intr(8, s->pc)); 
   
   INSTPAT("0000000 00001 00000 000 00000 11100 11", \
   ebreak , N, Print_DBG_Message("ebreak") ,               NEMUTRAP(s->pc, R(10))); // R(10) is $a0

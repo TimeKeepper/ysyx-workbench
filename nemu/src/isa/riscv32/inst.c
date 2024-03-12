@@ -119,7 +119,7 @@ static int decode_exec(Decode *s) {
   lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));
   
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", \
-  csrrw  , I, imm &= 0x1f,Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1);
+  csrrw  , I, Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1);
   
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
   slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);

@@ -24,6 +24,14 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
+const char *sregs[] = {
+  "mstatus", "mtvec", "mepc", "mcause"
+};
+
+const int sregs_iddr[] = {
+  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE
+};
+
 word_t regs_value_cache[33] = {0};
 
 int store_Regs_Value_cache(int id){
@@ -90,6 +98,11 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   for(int i = 0; i < 32; i++){
     if(strcmp(regs[i], s) == 0){
       return gpr(i);
+    }
+  }
+  for(int i = 0; i < 4; i++){
+    if(strcmp(sregs[i], s) == 0){
+      return sr(sregs_iddr[i]);
     }
   }
   Log("The register name is not valid.\n");

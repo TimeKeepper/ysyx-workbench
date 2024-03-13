@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "isa.h"
 #include "local-include/reg.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
@@ -21,6 +22,7 @@
 #include <stdint.h>
 
 #define R(i) gpr(store_Regs_Value_cache(i))
+#define SR(i) sr(i)
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
 #define Print_insut_name(name) printf("insut:%s,",name)
 #define Print_DBG_Message(name) (1==1 ? :((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm+s->pc,imm,imm)))
@@ -117,6 +119,12 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", \
   lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));
   
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", \
+  csrrw  , I, Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1);
+  
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", \
+  csrrs  , I, Print_DBG_Message("csrrs"),     SR(imm) |= src1, R(rd) = SR(imm));
+  
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
   slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);
   
@@ -204,8 +212,14 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", \
   bgeu   , B, if (Print_DBG_Message("bgeu"),src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
   
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", \
+  ecall  , N, Print_DBG_Message("ecall ") ,               s->dnpc = isa_raise_intr(11, s->pc)); 
+  
   INSTPAT("0000000 00001 00000 000 00000 11100 11", \
   ebreak , N, Print_DBG_Message("ebreak") ,               NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", \
+  mret   , N, Print_DBG_Message("mret ")  ,               s->dnpc = cpu.sr[ADDR_MEPC]); 
   
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", \
   inv    , N, Print_DBG_Message("inv")    ,               INV(s->pc));

@@ -15,7 +15,7 @@
 #define unlikely(cond) __builtin_expect(cond, 0)
 #endif
 
-// #define TRACE
+#define TRACE
 // #define ITRACE
 // #define CONFIG_DIFFTEST
 

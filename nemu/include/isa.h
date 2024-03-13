@@ -16,6 +16,12 @@
 #ifndef __ISA_H__
 #define __ISA_H__
 
+//should be define only when using riscv32 ISA
+#define ADDR_MSTATUS 0x300
+#define ADDR_MTVEC 0x305
+#define ADDR_MEPC 0x341
+#define ADDR_MCAUSE 0x342
+
 // Located at src/isa/$(GUEST_ISA)/include/isa-def.h
 #include <isa-def.h>
 

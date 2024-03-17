@@ -100,7 +100,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       return gpr(i);
     }
   }
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 5; i++){
     if(strcmp(sregs[i], s) == 0){
       printf("attach csr %s\n", sregs[i]);
       return sr(sregs_iddr[i]);

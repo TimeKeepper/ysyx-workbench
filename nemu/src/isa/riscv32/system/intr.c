@@ -21,7 +21,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
    * Then return the address of the interrupt/exception vector.
    */
 
-  cpu.sr[ADDR_MEPC] = epc;
+  cpu.sr[ADDR_MEPC] = epc + 4;
   cpu.sr[ADDR_MCAUSE] = NO;
 
   return cpu.sr[ADDR_MTVEC];

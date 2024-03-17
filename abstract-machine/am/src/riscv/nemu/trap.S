@@ -99,6 +99,6 @@ __if_run_boot:
 
 __if_load_first_time:
   li t1, OFF_SET
-  sub t2, t2, t1
+  sub t2, sp, t1
   csrw mscratch, t2
   j __load_context

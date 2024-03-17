@@ -93,9 +93,9 @@ __load_context:
 
 __if_run_boot:
   csrrw sp, mscratch, sp
+  addi sp, sp, -CONTEXT_SIZE
   j __save_context
 
 __if_load_first_time:
   csrw mscratch, sp
-  addi sp, sp, -CONTEXT_SIZE
   j __load_context

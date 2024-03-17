@@ -29,7 +29,7 @@ const char *sregs[] = {
 };
 
 const int sregs_iddr[] = {
-  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE
+  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE, ADDR_MSCRATCH
 };
 
 word_t regs_value_cache[33] = {0};

@@ -32,8 +32,6 @@ f(30) f(31)
 #define POP(n)  LOAD  concat(x, n), (n * XLEN)(sp);
 
 #define CONTEXT_SIZE          ((NR_REGS + 4 + 1) * XLEN)
-#define STACK_SIZE            (4096 * 8)
-#define OFF_SET               (STACK_SIZE - CONTEXT_SIZE)
 #define OFFSET_SP             ( 2 * XLEN)
 #define OFFSET_CAUSE          ((NR_REGS + 0) * XLEN)
 #define OFFSET_STATUS         ((NR_REGS + 1) * XLEN)
@@ -98,7 +96,5 @@ __if_run_boot:
   j __save_context
 
 __if_load_first_time:
-  li t1, OFF_SET
-  sub t2, sp, t1
-  csrw mscratch, t2
+  csrw mscratch, sp
   j __load_context

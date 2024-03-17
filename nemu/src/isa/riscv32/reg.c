@@ -25,7 +25,7 @@ const char *regs[] = {
 };
 
 const char *sregs[] = {
-  "mstatus", "mtvec", "mepc", "mcause"
+  "mstatus", "mtvec", "mepc", "mcause", "mscratch"
 };
 
 const int sregs_iddr[] = {

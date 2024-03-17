@@ -48,6 +48,7 @@ __am_asm_trap:
   beqz sp, __if_run_boot
   addi sp, sp, -CONTEXT_SIZE
 
+__save_context:
   # 保存上下文
 
   MAP(REGS, PUSH)
@@ -77,6 +78,7 @@ __am_asm_trap:
   csrw mscratch, t0
   beqz t0, __if_load_first_time
 
+__load_context:
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
   csrw mstatus, t1
@@ -93,8 +95,10 @@ __am_asm_trap:
 
 __if_run_boot:
   csrrw sp, mscratch, sp
+  j __save_context
 
 __if_load_first_time:
   li t1, OFF_SET
   sub t2, t2, t1
   csrw mscratch, t2
+  j __load_context

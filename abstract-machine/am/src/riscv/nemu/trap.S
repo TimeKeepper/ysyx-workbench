@@ -36,7 +36,8 @@ f(30) f(31)
 #define OFFSET_CAUSE          ((NR_REGS + 0) * XLEN)
 #define OFFSET_STATUS         ((NR_REGS + 1) * XLEN)
 #define OFFSET_EPC            ((NR_REGS + 2) * XLEN)
-#define OFFSET_SCRATCH       ((NR_REGS + 3) * XLEN)
+#define OFFSET_SCRATCH        ((NR_REGS + 3) * XLEN)
+#define OFFSET_ENTRY_ARG      ((NR_REGS + 5) * XLEN)
 
 .align 3
 .globl __am_asm_trap
@@ -90,6 +91,7 @@ __load_context:
   //将保存在sp中的上下文地址加载到mscratch中，同时恢复原本的堆栈地址
   csrrw sp, mscratch, sp
 
+  LOAD a0, OFFSET_ENTRY_ARG(sp)
   mret
 
 __if_run_boot:

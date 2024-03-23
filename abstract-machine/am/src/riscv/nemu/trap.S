@@ -86,13 +86,13 @@ __load_context:
 
   MAP(REGS, POP)
 
-  addi sp, sp, CONTEXT_SIZE
-
   mv a0, sp
+
+  addi sp, sp, CONTEXT_SIZE
 
   //将保存在sp中的上下文地址加载到mscratch中，同时恢复原本的堆栈地址
   csrrw sp, mscratch, sp
-  
+
   mret
 
 __if_run_boot:

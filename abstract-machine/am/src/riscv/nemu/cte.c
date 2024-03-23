@@ -37,7 +37,7 @@ void combine_func(Context* con){
   FunctionPtr func_ptr;
   func_ptr = (FunctionPtr)con->tentry;
   func_ptr(con->arg);
-  
+
   func_ptr = (FunctionPtr)con->texit;
   func_ptr(con->arg);
 } 
@@ -45,6 +45,7 @@ void combine_func(Context* con){
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context* con = (kstack.end - sizeof(Context));
   con->mstatus = 0x1800;
+  con->mscratch = 0;
   con->tentry = (void *)entry;
   con->mepc = (uintptr_t)combine_func;
   con->gpr[2] = (uintptr_t)con;

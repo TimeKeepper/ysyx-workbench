@@ -91,7 +91,7 @@ __load_context:
   //将保存在sp中的上下文地址加载到mscratch中，同时恢复原本的堆栈地址
   csrrw sp, mscratch, sp
 
-  LOAD a0, OFFSET_ENTRY_ARG(sp)
+  mv a0, sp
   mret
 
 __if_run_boot:

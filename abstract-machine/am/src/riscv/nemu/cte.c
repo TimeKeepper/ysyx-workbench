@@ -37,6 +37,9 @@ void combine_func(Context* con){
   FunctionPtr func_ptr;
   func_ptr = (FunctionPtr)con->tentry;
   func_ptr(con->arg);
+  
+  func_ptr = (FunctionPtr)con->texit;
+  func_ptr(con->arg);
 } 
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {

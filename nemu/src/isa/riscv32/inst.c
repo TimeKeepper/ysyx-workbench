@@ -90,7 +90,7 @@ static int decode_exec(Decode *s) {
   lbu    , I, Print_DBG_Message("lbu")    ,               R(rd) = Mr(src1 + imm, 1));
   
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", \
-  addi   , I, Print_DBG_Message("addi")   ,               R(rd) = src1 + imm + 1);
+  addi   , I, Print_DBG_Message("addi")   ,               R(rd) = src1 + imm);
   
   INSTPAT("??????? ????? ????? 010 ????? 00100 11", \
   slti   , I, Print_DBG_Message("slti")   ,               R(rd) = ((sword_t)src1 < (sword_t)imm) ? 1 : 0);

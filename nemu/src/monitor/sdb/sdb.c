@@ -268,12 +268,11 @@ static int cmd_help(char *args) {
 }
 
 void sdb_set_batch_mode() {
-  printf("batch mode!!!\n");
-  is_batch_mode = false;
+  is_batch_mode = true;
 }
 
 void sdb_mainloop() {
-  if (is_batch_mode) {
+  if (!is_batch_mode) {
     cmd_c(NULL);
     return;
   }

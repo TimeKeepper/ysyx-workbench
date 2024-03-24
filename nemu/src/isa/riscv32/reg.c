@@ -25,11 +25,11 @@ const char *regs[] = {
 };
 
 const char *sregs[] = {
-  "mstatus", "mtvec", "mepc", "mcause"
+  "mstatus", "mtvec", "mepc", "mcause", "mscratch"
 };
 
 const int sregs_iddr[] = {
-  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE
+  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE, ADDR_MSCRATCH
 };
 
 word_t regs_value_cache[33] = {0};
@@ -100,7 +100,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       return gpr(i);
     }
   }
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 5; i++){
     if(strcmp(sregs[i], s) == 0){
       return sr(sregs_iddr[i]);
     }

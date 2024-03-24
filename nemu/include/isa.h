@@ -19,6 +19,7 @@
 //should be define only when using riscv32 ISA
 #define ADDR_MSTATUS 0x300
 #define ADDR_MTVEC 0x305
+#define ADDR_MSCRATCH 0x340
 #define ADDR_MEPC 0x341
 #define ADDR_MCAUSE 0x342
 

@@ -241,12 +241,20 @@ static int cmd_x(char *args){
 }
 
 static int cmd_w(char *args){
+  if(args == NULL){
+    printf(ANSI_FMT("No expression!\n", ANSI_FG_RED));
+    assert(0);
+  }
   new_wp(args);
   wp_Value_Update();
   return 0;
 }
 
 static int cmd_d(char *args){
+  if(args == NULL){
+    printf(ANSI_FMT("No delete op!\n", ANSI_FG_RED));
+    assert(0);
+  }
   int wpNO = atoi(args);
   WP* wp = get_head_wp();
   for(int i = 0; i < wpNO - 1; i++){
@@ -258,13 +266,13 @@ static int cmd_d(char *args){
 
 static int cmd_b(char *args){
   if(args == NULL){
-    printf("You should input the address of the breakpoint!\n");
+    printf(ANSI_FMT("You should input the address of the breakpoint!\n", ANSI_FG_RED));
     return 0;
   }
   bool success = true;
   word_t addr = expr(args, &success);
   if(addr < 0x80000000){
-    printf("The address is out of range!\n");
+    printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
     return 0;
   }
   char expr_str[20] = "$pc == ";
@@ -319,12 +327,12 @@ void change_register_value(int, word_t);
 static int cmd_crv(char *args){
   char* reg_name = strtok(args, " ");
   if(reg_name == NULL){
-    Log("You should input the register name!");
+    printf(ANSI_FMT("You should input the register name!\n", ANSI_FG_RED));
     return 0;
   }
   char* reg_value_str = strtok(NULL, " ");
   if(reg_value_str == NULL){
-    Log("You should input the register value!");
+    printf(ANSI_FMT("You should input the register value!\n", ANSI_FG_RED));
     return 0;
   }
   bool success = true;

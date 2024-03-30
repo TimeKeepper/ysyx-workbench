@@ -219,13 +219,11 @@ static int cmd_x(char *args){
     printf(ANSI_FMT("You should input the scan time!\n", ANSI_FG_RED));
     return 0;
   }
-
-  char* arg_c = strtok(args, " ");
-  int scan_num = atoi(arg_c);
+  
+  int scan_num = atoi(strtok(args, " "));
   
   bool success = true;
-  arg_c = strtok(NULL, " ");
-  uint32_t base_Addr = expr(arg_c, &success);
+  uint32_t base_Addr = expr(strtok(NULL, " "), &success);
 
   if(!likely(in_pmem(base_Addr))){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);

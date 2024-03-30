@@ -21,7 +21,6 @@
 #include "sdb.h"
 #include "common.h"
 #include "utils.h"
-#include <pass_include.h>
 
 static int is_batch_mode = false;
 
@@ -200,6 +199,8 @@ static int cmd_b(char *args){
 }
 
 static int cmd_help(char *args);
+
+void change_register_value(int, word_t);
 
 static int cmd_crv(char *args){
   char* reg_name = strtok(args, " ");

@@ -180,7 +180,7 @@ static int cmd_si(char *args) {
     return 0;
   }
   else if(parameter == 0){
-    printf(ANSI_FMT("Bro? what do you mean?\n", ANSI_FG_RED));
+    printf(ANSI_FMT("What do you mean, Bro?\n", ANSI_FG_RED));
     return 0;
   }
 

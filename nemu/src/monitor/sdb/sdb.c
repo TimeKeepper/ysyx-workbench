@@ -150,7 +150,7 @@ static int cmd_help(char *args) {
         return 0;
       }
     }
-    printf("Unknown command '%s'\n", arg);
+    printf(ANSI_FMT("Unknown command", ANSI_FG_RED) " '%s'\n", arg);
   }
   return 0;
 }

@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include "local-include/reg.h"
+#include "utils.h"
 #include <pass_include.h>
 
 const char *regs[] = {
@@ -97,8 +98,8 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       return sr(sregs_iddr[i]);
     }
   }
-  Log("The register name is not valid.\n");
-  return 0;
+  printf(ANSI_FMT("The register name is not valid.", ANSI_FG_RED));
+  return -1;
 }
 
 int isa_str2id(const char *s, bool *success) {

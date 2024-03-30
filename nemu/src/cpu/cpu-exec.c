@@ -44,10 +44,10 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_WATCHPOINT
   wp_Value_Update();
   WP* wp;
-  for(int i = 0; (wp=get_Changed_wp(i))!=NULL; i++){
-    printf(ANSI_FMT("Watchpoint %d: %s\n", ANSI_FG_GREEN),wp->NO,wp->expr);
-    printf(ANSI_FMT("Old value", ANSI_FG_BLUE)  " = 0x%08x\n",wp->last_time_Value);
-    printf(ANSI_FMT("New value", ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
+  for(int i = 0; (wp=get_Changed_wp(i)) != NULL; i++){
+    printf(ANSI_FMT("Watchpoint", ANSI_FG_GREEN) " %d: " ANSI_FMT("%s\n", ANSI_FG_YELLOW), wp->NO, wp->expr);
+    printf(ANSI_FMT("Old value" , ANSI_FG_BLUE)  " = 0x%08x\n", wp->last_time_Value);
+    printf(ANSI_FMT("New value" , ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
     if(nemu_state.state != NEMU_END) nemu_state.state = NEMU_STOP;//如果在nemu停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NEMU_END的判断
   }
   // while(get_Changed_wp()!=NULL){

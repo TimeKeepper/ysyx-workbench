@@ -179,6 +179,10 @@ static int cmd_si(char *args) {
     printf(ANSI_FMT("You should input a positive value\n", ANSI_FG_RED));
     return 0;
   }
+  else if(parameter == 0){
+    printf(ANSI_FMT("Bro? what do you mean?\n", ANSI_FG_RED));
+    return 0;
+  }
 
   cpu_exec(parameter);
   return 0;

@@ -68,3 +68,12 @@ module risc_V_pc(
     assign pc_out = pc;
 
 endmodule
+
+// module moduleName (
+//     input      clk,
+//     input      rst,
+    
+// );
+    
+// endmodule //moduleName
+

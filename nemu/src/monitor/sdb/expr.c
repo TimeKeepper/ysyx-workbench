@@ -15,6 +15,7 @@
 
 #include "common.h"
 #include "memory/paddr.h"
+#include "utils.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -139,7 +140,7 @@ static bool make_token(char *e) {
           case TK_DECIMAL: {
             tokens[nr_token].type = TK_DECIMAL;
             if (substr_len >= 32) {
-              printf("decimal number is too long!\n");
+              printf(ANSI_FMT("decimal number is too long!\n", ANSI_FG_RED));
               return false;
             }
             else {
@@ -153,7 +154,7 @@ static bool make_token(char *e) {
           case TK_HEX: {
             tokens[nr_token].type = TK_HEX;
             if (substr_len >= 32) {
-              printf("hex number is too long!\n");
+              printf(ANSI_FMT("hex number is too long!\n", ANSI_FG_RED));
               return false;
             }
             else {
@@ -167,7 +168,7 @@ static bool make_token(char *e) {
           case TK_REG: {
             tokens[nr_token].type = TK_REG;
             if (substr_len >= 32) {
-              printf("register name is too long!\n");
+              printf(ANSI_FMT("register name is too long!\n", ANSI_FG_RED));
               return false;
             }
             else {
@@ -185,7 +186,7 @@ static bool make_token(char *e) {
           case TK_AND:    tokens[nr_token++].type = TK_AND; break;
           //空格
           case TK_NOTYPE: break;
-          default: Log("You have type some unknown token!"); return false;
+          default: printf(ANSI_FMT("You have type some unkonwn tokens!\n", ANSI_FG_RED)); return false;
         }
 
         break;
@@ -193,7 +194,7 @@ static bool make_token(char *e) {
     }
 
     if (i == NR_REGEX) {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+      printf(ANSI_FMT("no match at position ", ANSI_FG_RED) "%d\n%s\n%*.s^\n", position, e, position, "");
       return false;
     }
   }

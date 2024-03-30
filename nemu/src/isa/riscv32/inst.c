@@ -18,9 +18,10 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
-#include <pass_include.h>
 #include <stdint.h>
 
+int store_Regs_Value_cache(int);
+char* isa_id2str(int);
 #define R(i) gpr(store_Regs_Value_cache(i))
 #define SR(i) sr(i)
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
@@ -239,6 +240,7 @@ void change_register_value(int regNO, word_t value){
 #if CONFIG_FTRACE
 
 static bool is_ret = false;
+char* get_func_name(long addr);
 
 static void func_called_detect(Decode *s){
   static uint32_t stack_num = 0;

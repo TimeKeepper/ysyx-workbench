@@ -21,10 +21,6 @@ static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
 
 WP* new_wp(char* exp){
-  if(exp == NULL){
-    printf(ANSI_FMT("No expression!\n", ANSI_FG_RED));
-    assert(0);
-  }
   if(free_ == NULL){
     printf(ANSI_FMT("No more watchpoint!\n", ANSI_FG_RED));
     assert(0);

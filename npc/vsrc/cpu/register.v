@@ -68,3 +68,12 @@ module risc_V_pc(
     assign pc_out = pc;
 
 endmodule
+
+module risc_V_csr (
+    input      clk,
+    input      rst,
+    
+);
+    
+endmodule //risc_V_csr
+

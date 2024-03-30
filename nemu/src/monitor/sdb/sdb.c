@@ -219,10 +219,13 @@ static int cmd_x(char *args){
   int scan_num = atoi(scan_num_str);
   bool success = true;
   uint32_t base_Addr = expr(scan_num_str+strlen(scan_num_str)+1, &success);
+  if(base_Addr == 0) return 0;
+
   if(!likely(in_pmem(base_Addr))){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);
     return 0;
   }
+
   for(int i = 0; i < scan_num; i++){
     print_Ram(base_Addr + 4 * i);
     for(int j = 0; j < 4; j++){
@@ -230,6 +233,7 @@ static int cmd_x(char *args){
     }
     printf("\n");
   }
+  
   printf("\n");
   return 0;
 }

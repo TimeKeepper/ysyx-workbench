@@ -83,15 +83,15 @@ static struct {
   
   { "c"     , "Continue the execution of the program"                               \
   
-  , "what can i say? it just run program till allright or allfault", cmd_c },
+  , "NONE", cmd_c },
   
   { "q"     , "Exit NEMU"                                                           \
   
-  , "", cmd_q },
+  , "NONE", cmd_q },
   
   { "si"    , "Let the program step through N instructions and then pause execution"\
   
-  , "", cmd_si},
+  , "\"si\" run 1 inst on nemu which same as \"si 1\" \n\"si \'N\'\" run N inst", cmd_si},
   
   { "info"  , "get some machine info"                                               \
   

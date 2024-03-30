@@ -101,6 +101,3 @@ WP* get_Changed_wp(int num){
   }
   return NULL;
 }
-
-/* TODO: Implement the functionality of watchpoint */
-

@@ -168,13 +168,19 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args) {
   char* parameter_str = strtok(args, " ");
+
   if(parameter_str == NULL){
     cpu_exec(1);
+    return 0;
   }
-  else{
-    int parameter = atoi(parameter_str);
-    cpu_exec(parameter);
+
+  int parameter = atoi(parameter_str);
+  if(parameter < 0){
+    printf(ANSI_FMT("You should input a positive value\n", ANSI_FG_RED));
+    return 0;
   }
+
+  cpu_exec(parameter);
   return 0;
 }
 

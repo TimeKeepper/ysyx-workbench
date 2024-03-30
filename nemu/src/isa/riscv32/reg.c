@@ -98,7 +98,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
       return sr(sregs_iddr[i]);
     }
   }
-  printf(ANSI_FMT("The register name is not valid.", ANSI_FG_RED));
+  printf(ANSI_FMT("The register name is not valid.\n", ANSI_FG_RED));
   return -1;
 }
 

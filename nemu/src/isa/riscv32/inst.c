@@ -240,6 +240,7 @@ void change_register_value(int regNO, word_t value){
 #if CONFIG_FTRACE
 
 static bool is_ret = false;
+char* get_func_name(long addr);
 
 static void func_called_detect(Decode *s){
   static uint32_t stack_num = 0;

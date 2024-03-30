@@ -63,7 +63,7 @@ void free_wp(WP *wp){
 void wp_display(void){
   WP *p = head;
   while(p != NULL){
-    printf("watchpoint %d: " ANSI_FMT("%s", ANSI_FG_BLUE) " = %d\n", p->NO, p->expr, p->value);
+    printf("watchpoint %d: " ANSI_FMT("%s", ANSI_FG_BLUE) " = %x\n", p->NO, p->expr, p->value);
     p = p->next;
   }
 }

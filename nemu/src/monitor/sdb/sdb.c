@@ -95,7 +95,7 @@ static struct {
   
   { "info"  , "get some machine info"                                               \
   
-  , "", cmd_info},
+  , "\"info r\" can show all register value and \"info r \'reg\'\" can show the specific register's value \n\"info w\" can show all wtachpoints 's message", cmd_info},
   
   { "x"     , "Scan Memory"                                                         \
   

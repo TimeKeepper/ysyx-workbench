@@ -191,11 +191,11 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args) {
   char* show_type = strtok(args, " ");
   if(show_type == NULL){
-    Log("You should input the requried info type: r(register) or w(watchpoint).");
+    printf(ANSI_FMT("You should input the requried info type: r(register) or w(watchpoint).\n", ANSI_FG_RED));
     return 0;
   }
   if(strlen(show_type) != 1) {
-    Log("You should only enter an single character.");
+    printf(ANSI_FMT("You should only enter an single character.\n", ANSI_FG_RED));
     return 0;
   }
   char *specific_info = strtok(NULL, " ");

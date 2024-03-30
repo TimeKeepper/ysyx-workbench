@@ -4,9 +4,6 @@
 #include <common.h>
 #include <nvboard.h>
 #include <Vtop.h>
-// #include "verilated.h"
-// #include "verilated_vcd_c.h"
-// #include "Vtop__Dpi.h"
 
 typedef struct {
     word_t gpr[32];

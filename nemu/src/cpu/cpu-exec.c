@@ -110,6 +110,8 @@ void assert_fail_msg() {
   statistic();
 }
 
+void instr_buf_printf(void);
+
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
   g_print_step = (n < MAX_INST_TO_PRINT);
@@ -133,8 +135,8 @@ void cpu_exec(uint64_t n) {
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
-           (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
+           (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+                    instr_buf_printf(), ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
       // fall through
     case NEMU_QUIT: statistic();

@@ -49,7 +49,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     printf("Watchpoint %d: %s\n",wp->NO,wp->expr);
     printf("Old value = 0x%08x\n",wp->last_time_Value);
     printf("New value = 0x%08x\n",wp->value);
-    nemu_state.state = NEMU_STOP;
+    if(nemu_state.state != NEMU_END) nemu_state.state = NEMU_STOP;//如果在nemu停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NEMU_END的判断
   }
   // while(get_Changed_wp()!=NULL){
   //   printf("Watchpoint %d: %s\n",get_Changed_wp()->NO,get_Changed_wp()->expr);

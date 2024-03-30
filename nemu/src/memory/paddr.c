@@ -18,6 +18,7 @@
 #include <device/mmio.h>
 #include <isa.h>
 #include "pass_include.h"
+#include "utils.h"
 
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
@@ -39,8 +40,9 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 
 static void out_of_bound(paddr_t addr) {
   instr_buf_printf();
-  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
+  // panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+  //     addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
+  nemu_state.state = NEMU_ABORT;
 }
 
 void init_mem() {
@@ -53,20 +55,20 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+  #ifdef CONFIG_MTRACE
+  printf(ANSI_FMT("paddr read", ANSI_FG_BLUE) " addr = " FMT_PADDR ", len = %d\n", addr, len);
+  #endif
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-  #ifdef CONFIG_MTRACE
-  printf("illegal paddr read: addr = " FMT_PADDR ", len = %d\n", addr, len);
-  #endif
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
+  #ifdef CONFIG_MTRACE
+  printf(ANSI_FMT("paddr write", ANSI_FG_BLUE) " addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
+  #endif
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  #ifdef CONFIG_MTRACE
-  printf("illegal paddr write: addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
-  #endif
   out_of_bound(addr);
 }

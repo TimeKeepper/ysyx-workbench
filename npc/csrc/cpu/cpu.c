@@ -45,7 +45,7 @@ void wave_Trace_close(){
     #endif
 }
 
-CPU_State cpu = {.gpr = {0}, .pc = 0x80000000};
+CPU_State cpu = {.gpr = {0}, .pc = 0x80000000, .sr = {0}};
 
 uint32_t ram_read(uint32_t addr, int len){
     return paddr_read(addr, len);

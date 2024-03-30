@@ -19,7 +19,7 @@ module MuxKeyInternal #(NR_KEY = 2, KEY_LEN = 1, DATA_LEN = 1, HAS_DEFAULT = 0) 
       assign key_list[n]  = pair_list[n][PAIR_LEN-1:DATA_LEN];
     end
   endgenerate
-
+  
   reg [DATA_LEN-1 : 0] lut_out;
   reg hit;
   integer i;

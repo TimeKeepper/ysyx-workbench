@@ -58,7 +58,7 @@ void isa_reg_display(char *reg_name) {
   if(reg_name == NULL){
     printf("pc: %x\n", cpu.pc);
     for(int i = 0; i< 32; i++){
-      printf("reg: %s val: %x\n", regs[i], gpr(i));
+      printf("%s %x\n", regs[i], gpr(i));
     }
     return;
   }
@@ -67,23 +67,23 @@ void isa_reg_display(char *reg_name) {
     return;
   }
   if(strcmp(reg_name, "c") != 0){
-    printf("reg: %s val: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
+    printf("%s %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
     return;
   }
   reg_name = strtok(NULL, " ");
   if(reg_name == NULL){
     for(int i = 0; i< 32; i++){
-      printf("reg: %s cache_val: %x\n", regs[i], regs_value_cache[i]);
+      printf("%s cache: %x\n", regs[i], regs_value_cache[i]);
     }
     return;
   }
   if(strcmp(reg_name, "pc") == 0){
-    printf("pc cache_val: %x\n", regs_value_cache[32]);
+    printf("pc cache: %x\n", regs_value_cache[32]);
     return;
   }
   for(int i = 0; i< 32; i++){
     if(strcmp(reg_name, regs[i]) == 0){
-      printf("reg: %s cache_val: %x\n", regs[i], regs_value_cache[i]);
+      printf("%s cache: %x\n", regs[i], regs_value_cache[i]);
       return;
     }
   }

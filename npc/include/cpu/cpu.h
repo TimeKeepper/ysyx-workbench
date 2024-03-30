@@ -11,6 +11,7 @@
 typedef struct {
     word_t gpr[32];
     vaddr_t pc;
+    word_t sr[4096];
 } CPU_State;
 
 void cpu_exec(uint64_t n);

@@ -243,7 +243,7 @@ static int cmd_x(char *args){
 static int cmd_w(char *args){
   if(args == NULL){
     printf(ANSI_FMT("No expression!\n", ANSI_FG_RED));
-    assert(0);
+    return 0;
   }
   new_wp(args);
   wp_Value_Update();
@@ -253,7 +253,7 @@ static int cmd_w(char *args){
 static int cmd_d(char *args){
   if(args == NULL){
     printf(ANSI_FMT("No delete op!\n", ANSI_FG_RED));
-    assert(0);
+    return 0;
   }
   int wpNO = atoi(args);
   WP* wp = get_head_wp();

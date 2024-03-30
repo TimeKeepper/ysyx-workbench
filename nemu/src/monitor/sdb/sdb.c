@@ -221,14 +221,10 @@ static int cmd_x(char *args){
   }
 
   char *scan_num_str = strtok(args, " ");
-  if(scan_num_str == NULL){
-    printf(ANSI_FMT("You should input the number of the memory you want to scan!\n", ANSI_FG_RED));
-    return 0;
-  }
-
   int scan_num = atoi(scan_num_str);
   bool success = true;
-  uint32_t base_Addr = expr(scan_num_str+strlen(scan_num_str)+1, &success);
+
+  uint32_t base_Addr = expr(strtok(args, " "), &success);
 
   if(!likely(in_pmem(base_Addr))){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);

@@ -242,7 +242,7 @@ static int cmd_x(char *args){
 
 static int cmd_w(char *args){
   #if CONFIG_WATCHPOINT==0
-    printf(ANSI_FMT("The watchpoint function is not supported!\n", ANSI_FG_RED));
+    printf(ANSI_FMT("The watchpoint function is not enabled!\n", ANSI_FG_RED));
     return 0;
   #endif
   if(args == NULL){

@@ -233,7 +233,7 @@ static int cmd_x(char *args){
   for(int i = 0; i < scan_num; i++){
     print_Ram(base_Addr + 4 * i);
     for(int j = 0; j < 4; j++){
-      printf("%c", paddr_read(base_Addr + 4 * i + j, 1));
+      printf(ANSI_FMT("%c", ANSI_FG_BLUE), paddr_read(base_Addr + 4 * i + j, 1));
     }
     printf("\n");
   }

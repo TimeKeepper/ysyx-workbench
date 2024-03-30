@@ -70,7 +70,7 @@ void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   #ifdef CONFIG_DTRACE
-  printf(ANSI_FMT("map write", ANSI_FG_BLUE) " addr = " FMT_PADDR ", offset = " FMT_PADDR ", device name = %s" ", data = %x", addr, offset, map->name, data);
+  printf(ANSI_FMT("map write", ANSI_FG_BLUE) " addr = " FMT_PADDR ", offset = " FMT_PADDR ", device name = %s" ", data = %x\n", addr, offset, map->name, data);
   #endif
   invoke_callback(map->callback, offset, len, true);
 }

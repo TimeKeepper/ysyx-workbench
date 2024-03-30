@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <assert.h>
+#include <cstdio>
 
 #define DEFAULT_MSIZE 0x8000000
 #define DEFAULT_MBASE 0x80000000
@@ -15,7 +17,7 @@
 
 // #define TRACE
 // #define ITRACE
-#define CONFIG_DIFFTEST
+// #define CONFIG_DIFFTEST
 
 typedef uint32_t paddr_t;
 typedef uint32_t word_t;

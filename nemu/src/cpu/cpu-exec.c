@@ -17,8 +17,8 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include "../monitor/sdb/sdb.h"
 #include "pass_include.h"
-#include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -44,12 +44,19 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_WATCHPOINT
   wp_Value_Update();
   WP* wp;
-  for(int i = 0; (wp=get_Changed_wp(i)) != NULL; i++){
-    printf("Watchpoint %d: " ANSI_FMT("%s\n", ANSI_FG_BLUE), wp->NO, wp->expr);
-    printf(ANSI_FMT("Old value" , ANSI_FG_YELLOW)  " = 0x%08x\n", wp->last_time_Value);
-    printf(ANSI_FMT("New value" , ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
-    if(nemu_state.state != NEMU_END) nemu_state.state = NEMU_STOP;//如果在nemu停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NEMU_END的判断
+  for(int i = 0; (wp=get_Changed_wp(i))!=NULL; i++){
+    printf("The %dth watchpoint has changed!\n",i+1);
+    printf("Watchpoint %d: %s\n",wp->NO,wp->expr);
+    printf("Old value = 0x%08x\n",wp->last_time_Value);
+    printf("New value = 0x%08x\n",wp->value);
+    nemu_state.state = NEMU_STOP;
   }
+  // while(get_Changed_wp()!=NULL){
+  //   printf("Watchpoint %d: %s\n",get_Changed_wp()->NO,get_Changed_wp()->expr);
+  //   printf("Old value = 0x%08x\n",get_Changed_wp()->last_time_Value);
+  //   printf("New value = 0x%08x\n",get_Changed_wp()->value);
+  //   nemu_state.state = NEMU_STOP;
+  // }
 #endif
 }
 
@@ -111,14 +118,12 @@ void assert_fail_msg() {
   statistic();
 }
 
-void instr_buf_printf(void);
-
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
   g_print_step = (n < MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
-      printf(ANSI_FMT("Program execution has ended. To restart the program, exit NEMU and run again.\n", ANSI_FG_RED));
+      printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
       return;
     default: nemu_state.state = NEMU_RUNNING;
   }
@@ -136,8 +141,8 @@ void cpu_exec(uint64_t n) {
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
-           (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-                    (instr_buf_printf(), ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
+           (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
       // fall through
     case NEMU_QUIT: statistic();

@@ -202,7 +202,7 @@ static int cmd_info(char *args) {
   switch(*show_type){
     case 'r': isa_reg_display(specific_info);                                       break;
     case 'w': wp_display();                                                                   break;
-    default : Log("you should input the requried info type: r(register) or w(watchpoint).");  break;
+    default : printf(ANSI_FMT("you should input the requried info type: r(register) or w(watchpoint).\n", ANSI_FG_RED));  break;
   }
   return 0;
 }

@@ -237,8 +237,6 @@ static int cmd_x(char *args){
     }
     printf("\n");
   }
-
-  printf("\n");
   return 0;
 }
 

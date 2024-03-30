@@ -221,8 +221,8 @@ static int cmd_x(char *args){
   }
 
   int scan_num = atoi(strtok(args, " "));
+  
   bool success = true;
-
   uint32_t base_Addr = expr(strtok(args, " "), &success);
 
   if(!likely(in_pmem(base_Addr))){

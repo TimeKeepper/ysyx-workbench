@@ -58,7 +58,7 @@ void isa_reg_display(char *reg_name) {
   if(reg_name == NULL){
     printf("pc: %x\n", cpu.pc);
     for(int i = 0; i< 32; i++){
-      printf("%s %x\n", regs[i], gpr(i));
+      printf("%s: %x\n", regs[i], gpr(i));
     }
     return;
   }

@@ -142,16 +142,17 @@ static int cmd_help(char *args) {
     for (i = 0; i < NR_CMD; i ++) {
       printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA), cmd_table[i].name, cmd_table[i].description);
     }
+    return 0;
   }
-  else {
-    for (i = 0; i < NR_CMD; i ++) {
-      if (strcmp(arg, cmd_table[i].name) == 0) {
-        printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA) "usage: \n" ANSI_FMT("%s\n", ANSI_FG_CYAN), cmd_table[i].name, cmd_table[i].description, cmd_table[i].usage);
-        return 0;
-      }
+  
+  for (i = 0; i < NR_CMD; i ++) {
+    if (strcmp(arg, cmd_table[i].name) == 0) {
+      printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA) "usage: \n" ANSI_FMT("%s\n", ANSI_FG_CYAN), cmd_table[i].name, cmd_table[i].description, cmd_table[i].usage);
+      return 0;
     }
-    printf(ANSI_FMT("Unknown command", ANSI_FG_RED) " '%s'\n", arg);
   }
+
+  printf(ANSI_FMT("Unknown command", ANSI_FG_RED) " '%s'\n", arg);
   return 0;
 }
 
@@ -219,7 +220,7 @@ static int cmd_x(char *args){
   bool success = true;
   uint32_t base_Addr = expr(scan_num_str+strlen(scan_num_str)+1, &success);
   if(!likely(in_pmem(base_Addr))){
-    printf("The 0x%08x address is out of range!\n", base_Addr);
+    printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);
     return 0;
   }
   for(int i = 0; i < scan_num; i++){

@@ -220,10 +220,12 @@ static int cmd_x(char *args){
     return 0;
   }
 
-  int scan_num = atoi(strtok(args, " "));
+  char* arg_c = strtok(args, " ");
+  int scan_num = atoi(arg_c);
   
   bool success = true;
-  uint32_t base_Addr = expr(strtok(args, " "), &success);
+  arg_c = strtok(NULL, " ");
+  uint32_t base_Addr = expr(arg_c, &success);
 
   if(!likely(in_pmem(base_Addr))){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);

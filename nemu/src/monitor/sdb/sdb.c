@@ -215,6 +215,11 @@ static uint32_t print_Ram(uint32_t bias){
 }
 
 static int cmd_x(char *args){
+  if(args == NULL) {
+    printf(ANSI_FMT("You should input the number of the memory you want to scan!\n", ANSI_FG_RED));
+    return 0;
+  }
+  
   char *scan_num_str = strtok(args, " ");
   int scan_num = atoi(scan_num_str);
   bool success = true;
@@ -233,7 +238,7 @@ static int cmd_x(char *args){
     }
     printf("\n");
   }
-  
+
   printf("\n");
   return 0;
 }

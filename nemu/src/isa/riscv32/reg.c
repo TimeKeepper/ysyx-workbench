@@ -67,7 +67,7 @@ void isa_reg_display(char *reg_name) {
     return;
   }
   if(strcmp(reg_name, "c") != 0){
-    printf("%s %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
+    printf("%s: %x\n", reg_name, isa_reg_str2val(reg_name, NULL));
     return;
   }
   reg_name = strtok(NULL, " ");

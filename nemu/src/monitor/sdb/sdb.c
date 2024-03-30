@@ -57,11 +57,6 @@ static char* rl_gets() {
   return line_read;
 }
 
-static int cmd_q(char *args) {
-  nemu_state.state = NEMU_QUIT;
-  return -1;
-}
-
 static int cmd_si(char *args) {
   char* parameter_str = strtok(args, " ");
   if(parameter_str == NULL){
@@ -268,6 +263,11 @@ static int cmd_c(char *args) {
   //input -1 as parameter to cpu_exec means continious execute command forever.
   cpu_exec(-1);
   return 0;
+}
+
+static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
+  return -1;
 }
 
 void sdb_set_batch_mode() {

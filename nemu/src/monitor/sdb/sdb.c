@@ -288,9 +288,10 @@ static int cmd_b(char *args){
 
 // #define INPUT_BUF_LENGTH 65536
 // char input_buf[INPUT_BUF_LENGTH];
-
+void instr_buf_printf(void);
 static int cmd_test(char *args){
-  TODO();
+  instr_buf_printf();
+  return 0;
   // bool success = true;
 
   // FILE* fp = fopen("/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/tools/gen-expr/input", "r");

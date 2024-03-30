@@ -74,20 +74,57 @@ static int cmd_crv(char *args);
 static struct {
   const char *name;
   const char *description;
+  const char *usage;
   int (*handler) (char *);
 } cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-  { "si", "Let the program step through N instructions and then pause execution", cmd_si},
-  { "info", "get some machine info", cmd_info},
-  { "x", "Scan Memory", cmd_x},
-  {"w", "create watchpoint", cmd_w},
-  {"d", "delete watchpoint", cmd_d},
-  {"b", "create breakpoint", cmd_b},
-  {"test", "Help me for test my code", cmd_test},
-  {"stest", "Help me for test my code", cmd_single_test},
-  { "crv", "Changing risgister's value", cmd_crv}
+  { "help"  , "Display information about all supported commands"                    \
+  
+  , "\"help\" display all command and there discription \n \"help \'args\'\" shows single command's discription and it's usage", cmd_help },
+  
+  { "c"     , "Continue the execution of the program"                               \
+  
+  , "", cmd_c },
+  
+  { "q"     , "Exit NEMU"                                                           \
+  
+  , "", cmd_q },
+  
+  { "si"    , "Let the program step through N instructions and then pause execution"\
+  
+  , "", cmd_si},
+  
+  { "info"  , "get some machine info"                                               \
+  
+  , "", cmd_info},
+  
+  { "x"     , "Scan Memory"                                                         \
+  
+  , "", cmd_x},
+  
+  { "w"     , "create watchpoint"                                                   \
+  
+  , "", cmd_w},
+  
+  { "d"     , "delete watchpoint"                                                   \
+  
+  , "", cmd_d},
+  
+  { "b"     , "create breakpoint"                                                   \
+  
+  , "", cmd_b},
+  
+  { "test"  , "Help me for test my code"                                            \
+  
+  , "", cmd_test},
+  
+  { "stest", "Help me for test my code"                                            \
+  
+  , "", cmd_single_test},
+  
+  { "crv"  , "Changing risgister's value"                                          \
+
+  , "", cmd_crv}
+
 
   /* TODO: Add more commands */
 
@@ -109,7 +146,7 @@ static int cmd_help(char *args) {
   else {
     for (i = 0; i < NR_CMD; i ++) {
       if (strcmp(arg, cmd_table[i].name) == 0) {
-        printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA), cmd_table[i].name, cmd_table[i].description);
+        printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA) "usage: " ANSI_FMT("%s\n", ANSI_FG_CYAN), cmd_table[i].name, cmd_table[i].description, cmd_table[i].usage);
         return 0;
       }
     }

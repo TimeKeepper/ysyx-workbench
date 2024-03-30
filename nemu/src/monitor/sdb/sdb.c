@@ -83,7 +83,7 @@ static struct {
   
   { "c"     , "Continue the execution of the program"                               \
   
-  , "", cmd_c },
+  , "what can i say? it just run program till allright or allfault", cmd_c },
   
   { "q"     , "Exit NEMU"                                                           \
   

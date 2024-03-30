@@ -220,8 +220,7 @@ static int cmd_x(char *args){
     return 0;
   }
 
-  char *scan_num_str = strtok(args, " ");
-  int scan_num = atoi(scan_num_str);
+  int scan_num = atoi(strtok(args, " "));
   bool success = true;
 
   uint32_t base_Addr = expr(strtok(args, " "), &success);

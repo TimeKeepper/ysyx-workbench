@@ -79,7 +79,7 @@ static struct {
 } cmd_table [] = {
   { "help"  , "Display information about all supported commands"                    \
   
-  , "\"help\" display all command and there discription \n \"help \'args\'\" shows single command's discription and it's usage", cmd_help },
+  , "\"help\" display all command and there discription \n\"help \'args\'\" shows single command's discription and it's usage", cmd_help },
   
   { "c"     , "Continue the execution of the program"                               \
   

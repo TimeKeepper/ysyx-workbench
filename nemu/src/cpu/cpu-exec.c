@@ -17,7 +17,6 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
-#include "../monitor/sdb/sdb.h"
 #include "pass_include.h"
 
 /* The assembly code of instructions executed is only output to the screen

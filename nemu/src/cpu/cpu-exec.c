@@ -17,7 +17,6 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
-#include "pass_include.h"
 #include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -26,6 +25,8 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
+#define INSTR_BUF_SIZE 15
+#define INST_SIZE 128
 
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
 static int instr_buf_index = 0;

@@ -4,6 +4,10 @@
 #include <common.h>
 #include <nvboard.h>
 #include <Vtop.h>
+#include "verilated.h"
+#include "verilated_vcd_c.h"
+#include "Vtop__Dpi.h"
+
 
 typedef struct {
     word_t gpr[32];
@@ -23,6 +27,7 @@ extern "C" void init_disasm(const char *triple);
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 void init_difftest(char *ref_so_file, long img_size, int port);
 void difftest_step(vaddr_t pc, vaddr_t npc);
+int npc_trap (int ra);
 
 extern CPU_State cpu;
 

@@ -1,4 +1,5 @@
 #include "Vtop___024root.h"
+#include "verilated_vcd_c.h"
 #include <cpu/cpu.h>
 #include <cstdint>
 #include <memory/paddr.h>
@@ -7,6 +8,15 @@
 
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
+
+int npc_trap (int ra){
+    npc_state.state = NPC_END;
+    printf("ra: %d\n", ra);
+    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
+    else printf("\033[1;31mHit bad trap\033[0m\n");
+    wave_Trace_close(); 
+    return clk_cnt;
+}
 
 const char *regs[32] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -96,15 +106,6 @@ static void reset(int n) {
     dut.rst = 0;
 }
 
-int sim_stop (int ra){
-    npc_state.state = NPC_END;
-    printf("ra: %d\n", ra);
-    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
-    else printf("\033[1;31mHit bad trap\033[0m\n");
-    wave_Trace_close(); 
-    return clk_cnt;
-}
-
 void cpu_reset(int n, int argc, char **argv){
     if(argv != NULL) wave_Trace_init(argc, argv);
     
@@ -156,13 +157,14 @@ static void func_called_detect(){
 
 void check_special_inst(void){
     switch(dut.inst){
-        case 0x00000000: sim_stop(1);   break; // ecall
-        case 0xffffffff: sim_stop(1);   break; // bad trap
+        case 0x00000000: npc_trap(1);   break; // ecall
+        case 0xffffffff: npc_trap(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
         default: break;
     }
 }
 
+void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
     for(;n > 0; n--){
         // nvboard_update();

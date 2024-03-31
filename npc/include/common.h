@@ -14,7 +14,7 @@
 #endif
 
 #define TRACE
-// #define ITRACE
+#define ITRACE
 #define CONFIG_DIFFTEST
 
 typedef uint32_t paddr_t;

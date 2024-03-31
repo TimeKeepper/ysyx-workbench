@@ -9,15 +9,6 @@
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
 
-int npc_trap (int ra){
-    npc_state.state = NPC_END;
-    printf("ra: %d\n", ra);
-    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
-    else printf("\033[1;31mHit bad trap\033[0m\n");
-    wave_Trace_close(); 
-    return clk_cnt;
-}
-
 const char *regs[32] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
@@ -189,6 +180,15 @@ static void execute(uint64_t n){
     }
 }
 
+int npc_trap (int ra){
+    npc_state.state = NPC_END;
+    printf("ra: %d\n", ra);
+    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
+    else printf("\033[1;31mHit bad trap\033[0m\n");
+    wave_Trace_close(); 
+    return clk_cnt;
+}
+
 void cpu_exec(uint64_t n){
     switch (npc_state.state) {
         case NPC_END: case NPC_ABORT:
@@ -220,19 +220,19 @@ int reg_name2id(char *reg_name){
 void isa_reg_display(char *reg_name){
     if(reg_name == NULL){
         for(int i = 0; i < 32; i++){
-            printf("%s: 0x%08x\n", regs[i], cpu.gpr[i]);
+            printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) "0x%08x\n", regs[i], cpu.gpr[i]);
         }
         return;
     }
 
     if(strcmp(reg_name, "pc") == 0){
-        printf("pc: 0x%08x\n", cpu.pc);
+        printf(ANSI_FMT("pc\t", ANSI_FG_BLUE) "0x%08x\n", cpu.pc);
         return;
     }
 
     int reg_num = reg_name2id(reg_name);
     if(reg_num < 0 || reg_num > 31){
-        printf("Invalid register number\n");
+        printf(ANSI_FMT("Invalid register number\n", ANSI_FG_RED));
         return;
     }
 

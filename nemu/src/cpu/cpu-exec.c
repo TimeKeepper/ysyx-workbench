@@ -27,6 +27,9 @@
  */
 #define MAX_INST_TO_PRINT 10
 
+char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
+static int instr_buf_index = 0;
+
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
@@ -51,6 +54,20 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     if(nemu_state.state != NEMU_END) nemu_state.state = NEMU_STOP;//如果在nemu停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NEMU_END的判断
   }
 #endif
+}
+
+void instr_buf_push(char *instr){
+  strcpy(INST_BUF[instr_buf_index++], instr);
+  if(instr_buf_index >= INSTR_BUF_SIZE){
+    instr_buf_index = 0;
+  }
+}
+
+void instr_buf_printf(void){
+  for(int i = 0; i < INSTR_BUF_SIZE; i++){
+    i == instr_buf_index-1 ? printf("---> ") : printf("     ");
+    printf("%s\n", INST_BUF[i]);
+  }
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {

@@ -14,41 +14,49 @@ module Contr_gen(
     output [2:0] MemOp
 );
 
-    MuxKeyWithDefault #(8, 5, 3) ExtOp_mux(ExtOp, op[6:2], 3'b000, {
+    MuxKeyWithDefault #(5, 5, 3) ExtOp_mux(ExtOp, op[6:2], 3'b000, {
         5'b01101, 3'b001,
         5'b00101, 3'b001,
-        5'b00100, 3'b000,
         5'b11011, 3'b100,
-        5'b11001, 3'b000,
         5'b11000, 3'b011,
         5'b01000, 3'b010,
-        5'b00000, 3'b000
     });
 
-    MuxKeyWithDefault #(2, 5, 1) RegWr_mux(RegWr, op[6:2], 1'b1, {
+    wire RegWr_sub11100;
+    MuxKeyWithDefault #(3, 3, 1) RegWr_sub11100_mux(RegWr_sub11100, func3, 1'b0, {
+        3'b000, 1'b0,
+        3'b001, 1'b1,
+        3'b010, 1'b1,
+    })
+
+    MuxKeyWithDefault #(3, 5, 1) RegWr_mux(RegWr, op[6:2], 1'b1, {
         5'b11000, 1'b0,
-        5'b01000, 1'b0
+        5'b01000, 1'b0,
+        5;b11100, RegWr_sub11100
     });
 
-    MuxKeyWithDefault #(3, 5, 1) ALUAsrc_mux(ALUAsrc, op[6:2], 1'b0, {
+    MuxKeyWithDefault #(4, 5, 1) ALUAsrc_mux(ALUAsrc, op[6:2], 1'b0, {
         5'b00101, 1'b1,
         5'b11011, 1'b1,
-        5'b11001, 1'b1
+        5'b11001, 1'b1,
+        5'b11100, 1'b0
     });
 
-    MuxKeyWithDefault #(7, 5, 2) ALUBsrc_mux(ALUBsrc, op[6:2], 2'b00, {
+    MuxKeyWithDefault #(8, 5, 2) ALUBsrc_mux(ALUBsrc, op[6:2], 2'b00, {
         5'b01101, 2'b01,
         5'b00101, 2'b01,
         5'b00100, 2'b01,
         5'b11011, 2'b10,
         5'b11001, 2'b10,
         5'b00000, 2'b01,
-        5'b01000, 2'b01
+        5'b01000, 2'b01,
+        5'b11100, 2'b11
     });
 
     wire [3:0] ALUctr_sub00100;
     wire [3:0] ALUctr_sub01100;
     wire [3:0] ALUctr_sub11000;
+    wire [3:0] ALUctr_sub11100;
 
     MuxKeyWithDefault #(7, 3, 4) ALUctr_sub00100_mux(ALUctr_sub00100, func3, 4'b0000, {
         3'b010, 4'b0010,
@@ -80,10 +88,16 @@ module Contr_gen(
         3'b111, 4'b1010
     });
 
-    MuxKeyWithDefault #(4, 5, 4) ALUctr_mux(ALUctr, op[6:2], 4'b0000, {
+    MuxKeyWithDefault #(2, 3, 4) ALUctr_sub11100_mux(ALUctr_sub11100, func3, 4'b0000, {
+        3'b001, 4'b0011,
+        3'b010, 4'b0110,
+    });
+
+    MuxKeyWithDefault #(5, 5, 4) ALUctr_mux(ALUctr, op[6:2], 4'b0000, {
         5'b00100, ALUctr_sub00100,
         5'b01100, ALUctr_sub01100,
         5'b11000, ALUctr_sub11000,
+        5'b11100, ALUctr_sub11100,
         5'b01101, 4'b0011
     });
 

@@ -69,11 +69,57 @@ module risc_V_pc(
 
 endmodule
 
-// module moduleName (
-//     input      clk,
-//     input      rst,
+module riscv_V_csr (
+    input      clk,
+    input      rst,
+    input      csr_raddr,
+    input      csr_waddr1,
+    input      csr_wdata1,
+    input      csr_waddr2,
+    input      csr_wdata2,
+    input      csr_ctl,
+
+    output  reg   csr_output
+);
+
+reg [31:0] mstatus, mtvec, mscratch, mepc, mcause;
+
+always @(posedge clk or posedge rst) begin
+    if (rst) begin
+        mstatus <= 32'h00000000;
+        mtvec <= 32'h00000000;
+        mscratch <= 32'h00000000;
+        mepc <= 32'h00000000;
+        mcause <= 32'h00000000;
+    end
+    if(csr_ctl != 2'b00) begin
+        case(csr_raddr)
+            5'b00000: csr_output <= mstatus;
+            5'b00101: csr_output <= mtvec;
+            5'b00110: csr_output <= mscratch;
+            5'b01101: csr_output <= mepc;
+            5'b11101: csr_output <= mcause;
+        endcase
+    end
+    if(csr_ctl[0] == 1'b1) begin
+        case(csr_waddr1)
+            5'b00000: mstatus <= csr_wdata1;
+            5'b00101: mtvec <= csr_wdata1;
+            5'b00110: mscratch <= csr_wdata1;
+            5'b01101: mepc <= csr_wdata1;
+            5'b11101: mcause <= csr_wdata1;
+        endcase
+    end
+    if(csr_ctl == 2'b11) begin
+        case(csr_waddr2)
+            5'b00000: mstatus <= csr_wdata2;
+            5'b00101: mtvec <= csr_wdata2;
+            5'b00110: mscratch <= csr_wdata2;
+            5'b01101: mepc <= csr_wdata2;
+            5'b11101: mcause <= csr_wdata2;
+        endcase
+    end
+end
     
-// );
-    
-// endmodule //moduleName
+endmodule //riscv_V_csr
 

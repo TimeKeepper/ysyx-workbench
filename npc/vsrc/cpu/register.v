@@ -69,20 +69,33 @@ module risc_V_pc(
 
 endmodule
 
-module riscv_V_csr (
+module riscv_V_csr #(
+    parameter ADDR_MSTATUS = 12'h300,
+    parameter ADDR_MTVEC = 12'h305,
+    parameter ADDR_MSCRATCH = 12'h340,
+    parameter ADDR_MEPC = 12'h341,
+    parameter ADDR_MCAUSE = 12'h342
+) (
+    input [31:0] test,
     input      clk,
     input      rst,
-    input      csr_raddr,
-    input      csr_waddr1,
-    input      csr_wdata1,
-    input      csr_waddr2,
-    input      csr_wdata2,
-    input      csr_ctl,
+    input   [11:0]   csr_raddr,
+    input   [11:0]   csr_waddr1,
+    input   [31:0]   csr_wdata1,
+    input   [11:0]   csr_waddr2,
+    input   [31:0]   csr_wdata2,
+    input   [1:0]   csr_ctr,
 
-    output  reg   csr_output
+    output  [31:0]   csr_output
 );
 
-reg [31:0] mstatus, mtvec, mscratch, mepc, mcause;
+reg [31:0] mstatus, mtvec, mscratch, mepc, mcause, mcache;
+
+assign csr_output = (csr_raddr == ADDR_MSTATUS) ? mstatus :
+                    (csr_raddr == ADDR_MTVEC) ? mtvec :
+                    (csr_raddr == ADDR_MSCRATCH) ? mscratch :
+                    (csr_raddr == ADDR_MEPC) ? mepc :
+                    (csr_raddr == ADDR_MCAUSE) ? mcause : 32'h00000000;
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -92,31 +105,24 @@ always @(posedge clk or posedge rst) begin
         mepc <= 32'h00000000;
         mcause <= 32'h00000000;
     end
-    if(csr_ctl != 2'b00) begin
-        case(csr_raddr)
-            5'b00000: csr_output <= mstatus;
-            5'b00101: csr_output <= mtvec;
-            5'b00110: csr_output <= mscratch;
-            5'b01101: csr_output <= mepc;
-            5'b11101: csr_output <= mcause;
-        endcase
-    end
-    if(csr_ctl[0] == 1'b1) begin
+    if(csr_ctr==2'b10 || csr_ctr == 2'b11) begin
         case(csr_waddr1)
-            5'b00000: mstatus <= csr_wdata1;
-            5'b00101: mtvec <= csr_wdata1;
-            5'b00110: mscratch <= csr_wdata1;
-            5'b01101: mepc <= csr_wdata1;
-            5'b11101: mcause <= csr_wdata1;
+            ADDR_MSTATUS: mstatus <= csr_wdata1;
+            ADDR_MTVEC  : mtvec <= csr_wdata1;
+            ADDR_MSCRATCH: mscratch <= csr_wdata1;
+            ADDR_MEPC   : mepc <= csr_wdata1;
+            ADDR_MCAUSE : mcause <= csr_wdata1;
+            default:  mcache <= csr_wdata1;
         endcase
     end
-    if(csr_ctl == 2'b11) begin
+    if(csr_ctr[0] && csr_ctr[1]) begin
         case(csr_waddr2)
-            5'b00000: mstatus <= csr_wdata2;
-            5'b00101: mtvec <= csr_wdata2;
-            5'b00110: mscratch <= csr_wdata2;
-            5'b01101: mepc <= csr_wdata2;
-            5'b11101: mcause <= csr_wdata2;
+            ADDR_MSTATUS: mstatus <= csr_wdata2;
+            ADDR_MTVEC  : mtvec <= csr_wdata2;
+            ADDR_MSCRATCH: mscratch <= csr_wdata2;
+            ADDR_MEPC   : mepc <= csr_wdata2;
+            ADDR_MCAUSE : mcause <= csr_wdata2;
+            default: mcache <= csr_wdata2;
         endcase
     end
 end

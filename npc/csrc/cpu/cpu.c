@@ -83,11 +83,11 @@ void memory_write(void){
 }
 
 static void single_cycle() {
-    dut.clk = 0; dut.eval();wave_Trace_once();
+    dut.clk = 0; dut.eval();wave_Trace_once();                    //译码，执行
     
-    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //读内存
+    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //写回
 
-    dut.clk = 1; dut.eval();wave_Trace_once();
+    dut.clk = 1; dut.eval();wave_Trace_once();                    //更新pc
     clk_cnt++;
 }
 
@@ -157,9 +157,10 @@ void check_special_inst(void){
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
+    bool is_itrace = (n < 10);
     for(;n > 0; n--){
         // nvboard_update();
-        dut.inst = ram_read(cpu.pc, 4);                         //取指
+        dut.inst = ram_read(cpu.pc, 4);                           //取指
 
         // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);
 
@@ -167,7 +168,7 @@ static void execute(uint64_t n){
 
         if(dut.rootp->mem_wen) memory_write();          //写内存
 
-        itrace_catch();
+        if(is_itrace) itrace_catch();
 
         cpu_value_update();          //更新寄存器
         

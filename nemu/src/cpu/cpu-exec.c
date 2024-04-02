@@ -46,6 +46,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
 #ifdef CONFIG_WATCHPOINT
+  #include "/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/src/monitor/sdb/sdb.h"
   wp_Value_Update();
   WP* wp;
   for(int i = 0; (wp=get_Changed_wp(i)) != NULL; i++){

@@ -13,17 +13,13 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include "isa.h"
 #include "local-include/reg.h"
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
-#include <stdint.h>
+#include <pass_include.h>
 
-int store_Regs_Value_cache(int);
-char* isa_id2str(int);
 #define R(i) gpr(store_Regs_Value_cache(i))
-#define SR(i) sr(i)
 #define Print_rd (printf("rd:%s,",isa_id2str(rd)))
 #define Print_insut_name(name) printf("insut:%s,",name)
 #define Print_DBG_Message(name) (1==1 ? :((Print_insut_name(name),Print_rd),printf("imm:%x or %d or %x\n,",imm+s->pc,imm,imm)))
@@ -102,14 +98,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 00100 11", \
   andi   , I, Print_DBG_Message("andi")   ,               R(rd) = src1 & imm);
   
-  INSTPAT("??????? ????? ????? 110 ????? 00100 11", \
-  ori    , I, Print_DBG_Message("ori")    ,               R(rd) = src1 | imm);
-  
   INSTPAT("??????? ????? ????? 100 ????? 00100 11", \
   xori   , I, Print_DBG_Message("xori")   ,               R(rd) = src1 ^ imm);
-  
-  INSTPAT("??????? ????? ????? 000 ????? 00000 11", \
-  lb     , I, Print_DBG_Message("lb")     ,               R(rd) = SEXT(Mr(src1 + imm, 1),8));
   
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", \
   lh     , I, Print_DBG_Message("lh")     ,               R(rd) = SEXT(Mr(src1 + imm, 2),16));
@@ -119,12 +109,6 @@ static int decode_exec(Decode *s) {
 
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", \
   lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));
-  
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", \
-  csrrw  , I, Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1);
-  
-  INSTPAT("??????? ????? ????? 010 ????? 11100 11", \
-  csrrs  , I, Print_DBG_Message("csrrs"),     SR(imm) |= src1, R(rd) = SR(imm));
   
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
   slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);
@@ -180,9 +164,6 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", \
   mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (sword_t)((SEXT(src1,32) * SEXT(src2,32)) >> 32));
   
-  INSTPAT("0000001 ????? ????? 011 ????? 01100 11", \
-  mulhu  , R, Print_DBG_Message("mulhu")  ,               R(rd) = (sword_t)(((uint64_t)src1 * (uint64_t)src2) >> 32));
-  
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", \
   div    , R, Print_DBG_Message("div")    ,               R(rd) = (sword_t)src1 / (sword_t)src2);
   
@@ -213,14 +194,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", \
   bgeu   , B, if (Print_DBG_Message("bgeu"),src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
   
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", \
-  ecall  , N, Print_DBG_Message("ecall ") ,               s->dnpc = isa_raise_intr(11, s->pc)); 
-  
   INSTPAT("0000000 00001 00000 000 00000 11100 11", \
   ebreak , N, Print_DBG_Message("ebreak") ,               NEMUTRAP(s->pc, R(10))); // R(10) is $a0
-  
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", \
-  mret   , N, Print_DBG_Message("mret ")  ,               s->dnpc = cpu.sr[ADDR_MEPC]); 
   
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", \
   inv    , N, Print_DBG_Message("inv")    ,               INV(s->pc));
@@ -240,7 +215,6 @@ void change_register_value(int regNO, word_t value){
 #if CONFIG_FTRACE
 
 static bool is_ret = false;
-char* get_func_name(long addr);
 
 static void func_called_detect(Decode *s){
   static uint32_t stack_num = 0;

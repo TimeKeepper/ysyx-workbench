@@ -27,6 +27,7 @@ wire [1:0] ALUBsrc;
 wire [3:0] ALUctr;
 wire [2:0] Branch;
 wire MemtoReg;
+wire [2:0] MemOp;
 
 Contr_gen contr (
     .op(inst[6:0]),
@@ -41,7 +42,7 @@ Contr_gen contr (
     .Branch(Branch),
     .MemtoReg(MemtoReg),
     .MemWr(mem_wen),
-    .MemOp(memop)
+    .MemOp(MemOp)
 );
 
 wire [31:0] rs1_val;
@@ -128,8 +129,5 @@ MuxKeyWithDefault #(2, 1, 32) mem_to_Reg_mux (busW, MemtoReg, 32'h00000000, {
     1'b0, Result,
     1'b1, mem_data
 });
-
-assign mem_addr = Result;
-assign memdata = rs2_val;
 
 endmodule

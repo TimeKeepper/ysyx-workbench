@@ -118,6 +118,10 @@ config CC_DEBUG
   bool "Enable debug information"
   default n
 
+config WATCHPOINT
+  bool "Enable watchpoint"
+  default n
+
 config CC_ASAN
   depends on MODE_SYSTEM
   bool "Enable address sanitizer"
@@ -126,9 +130,6 @@ endmenu
 
 menu "Testing and Debugging"
 
-config WATCHPOINT
-  bool "Enable watchpoint"
-  default n
 
 config TRACE
   bool "Enable tracer"
@@ -162,11 +163,6 @@ default y
 config FTRACE
 depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
 bool "Enable function tracer"
-default y
-
-config DTRACE
-depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
-bool "Enable device tracer"
 default y
 
 config DIFFTEST

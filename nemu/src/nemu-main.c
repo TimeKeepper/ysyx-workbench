@@ -35,19 +35,21 @@ int main(int argc, char *argv[]) {
   return is_exit_status_bad();
 }
 
+
+
+
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
-static int instr_buf_index = 0;
+  static int instr_buf_index = 0;
 
 void instr_buf_push(char *instr){
-  strcpy(INST_BUF[instr_buf_index++], instr);
   if(instr_buf_index >= INSTR_BUF_SIZE){
     instr_buf_index = 0;
   }
+  strcpy(INST_BUF[instr_buf_index++], instr);
 }
 
 void instr_buf_printf(void){
-  for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index-1 ? printf("---> ") : printf("     ");
+  for(int i = 0; i < instr_buf_index; i++){
     printf("%s\n", INST_BUF[i]);
   }
 }

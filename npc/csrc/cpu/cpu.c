@@ -1,5 +1,4 @@
 #include "Vtop___024root.h"
-#include "verilated_vcd_c.h"
 #include <cpu/cpu.h>
 #include <cstdint>
 #include <memory/paddr.h>
@@ -46,7 +45,7 @@ void wave_Trace_close(){
     #endif
 }
 
-CPU_State cpu = {.gpr = {0}, .pc = 0x80000000, .sr = {0}};
+CPU_State cpu = {.gpr = {0}, .pc = 0x80000000};
 
 uint32_t ram_read(uint32_t addr, int len){
     return paddr_read(addr, len);
@@ -58,7 +57,7 @@ void ram_write(paddr_t addr, int len, word_t data){
 
 uint32_t memory_read(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
-    if (!(likely(in_pmem(mem_addr)) || (mem_addr == RTC_ADDR) || (mem_addr == RTC_ADDR + 4))) return 0;
+    if (!likely(in_pmem(mem_addr))) return 0;
     switch(dut.rootp->memop){
         case 0b010: /*printf("Hit as 0b010!!!\n");*/return ram_read(mem_addr,  4);
         case 0b101: /*printf("Hit as 0b101!!!\n");*/return ram_read(mem_addr,  2);
@@ -71,7 +70,7 @@ uint32_t memory_read(void){
 
 void memory_write(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
-    if (!((likely(in_pmem(mem_addr))) || mem_addr == SERIAL_PORT)) return;
+    if (!likely(in_pmem(mem_addr))) return;
     switch(dut.rootp->memop){
         case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;
         case 0b001:
@@ -168,8 +167,6 @@ static void execute(uint64_t n){
     for(;n > 0; n--){
         // nvboard_update();
         dut.inst = ram_read(cpu.pc, 4);                         //取指
-
-        // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);
 
         single_cycle();                                                     //单周期执行
 

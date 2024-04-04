@@ -52,6 +52,8 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 all: default
 
+default: $(BIN)
+
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	
 	$(NPC_EXEC)

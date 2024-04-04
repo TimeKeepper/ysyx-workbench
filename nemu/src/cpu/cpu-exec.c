@@ -17,7 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
-#include "pass_include.h"
+#include "isa.h"
 #include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -26,6 +26,11 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
+#define INSTR_BUF_SIZE 15
+#define INST_SIZE 128
+
+char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
+static int instr_buf_index = 0;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -42,6 +47,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
 #ifdef CONFIG_WATCHPOINT
+  #include "/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/src/monitor/sdb/sdb.h"
   wp_Value_Update();
   WP* wp;
   for(int i = 0; (wp=get_Changed_wp(i)) != NULL; i++){
@@ -53,6 +59,19 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
 }
 
+void instr_buf_push(char *instr){
+  if(++instr_buf_index > INSTR_BUF_SIZE){
+    instr_buf_index = 0;
+  }
+  strcpy(INST_BUF[instr_buf_index], instr);
+}
+
+void instr_buf_printf(void){
+  for(int i = 0; i < INSTR_BUF_SIZE; i++){
+    i == instr_buf_index ? printf("---> ") : printf("     ");
+    printf("%s\n", INST_BUF[i]);
+  }
+}
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;

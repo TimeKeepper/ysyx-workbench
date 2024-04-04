@@ -1,4 +1,4 @@
-import "DPI-C" function int sim_stop (input int ra);
+import "DPI-C" function int npc_trap (input int ra);
 
 module top(
     input clk,
@@ -18,7 +18,7 @@ module top(
 
 always @(inst) begin
     if(inst == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", sim_stop(cpu.reg_file.rf.rf[10]));
+        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.reg_file.rf.rf[10]));
 end
 
 riscv_cpu cpu (

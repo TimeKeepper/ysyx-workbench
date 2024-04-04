@@ -1,4 +1,5 @@
 #include "Vtop___024root.h"
+#include "verilated_vcd_c.h"
 #include <cpu/cpu.h>
 #include <cstdint>
 #include <memory/paddr.h>

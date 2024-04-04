@@ -5,6 +5,7 @@
 #include <common.h>
 #include <dlfcn.h>
 #include <utils.h>
+#include <sdb/sdb.h>
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 

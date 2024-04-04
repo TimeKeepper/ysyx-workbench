@@ -38,7 +38,10 @@ static struct {
   
   { "x"     , "Scan Memory"                                                         \
   
-  , "", cmd_x}
+  , "", cmd_x},
+
+  { "ir", "printf instruction ring buffer"
+  , "", cmd_ir}
 };
 
 #define NR_CMD ARRLEN(cmd_table)

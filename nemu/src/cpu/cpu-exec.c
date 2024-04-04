@@ -59,19 +59,18 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 void instr_buf_push(char *instr){
-  strcpy(INST_BUF[instr_buf_index++], instr);
-  if(instr_buf_index >= INSTR_BUF_SIZE){
+  if(++instr_buf_index > INSTR_BUF_SIZE){
     instr_buf_index = 0;
   }
+  strcpy(INST_BUF[instr_buf_index], instr);
 }
 
 void instr_buf_printf(void){
   for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index-1 ? printf("---> ") : printf("     ");
+    i == instr_buf_index ? printf("---> ") : printf("     ");
     printf("%s\n", INST_BUF[i]);
   }
 }
-
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;

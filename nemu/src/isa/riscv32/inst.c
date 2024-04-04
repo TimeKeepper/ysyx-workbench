@@ -121,10 +121,10 @@ static int decode_exec(Decode *s) {
   lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));
   
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", \
-  csrrw  , I, Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1, printf("nemu changing sr[%x] to %x\n", imm, src1));
+  csrrw  , I, Print_DBG_Message("csrrw"),     R(rd) = SR(imm), SR(imm) = src1, imm == ADDR_MTVEC ? printf("nemu changing sr[%x] to %x\n", imm, src1) : 1==1);
   
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", \
-  csrrs  , I, Print_DBG_Message("csrrs"),     R(rd) = SR(imm), SR(imm) |= src1, printf("nemu setting sr[%x] to %x\n", imm, src1));
+  csrrs  , I, Print_DBG_Message("csrrs"),     R(rd) = SR(imm), SR(imm) |= src1, imm == ADDR_MTVEC ? printf("nemu setting sr[%x] to %x\n", imm, src1) : 1==1);
   
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
   slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);

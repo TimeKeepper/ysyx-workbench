@@ -115,3 +115,13 @@ int cmd_x(char *args){
     }
     return 0;
 }
+
+void instr_buf_printf(void);
+int cmd_ir(char *args){
+    #ifndef ITRACE
+    printf(ANSI_FMT("You have no enable funtion named ITRACE\n", ANSI_FG_RED));
+    return 0;
+    #endif
+    instr_buf_printf();
+    return 0;
+}

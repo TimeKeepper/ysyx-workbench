@@ -9,6 +9,26 @@
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
 
+#define MAX_INST_TO_PRINT 10
+#define INSTR_BUF_SIZE 15
+#define INST_SIZE 128
+char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
+static int instr_buf_index = 0;
+
+void instr_buf_push(char *instr){
+  if(++instr_buf_index > INSTR_BUF_SIZE){
+    instr_buf_index = 0;
+  }
+  strcpy(INST_BUF[instr_buf_index], instr);
+}
+
+void instr_buf_printf(void){
+  for(int i = 0; i < INSTR_BUF_SIZE; i++){
+    i == instr_buf_index ? printf("---> ") : printf("     ");
+    printf("%s\n", INST_BUF[i]);
+  }
+}
+
 const char *regs[32] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
   "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
@@ -112,7 +132,7 @@ void cpu_value_update(void){
 }
 
 char itrace_buf[256];
-void itrace_catch(){
+void itrace_catch(bool is_printf){
     #ifdef ITRACE
     char* p = itrace_buf;
 
@@ -123,7 +143,9 @@ void itrace_catch(){
     }
     disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
 
-    printf("%s\n", itrace_buf);
+    instr_buf_push(itrace_buf);
+
+    if(is_printf) printf("%s\n", itrace_buf);
     #endif
 }
 
@@ -157,7 +179,7 @@ void check_special_inst(void){
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
-    bool is_itrace = (n < 10);
+    bool is_itrace = (n < MAX_INST_TO_PRINT);
     for(;n > 0; n--){
         // nvboard_update();
         dut.inst = ram_read(cpu.pc, 4);                           //取指
@@ -168,7 +190,7 @@ static void execute(uint64_t n){
 
         if(dut.rootp->mem_wen) memory_write();          //写内存
 
-        if(is_itrace) itrace_catch();
+        itrace_catch(is_itrace);
 
         cpu_value_update();          //更新寄存器
         

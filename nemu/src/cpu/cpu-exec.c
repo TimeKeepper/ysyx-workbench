@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include "isa.h"
 #include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -74,6 +75,7 @@ void instr_buf_printf(void){
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
+  if(cpu.sr[ADDR_MTVEC] == 0) printf("nemu warn! pc = 0x%08x", pc);
   isa_exec_once(s);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE

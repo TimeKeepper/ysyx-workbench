@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <gelf.h>
 #include <libelf.h>
+#include <pass_include.h>
 
 void init_rand();
 void init_log(const char *log_file);

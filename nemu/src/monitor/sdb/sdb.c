@@ -269,10 +269,6 @@ static int cmd_d(char *args){
 }
 
 static int cmd_b(char *args){
-  #if CONFIG_WATCHPOINT==0
-    printf(ANSI_FMT("The watchpoint function is not enabled!\n", ANSI_FG_RED));
-    return 0;
-  #endif
   if(args == NULL){
     printf(ANSI_FMT("You should input the address of the breakpoint!\n", ANSI_FG_RED));
     return 0;

@@ -13,8 +13,8 @@
 #define unlikely(cond) __builtin_expect(cond, 0)
 #endif
 
-#define TRACE
-#define ITRACE
+// #define TRACE
+// #define ITRACE
 #define CONFIG_DIFFTEST
 
 typedef uint32_t paddr_t;

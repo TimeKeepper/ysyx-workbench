@@ -5,7 +5,6 @@
 #include <common.h>
 #include <dlfcn.h>
 #include <utils.h>
-#include <sdb/sdb.h>
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
@@ -98,7 +97,7 @@ bool isa_difftest_checkregs(CPU_State *ref_r, vaddr_t pc) {
 #ifdef CONFIG_DIFFTEST
 static void checkregs(CPU_State *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
-    npc_trap(1);
+    sim_stop(1);
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = pc;
   }

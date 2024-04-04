@@ -124,8 +124,18 @@ void cpu_reset(int n, int argc, char **argv){
     clk_cnt = 0;
 }
 
+const int sregs_iddr[] = {
+  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE, ADDR_MSCRATCH
+};
+
 void cpu_value_update(void){
     cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;   
+    cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mstatus;
+    cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mtvec;
+    cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mepc;
+    cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mcause;
+    cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mscratch; 
+
     if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
     uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__rf__DOT__rf.m_storage[rd_iddr];

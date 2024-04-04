@@ -75,7 +75,7 @@ void instr_buf_printf(void){
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
-  if(cpu.sr[ADDR_MTVEC] == 0) printf("nemu warn! pc = 0x%08x", pc);
+  if(cpu.sr[ADDR_MTVEC] == 0) printf("nemu warn! pc = 0x%08x\n", pc);
   isa_exec_once(s);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE

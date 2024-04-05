@@ -20,7 +20,8 @@
 #include <memory/paddr.h>
 #include "sdb.h"
 #include "common.h"
-#include <pass_include.h>
+#include "debug.h"
+#include "utils.h"
 
 static int is_batch_mode = false;
 
@@ -57,186 +58,73 @@ static char* rl_gets() {
   return line_read;
 }
 
-static int cmd_c(char *args) {
-  //input -1 as parameter to cpu_exec means continious execute command forever.
-  cpu_exec(-1);
-  return 0;
-}
-
-
-static int cmd_q(char *args) {
-  nemu_state.state = NEMU_QUIT;
-  return -1;
-}
-
-static int cmd_si(char *args) {
-  char* parameter_str = strtok(args, " ");
-  if(parameter_str == NULL){
-    cpu_exec(1);
-  }
-  else{
-    int parameter = atoi(parameter_str);
-    cpu_exec(parameter);
-  }
-  return 0;
-}
-
-static int cmd_info(char *args) {
-  char* show_type = strtok(args, " ");
-  if(show_type == NULL){
-    Log("You should input the requried info type: r(register) or w(watchpoint).");
-    return 0;
-  }
-  if(strlen(show_type) != 1) {
-    Log("You should only enter an single character.");
-    return 0;
-  }
-  char *specific_info = strtok(NULL, " ");
-  switch(*show_type){
-    case 'r': isa_reg_display(specific_info);break;
-    case 'w': wp_display();break;
-    default:Log("you should input the requried info type: r(register) or w(watchpoint).");break;
-  }
-  return 0;
-}
-
-#define INPUT_BUF_LENGTH 65536
-char input_buf[INPUT_BUF_LENGTH];
-
-static int cmd_test(char *args){
-  bool success = true;
-
-  FILE* fp = fopen("/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/tools/gen-expr/input", "r");
-
-  if(fp == NULL){
-    printf("Can not open the file!\n");
-    return 0;
-  }
-
-  while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
-    char* result_str = strtok(input_buf, " ");
-    char* expr_str = result_str + strlen(result_str) + 1;
-    expr_str[strlen(expr_str) - 1] = '\0';
-    int result = atoi(result_str);
-    printf("expr: %s, result: %d\n", expr_str, result);
-    if(expr(expr_str, &success) != result){
-      printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
-    }
-  }
-
-  return 0;
-}
-
-static int cmd_single_test(char *args){
-  bool success = true;
-  char* expr_str = args;
-  int result = atoi(args + strlen(args) + 1);
-  printf("expr: %s, result: %d\n", expr_str, result);
-  if(expr(expr_str, &success) != result){
-    printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
-  }
-  return 0;
-}
-
-static uint32_t print_Ram(uint32_t bias){
-  uint32_t result = paddr_read(bias, 4);
-  printf("0x%08x ", result);
-  return result;
-}
-
-static int cmd_x(char *args){
-  char *scan_num_str = strtok(args, " ");
-  int scan_num = atoi(scan_num_str);
-  bool success = true;
-  uint32_t base_Addr = expr(scan_num_str+strlen(scan_num_str)+1, &success);
-  if(!likely(in_pmem(base_Addr))){
-    printf("The 0x%08x address is out of range!\n", base_Addr);
-    return 0;
-  }
-  for(int i = 0; i < scan_num; i++){
-    print_Ram(base_Addr + 4 * i);
-    for(int j = 0; j < 4; j++){
-      printf("%c", paddr_read(base_Addr + 4 * i + j, 1));
-    }
-    printf("\n");
-  }
-  printf("\n");
-  return 0;
-}
-
-static int cmd_w(char *args){
-  new_wp(args);
-  wp_Value_Update();
-  return 0;
-}
-
-static int cmd_d(char *args){
-  int wpNO = atoi(args);
-  WP* wp = get_head_wp();
-  for(int i = 0; i < wpNO - 1; i++){
-    wp = wp->next;
-  }
-  if(wp!=NULL) free_wp(wp);
-  return 0;
-}
-
-static int cmd_b(char *args){
-  if(args == NULL){
-    printf("You should input the address of the breakpoint!\n");
-    return 0;
-  }
-  bool success = true;
-  word_t addr = expr(args, &success);
-  if(addr < 0x80000000){
-    printf("The address is out of range!\n");
-    return 0;
-  }
-  char expr_str[20] = "$pc == ";
-  strcat(expr_str, args);
-  new_wp(expr_str);
-  wp_Value_Update();
-  return 0;
-}
-
 static int cmd_help(char *args);
-
-static int cmd_crv(char *args){
-  char* reg_name = strtok(args, " ");
-  if(reg_name == NULL){
-    Log("You should input the register name!");
-    return 0;
-  }
-  char* reg_value_str = strtok(NULL, " ");
-  if(reg_value_str == NULL){
-    Log("You should input the register value!");
-    return 0;
-  }
-  bool success = true;
-  word_t reg_value = expr(reg_value_str, &success);
-  if(success){
-    int regNO = isa_str2id(reg_name, &success);
-    change_register_value(regNO, reg_value);
-  }
-  return 0;
-}
+static int cmd_c(char *args);
+static int cmd_q(char *args);
+static int cmd_si(char *args);
+static int cmd_info(char *args);
+static int cmd_x(char *args);
+static int cmd_w(char *args);
+static int cmd_d(char *args);
+static int cmd_b(char *args);
+static int cmd_test(char *args);
+static int cmd_single_test(char *args);
+static int cmd_crv(char *args);
 
 static struct {
   const char *name;
   const char *description;
+  const char *usage;
   int (*handler) (char *);
 } cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
-  { "si", "Let the program step through N instructions and then pause execution", cmd_si},
-  { "info", "get some machine info", cmd_info},
-  { "x", "Scan Memory", cmd_x},
-  {"w", "create watchpoint", cmd_w},
-  {"d", "delete watchpoint", cmd_d},
-  {"b", "create breakpoint", cmd_b},
-  {"test", "Help me for test my code", cmd_test},
-  {"stest", "Help me for test my code", cmd_single_test},
-  { "crv", "Changing risgister's value", cmd_crv}
+  { "help"  , "Display information about all supported commands"                    \
+  
+  , "\"help\" display all command and there discription \n\"help \'args\'\" shows single command's discription and it's usage", cmd_help },
+  
+  { "c"     , "Continue the execution of the program"                               \
+  
+  , "NONE", cmd_c },
+  
+  { "q"     , "Exit NEMU"                                                           \
+  
+  , "NONE", cmd_q },
+  
+  { "si"    , "Let the program step through N instructions and then pause execution"\
+  
+  , "\"si\" run 1 inst on nemu which same as \"si 1\" \n\"si \'N\'\" run N inst", cmd_si},
+  
+  { "info"  , "get some machine info"                                               \
+  
+  , "\"info r\" can show all register value and \"info r \'reg\'\" can show the specific register's value \n\"info w\" can show all wtachpoints 's message", cmd_info},
+  
+  { "x"     , "Scan Memory"                                                         \
+  
+  , "", cmd_x},
+  
+  { "w"     , "create watchpoint"                                                   \
+  
+  , "", cmd_w},
+  
+  { "d"     , "delete watchpoint"                                                   \
+  
+  , "", cmd_d},
+  
+  { "b"     , "create breakpoint"                                                   \
+  
+  , "", cmd_b},
+  
+  { "test"  , "Help me for test my code"                                            \
+  
+  , "", cmd_test},
+  
+  { "stest", "Help me for test my code"                                            \
+  
+  , "", cmd_single_test},
+  
+  { "crv"  , "Changing risgister's value"                                          \
+
+  , "", cmd_crv}
+
 
   /* TODO: Add more commands */
 
@@ -252,17 +140,215 @@ static int cmd_help(char *args) {
   if (arg == NULL) {
     /* no argument given */
     for (i = 0; i < NR_CMD; i ++) {
-      printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+      printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA), cmd_table[i].name, cmd_table[i].description);
+    }
+    return 0;
+  }
+  
+  for (i = 0; i < NR_CMD; i ++) {
+    if (strcmp(arg, cmd_table[i].name) == 0) {
+      printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) " - " ANSI_FMT("%s\n", ANSI_FG_MAGENTA) "usage: \n" ANSI_FMT("%s\n", ANSI_FG_CYAN), cmd_table[i].name, cmd_table[i].description, cmd_table[i].usage);
+      return 0;
     }
   }
-  else {
-    for (i = 0; i < NR_CMD; i ++) {
-      if (strcmp(arg, cmd_table[i].name) == 0) {
-        printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
-        return 0;
-      }
+
+  printf(ANSI_FMT("Unknown command", ANSI_FG_RED) " '%s'\n", arg);
+  return 0;
+}
+
+static int cmd_c(char *args) {
+  //input -1 as parameter to cpu_exec means continious execute command forever.
+  cpu_exec(-1);
+  return 0;
+}
+
+static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
+  return -1;
+}
+
+static int cmd_si(char *args) {
+  char* parameter_str = strtok(args, " ");
+
+  if(parameter_str == NULL){
+    cpu_exec(1);
+    return 0;
+  }
+
+  int parameter = atoi(parameter_str);
+  if(parameter < 0){
+    printf(ANSI_FMT("You should input a positive value\n", ANSI_FG_RED));
+    return 0;
+  }
+  else if(parameter == 0){
+    printf(ANSI_FMT("What do you mean, Bro?\n", ANSI_FG_RED));
+    return 0;
+  }
+
+  cpu_exec(parameter);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char* show_type = strtok(args, " ");
+  if(show_type == NULL){
+    printf(ANSI_FMT("You should input the requried info type: r(register) or w(watchpoint).\n", ANSI_FG_RED));
+    return 0;
+  }
+  if(strlen(show_type) != 1) {
+    printf(ANSI_FMT("You should only enter an single character.\n", ANSI_FG_RED));
+    return 0;
+  }
+  char *specific_info = strtok(NULL, " ");
+  switch(*show_type){
+    case 'r': isa_reg_display(specific_info);                                       break;
+    case 'w': wp_display();                                                                   break;
+    default : printf(ANSI_FMT("you should input the requried info type: r(register) or w(watchpoint).\n", ANSI_FG_RED));  break;
+  }
+  return 0;
+}
+
+static uint32_t print_Ram(uint32_t bias){
+  uint32_t result = paddr_read(bias, 4);
+  printf("0x%08x ", result);
+  return result;
+}
+
+static int cmd_x(char *args){
+  if(args == NULL) {
+    printf(ANSI_FMT("You should input the scan time!\n", ANSI_FG_RED));
+    return 0;
+  }
+  
+  int scan_num = atoi(strtok(args, " "));
+  
+  bool success = true;
+  uint32_t base_Addr = expr(strtok(NULL, " "), &success);
+
+  if(!likely(in_pmem(base_Addr))){
+    printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);
+    return 0;
+  }
+
+  for(int i = 0; i < scan_num; i++){
+    print_Ram(base_Addr + 4 * i);
+    for(int j = 0; j < 4; j++){
+      printf(ANSI_FMT("%c", ANSI_FG_BLUE), paddr_read(base_Addr + 4 * i + j, 1));
     }
-    printf("Unknown command '%s'\n", arg);
+    printf("\n");
+  }
+  return 0;
+}
+
+static int cmd_w(char *args){
+  #if CONFIG_WATCHPOINT==0
+    printf(ANSI_FMT("The watchpoint function is not enabled!\n", ANSI_FG_RED));
+    return 0;
+  #endif
+  if(args == NULL){
+    printf(ANSI_FMT("No expression!\n", ANSI_FG_RED));
+    return 0;
+  }
+  new_wp(args);
+  wp_Value_Update();
+  return 0;
+}
+
+static int cmd_d(char *args){
+  if(args == NULL){
+    printf(ANSI_FMT("No delete op!\n", ANSI_FG_RED));
+    return 0;
+  }
+  int wpNO = atoi(args);
+  WP* wp = get_head_wp();
+  for(int i = 0; i < wpNO - 1; i++){
+    wp = wp->next;
+  }
+  if(wp!=NULL) free_wp(wp);
+  return 0;
+}
+
+static int cmd_b(char *args){
+  #if CONFIG_WATCHPOINT==0
+    printf(ANSI_FMT("The watchpoint function is not enabled!\n", ANSI_FG_RED));
+    return 0;
+  #endif
+  if(args == NULL){
+    printf(ANSI_FMT("You should input the address of the breakpoint!\n", ANSI_FG_RED));
+    return 0;
+  }
+  bool success = true;
+  word_t addr = expr(args, &success);
+  if(addr < 0x80000000){
+    printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
+    return 0;
+  }
+  char expr_str[20] = "$pc == ";
+  strcat(expr_str, args);
+  new_wp(expr_str);
+  wp_Value_Update();
+  return 0;
+}
+
+// #define INPUT_BUF_LENGTH 65536
+// char input_buf[INPUT_BUF_LENGTH];
+void instr_buf_printf(void);
+static int cmd_test(char *args){
+  instr_buf_printf();
+  return 0;
+  // bool success = true;
+
+  // FILE* fp = fopen("/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/tools/gen-expr/input", "r");
+
+  // if(fp == NULL){
+  //   printf("Can not open the file!\n");
+  //   return 0;
+  // }
+
+  // while(fgets(input_buf, INPUT_BUF_LENGTH, fp) != NULL){
+  //   char* result_str = strtok(input_buf, " ");
+  //   char* expr_str = result_str + strlen(result_str) + 1;
+  //   expr_str[strlen(expr_str) - 1] = '\0';
+  //   int result = atoi(result_str);
+  //   printf("expr: %s, result: %d\n", expr_str, result);
+  //   if(expr(expr_str, &success) != result){
+  //     printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+  //   }
+  // }
+
+  // return 0;
+}
+
+static int cmd_single_test(char *args){
+  TODO();
+  // bool success = true;
+  // char* expr_str = args;
+  // int result = atoi(args + strlen(args) + 1);
+  // printf("expr: %s, result: %d\n", expr_str, result);
+  // if(expr(expr_str, &success) != result){
+  //   printf("Test failed! The result should be %d, but your result is %d\n", result, expr(expr_str, &success));
+  // }
+  // return 0;
+}
+
+void change_register_value(int, word_t);
+
+static int cmd_crv(char *args){
+  char* reg_name = strtok(args, " ");
+  if(reg_name == NULL){
+    printf(ANSI_FMT("You should input the register name!\n", ANSI_FG_RED));
+    return 0;
+  }
+  char* reg_value_str = strtok(NULL, " ");
+  if(reg_value_str == NULL){
+    printf(ANSI_FMT("You should input the register value!\n", ANSI_FG_RED));
+    return 0;
+  }
+  bool success = true;
+  word_t reg_value = expr(reg_value_str, &success);
+  if(success){
+    int regNO = isa_str2id(reg_name, &success);
+    change_register_value(regNO, reg_value);
   }
   return 0;
 }

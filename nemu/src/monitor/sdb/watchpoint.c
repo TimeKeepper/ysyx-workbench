@@ -22,7 +22,7 @@ static WP *head = NULL, *free_ = NULL;
 
 WP* new_wp(char* exp){
   if(free_ == NULL){
-    printf("No more watchpoint!\n");
+    printf(ANSI_FMT("No more watchpoint!\n", ANSI_FG_RED));
     assert(0);
   }
   WP *p = free_;
@@ -63,7 +63,7 @@ void free_wp(WP *wp){
 void wp_display(void){
   WP *p = head;
   while(p != NULL){
-    printf("watchpoint %d: %s = %d\n", p->NO, p->expr, p->value);
+    printf("watchpoint %d: (" ANSI_FMT("%s", ANSI_FG_BLUE) ") = 0x%08x\n", p->NO, p->expr, p->value);
     p = p->next;
   }
 }
@@ -101,6 +101,3 @@ WP* get_Changed_wp(int num){
   }
   return NULL;
 }
-
-/* TODO: Implement the functionality of watchpoint */
-

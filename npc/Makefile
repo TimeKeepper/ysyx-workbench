@@ -34,6 +34,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
+CXXFLAGS += -g
 # CXXFLAGS := -fsanitize=address $(CXXFLAGS)
 # LDFLAGS := -lasan $(LDFLAGS)
 LDFLAGS += $(shell llvm-config --libs)
@@ -50,6 +51,8 @@ override IMG ?=
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 all: default
+
+default: $(BIN)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!	

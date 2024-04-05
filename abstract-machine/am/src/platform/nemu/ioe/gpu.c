@@ -26,15 +26,17 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
   };
 }
 
-void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
-  if (!ctl->sync) return;
+int printf(const char *fmt, ...);
 
+void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   size_t *data=ctl->pixels;
   for(int i = 0; i < ctl->h; i++){
     for(int j = 0; j < ctl->w; j++){
       outl((((ctl->x + j) + (ctl->y + i) * SCREEN_WIDTH) * 4) + FB_ADDR, *(data++));
     }
   }
+  
+  if (!ctl->sync) return;
   
   outb(SYNC_ADDR, 1);
 }

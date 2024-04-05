@@ -60,7 +60,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 void instr_buf_push(char *instr){
-  if(++instr_buf_index > INSTR_BUF_SIZE){
+  if(++instr_buf_index >= INSTR_BUF_SIZE){
     instr_buf_index = 0;
   }
   strcpy(INST_BUF[instr_buf_index], instr);
@@ -156,8 +156,9 @@ void cpu_exec(uint64_t n) {
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-                    (instr_buf_printf(), ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
+                    (ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
           nemu_state.halt_pc);
+      IFDEF(CONFIG_ITRACE ,instr_buf_printf());
       // fall through
     case NEMU_QUIT: statistic();
   }

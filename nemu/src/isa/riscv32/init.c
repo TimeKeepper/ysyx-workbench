@@ -30,6 +30,9 @@ static void restart() {
   /* Set the initial program counter. */
   cpu.pc = RESET_VECTOR;
 
+  /* Set the initial status register. */
+  cpu.sr[ADDR_MSTATUS] = 0x1800;
+
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
 }

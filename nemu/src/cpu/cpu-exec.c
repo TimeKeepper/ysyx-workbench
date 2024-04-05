@@ -17,8 +17,8 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
-#include "../monitor/sdb/sdb.h"
-#include "pass_include.h"
+#include "isa.h"
+#include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -26,6 +26,11 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
+#define INSTR_BUF_SIZE 15
+#define INST_SIZE 128
+
+char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
+static int instr_buf_index = 0;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -42,24 +47,31 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
 #ifdef CONFIG_WATCHPOINT
+  #include "/home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/src/monitor/sdb/sdb.h"
   wp_Value_Update();
   WP* wp;
-  for(int i = 0; (wp=get_Changed_wp(i))!=NULL; i++){
-    printf("The %dth watchpoint has changed!\n",i+1);
-    printf("Watchpoint %d: %s\n",wp->NO,wp->expr);
-    printf("Old value = 0x%08x\n",wp->last_time_Value);
-    printf("New value = 0x%08x\n",wp->value);
-    nemu_state.state = NEMU_STOP;
+  for(int i = 0; (wp=get_Changed_wp(i)) != NULL; i++){
+    printf("Watchpoint %d: " ANSI_FMT("%s\n", ANSI_FG_BLUE), wp->NO, wp->expr);
+    printf(ANSI_FMT("Old value" , ANSI_FG_YELLOW)  " = 0x%08x\n", wp->last_time_Value);
+    printf(ANSI_FMT("New value" , ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
+    if(nemu_state.state != NEMU_END) nemu_state.state = NEMU_STOP;//如果在nemu停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NEMU_END的判断
   }
-  // while(get_Changed_wp()!=NULL){
-  //   printf("Watchpoint %d: %s\n",get_Changed_wp()->NO,get_Changed_wp()->expr);
-  //   printf("Old value = 0x%08x\n",get_Changed_wp()->last_time_Value);
-  //   printf("New value = 0x%08x\n",get_Changed_wp()->value);
-  //   nemu_state.state = NEMU_STOP;
-  // }
 #endif
 }
 
+void instr_buf_push(char *instr){
+  if(++instr_buf_index > INSTR_BUF_SIZE){
+    instr_buf_index = 0;
+  }
+  strcpy(INST_BUF[instr_buf_index], instr);
+}
+
+void instr_buf_printf(void){
+  for(int i = 0; i < INSTR_BUF_SIZE; i++){
+    i == instr_buf_index ? printf("---> ") : printf("     ");
+    printf("%s\n", INST_BUF[i]);
+  }
+}
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
@@ -88,8 +100,9 @@ static void exec_once(Decode *s, vaddr_t pc) {
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
 #endif
-
-  // instr_buf_push(s->logbuf);
+  #ifdef CONFIG_ITRACE
+  instr_buf_push(s->logbuf);
+  #endif
 }
 
 static void execute(uint64_t n) {
@@ -117,12 +130,14 @@ void assert_fail_msg() {
   statistic();
 }
 
+void instr_buf_printf(void);
+
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
   g_print_step = (n < MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
-      printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
+      printf(ANSI_FMT("Program execution has ended. To restart the program, exit NEMU and run again.\n", ANSI_FG_RED));
       return;
     default: nemu_state.state = NEMU_RUNNING;
   }
@@ -140,8 +155,8 @@ void cpu_exec(uint64_t n) {
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
-           (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-            ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
+           (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+                    (instr_buf_printf(), ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
           nemu_state.halt_pc);
       // fall through
     case NEMU_QUIT: statistic();

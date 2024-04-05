@@ -35,7 +35,20 @@ static char* rl_gets() {
     return line_read;
 }
 
+
+static int is_batch_mode = false;
+
+void sdb_set_batch_mode() {
+  is_batch_mode = true;
+}
+
+void wave_Trace_close(void);
+
 void sdb_mainloop() {
+    if (is_batch_mode) {
+        cmd_c(NULL);
+        return;
+    }
 
     for(char *str; (str = rl_gets()) != NULL; ) {
         char *str_end = str + strlen(str);
@@ -54,7 +67,7 @@ void sdb_mainloop() {
 
         for (i = 0; i < NR_CMD; i++) {
             if (strcmp(cmd, cmd_table[i].name) != 0) continue;
-            if (cmd_table[i].handler(args) < 0) { return; }
+            if (cmd_table[i].handler(args) < 0) {wave_Trace_close(); return; }
             break;
         }
 

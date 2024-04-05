@@ -73,7 +73,10 @@ int printf(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   int ret = vsprintf(buf, fmt, args);
-  va_end(args);                                                   
+  va_end(args);
+  for (int i = 0; i < ret; i++) {
+    putch(buf[i]);
+  }
   return ret;
 }
 

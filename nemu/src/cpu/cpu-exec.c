@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <string.h>
 #include "isa.h"
 #include "utils.h"
 
@@ -28,6 +29,21 @@
 #define MAX_INST_TO_PRINT 10
 #define INSTR_BUF_SIZE 15
 #define INST_SIZE 128
+
+void instr_printf(char* s){
+  char buf[32];
+  strncpy(buf, s, 10);
+  buf[10] = '\0';
+  printf(ANSI_FMT("%s", ANSI_FG_GREEN), buf);
+  
+  s+=10;
+  strncpy(buf, s, 14);
+  buf[14] = '\0';
+  printf("%s", buf);
+
+  s+=14;
+  printf(ANSI_FMT("%s\n", ANSI_FG_BLUE), s);
+}
 
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
 static int instr_buf_index = 0;
@@ -43,7 +59,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
 #endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
+  if (g_print_step) { IFDEF(CONFIG_ITRACE, instr_printf(_this->logbuf));}
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
 #ifdef CONFIG_WATCHPOINT

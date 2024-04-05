@@ -34,7 +34,7 @@ void instr_printf(char* s){
   char buf[32];
   strncpy(buf, s, 10);
   buf[10] = '\0';
-  printf(ANSI_FMT("%s", ANSI_FG_GREEN), buf);
+  printf(ANSI_FMT("%s", ANSI_FG_CYAN), buf);
   
   s+=10;
   strncpy(buf, s, 14);

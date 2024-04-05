@@ -87,7 +87,7 @@ void instr_buf_printf(void){
   printf(ANSI_FMT("function ITRACE have not enabled\n", ANSI_FG_RED));
   return;
   #endif
-  for(int i = instr_buf_index + 1; i == instr_buf_index; ++i >= INSTR_BUF_SIZE ? i = 0 : 1 == 1){
+  for(int i = 0; i < INSTR_BUF_SIZE; i++){
     i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
     instr_printf(INST_BUF[i]);
   }

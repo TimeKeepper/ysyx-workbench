@@ -40,8 +40,11 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 void instr_buf_printf(void);
 static void out_of_bound(paddr_t addr) {
   instr_buf_printf();
-  // panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-  //     addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
+  panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+      addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
+  #ifdef CONFIG_DEVICE
+  printf(ANSI_FMT("may be you should enable the function \"device\"", ANSI_BG_RED));
+  #endif
   nemu_state.state = NEMU_ABORT;
 }
 

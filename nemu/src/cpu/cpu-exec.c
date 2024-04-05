@@ -68,7 +68,7 @@ void instr_buf_push(char *instr){
 
 void instr_buf_printf(void){
   for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_BG_BLUE)) : printf("     ");
+    i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
     printf("%s\n", INST_BUF[i]);
   }
 }
@@ -156,9 +156,8 @@ void cpu_exec(uint64_t n) {
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-                    (ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
+                    (IFDEF(CONFIG_ITRACE ,instr_buf_printf()), ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
           nemu_state.halt_pc);
-      IFDEF(CONFIG_ITRACE ,instr_buf_printf());
       // fall through
     case NEMU_QUIT: statistic();
   }

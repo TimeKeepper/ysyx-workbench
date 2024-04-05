@@ -72,7 +72,7 @@ void instr_buf_printf(void){
   return;
   #endif
   for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index ? printf("---> ") : printf("     ");
+    i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
     printf("%s\n", INST_BUF[i]);
   }
 }

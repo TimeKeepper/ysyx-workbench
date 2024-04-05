@@ -21,12 +21,14 @@ static struct funtion_info {
 
 static int funtion_index = 0;
 
+#ifdef FTRACE
 static void funtion_push(char *name, long addr, long size) {
     funtion_info_table[funtion_index].name = name;
     funtion_info_table[funtion_index].addr = addr;
     funtion_info_table[funtion_index].size = size;
     funtion_index++;
 }
+#endif
 
 static int get_funt_index(long addr){
     for(int i = 0; i < funtion_index; i++){
@@ -46,6 +48,7 @@ char* get_func_name(long addr){
 }
 
 static long load_elf() {
+    #ifdef FTRACE
     Elf *elf;
     Elf_Scn *scn = NULL;
     GElf_Shdr shdr;
@@ -91,6 +94,9 @@ static long load_elf() {
     }
     elf_end(elf);
     return symcount;
+    #else
+    return 0;
+    #endif
 }
 
 long load_img(char* img_file) {
@@ -155,7 +161,7 @@ void init_monitor(int argc, char *argv[]) {
 
     init_difftest(diff_so_file, img_size, difftest_port);
 
-    init_sdb();
+    // init_sdb();
 
     init_disasm("riscv32");
 }

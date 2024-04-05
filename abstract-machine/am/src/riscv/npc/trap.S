@@ -31,54 +31,30 @@ f(30) f(31)
 #define PUSH(n) STORE concat(x, n), (n * XLEN)(sp);
 #define POP(n)  LOAD  concat(x, n), (n * XLEN)(sp);
 
-#define CONTEXT_SIZE          ((NR_REGS + 4 + 1) * XLEN)
-#define OFFSET_SP             ( 2 * XLEN)
-#define OFFSET_CAUSE          ((NR_REGS + 0) * XLEN)
-#define OFFSET_STATUS         ((NR_REGS + 1) * XLEN)
-#define OFFSET_EPC            ((NR_REGS + 2) * XLEN)
-#define OFFSET_SCRATCH        ((NR_REGS + 3) * XLEN)
-#define OFFSET_ENTRY_ARG      ((NR_REGS + 5) * XLEN)
+#define CONTEXT_SIZE  ((NR_REGS + 3 + 1) * XLEN)
+#define OFFSET_SP     ( 2 * XLEN)
+#define OFFSET_CAUSE  ((NR_REGS + 0) * XLEN)
+#define OFFSET_STATUS ((NR_REGS + 1) * XLEN)
+#define OFFSET_EPC    ((NR_REGS + 2) * XLEN)
 
 .align 3
 .globl __am_asm_trap
 __am_asm_trap:
-  # 将寄存器中保存的当前进程的上下文地址加载到sp中并将sp存放到寄存器
-  csrrw sp, mscratch, sp
-  beqz sp, __if_run_boot
   addi sp, sp, -CONTEXT_SIZE
-
-__save_context:
-  # 保存上下文
 
   MAP(REGS, PUSH)
 
   csrr t0, mcause
   csrr t1, mstatus
   csrr t2, mepc
-  addi t2, t2, 4
 
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
   STORE t2, OFFSET_EPC(sp)
 
-  csrr t0, mscratch
-  STORE t0, OFFSET_SCRATCH(sp)
-
-  # set mstatus.MPRV to pass difftest
-  li a0, (1 << 17)
-  or t1, t1, a0
-  csrw mstatus, t1
-
   mv a0, sp
   jal __am_irq_handle
-  mv sp, a0
 
-  //加载上下文
-  LOAD t0, OFFSET_SCRATCH(sp)
-  csrw mscratch, t0
-  beqz t0, __if_load_first_time
-
-__load_context:
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
   csrw mstatus, t1
@@ -86,20 +62,5 @@ __load_context:
 
   MAP(REGS, POP)
 
-  mv a0, sp
-
   addi sp, sp, CONTEXT_SIZE
-
-  //将保存在sp中的上下文地址加载到mscratch中，同时恢复原本的堆栈地址
-  csrrw sp, mscratch, sp
-
   mret
-
-__if_run_boot:
-  csrrw sp, mscratch, sp
-  addi sp, sp, -CONTEXT_SIZE
-  j __save_context
-
-__if_load_first_time:
-  csrw mscratch, sp
-  j __load_context

@@ -8,8 +8,7 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      case 0x0000000b:  ev.event = EVENT_YIELD;  break;
-      default:          ev.event = EVENT_ERROR;  break;
+      default: ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);
@@ -31,26 +30,8 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
   return true;
 }
 
-typedef void (*FunctionPtr)(void *);
-
-void combine_func(Context* con){
-  FunctionPtr func_ptr;
-  func_ptr = (FunctionPtr)con->tentry;
-  func_ptr(con->arg);
-
-  func_ptr = (FunctionPtr)con->texit;
-  func_ptr(con->arg);
-} 
-
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  Context* con = (kstack.end - sizeof(Context));
-  con->mstatus = 0x1800;
-  con->mscratch = 0;
-  con->tentry = (void *)entry;
-  con->mepc = (uintptr_t)combine_func;
-  con->gpr[2] = (uintptr_t)con;
-  con->arg = arg;
-  return con;
+  return NULL;
 }
 
 void yield() {

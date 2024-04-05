@@ -25,12 +25,14 @@
  * This is useful when you use the `si' command.
  * You can modify this value as you want.
  */
+#ifdef CONFIG_ITRACE
 #define MAX_INST_TO_PRINT 10
 #define INSTR_BUF_SIZE 15
 #define INST_SIZE 128
 
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
 static int instr_buf_index = 0;
+#endif
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -67,10 +69,14 @@ void instr_buf_push(char *instr){
 }
 
 void instr_buf_printf(void){
+  #ifndef CONFIG_ITRACE
+  printf(ANSI_FMT("ITRACE is not enabled\n", ANSI_FG_RED));
+  #else
   for(int i = 0; i < INSTR_BUF_SIZE; i++){
     i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
     printf("%s\n", INST_BUF[i]);
   }
+  #endif
 }
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;

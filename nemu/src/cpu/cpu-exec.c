@@ -68,7 +68,7 @@ void instr_buf_push(char *instr){
 
 void instr_buf_printf(void){
   #ifndef CONFIG_ITRACE
-  printf(ANSI_FMT("function ITRACE have not enabled", ANSI_FG_RED));
+  printf(ANSI_FMT("function ITRACE have not enabled\n", ANSI_FG_RED));
   return;
   #endif
   for(int i = 0; i < INSTR_BUF_SIZE; i++){

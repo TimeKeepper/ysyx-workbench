@@ -68,6 +68,7 @@ static int cmd_w(char *args);
 static int cmd_d(char *args);
 static int cmd_b(char *args);
 static int cmd_test(char *args);
+static int cmd_ir(char *args);
 static int cmd_single_test(char *args);
 static int cmd_crv(char *args);
 
@@ -112,6 +113,10 @@ static struct {
   { "b"     , "create breakpoint"                                                   \
   
   , "", cmd_b},
+  
+  { "ir"     , "print instruction ringbuffer"                                       \
+  
+  , "", cmd_ir},
   
   { "test"  , "Help me for test my code"                                            \
   
@@ -293,6 +298,12 @@ static int cmd_b(char *args){
 // #define INPUT_BUF_LENGTH 65536
 // char input_buf[INPUT_BUF_LENGTH];
 void instr_buf_printf(void);
+
+static int cmd_ir(char *args){
+  instr_buf_printf();
+  return 0;
+}
+
 static int cmd_test(char *args){
   instr_buf_printf();
   return 0;

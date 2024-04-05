@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <string.h>
 #include "isa.h"
 #include "utils.h"
 
@@ -28,6 +29,21 @@
 #define MAX_INST_TO_PRINT 10
 #define INSTR_BUF_SIZE 15
 #define INST_SIZE 128
+
+void instr_printf(char* s){
+  char buf[32];
+  strncpy(buf, s, 10);
+  buf[10] = '\0';
+  printf(ANSI_FMT("%s", ANSI_FG_MAGENTA), buf);
+  
+  s+=10;
+  strncpy(buf, s, 14);
+  buf[14] = '\0';
+  printf("%s", buf);
+
+  s+=14;
+  printf(ANSI_FMT("%s\n", ANSI_FG_BLUE), s);
+}
 
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
 static int instr_buf_index = 0;
@@ -43,7 +59,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
 #endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
+  if (g_print_step) { IFDEF(CONFIG_ITRACE, instr_printf(_this->logbuf));}
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 
 #ifdef CONFIG_WATCHPOINT
@@ -67,9 +83,13 @@ void instr_buf_push(char *instr){
 }
 
 void instr_buf_printf(void){
+  #ifndef CONFIG_ITRACE
+  printf(ANSI_FMT("function ITRACE have not enabled\n", ANSI_FG_RED));
+  return;
+  #endif
   for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index ? printf("---> ") : printf("     ");
-    printf("%s\n", INST_BUF[i]);
+    i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
+    instr_printf(INST_BUF[i]);
   }
 }
 static void exec_once(Decode *s, vaddr_t pc) {
@@ -134,7 +154,7 @@ void instr_buf_printf(void);
 
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
-  g_print_step = (n < MAX_INST_TO_PRINT);
+  g_print_step = (n <= MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
       printf(ANSI_FMT("Program execution has ended. To restart the program, exit NEMU and run again.\n", ANSI_FG_RED));
@@ -155,10 +175,11 @@ void cpu_exec(uint64_t n) {
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
-           (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
-                    (ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
+            (nemu_state.halt_ret == 0 ?  ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
+              (ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)))),
           nemu_state.halt_pc);
-      IFDEF(CONFIG_ITRACE ,instr_buf_printf());
+      if(nemu_state.halt_ret != 0) 
+        IFDEF(CONFIG_ITRACE ,instr_buf_printf());
       // fall through
     case NEMU_QUIT: statistic();
   }

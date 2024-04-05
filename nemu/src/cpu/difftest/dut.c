@@ -96,7 +96,7 @@ void instr_buf_printf(void);
 
 static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
-    // instr_buf_printf();
+    instr_buf_printf();
     nemu_state.state = NEMU_STOP;
     nemu_state.halt_pc = pc;
   }

@@ -42,7 +42,7 @@ static void out_of_bound(paddr_t addr) {
   Log("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
   #ifndef CONFIG_DEVICE
-  printf(ANSI_FMT("may be you should enable the function \"device\"", ANSI_BG_RED));
+  printf(ANSI_FMT("may be you should enable the function \"device\"\n", ANSI_BG_RED));
   #endif
   nemu_state.state = NEMU_ABORT;
 }

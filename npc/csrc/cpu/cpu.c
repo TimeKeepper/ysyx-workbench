@@ -1,5 +1,4 @@
 #include "Vtop___024root.h"
-#include "verilated_vcd_c.h"
 #include <cpu/cpu.h>
 #include <cstdint>
 #include <memory/paddr.h>
@@ -8,26 +7,6 @@
 
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
-
-#define MAX_INST_TO_PRINT 10
-#define INSTR_BUF_SIZE 15
-#define INST_SIZE 128
-char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
-static int instr_buf_index = 0;
-
-void instr_buf_push(char *instr){
-  if(++instr_buf_index > INSTR_BUF_SIZE){
-    instr_buf_index = 0;
-  }
-  strcpy(INST_BUF[instr_buf_index], instr);
-}
-
-void instr_buf_printf(void){
-  for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index ? printf("---> ") : printf("     ");
-    printf("%s\n", INST_BUF[i]);
-  }
-}
 
 const char *regs[32] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -66,7 +45,7 @@ void wave_Trace_close(){
     #endif
 }
 
-CPU_State cpu = {.gpr = {0}, .pc = 0x80000000, .sr = {0}};
+CPU_State cpu = {.gpr = {0}, .pc = 0x80000000};
 
 uint32_t ram_read(uint32_t addr, int len){
     return paddr_read(addr, len);
@@ -103,11 +82,11 @@ void memory_write(void){
 }
 
 static void single_cycle() {
-    dut.clk = 0; dut.eval();wave_Trace_once();                    //译码，执行
+    dut.clk = 0; dut.eval();wave_Trace_once();
     
-    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //写回
+    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //读内存
 
-    dut.clk = 1; dut.eval();wave_Trace_once();                    //更新pc
+    dut.clk = 1; dut.eval();wave_Trace_once();
     clk_cnt++;
 }
 
@@ -117,6 +96,15 @@ static void reset(int n) {
     dut.rst = 0;
 }
 
+int sim_stop (int ra){
+    npc_state.state = NPC_END;
+    printf("ra: %d\n", ra);
+    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
+    else printf("\033[1;31mHit bad trap\033[0m\n");
+    wave_Trace_close(); 
+    return clk_cnt;
+}
+
 void cpu_reset(int n, int argc, char **argv){
     if(argv != NULL) wave_Trace_init(argc, argv);
     
@@ -124,25 +112,15 @@ void cpu_reset(int n, int argc, char **argv){
     clk_cnt = 0;
 }
 
-const int sregs_iddr[] = {
-  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE, ADDR_MSCRATCH
-};
-
 void cpu_value_update(void){
     cpu.pc = dut.rootp->top__DOT__cpu__DOT__pc__DOT__pc;   
-    cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mstatus;
-    cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mtvec;
-    cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mepc;
-    cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mcause;
-    cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__cpu__DOT__csr__DOT__mscratch; 
-
     if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
     uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     if(rd_iddr != 0) cpu.gpr[rd_iddr] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__rf__DOT__rf.m_storage[rd_iddr];
 }
 
 char itrace_buf[256];
-void itrace_catch(bool is_printf){
+void itrace_catch(){
     #ifdef ITRACE
     char* p = itrace_buf;
 
@@ -153,9 +131,7 @@ void itrace_catch(bool is_printf){
     }
     disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
 
-    instr_buf_push(itrace_buf);
-
-    if(is_printf) printf("%s\n", itrace_buf);
+    printf("%s\n", itrace_buf);
     #endif
 }
 
@@ -180,19 +156,17 @@ static void func_called_detect(){
 
 void check_special_inst(void){
     switch(dut.inst){
-        case 0x00000000: npc_trap(1);   break; // ecall
-        case 0xffffffff: npc_trap(1);   break; // bad trap
+        case 0x00000000: sim_stop(1);   break; // ecall
+        case 0xffffffff: sim_stop(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
         default: break;
     }
 }
 
-void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
-    bool is_itrace = (n < MAX_INST_TO_PRINT);
     for(;n > 0; n--){
         // nvboard_update();
-        dut.inst = ram_read(cpu.pc, 4);dut.eval();                       //取指
+        dut.inst = ram_read(cpu.pc, 4);                         //取指
 
         // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);
 
@@ -200,7 +174,7 @@ static void execute(uint64_t n){
 
         if(dut.rootp->mem_wen) memory_write();          //写内存
 
-        itrace_catch(is_itrace);
+        itrace_catch();
 
         cpu_value_update();          //更新寄存器
         
@@ -211,15 +185,6 @@ static void execute(uint64_t n){
 
         if (npc_state.state != NPC_RUNNING) break;
     }
-}
-
-int npc_trap (int ra){
-    npc_state.state = NPC_END;
-    printf("ra: %d\n", ra);
-    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
-    else printf("\033[1;31mHit bad trap\033[0m\n");
-    wave_Trace_close(); 
-    return clk_cnt;
 }
 
 void cpu_exec(uint64_t n){
@@ -253,19 +218,19 @@ int reg_name2id(char *reg_name){
 void isa_reg_display(char *reg_name){
     if(reg_name == NULL){
         for(int i = 0; i < 32; i++){
-            printf(ANSI_FMT("%s\t", ANSI_FG_BLUE) "0x%08x\n", regs[i], cpu.gpr[i]);
+            printf("%s: 0x%08x\n", regs[i], cpu.gpr[i]);
         }
         return;
     }
 
     if(strcmp(reg_name, "pc") == 0){
-        printf(ANSI_FMT("pc\t", ANSI_FG_BLUE) "0x%08x\n", cpu.pc);
+        printf("pc: 0x%08x\n", cpu.pc);
         return;
     }
 
     int reg_num = reg_name2id(reg_name);
     if(reg_num < 0 || reg_num > 31){
-        printf(ANSI_FMT("Invalid register number\n", ANSI_FG_RED));
+        printf("Invalid register number\n");
         return;
     }
 

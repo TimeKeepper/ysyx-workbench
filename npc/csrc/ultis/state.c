@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <utils.h>
 
 NPCState npc_state = { .state = NPC_STOP ,.halt_pc = 0, .halt_ret = 0};

@@ -92,12 +92,9 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
-void instr_buf_printf(void);
-
 static void checkregs(CPU_state *ref, vaddr_t pc) {
   if (!isa_difftest_checkregs(ref, pc)) {
-    instr_buf_printf();
-    nemu_state.state = NEMU_STOP;
+    nemu_state.state = NEMU_ABORT;
     nemu_state.halt_pc = pc;
   }
 }

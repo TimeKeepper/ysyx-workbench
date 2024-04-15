@@ -127,6 +127,7 @@ endmenu
 menu "Testing and Debugging"
 
 config WATCHPOINT
+  depends on TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable watchpoint"
   default y
 

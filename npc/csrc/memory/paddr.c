@@ -1,6 +1,8 @@
 #include "utils.h"
 #include <cassert>
 #include <common.h>
+#include <cstdlib>
+#include <cstring>
 #include <memory/paddr.h>
 #include <memory/host.h>
 
@@ -10,6 +12,10 @@ static uint8_t pmem[DEFAULT_MSIZE] PG_ALIGN = {};
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - DEFAULT_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + DEFAULT_MBASE; }
+
+void init_mem() {
+    memset(pmem, rand(), DEFAULT_MSIZE);
+}
 
 static word_t pmem_read(paddr_t addr, int len) {
     word_t ret = host_read(guest_to_host(addr), len);

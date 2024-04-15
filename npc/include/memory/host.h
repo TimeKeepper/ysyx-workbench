@@ -2,6 +2,9 @@
 #define __MEMORY_HOST_H__
 
 #include <common.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <assert.h>
 
 static inline word_t host_read(void *addr, int len) {
     switch (len) {

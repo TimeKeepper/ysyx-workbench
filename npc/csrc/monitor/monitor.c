@@ -8,6 +8,13 @@
 #include <getopt.h>
 #include <memory/paddr.h>
 
+void init_rand();
+void init_mem();
+static void welcome() {
+  printf("Welcome to %s-NPC!\n", ANSI_FMT("riscv32e", ANSI_FG_YELLOW));
+  printf("For help, type \"help\"\n");
+}
+
 static char* elf_file = NULL;
 static char* img_file = NULL;
 static char* diff_so_file = NULL;
@@ -155,6 +162,10 @@ static int parse_args(int argc, char *argv[]) {
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
+    init_rand();
+
+    init_mem();
+
     long img_size = load_img(img_file);
 
     load_elf();
@@ -164,4 +175,6 @@ void init_monitor(int argc, char *argv[]) {
     // init_sdb();
 
     init_disasm("riscv32");
+
+    welcome();
 }

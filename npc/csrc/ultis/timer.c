@@ -1,5 +1,6 @@
 #include <common.h>
 #include <cstddef>
+#include <cstdlib>
 #include <sys/time.h>
 #include <utils.h>
 
@@ -16,4 +17,8 @@ uint64_t get_time() {
     if (unlikely(boot_time == 0)) boot_time = get_time_internal();
     uint64_t now = get_time_internal();
     return now - boot_time;
+}
+
+void init_rand() {
+  srand(get_time_internal());
 }

@@ -1,4 +1,5 @@
 #include "cpu/cpu.h"
+#include "utils.h"
 #include <common.h>
 #include <cstdlib>
 #include <sdb/sdb.h>
@@ -172,7 +173,7 @@ void init_monitor(int argc, char *argv[]) {
 
     init_difftest(diff_so_file, img_size, difftest_port);
 
-    // init_sdb();
+    init_sdb();
 
     init_disasm("riscv32");
 

@@ -78,7 +78,7 @@ int cmd_info(char *args) {
     char *specific_info = strtok(NULL, " ");
     switch(*show_type){
         case 'r': isa_reg_display(specific_info);                                       break;
-        case 'w': break;                                                                 break;
+        case 'w': wp_display();                                                                 break;
         default : printf(ANSI_FMT("you should input the requried info type: r(register) or w(watchpoint).\n", ANSI_FG_RED));  break;
     }
     return 0;
@@ -97,6 +97,11 @@ int cmd_x(char *args){
     }
     
     int scan_num = atoi(strtok(args, " "));
+
+    if(scan_num <=0 || scan_num > 100){
+        printf(ANSI_FMT("The scan number should be in the range of 1 to 100!\n", ANSI_FG_RED));
+        return 0;
+    }
     
     bool success = true;
     uint32_t base_Addr = expr(strtok(NULL, " "), &success);
@@ -125,3 +130,55 @@ int cmd_ir(char *args){
     instr_buf_printf();
     return 0;
 }
+
+int cmd_w(char *args){
+  #ifndef CONFIG_WATCHPOINT
+    printf(ANSI_FMT("The watchpoint function is not enabled!\n", ANSI_FG_RED));
+    return 0;
+  #endif
+  if(args == NULL){
+    printf(ANSI_FMT("No expression!\n", ANSI_FG_RED));
+    return 0;
+  }
+  new_wp(args);
+  wp_Value_Update();
+  return 0;
+}
+
+int cmd_d(char *args){
+  if(args == NULL){
+    printf(ANSI_FMT("No delete op!\n", ANSI_FG_RED));
+    return 0;
+  }
+  int wpNO = atoi(args);
+  WP* wp = get_head_wp();
+  for(int i = 0; i < wpNO - 1; i++){
+    wp = wp->next;
+  }
+  if(wp!=NULL) free_wp(wp);
+  return 0;
+}
+
+int cmd_b(char *args){
+  #ifndef CONFIG_WATCHPOINT
+    printf(ANSI_FMT("The watchpoint function is not enabled!\n", ANSI_FG_RED));
+    return 0;
+  #endif
+  if(args == NULL){
+    printf(ANSI_FMT("You should input the address of the breakpoint!\n", ANSI_FG_RED));
+    return 0;
+  }
+  bool success = true;
+  word_t addr = expr(args, &success);
+  if(addr < 0x80000000){
+    printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
+    return 0;
+  }
+  char expr_str[20] = "$pc == ";
+  strcat(expr_str, args);
+  new_wp(expr_str);
+  wp_Value_Update();
+  return 0;
+}
+
+

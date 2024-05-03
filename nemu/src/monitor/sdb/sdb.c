@@ -227,6 +227,11 @@ static int cmd_x(char *args){
   
   int scan_num = atoi(strtok(args, " "));
   
+  if(scan_num <=0 || scan_num > 100){
+      printf(ANSI_FMT("The scan number should be in the range of 1 to 100!\n", ANSI_FG_RED));
+      return 0;
+  }
+  
   bool success = true;
   uint32_t base_Addr = expr(strtok(NULL, " "), &success);
 

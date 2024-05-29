@@ -18,6 +18,8 @@ class GCD extends Module {
 
   io.outputGCD := io.value1
 
+  io.outputValid := true.B
+
   // val x = Reg(UInt())
   // val y = Reg(UInt())
 

@@ -1,3 +1,5 @@
+package test
+
 import chisel3._
 
 class test extends Module {

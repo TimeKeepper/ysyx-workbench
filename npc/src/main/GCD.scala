@@ -16,22 +16,18 @@ class GCD extends Module {
     val outputValid   = Output(Bool())
   })
 
-  io.outputGCD := io.value1
+  val x = Reg(UInt())
+  val y = Reg(UInt())
 
-  io.outputValid := true.B
+  when(x > y) { x := x - y }.otherwise { y := y - x }
 
-  // val x = Reg(UInt())
-  // val y = Reg(UInt())
+  when(io.loadingValues) {
+    x := io.value1
+    y := io.value2
+  }
 
-  // when(x > y) { x := x - y }.otherwise { y := y - x }
-
-  // when(io.loadingValues) {
-  //   x := io.value1
-  //   y := io.value2
-  // }
-
-  // io.outputGCD   := x
-  // io.outputValid := y === 0.U
+  io.outputGCD   := x
+  io.outputValid := y === 0.U
 
 
 
@@ -43,4 +39,13 @@ class GCD extends Module {
 
   // io.outputGCD := gcd.output.bits.gcd
   // io.outputValid := gcd.output.valid
+}
+
+class test extends Module {
+  val io = IO(new Bundle {
+    val input = Input(Uint(16.W))
+    val output = Output(Uint(16.W))
+  })
+
+  output := io.input + 1.U
 }

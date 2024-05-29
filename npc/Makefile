@@ -1,14 +1,23 @@
-BUILD_DIR = ./build
-
 PRJ = playground
+
+VERILOG_BUILD_DIR = ./vbuild
+
+TOPNAME = top
+NXDC_FILES = constr/top.nxdc
+INC_PATH ?= $(abspath ./include)
+
+VERILATOR = verilator
+VERILATOR_CFLAGS += -MMD --build -cc  \
+				-O3 --x-assign fast --x-initial fast --noassert  \
+				--trace 
 
 test:
 	mill -i $(PRJ).test
 
 verilog:
 	$(call git_commit, "generate verilog")
-	mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
+	mkdir -p $(VERILOG_BUILD_DIR)
+	mill -i $(PRJ).runMain Elaborate --target-dir $(VERILOG_BUILD_DIR)
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
@@ -20,7 +29,7 @@ checkformat:
 	mill -i __.checkFormat
 
 clean:
-	-rm -rf $(BUILD_DIR)
+	-rm -rf $(VERILOG_BUILD_DIR)
 
 .PHONY: test verilog help reformat checkformat clean
 

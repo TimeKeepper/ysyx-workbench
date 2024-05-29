@@ -15,17 +15,12 @@ class GCD extends Module {
     val outputGCD     = Output(UInt(16.W))
     val outputValid   = Output(Bool())
   })
+  val gcd = Module(new DecoupledGcd(16))
 
-  val x = Reg(UInt())
-  val y = Reg(UInt())
+  gcd.input.bits.value1 := io.value1
+  gcd.input.bits.value2 := io.value2
+  gcd.input.ready := io.loadingValues
 
-  when(x > y) { x := x - y }.otherwise { y := y - x }
-
-  when(io.loadingValues) {
-    x := io.value1
-    y := io.value2
-  }
-
-  io.outputGCD   := x
-  io.outputValid := y === 0.U
+  io.outputGCD := gcd.output.bits.gcd
+  io.outputValid := gcd.output.valid
 }

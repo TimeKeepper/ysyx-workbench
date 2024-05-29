@@ -1,3 +1,5 @@
+import chisel3._
+
 class test extends Module {
   val io = IO(new Bundle {
     val input   = Input(UInt(16.W))

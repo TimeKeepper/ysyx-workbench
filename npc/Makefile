@@ -1,6 +1,8 @@
 PRJ = playground
 
-VERILOG_BUILD_DIR = ./vbuild
+BUILD_DIR = ./build
+
+VERILOG_BUILD_DIR =$(BUILD_DIR)/vbuild
 
 TOPNAME = top
 NXDC_FILES = constr/top.nxdc

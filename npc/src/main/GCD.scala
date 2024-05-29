@@ -43,9 +43,9 @@ class GCD extends Module {
 
 class test extends Module {
   val io = IO(new Bundle {
-    val input = Input(Uint(16.W))
-    val output = Output(Uint(16.W))
+    val input   = Input(UInt(16.W))
+    val output  = Output(UInt(16.W))
   })
 
-  output := io.input + 1.U
+  io.output := io.input + 1.U
 }

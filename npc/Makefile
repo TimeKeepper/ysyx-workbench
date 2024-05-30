@@ -31,7 +31,8 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
-default: $(NPC_EXEC)
+all: default
+default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
 
@@ -57,6 +58,16 @@ verilog: $(SSRC)
 	# mkdir -p $(BUILD_DIR)
 	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
 
+# NVBOARD DIFIENITIONS
+
+# constraint file
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+	
+# rules for NVBoard
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
 # VERILATOR DIFINITIONS
 
 INCFLAGS = $(addprefix -I, $(HEAD_DIR))
@@ -79,17 +90,7 @@ override ARGS ?=
 override IMG ?=
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
-# NVBOARD DIFIENITIONS
-
-# constraint file
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-	
-# rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
-
-sim:
+sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC)
 

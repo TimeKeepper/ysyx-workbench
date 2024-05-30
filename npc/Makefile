@@ -1,22 +1,39 @@
+# PROJECT DIRECTORIES AND FILES DEFIENITIONS
+
+PRJ = playground
+
 BUILD_DIR = ./build
 
 SRC_DIR = ./src
 
 VSRC_DIR = $(SRC_DIR)/vsrc
 SSRC_DIR = $(SRC_DIR)/ssrc
+CSRC_DIR = $(SRC_DIR)/csrc
+HEAD_DIR = $(CSRC_DIR)/include
 
 SSRC = $(shell find $(abspath $(SSRC_DIR))  -name "*.scala")
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
+CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
+VSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
-PRJ = playground
+# VERILATOR DIFIENITIONS
 
-test:
-	mill -i $(PRJ).test
+TOPNAME = top
+NXDC_FILES = $(SRC_DIR)/constr/top.nxdc
 
-verilog: $(SSRC)
-	$(call git_commit, "generate verilog")
-	# mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
+VERILATOR = verilator
+VERILATOR_CFLAGS += -MMD --build -cc  \
+				-O3 --x-assign fast --x-initial fast --noassert  \
+				--trace 
+
+# FINAL TARGET DIFINITIONS
+
+OBJ_DIR = $(BUILD_DIR)/obj_dir
+BIN = $(BUILD_DIR)/$(TOPNAME)
+
+default: $(NPC_EXEC)
+
+$(shell mkdir -p $(BUILD_DIR))
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
@@ -32,8 +49,48 @@ clean:
 
 .PHONY: test verilog help reformat checkformat clean
 
+test:
+	mill -i $(PRJ).test
+
+verilog: $(SSRC)
+	$(call git_commit, "generate verilog")
+	# mkdir -p $(BUILD_DIR)
+	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
+
+# VERILATOR DIFINITIONS
+
+INCFLAGS = $(addprefix -I, $(HEAD_DIR))
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
+CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
+CXXFLAGS += -g
+LDFLAGS += $(shell llvm-config --libs)
+LDFLAGS += -lreadline -ldl -pie -lelf
+
+$(VSRC): verilog
+
+$(BIN): $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
+	@rm -rf $(OBJ_DIR)
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		--top-module $(TOPNAME) $^ \
+		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
+		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+
+override ARGS ?= 
+override IMG ?=
+NPC_EXEC := $(BIN) $(ARGS) $(IMG)
+
+# NVBOARD DIFIENITIONS
+
+# constraint file
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+	
+# rules for NVBoard
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "Write this Makefile by yourself."
+	$(NPC_EXEC)
 
 -include ../Makefile

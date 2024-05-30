@@ -14,7 +14,7 @@ class test extends Module {
 
 class test_gcd extends Module {
   val io = IO(new Bundle {
-    val value1        = Input(UInt(16.W))
+    val value1        = Input(UInt(16.W)) 
     val value2        = Input(UInt(16.W))
     val loadingValues = Input(Bool())
     val outputGCD     = Output(UInt(16.W))

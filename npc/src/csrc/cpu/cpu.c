@@ -46,7 +46,7 @@ const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
 void wave_Trace_init(int argc, char **argv){
-    #ifdef TRACE
+    #ifdef WAVE_TRACE
     contextp->commandArgs(argc, argv);
     dut.trace(tfp, 99);
     tfp->open("wave.vcd");
@@ -54,14 +54,14 @@ void wave_Trace_init(int argc, char **argv){
 }
 
 void wave_Trace_once(){
-    #ifdef TRACE
+    #ifdef WAVE_TRACE
     contextp->timeInc(1);
     tfp->dump(contextp->time());
     #endif
 }
 
 void wave_Trace_close(){
-    #ifdef TRACE
+    #ifdef WAVE_TRACE
     tfp->close();
     #endif
 }

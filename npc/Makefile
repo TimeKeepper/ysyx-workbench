@@ -84,10 +84,10 @@ LDFLAGS += -lreadline -ldl -pie -lelf
 print:
 	@echo $(INCFLAGS)
 
-$(BIN): $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
+$(BIN): $(VSRC) $(CSRC) $(HSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		--top-module $(TOPNAME) $^ \
+		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 

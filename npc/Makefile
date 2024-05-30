@@ -1,16 +1,22 @@
 BUILD_DIR = ./build
 
-VERILOG_BUILD_DIR = $(BUILD_DIR)/verilog
+SRC_DIR = ./src
+
+VSRC_DIR = $(SRC_DIR)/vsrc
+SSRC_DIR = $(SRC_DIR)/ssrc
+
+SSRC = $(shell find $(abspath $(SSRC_DIR))  -name "*.scala")
+VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 
 PRJ = playground
 
 test:
 	mill -i $(PRJ).test
 
-verilog:
+verilog: $(SSRC)
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(VERILOG_BUILD_DIR)
+	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help

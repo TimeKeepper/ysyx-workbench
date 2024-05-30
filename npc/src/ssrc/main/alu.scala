@@ -137,7 +137,8 @@ class ALU extends Module {
     alu_barrel_shifter.io.L_R   := L_R
     alu_barrel_shifter.io.A_L   := A_L
 
-    val shift                    = alu_barrel_shifter.io.Dout
+    val shift                   = Wire(UInt(32.W))
+    shift                       := alu_barrel_shifter.io.Dout
 
     // other ALU outputs
     val Less = Wire(Bool())

@@ -147,7 +147,7 @@ class ALU extends Module {
     }
     io.Less := Less
     
-    val slt = ZeroExt(31, Less)
+    val slt = Cat(0.U(31.W), Less)
 
     val B   = io.src_B
 

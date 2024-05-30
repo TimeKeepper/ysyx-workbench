@@ -153,6 +153,8 @@ class ALU extends Module {
     val Less = Wire(Bool())
     when(U_S) {
         Less := Sub_Add ^ Carry
+    }.elsewhen(io.src_B === "h80000000".U && Sub_Add){
+        Less := false.B
     }.otherwise {
         Less := adder(31) ^ Overflow
     }

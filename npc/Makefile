@@ -9,7 +9,7 @@ SRC_DIR = ./src
 VSRC_DIR = $(SRC_DIR)/vsrc
 SSRC_DIR = $(SRC_DIR)/ssrc
 CSRC_DIR = $(SRC_DIR)/csrc
-HEAD_DIR = $(CSRC_DIR)/include
+HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR))  -name "*.scala")
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
@@ -70,7 +70,8 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # VERILATOR DIFINITIONS
 
-INCFLAGS = $(addprefix -I, $(HEAD_DIR))
+INCFLAGS =  $(addprefix -I, $(INC_PATH))
+INCFLAGS += $(addprefix -I, $(HEAD_DIR))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
 CXXFLAGS += -g
@@ -81,7 +82,7 @@ $(VSRC): $(SSRC)
 	$(MAKE) verilog
 
 print:
-	@echo $(VSRC)
+	@echo $(INCFLAGS)
 
 $(BIN): $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

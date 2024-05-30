@@ -104,14 +104,14 @@ class ALU extends Module {
     val alu_ctrl = Module(new ALU_Ctrl)
     alu_ctrl.io.ALUctr := io.ALUctr
 
-    val A_L    = Wire(Bool())
-    val L_R    = Wire(Bool())
-    val U_S    = Wire(Bool())
-    val Sub_Add= Wire(Bool())
-    A_L    = alu_ctrl.io.A_L
-    L_R    = alu_ctrl.io.L_R
-    U_S    = alu_ctrl.io.U_S
-    Sub_Add= alu_ctrl.io.Sub_Add
+    val A_L     = Wire(Bool())
+    val L_R     = Wire(Bool())
+    val U_S     = Wire(Bool())
+    val Sub_Add = Wire(Bool())
+    A_L         := alu_ctrl.io.A_L
+    L_R         := alu_ctrl.io.L_R
+    U_S         := alu_ctrl.io.U_S
+    Sub_Add     := alu_ctrl.io.Sub_Add
 
     // ALU Adder
     val Sub_Add_ex = Wire(UInt(32.W))

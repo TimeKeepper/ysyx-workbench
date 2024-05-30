@@ -121,7 +121,7 @@ class ALU extends Module {
 
     Sub_Add_ex := Sub_Add.asSInt
     A1 := io.src_A
-    B1 := io.src_B ^ Sub_Add_ex
+    B1 := io.src_B ^ Sub_Add_ex.asUInt
 
     val alu_adder = Module(new ALU_Adder)
     alu_adder.io.A   := A1

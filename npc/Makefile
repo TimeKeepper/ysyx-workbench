@@ -78,7 +78,9 @@ LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
 $(VSRC): $(SSRC)
-	$(MAKE) verilog
+	@if [ $< -nt $@ ]; then \
+		$(MAKE) verilog; \
+	fi
 
 $(BIN): $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

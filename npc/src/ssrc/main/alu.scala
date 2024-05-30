@@ -76,15 +76,15 @@ class ALU_BarrelShifter extends Module {
     
     when(io.L_R) {
         when(io.A_L) {
-            io.Dout := io.Din.asSInt << io.shamt
+            io.Dout := (io.Din.asSInt << io.shamt)(31, 0)
         }.otherwise {
-            io.Dout := io.Din << io.shamt
+            io.Dout := (io.Din << io.shamt)(31, 0)
         }
     }.otherwise {
         when(io.A_L) {
-            io.Dout := io.Din.asSInt >> io.shamt
+            io.Dout := (io.Din.asSInt >> io.shamt)(31, 0)
         }.otherwise {
-            io.Dout := io.Din >> io.shamt
+            io.Dout := (io.Din >> io.shamt)(31, 0)
         }
     }
 }

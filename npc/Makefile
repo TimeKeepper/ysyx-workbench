@@ -53,10 +53,7 @@ clean:
 test:
 	mill -i $(PRJ).test
 
-verilog: $(SSRC)
-	$(call git_commit, "generate verilog")
-	# mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
+verilog: $(VSRC)
 
 # NVBOARD DIFIENITIONS
 
@@ -77,7 +74,10 @@ CXXFLAGS += -g
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
-$(VSRC): verilog
+$(VSRC): $(SSRC)
+	$(call git_commit, "generate verilog")
+	# mkdir -p $(BUILD_DIR)
+	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
 
 $(BIN): $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

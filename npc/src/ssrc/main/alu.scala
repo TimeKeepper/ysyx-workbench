@@ -127,10 +127,14 @@ class ALU extends Module {
     alu_adder.io.B   := B1
     alu_adder.io.Cin := Sub_Add
 
-    val Carry       = alu_adder.io.Carry
-    val adder      = alu_adder.io.Result
-    val Overflow    = alu_adder.io.Overflow
-    val Zero        = alu_adder.io.Zero
+    val Carry       = Wire(Bool())
+    val adder       = Wire(UInt(32.W))
+    val Overflow    = Wire(Bool())
+    val Zero        = Wire(Bool())
+    Carry           := alu_adder.io.Carry
+    adder           := alu_adder.io.Result
+    Overflow        := alu_adder.io.Overflow
+    Zero            := alu_adder.io.Zero
 
     io.Zero := Zero
 

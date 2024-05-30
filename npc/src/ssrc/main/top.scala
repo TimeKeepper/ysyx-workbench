@@ -1,18 +1,9 @@
-package test
+package top
 
 import chisel3._
 import gcd._
 
-class test extends Module {
-  val io = IO(new Bundle {
-    val input  = Input(UInt(16.W))
-    val output = Output(UInt(16.W))
-  })
-
-  io.output := io.input + 1.U
-}
-
-class test_gcd extends Module {
+class top extends Module {
   val io = IO(new Bundle {
     val value1        = Input(UInt(16.W)) 
     val value2        = Input(UInt(16.W))

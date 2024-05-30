@@ -14,7 +14,7 @@ HEAD_DIR = $(CSRC_DIR)/include
 SSRC = $(shell find $(abspath $(SSRC_DIR))  -name "*.scala")
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
-VSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
+HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
 # VERILATOR DIFIENITIONS
 
@@ -78,9 +78,10 @@ LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
 $(VSRC): $(SSRC)
-	@if [ $< -nt $@ ]; then \
-		$(MAKE) verilog; \
-	fi
+	$(MAKE) verilog
+
+print:
+	@echo $(VSRC)
 
 $(BIN): $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf $(OBJ_DIR)

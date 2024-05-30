@@ -1,5 +1,7 @@
 BUILD_DIR = ./build
 
+VERILOG_BUILD_DIR = $(BUILD_DIR)/verilog
+
 PRJ = playground
 
 test:
@@ -8,7 +10,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(BUILD_DIR)
+	mill -i $(PRJ).runMain Elaborate --target-dir $(VERILOG_BUILD_DIR)
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help

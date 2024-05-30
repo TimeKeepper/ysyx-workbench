@@ -9,12 +9,12 @@ import javax.smartcardio.ATR
 
 class ALU_Ctrl extends Module {
     val io = IO(new Bundle {
-        val ALUctr = input(UInt(4.W))
+        val ALUctr = Input(UInt(4.W))
 
-        val A_L    = output(Bool())
-        val L_R    = output(Bool())
-        val U_S    = output(Bool())
-        val Sub_Add= output(Bool())
+        val A_L    = Output(Bool())
+        val L_R    = Output(Bool())
+        val U_S    = Output(Bool())
+        val Sub_Add= Output(Bool())
     })
 
     when(io.ALUctr === "b1010".U || io.ALUctr === "b0101".U) {
@@ -44,14 +44,14 @@ class ALU_Ctrl extends Module {
 
 class ALU_Adder extends Module {
     val io = IO(new Bundle {
-        val A   = input(UInt(32.W))
-        val B   = input(UInt(32.W))
-        val Cin = input(Bool())
+        val A   = Input(UInt(32.W))
+        val B   = Input(UInt(32.W))
+        val Cin = Input(Bool())
 
-        val Carry       = output(Bool())
-        val Zero        = output(Bool())
-        val Overflow    = output(Bool())
-        val Result      = output(UInt(32.W))
+        val Carry       = Output(Bool())
+        val Zero        = Output(Bool())
+        val Overflow    = Output(Bool())
+        val Result      = Output(UInt(32.W))
     })
 
     val R_B = Wire(UInt(32.W))
@@ -68,12 +68,12 @@ class ALU_Adder extends Module {
 
 class ALU_BarrelShifter extends Module {
     val io = IO(new Bundle {
-        val Din   = input(UInt(32.W))
-        val shamt = input(UInt(5.W))
-        val L_R   = input(Bool())
-        val A_L   = input(Bool())
+        val Din   = Input(UInt(32.W))
+        val shamt = Input(UInt(5.W))
+        val L_R   = Input(Bool())
+        val A_L   = Input(Bool())
 
-        val Dout  = output(UInt(32.W))
+        val Dout  = Output(UInt(32.W))
     })
     
     when(io.L_R) {
@@ -93,13 +93,13 @@ class ALU_BarrelShifter extends Module {
 
 class ALU extends Module {
     val io = IO(new Bundle {
-        val ALUctr = input(UInt(4.W))
-        val src_A  = input(UInt(32.W))
-        val src_B  = input(UInt(32.W))
+        val ALUctr = Input(UInt(4.W))
+        val src_A  = Input(UInt(32.W))
+        val src_B  = Input(UInt(32.W))
         
-        val ALUout = output(UInt(32.W))
-        val Zero   = output(Bool())
-        val Less   = output(Bool())
+        val ALUout = Output(UInt(32.W))
+        val Zero   = Output(Bool())
+        val Less   = Output(Bool())
     })
 
     // ALU operation

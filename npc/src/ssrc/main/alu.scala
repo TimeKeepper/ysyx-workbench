@@ -55,7 +55,8 @@ class ALU_Adder extends Module {
     val R_B = Wire(UInt(32.W))
     R_B := io.B +% io.Cin
 
-    val add_result = io.A +% io.B +% io.Cin
+    val add_result = Wire(UInt(33.W))
+    add_result     := io.A +% io.B +% io.Cin
 
     io.Carry       := add_result(32)
     io.Result      := add_result(31, 0)

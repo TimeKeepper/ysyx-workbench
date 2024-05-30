@@ -1,0 +1,178 @@
+package riscv_cpu
+
+import chisel3._
+import javax.smartcardio.ATR
+
+class ALU_Ctrl extends Module {
+    val io = IO(new Bundle {
+        val ALUctr = input(UInt(4.W))
+
+        val A_L    = output(Bool())
+        val L_R    = output(Bool())
+        val U_S    = output(Bool())
+        val Sub_Add= output(Bool())
+    })
+
+    when(io.ALUctr === "b1010".U || io.ALUctr === "b0101".U) {
+        io.A_L := false.B
+    }.otherwise {
+        io.A_L := true.B
+    }
+
+    when(io.ALUctr === "b0001".U || io.ALUctr === "b1001".U) {
+        io.L_R := true.B
+    }.otherwise {
+        io.L_R := false.B
+    }
+
+    when(io.ALUctr === "b1010".U) {
+        io.U_S := true.B
+    }.otherwise {
+        io.U_S := false.B
+    }
+
+    when(io.ALUctr === 0.U) {
+        io.Sub_Add := false.B
+    }.otherwise {
+        io.Sub_Add := true.B
+    }
+}
+
+class ALU_Adder extends Module {
+    val io = IO(new Bundle {
+        val A   = input(UInt(32.W))
+        val B   = input(UInt(32.W))
+        val Cin = input(Bool())
+
+        val Carry       = output(Bool())
+        val Zero        = output(Bool())
+        val Overflow    = output(Bool())
+        val Result      = output(UInt(32.W))
+    })
+
+    val R_B = Wire(UInt(32.W))
+    R_B := io.B +% io.Cin
+
+    val add_result = io.A +% io.B +% io.Cin
+
+    io.Carry       := add_result(32)
+    io.Result      := add_result(31, 0)
+
+    io.Overflow    := (io.A(31) & R_B(31) & !io.Result(31)) | \
+                      (!io.A(31) & !R_B(31) &  io.Result(31))
+}
+
+class ALU_BarrelShifter extends Module {
+    val io = IO(new Bundle {
+        val Din   = input(UInt(32.W))
+        val shamt = input(UInt(5.W))
+        val L_R   = input(Bool())
+        val A_L   = input(Bool())
+
+        val Dout  = output(UInt(32.W))
+    })
+    
+    when(io.L_R) {
+        when(io.A_L) {
+            io.Dout := io.Din.asSInt << io.shamt
+        }.otherwise {
+            io.Dout := io.Din << io.shamt
+        }
+    }.otherwise {
+        when(io.A_L) {
+            io.Dout := io.Din.asSInt >> io.shamt
+        }.otherwise {
+            io.Dout := io.Din >> io.shamt
+        }
+    }
+}
+
+class ALU extends Module {
+    val io = IO(new Bundle {
+        val ALUctr = input(UInt(4.W))
+        val src_A  = input(UInt(32.W))
+        val src_B  = input(UInt(32.W))
+        
+        val ALUout = output(UInt(32.W))
+        val Zero   = output(Bool())
+        val Less   = output(Bool())
+    })
+
+    // ALU operation
+    val alu_ctrl = Module(new ALU_Ctrl)
+    alu_ctrl.io.ALUctr := io.ALUctr
+
+    val A_L    = alu_ctrl.io.A_L
+    val L_R    = alu_ctrl.io.L_R
+    val U_S    = alu_ctrl.io.U_S
+    val Sub_Add= alu_ctrl.io.Sub_Add
+
+    // ALU Adder
+    val Sub_Add_ex = Wire(UInt(32.W))
+    val A1         = Wire(UInt(32.W))
+    val B1         = Wire(UInt(32.W))
+
+    Sub_Add_ex := Sub_Add
+    A1 := io.src_A
+    B1 := io.src_B ^ Sub_Add_ex
+
+    val alu_adder = Module(new ALU_Adder)
+    alu_adder.io.A   := A1
+    alu_adder.io.B   := B1
+    alu_adder.io.Cin := Sub_Add
+
+    val Carry       = alu_adder.io.Carry
+    val adder      = alu_adder.io.Result
+    val Overflow    = alu_adder.io.Overflow
+    val Zero        = alu_adder.io.Zero
+
+    io.Zero := Zero
+
+    // ALU BarrelShifter
+    val alu_barrel_shifter = Module(new ALU_BarrelShifter)
+    alu_barrel_shifter.io.Din   := io.src_A
+    alu_barrel_shifter.io.shamt := io.src_B(4, 0)
+    alu_barrel_shifter.io.L_R   := L_R
+    alu_barrel_shifter.io.A_L   := A_L
+
+    val shift                    = alu_barrel_shifter.io.Dout
+
+    // other ALU outputs
+    val Less = Wire(Bool())
+    when(U_S) {
+        Less := Sub_Add ^ Carry
+    }.otherwise {
+        Less := adder(31) ^ Overflow
+    }
+    io.Less := Less
+    
+    val slt = ZeroExt(31, Less)
+
+    val B   = io.src_B
+
+    val XOR = Wire(UInt(32.W))
+    val OR  = Wire(UInt(32.W))
+    val AND = Wire(UInt(32.W))
+
+    XOR := io.src_A ^ io.src_B
+    OR  := io.src_A | io.src_B
+    AND := io.src_A & io.src_B
+
+    when(io.ALUctr(2, 0) == 0.U)       {
+        io.ALUout := adder
+    }.elsewhen(io.ALUctr(2, 0) == 1.U) {
+        io.ALUout := shift
+    }.elsewhen(io.ALUctr(2, 0) == 2.U) {
+        io.ALUout := slt
+    }.elsewhen(io.ALUctr(2, 0) == 3.U) {
+        io.ALUout := B
+    }.elsewhen(io.ALUctr(2, 0) == 4.U) {
+        io.ALUout := XOR
+    }.elsewhen(io.ALUctr(2, 0) == 5.U) {
+        io.ALUout := shift
+    }.elsewhen(io.ALUctr(2, 0) == 6.U) {
+        io.ALUout := OR
+    }.otherwise {
+        io.ALUout := AND
+    }
+}

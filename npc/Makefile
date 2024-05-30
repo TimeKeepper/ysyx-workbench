@@ -98,5 +98,10 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC)
+	
+trace:$(BIN) $(IMG)
+	$(eval VERILATOR_CFLAGS += --trace)
+	$(eval CXXFLAGS += -DTRACE)
+	$(NPC_EXEC)
 
 -include ../Makefile

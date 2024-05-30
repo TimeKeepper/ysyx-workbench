@@ -2,8 +2,6 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
-import chisel3.testers._
-import chisel3.testers.RawTester.test
 import scala.collection._
 import javax.smartcardio.ATR
 

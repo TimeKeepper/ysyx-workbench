@@ -78,8 +78,8 @@ CXXFLAGS += -g
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
-$(VSRC): $(SSRC)
-	$(MAKE) verilog
+# $(VSRC): $(SSRC)
+# 	$(MAKE) verilog
 
 print:
 	@echo $(INCFLAGS)
@@ -98,7 +98,7 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC)
-	
+
 trace:$(BIN) $(IMG)
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DTRACE)

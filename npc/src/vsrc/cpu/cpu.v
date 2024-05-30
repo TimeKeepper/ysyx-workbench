@@ -132,7 +132,7 @@ ALU alu (
     .clock(clk),
     .reset(rst),
 
-    .ioALUctr(ALUctr),
+    .io_ALUctr(ALUctr),
     .io_src_A(alu_srcA),
     .io_src_B(alu_srcB),
 

@@ -15,7 +15,7 @@ test:
 
 verilog: $(SSRC)
 	$(call git_commit, "generate verilog")
-	mkdir -p $(BUILD_DIR)
+	# mkdir -p $(BUILD_DIR)
 	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
 
 help:

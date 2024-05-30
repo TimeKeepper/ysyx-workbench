@@ -115,11 +115,11 @@ class ALU extends Module {
     Sub_Add     := alu_ctrl.io.Sub_Add
 
     // ALU Adder
-    val Sub_Add_ex = Wire(UInt(32.W))
+    val Sub_Add_ex = Wire(SInt(32.W))
     val A1         = Wire(UInt(32.W))
     val B1         = Wire(UInt(32.W))
 
-    Sub_Add_ex.asSInt := Sub_Add.asSInt
+    Sub_Add_ex := Sub_Add.asSInt
     A1 := io.src_A
     B1 := io.src_B ^ Sub_Add_ex
 

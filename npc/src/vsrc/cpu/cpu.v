@@ -129,13 +129,16 @@ wire Zero;
 wire [31:0] Result;
 
 ALU alu (
-    .ALUctr(ALUctr),
-    .A(alu_srcA),
-    .B(alu_srcB),
+    .clock(clk),
+    .reset(rst),
 
-    .ALUout(Result),
-    .Zero(Zero),
-    .Less(Less)
+    .ioALUctr(ALUctr),
+    .io_src_A(alu_srcA),
+    .io_src_B(alu_srcB),
+
+    .io_ALUout(Result),
+    .io_Zero(Zero),
+    .io_Less(Less)
 );
 
 wire PCAsrc;

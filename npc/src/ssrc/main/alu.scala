@@ -62,7 +62,7 @@ class ALU_Adder extends Module {
     io.Result      := add_result(31, 0)
     io.Zero        := io.Result === 0.U
 
-    io.Overflow    := (io.A(31) & R_B(31) & !io.Result(31)) | (!io.A(31) & !R_B(31) &  io.Result(31))
+    io.Overflow    := (io.A(31) & R_B(31) & !io.Result(31)) | (!io.A(31) & !R_B(31) & io.Result(31))
 }
 
 class ALU_BarrelShifter extends Module {

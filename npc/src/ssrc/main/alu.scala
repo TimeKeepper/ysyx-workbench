@@ -59,6 +59,7 @@ class ALU_Adder extends Module {
     add_result     := io.A +% io.B +% io.Cin
 
     io.Carry       := add_result(32)
+    io.Zero        := add_result === 0.U
     io.Result      := add_result(31, 0)
 
     io.Overflow    := (io.A(31) & R_B(31) & !io.Result(31)) | (!io.A(31) & !R_B(31) &  io.Result(31))

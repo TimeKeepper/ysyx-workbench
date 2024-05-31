@@ -11,10 +11,17 @@ SSRC_DIR = $(SRC_DIR)/ssrc
 CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 
-SSRC = $(shell find $(abspath $(SSRC_DIR))  -name "*.scala")
+SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
+
+# yosys-sta DEFINITIONS
+
+# DESIGN = top
+# SDC_FILE = $(abspath $(VSRC_DIR))/$(DESIGN).sdc
+# RTL_FILES = $(VSRC)
+# export CLK_FREQ_MHZ = 500
 
 # VERILATOR DIFIENITIONS
 

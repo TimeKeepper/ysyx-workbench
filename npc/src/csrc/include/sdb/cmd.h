@@ -5,6 +5,7 @@
 
 int cmd_help(char *args);
 int cmd_c(char *args);
+int cmd_t(char *args);
 int cmd_q(char *args);
 int cmd_r(char *args);
 int cmd_si(char *args);

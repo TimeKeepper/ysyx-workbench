@@ -42,6 +42,10 @@ static struct {
   
   , "NONE", cmd_c },
   
+  { "t"     , "Print the current cycle times"                               \
+  
+  , "NONE", cmd_t },
+
   { "q"     , "Exit NEMU"                                                           \
   
   , "NONE", cmd_q },

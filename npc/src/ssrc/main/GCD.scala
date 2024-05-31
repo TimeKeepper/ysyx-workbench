@@ -16,7 +16,7 @@ class GCD extends Module {
     val outputValid   = Output(Bool())
   })
 
-  val regs = RegInit(VecInit(Seq.fill(32768)(0.U(16.W))))
+  val regs = RegInit(VecInit(Seq.fill(65536)(0.U(16.W))))
 
   regs(io.value2) := io.value1
   

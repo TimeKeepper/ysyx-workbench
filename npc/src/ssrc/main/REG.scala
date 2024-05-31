@@ -14,7 +14,7 @@ class REG extends Module {
     val out = Output(Bool())
     })
 
-    val regs = Mem(32, 32.W)
+    val regs = Mem(32, UInt(32.W))
     regs := io.in
     io.out := regs(io.addr)
 

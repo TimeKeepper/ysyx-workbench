@@ -72,7 +72,7 @@ object Decode {
 
     val map = Array(
         LUI     -> List(immU, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_B,      CSR_N    ),
-        AUIPC   -> List(immU, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
+        AUIPC   -> List(immU, Y, Bran_NJmp, N, N, M_1BS, A_PC,  B_IMM, ALU_ADD,    CSR_N    ),
         ADDI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
         SLTI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_Less_S, CSR_N    ),
         SLTIU   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_Less_U, CSR_N    ),

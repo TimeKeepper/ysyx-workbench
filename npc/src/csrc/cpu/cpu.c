@@ -136,7 +136,7 @@ void cpu_value_update(void){
     cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_66;
     cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_64; 
 
-    if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
+    // if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
     uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {

@@ -11,7 +11,7 @@ class REG extends Module {
     val io = IO(new Bundle {
     val in = Input(Vec(32, UInt(32.W)))
     val addr = Input(UInt(5.W))
-    val out = Output(UInt(16.W))
+    val out = Output(UInt(32.W))
     })
 
     val regs = Mem(32, UInt(32.W))

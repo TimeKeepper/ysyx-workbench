@@ -18,7 +18,7 @@ module top(
 
 always @(inst) begin
     if(inst == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.reg_file.rf.rf[10]));
+        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.reg_file.gpr_10));
 end
 
 riscv_cpu cpu (

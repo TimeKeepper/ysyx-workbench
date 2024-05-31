@@ -13,13 +13,6 @@ module riscv_cpu(
 wire [31:0] nextPC;
 wire [31:0] pc_out;
 
-risc_V_pc pc (
-    .clk(clk),
-    .rst(rst),
-    .pc_in(nextPC),
-    .pc_out(pc_out)
-);
-
 wire [2:0] ExtOp;
 wire RegWr;
 wire [1:0] ALUAsrc;
@@ -29,48 +22,36 @@ wire [2:0] Branch;
 wire MemtoReg;
 wire [1:0] csr_ctr;
 
-Contr_gen contr (
-    .op(inst[6:0]),
-    .func3(inst[14:12]),
-    .func7(inst[31:25]),
-    .priv(inst[31:20]),
+IDU contr (
+    .clock(clk),
+    .reset(rst),
+    .io_inst(inst),
 
-    .ExtOp(ExtOp),
-    .RegWr(RegWr),
-    .ALUAsrc(ALUAsrc),
-    .ALUBsrc(ALUBsrc),
-    .ALUctr(ALUctr),
-    .Branch(Branch),
-    .MemtoReg(MemtoReg),
-    .MemWr(mem_wen),
-    .MemOp(memop),
-    .csr_ctr(csr_ctr)
+    .io_ExtOp(ExtOp),
+    .io_RegWr(RegWr),
+    .io_Branch(Branch),
+    .io_MemtoReg(MemtoReg),
+    .io_MemWr(mem_wen),
+    .io_MemOp(memop),
+    .io_ALUAsrc(ALUAsrc),
+    .io_ALUBsrc(ALUBsrc),
+    .io_ALUctr(ALUctr),
+    .io_csr_ctr(csr_ctr)
 );
 
 wire [31:0] rs1_val;
 wire [31:0] rs2_val;
 wire [31:0] sub_busW, busW;
 
-risc_V_Reg_file reg_file (
-    .clk(clk),
-    .rst(rst),
-    .waddr(inst[11:7]),
-    .wdata(busW),
-    .wen(RegWr),
-
-    .raddra(inst[19:15]),
-    .raddrb(inst[24:20]),
-    .rdataa(rs1_val),
-    .rdatab(rs2_val)
-);
-
 wire [31:0] imm;
 
-imm_gen imm_get (
-    .inst(inst),
-    .extop(ExtOp),
+IGU imm_get (
+    .clock(clk),
+    .reset(rst),
+    .io_inst(inst),
+    .io_extop(ExtOp),
 
-    .imm(imm)
+    .io_imm(imm)
 );
 
 wire [31:0] csr_output;
@@ -89,23 +70,32 @@ MuxKeyWithDefault #(1, 2, 12) csr_waddr1_mux (csr_waddr1, csr_ctr, imm[11:0], {
 MuxKeyWithDefault #(1, 2, 32) csr_wdata1_mux (csr_wdata1, csr_ctr, Result, {
     2'b11, pc_out
 });
-wire [31:0] csr_test;
-assign csr_test = Result;
 
 assign csr_waddr2 = 12'h342;
 assign csr_wdata2 = 32'd11;
 
-riscv_V_csr csr (
-    .test(Result),
-    .clk(clk),
-    .rst(rst),
-    .csr_raddr(csr_raddr),
-    .csr_waddr1(csr_waddr1),
-    .csr_wdata1(csr_wdata1),
-    .csr_waddr2(csr_waddr2),
-    .csr_wdata2(csr_wdata2),
-    .csr_ctr(csr_ctr),
-    .csr_output(csr_output)
+REG reg_file (
+    .clock(clk),
+    .reset(rst),
+    .io_wdata(busW),
+    .io_waddr(inst[11:7]),
+    .io_wen(RegWr),
+
+    .io_raddra(inst[19:15]),
+    .io_raddrb(inst[24:20]),
+    .io_rdataa(rs1_val),
+    .io_rdatab(rs2_val),
+
+    .io_pc_in(nextPC),
+    .io_pc_out(pc_out),
+
+    .io_csr_ctr(csr_ctr),
+    .io_csr_waddra(csr_waddr1),
+    .io_csr_waddrb(csr_waddr2),
+    .io_csr_wdataa(csr_wdata1),
+    .io_csr_wdatab(csr_wdata2),
+    .io_csr_raddr(csr_raddr),
+    .io_csr_rdata(csr_output)
 );
 
 wire [31:0] alu_srcA;
@@ -144,12 +134,15 @@ ALU alu (
 wire PCAsrc;
 wire PCBsrc;
 
-branch_cond branch (
-    .Branch(Branch),
-    .Zero(Zero),
-    .Less(Less),
-    .PCAsrc(PCAsrc),
-    .PCBsrc(PCBsrc)
+BCU branch (
+    .clock(clk),
+    .reset(rst),
+
+    .io_Branch(Branch),
+    .io_Zero(Zero),
+    .io_Less(Less),
+    .io_PCAsrc(PCAsrc),
+    .io_PCBsrc(PCBsrc)
 );
 
 wire [31:0] PCA_val;

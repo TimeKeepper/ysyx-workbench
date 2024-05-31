@@ -33,6 +33,12 @@ int cmd_c(char *args){
     return 0;
 }
 
+extern uint32_t clk_cnt;
+int cmd_t(char *args){
+    printf(ANSI_FMT("Current Clk times:", ANSI_FG_BLUE) ANSI_FMT(" %d\n", ANSI_FG_MAGENTA), clk_cnt);
+    return 0;
+}
+
 int cmd_q(char *args){
     npc_state.state = NPC_QUIT;
     return -1;

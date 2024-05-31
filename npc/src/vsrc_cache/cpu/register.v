@@ -76,7 +76,6 @@ module riscv_V_csr #(
     parameter ADDR_MEPC = 12'h341,
     parameter ADDR_MCAUSE = 12'h342
 ) (
-    input [31:0] test,
     input      clk,
     input      rst,
     input   [11:0]   csr_raddr,

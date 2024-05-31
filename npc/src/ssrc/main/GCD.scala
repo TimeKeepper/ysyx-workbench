@@ -14,11 +14,13 @@ class GCD extends Module {
     val loadingValues = Input(Bool())
     val outputGCD     = Output(UInt(16.W))
     val outputValid   = Output(Bool())
+    val output        = Output(UInt(16.W))
   })
 
   val regs = RegInit(VecInit(Seq.fill(65536)(0.U(16.W))))
 
   regs(io.value2) := io.value1
+  output := regs(io.value1)
   
   val x = Reg(UInt())
   val y = Reg(UInt())

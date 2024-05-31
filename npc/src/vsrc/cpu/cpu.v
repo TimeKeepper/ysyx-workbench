@@ -51,17 +51,17 @@ wire [31:0] rs1_val;
 wire [31:0] rs2_val;
 wire [31:0] sub_busW, busW;
 
-risc_V_Reg_file reg_file (
-    .clk(clk),
-    .rst(rst),
-    .waddr(inst[11:7]),
-    .wdata(busW),
-    .wen(RegWr),
+REG reg_file (
+    .clock(clk),
+    .reset(rst),
+    .io_wdata(busW),
+    .io_waddr(inst[11:7]),
+    .io_wen(RegWr),
 
-    .raddra(inst[19:15]),
-    .raddrb(inst[24:20]),
-    .rdataa(rs1_val),
-    .rdatab(rs2_val)
+    .io_raddra(inst[19:15]),
+    .io_raddrb(inst[24:20]),
+    .io_rdataa(rs1_val),
+    .io_rdatab(rs2_val)
 );
 
 wire [31:0] imm;

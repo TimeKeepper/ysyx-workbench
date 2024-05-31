@@ -15,14 +15,22 @@ class REG extends Module {
         val raddrb = Input(UInt(5.W))
         val rdataa  = Output(UInt(32.W))
         val rdatab  = Output(UInt(32.W))
+
+        val pc_in  = Input(UInt(32.W))
+        val pc_out = Output(UInt(32.W))
     })
 
-    val regs = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
+    val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
     when(io.wen && io.waddr =/= 0.U) {
-        regs(io.waddr) := io.wdata
+        gpr(io.waddr) := io.wdata
     }
 
-    io.rdataa := regs(io.raddra)
-    io.rdatab := regs(io.raddrb)
+    io.rdataa := gpr(io.raddra)
+    io.rdatab := gpr(io.raddrb)
+
+    val pc  = RegInit("h80000000".U, 32.W)
+
+    pc := io.pc_in
+    io.pc_out := pc
 }

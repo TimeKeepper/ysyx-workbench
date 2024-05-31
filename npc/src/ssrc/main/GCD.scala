@@ -9,9 +9,9 @@ import chisel3._
   */
 class GCD extends Module {
   val io = IO(new Bundle {
-    val value1        = Input(UInt(16.W))
-    val value2        = Input(UInt(16.W))
-    val loadingValues = Input(Bool())
+    // val value1        = Input(UInt(16.W))
+    // val value2        = Input(UInt(16.W))
+    // val loadingValues = Input(Bool())
     val outputGCD     = Output(UInt(16.W))
     val outputValid   = Output(Bool())
   })
@@ -21,13 +21,14 @@ class GCD extends Module {
   val y = Reg(UInt())
 
   x := regs(0)
+  y := regs(1)
 
-  when(x > y) { x := x - y }.otherwise { y := y - x }
+  // when(x > y) { x := x - y }.otherwise { y := y - x }
 
-  when(io.loadingValues) {
-    x := io.value1
-    y := io.value2
-  }
+  // when(io.loadingValues) {
+  //   x := io.value1
+  //   y := io.value2
+  // }
 
   io.outputGCD   := x
   io.outputValid := y === 0.U

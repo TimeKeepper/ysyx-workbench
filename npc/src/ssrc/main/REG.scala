@@ -44,13 +44,13 @@ class REG extends Module {
 
     // 暂时先实现100个
     val csr = RegInit(VecInit(Seq.fill(100)(0.U(32.W)))) 
-    io.csr_rdata := csr(io.csr_raddr(9, 0) - "h300".U)
+    io.csr_rdata := csr((io.csr_raddr - "h300".U)(6, 0))
 
     when(io.csr_ctr === 2.U || io.csr_ctr === 3.U) {
-        csr(io.csr_waddra(9, 0) - "h300".U) := io.csr_wdataa
+        csr((io.csr_waddra - "h300".U)(6, 0)) := io.csr_wdataa
     }
 
     when(io.csr_ctr === 3.U) {
-        csr(io.csr_waddrb(9, 0) - "h300".U) := io.csr_wdatab
+        csr((io.csr_waddrb - "h300".U)(6, 0)) := io.csr_wdatab
     }
 }

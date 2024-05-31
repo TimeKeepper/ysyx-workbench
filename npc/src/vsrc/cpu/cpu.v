@@ -66,11 +66,13 @@ risc_V_Reg_file reg_file (
 
 wire [31:0] imm;
 
-imm_gen imm_get (
-    .inst(inst),
-    .extop(ExtOp),
+ImmGen imm_get (
+    .clock(clk),
+    .reset(rst),
+    .io_inst(inst),
+    .io_extop(ExtOp),
 
-    .imm(imm)
+    .io_imm(imm)
 );
 
 wire [31:0] csr_output;

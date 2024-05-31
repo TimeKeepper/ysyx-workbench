@@ -97,9 +97,9 @@ object Decode {
         BEQ     -> List(immB, N, Bran_Jeq,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
         BNE     -> List(immB, N, Bran_Jne,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
         BLT     -> List(immB, N, Bran_Jlt,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
-        BGT     -> List(immB, N, Bran_Jge,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
+        BGE     -> List(immB, N, Bran_Jge,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
         BLTU    -> List(immB, N, Bran_Jlt,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_U, CSR_N),
-        BLTU    -> List(immB, N, Bran_Jge,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_U, CSR_N),
+        BGEU    -> List(immB, N, Bran_Jge,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_U, CSR_N),
         LB      -> List(immI, Y, Bran_NJmp, Y, N, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
         LH      -> List(immI, Y, Bran_NJmp, Y, N, M_2BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
         LW      -> List(immI, Y, Bran_NJmp, Y, N, M_4BU, A_RS1, B_IMM, ALU_ADD,    CSR_N),
@@ -130,7 +130,7 @@ class IDU extends Module {
         val csr_ctr = Output(UInt(2.W))
     })
 
-    val ctrlSignals = ListLookup(io,inst, Decode.default, Control.map)
+    val ctrlSignals = ListLookup(io,inst, Decode.default, Decode.map)
 
     io.ExtOp := ctrlSignals(0)
     io.RegWr := ctrlSignals(1)

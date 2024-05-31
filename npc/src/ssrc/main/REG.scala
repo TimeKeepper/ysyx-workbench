@@ -24,5 +24,5 @@ class REG extends Module {
     }
 
     io.rdataa := regs(io.raddra)
-    io.raddrb := regs(io.raddrb)
+    io.rdatab := regs(io.raddrb)
 }

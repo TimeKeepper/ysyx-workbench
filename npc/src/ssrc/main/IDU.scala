@@ -73,8 +73,8 @@ object Instructions {
 }
 
 object Decode {
-    val Y = true.b
-    val N = false.b
+    val Y = true.B
+    val N = false.B
 
     // ExtOp
     val immI = 0.U(3.W)

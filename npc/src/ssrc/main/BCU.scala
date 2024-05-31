@@ -5,7 +5,6 @@ import chisel3.util._
 
 // riscv cpu branch control unit
 
-
 class BCU extends Module {
     val io = IO(new Bundle {
         val Branch = Input(UInt(3.W))

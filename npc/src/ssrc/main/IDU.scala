@@ -1,0 +1,210 @@
+package riscv_cpu
+
+import chisel3._
+import chisel3.util._
+
+import chisel3.util.BitPat
+
+// total instruction num: 35
+
+object Instructions {
+    // Loads
+    def LB = BitPat("b?????????????????000?????0000011")
+    def LH = BitPat("b?????????????????001?????0000011")
+    def LW = BitPat("b?????????????????010?????0000011")
+    def LBU = BitPat("b?????????????????100?????0000011")
+    def LHU = BitPat("b?????????????????101?????0000011")
+    // Stores
+    def SB = BitPat("b?????????????????000?????0100011")
+    def SH = BitPat("b?????????????????001?????0100011")
+    def SW = BitPat("b?????????????????010?????0100011")
+    // Shifts
+    def SLL = BitPat("b0000000??????????001?????0110011")
+    def SLLI = BitPat("b0000000??????????001?????0010011")
+    def SRL = BitPat("b0000000??????????101?????0110011")
+    def SRLI = BitPat("b0000000??????????101?????0010011")
+    def SRA = BitPat("b0100000??????????101?????0110011")
+    def SRAI = BitPat("b0100000??????????101?????0010011")
+    // Arithmetic
+    def ADD = BitPat("b0000000??????????000?????0110011")
+    def ADDI = BitPat("b?????????????????000?????0010011")
+    def SUB = BitPat("b0100000??????????000?????0110011")
+    def LUI = BitPat("b?????????????????????????0110111")
+    def AUIPC = BitPat("b?????????????????????????0010111")
+    // Logical
+    def XOR = BitPat("b0000000??????????100?????0110011")
+    def XORI = BitPat("b?????????????????100?????0010011")
+    def OR = BitPat("b0000000??????????110?????0110011")
+    def ORI = BitPat("b?????????????????110?????0010011")
+    def AND = BitPat("b0000000??????????111?????0110011")
+    def ANDI = BitPat("b?????????????????111?????0010011")
+    // Compare
+    def SLT = BitPat("b0000000??????????010?????0110011")
+    def SLTI = BitPat("b?????????????????010?????0010011")
+    def SLTU = BitPat("b0000000??????????011?????0110011")
+    def SLTIU = BitPat("b?????????????????011?????0010011")
+    // Branches
+    def BEQ = BitPat("b?????????????????000?????1100011")
+    def BNE = BitPat("b?????????????????001?????1100011")
+    def BLT = BitPat("b?????????????????100?????1100011")
+    def BGE = BitPat("b?????????????????101?????1100011")
+    def BLTU = BitPat("b?????????????????110?????1100011")
+    def BGEU = BitPat("b?????????????????111?????1100011")
+    // Jump & Link
+    def JAL = BitPat("b?????????????????????????1101111")
+    def JALR = BitPat("b?????????????????000?????1100111")
+    // Synch
+    def FENCE = BitPat("b0000????????00000000000000001111")
+    def FENCEI = BitPat("b00000000000000000001000000001111")
+    // CSR Access
+    def CSRRW = BitPat("b?????????????????001?????1110011")
+    def CSRRS = BitPat("b?????????????????010?????1110011")
+    def CSRRC = BitPat("b?????????????????011?????1110011")
+    def CSRRWI = BitPat("b?????????????????101?????1110011")
+    def CSRRSI = BitPat("b?????????????????110?????1110011")
+    def CSRRCI = BitPat("b?????????????????111?????1110011")
+    // Change Level
+    def ECALL = BitPat("b00000000000000000000000001110011")
+    def EBREAK = BitPat("b00000000000100000000000001110011")
+    def ERET = BitPat("b00010000000000000000000001110011")
+    def WFI = BitPat("b00010000001000000000000001110011")
+
+    def NOP = BitPat.bitPatToUInt(BitPat("b00000000000000000000000000010011"))
+}
+
+object Decode {
+    val Y = true.b
+    val N = false.b
+
+    // ExtOp
+    val immI = 0.U(3.W)
+    val immU = 1.U(3.W)
+    val immS = 2.U(3.W)
+    val immB = 3.U(3.W)
+    val immJ = 4.U(3.W)
+
+    // ALUAsrc
+    val A_RS1 = 0.U(2.W)
+    val A_PC  = 1.U(2.W)
+    val A_CSR = 2.U(2.W)
+
+    // ALUBSrc
+    val B_RS2 = 0.U(2.W)
+    val B_IMM = 1.U(2.W)
+    val B_4   = 2.U(2.W)
+    val B_RS1 = 3.U(2.W)
+
+    // ALUctr
+    val ALU_ADD = 0.U(4.W)
+    val ALU_SUB = 8.U(4.W)
+    val ALU_SLL = 1.U(4.W)
+    val ALU_Less_S = 2.U(4.W)
+    val ALU_Less_U = 10.U(4.W)
+    val ALU_B   = 3.U(4.W)
+    val ALU_XOR = 4.U(4.W)
+    val ALU_SRL = 5.U(4.W)
+    val ALU_SRA = 13.U(4.W)
+    val ALU_OR  = 6.U(4.W)
+    val ALU_AND = 7.U(4.W)
+
+    // Branch
+    val Bran_NJmp = 0.U(3.W)
+    val Bran_Jmp  = 1.U(3.W)
+    val Bran_Jmpr = 2.U(3.W)
+    val Bran_Jeq  = 4.U(3.W)
+    val Bran_Jne  = 5.U(3.W)
+    val Bran_Jlt  = 6.U(3.W)
+    val Bran_Jge  = 7.U(3.W)
+
+    // MemOp
+    val M_4BU  = 2.U(3.W)
+    val M_2BS  = 1.U(3.W)
+    val M_1BS  = 0.U(3.W)
+    val M_2BU  = 5.U(3.W)
+    val M_1BU  = 4.U(3.W)
+
+    // csr_ctr
+    val CSR_N    = 0.U(2.W)
+    val CSR_R1W1 = 1.U(2.W)
+    val CSR_R1W2 = 3.U(2.W)
+    val CSR_R0W1 = 2.U(2.W)
+
+    // format: off
+    val default =
+    //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp     ALUAsrc   ALUBsrc   ALUctr     csr_ctr 
+    //     |        |       |         |       |        |         |         |         |          |    
+    List(immI,     N,   Bran_NJmp,    N,      N,    M_1BS,   A_RS1,     B_RS2,  ALU_ADD,    CSR_N)
+
+    val map = Array(
+        LUI     -> List(immU, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_B,      CSR_N),
+        AUIPC   -> List(immU, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        ADDI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        SLTI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_Less_S, CSR_N),
+        SLTIU   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_Less_U, CSR_N),
+        XORI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_XOR,    CSR_N),
+        ORI     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_OR,     CSR_N),
+        ANDI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_AND,    CSR_N),
+        SLLI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_SLL,    CSR_N),
+        SRLI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_SRL,    CSR_N),
+        SRAI    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_IMM, ALU_SRA,    CSR_N),
+        ADD     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_ADD,    CSR_N),
+        SUB     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_SUB,    CSR_N),
+        SLL     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_SLL,    CSR_N),
+        SLT     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
+        SLTU    -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_Less_U, CSR_N),
+        XOR     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_XOR,    CSR_N),
+        SRL     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_SRL,    CSR_N),
+        SRA     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_SRA,    CSR_N),
+        OR      -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_OR,     CSR_N),
+        AND     -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_RS1, B_RS2, ALU_AND,    CSR_N),
+        JAL     -> List(immJ, Y, Bran_Jmp,  N, N, M_1BS, A_PC,  B_4,   ALU_ADD,    CSR_N),
+        JALR    -> List(immI, Y, Bran_Jmpr, N, N, M_1BS, A_PC,  B_4,   ALU_ADD,    CSR_N),
+        BEQ     -> List(immB, N, Bran_Jeq,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
+        BNE     -> List(immB, N, Bran_Jne,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
+        BLT     -> List(immB, N, Bran_Jlt,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
+        BGT     -> List(immB, N, Bran_Jge,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_S, CSR_N),
+        BLTU    -> List(immB, N, Bran_Jlt,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_U, CSR_N),
+        BLTU    -> List(immB, N, Bran_Jge,  N, N, M_1BS, A_RS1, B_RS2, ALU_Less_U, CSR_N),
+        LB      -> List(immI, Y, Bran_NJmp, Y, N, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        LH      -> List(immI, Y, Bran_NJmp, Y, N, M_2BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        LW      -> List(immI, Y, Bran_NJmp, Y, N, M_4BU, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        LBU     -> List(immI, Y, Bran_NJmp, Y, N, M_1BU, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        LHU     -> List(immI, Y, Bran_NJmp, Y, N, M_2BU, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        SB      -> List(immS, N, Bran_NJmp, N, Y, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        SH      -> List(immS, N, Bran_NJmp, N, Y, M_2BS, A_RS1, B_IMM, ALU_ADD,    CSR_N),
+        SW      -> List(immS, N, Bran_NJmp, N, Y, M_4BU, A_RS1, B_IMM, ALU_ADD,    CSR_N)
+    )
+    // format: on
+}
+
+// riscv cpu instruction decode unit
+
+class IDU extends Module {
+    val io = IO(new Bundle {
+        val inst = Input(UInt(32.W))
+
+        val ExtOp = Output(UInt(3.W))
+        val RegWr = Output(Bool())
+        val Branch = Output(UInt(3.W))
+        val MemtoReg = Output(Bool())
+        val MemWr  = Output(Bool())
+        val MemOp  = Output(UInt(3.W))
+        val ALUAsrc = Output(UInt(2.W))
+        val ALUBsrc = Output(UInt(2.W))
+        val ALUctr = Output(UInt(4.W))
+        val csr_ctr = Output(UInt(2.W))
+    })
+
+    val ctrlSignals = ListLookup(io,inst, Decode.default, Control.map)
+
+    io.ExtOp := ctrlSignals(0)
+    io.RegWr := ctrlSignals(1)
+    io.Branch := ctrlSignals(2)
+    io.MemtoReg := ctrlSignals(3)
+    io.MemWr := ctrlSignals(4)
+    io.MemOp := ctrlSignals(5)
+    io.ALUAsrc := ctrlSignals(6)
+    io.ALUBsrc := ctrlSignals(7)
+    io.ALUctr := ctrlSignals(8)
+    io.csr_ctr := ctrlSignals(9)
+}

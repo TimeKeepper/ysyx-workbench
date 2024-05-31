@@ -130,11 +130,11 @@ const int sregs_iddr[] = {
 
 void cpu_value_update(void){
     cpu.pc = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__pc;   
-    cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_768;
-    cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_773;
-    cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_833;
-    cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_834;
-    cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_832; 
+    cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_0;
+    cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_5;
+    cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_65;
+    cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_66;
+    cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__cpu__DOT__reg_file__DOT__csr_64; 
 
     if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
     uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;

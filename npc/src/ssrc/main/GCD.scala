@@ -16,22 +16,15 @@ class GCD extends Module {
     val outputValid   = Output(Bool())
   })
 
-  val regs = RegInit(VecInit(Seq.fill(32)(0.U(16.W))))
   val x = Reg(UInt())
   val y = Reg(UInt())
 
-  regs(0) := io.value1
-  regs(1) := io.value2
-  regs(2) := 0.U
-  x := regs(0)
-  y := regs(1)
+  when(x > y) { x := x - y }.otherwise { y := y - x }
 
-  // when(x > y) { x := x - y }.otherwise { y := y - x }
-
-  // when(io.loadingValues) {
-  //   x := io.value1
-  //   y := io.value2
-  // }
+  when(io.loadingValues) {
+    x := io.value1
+    y := io.value2
+  }
 
   io.outputGCD   := x
   io.outputValid := y === 0.U

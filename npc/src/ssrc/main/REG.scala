@@ -14,7 +14,7 @@ class REG extends Module {
     val out = Output(UInt(32.W))
     })
 
-    val regs = Mem(32, UInt(32.W))
+    val regs = Reg(Vec(32, UInt(32.W)))
     for(i <- 0 to 31) {
         regs(i) := io.in(i)
     }

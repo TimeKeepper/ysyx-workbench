@@ -5,7 +5,7 @@ import chisel3.util._
 import scala.collection._
 import javax.smartcardio.ATR
 
-class BranchCond extends Module {
+class BCU extends Module {
     val io = IO(new Bundle {
         val Branch = Input(UInt(3.W))
         val Less   = Input(Bool())

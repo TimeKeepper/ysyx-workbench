@@ -5,7 +5,7 @@ import chisel3.util._
 import scala.collection._
 import javax.smartcardio.ATR
 
-class ImmGen extends Module {
+class IGU extends Module {
     val io = IO(new Bundle {
         val inst    = Input(UInt(32.W))
         val extop   = Input(UInt(3.W))

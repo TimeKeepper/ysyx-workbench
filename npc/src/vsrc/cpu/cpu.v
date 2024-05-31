@@ -146,12 +146,15 @@ ALU alu (
 wire PCAsrc;
 wire PCBsrc;
 
-branch_cond branch (
-    .Branch(Branch),
-    .Zero(Zero),
-    .Less(Less),
-    .PCAsrc(PCAsrc),
-    .PCBsrc(PCBsrc)
+BranchCond branch (
+    .clock(clk),
+    .reset(rst),
+
+    .io_Branch(Branch),
+    .io_Zero(Zero),
+    .io_Less(Less),
+    .io_PCAsrc(PCAsrc),
+    .io_PCBsrc(PCBsrc)
 );
 
 wire [31:0] PCA_val;

@@ -29,7 +29,7 @@ class REG extends Module {
     io.rdataa := gpr(io.raddra)
     io.rdatab := gpr(io.raddrb)
 
-    val pc  = RegInit(32.W, "h80000000".U)
+    val pc  = RegInit(UInt(32.W), "h80000000".U)
 
     pc := io.pc_in
     io.pc_out := pc

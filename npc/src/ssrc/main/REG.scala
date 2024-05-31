@@ -22,10 +22,10 @@ class REG extends Module {
     val regs = RegInit(Vec(32, UInt(32.W)), 0.U)
     // val regs = Reg(Wire(Vec(32, UInt(32.W))))
 
-    when(io.wen && io.waddr =/= 0.U) {
-        regs(io.waddr) := io.wdata
-    }
+    // when(io.wen && io.waddr =/= 0.U) {
+    //     regs(io.waddr) := io.wdata
+    // }
 
-    io.rdataa := regs(io.raddra)
-    io.raddrb := regs(io.raddrb)
+    // io.rdataa := regs(io.raddra)
+    // io.raddrb := regs(io.raddrb)
 }

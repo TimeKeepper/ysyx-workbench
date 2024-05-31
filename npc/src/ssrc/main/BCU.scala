@@ -5,6 +5,9 @@ import chisel3.util._
 import scala.collection._
 import javax.smartcardio.ATR
 
+// riscv cpu branch control unit
+
+
 class BCU extends Module {
     val io = IO(new Bundle {
         val Branch = Input(UInt(3.W))

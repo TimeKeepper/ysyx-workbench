@@ -5,6 +5,8 @@ import chisel3.util._
 import scala.collection._
 import javax.smartcardio.ATR
 
+// riscv cpu analogic and logical unit
+
 class ALU_Ctrl extends Module {
     val io = IO(new Bundle {
         val ALUctr = Input(UInt(4.W))

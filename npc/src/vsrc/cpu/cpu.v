@@ -66,7 +66,7 @@ risc_V_Reg_file reg_file (
 
 wire [31:0] imm;
 
-ImmGen imm_get (
+IGU imm_get (
     .clock(clk),
     .reset(rst),
     .io_inst(inst),

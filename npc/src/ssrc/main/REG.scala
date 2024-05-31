@@ -42,8 +42,8 @@ class REG extends Module {
     pc := io.pc_in
     io.pc_out := pc
 
-    // 暂时先实现100个
-    val csr = RegInit(VecInit(Seq.fill(100)(0.U(32.W)))) 
+    // 暂时先实现128个
+    val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W)))) 
     io.csr_rdata := csr((io.csr_raddr - "h300".U)(6, 0))
 
     when(io.csr_ctr === 2.U || io.csr_ctr === 3.U) {

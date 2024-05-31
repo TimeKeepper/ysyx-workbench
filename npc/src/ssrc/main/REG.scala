@@ -50,7 +50,7 @@ class REG extends Module {
         csr(io.csr_waddra(9, 0)) := io.csr_wdataa
     }
 
-    when(io.csr === 3.U) {
+    when(io.csr_ctr === 3.U) {
         csr(io.csr_waddrb(9, 0)) := io.csr_wdatab
     }
 }

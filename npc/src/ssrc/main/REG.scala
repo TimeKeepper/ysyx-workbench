@@ -14,7 +14,7 @@ class REG extends Module {
     val out = Output(UInt(16.W))
     })
 
-    val regs = RegInit(VecInit(Seq.fill(32)(32.W)))
+    val regs = RegInit(VecInit(Seq.fill(32)(false.B.asUInt(32.W))))
     regs := io.in
     io.out := regs(io.addr)
 

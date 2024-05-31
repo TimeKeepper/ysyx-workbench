@@ -9,6 +9,10 @@ import javax.smartcardio.ATR
 
 class REG extends Module {
     val io = IO(new Bundle {
+        val value1        = Input(UInt(16.W))
+        val value2        = Output(UInt(16.W))
+        val raddr         = Input(UInt(5.W))
+        val waddr         = Input(UInt(5.W))
         // val wdata = Input(UInt(32.W))
         // val waddr = Input(UInt(5.W))
         // val wen   = Input(Bool())
@@ -20,6 +24,10 @@ class REG extends Module {
     })
 
     val regs = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
+
+    io.value2 := regs(io.raddr)
+
+    regs(io.waddr) := io.value1
 
     // when(io.wen && io.waddr =/= 0.U) {
     //     regs(io.waddr) := io.wdata

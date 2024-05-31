@@ -13,10 +13,10 @@ class REG extends Module {
         val waddr = Input(UInt(5.W))
         val wen   = Input(Bool())
 
-        val raddra = Input(UInt(5.W))
-        val raddrb = Input(UInt(5.W))
-        val rdataa  = Output(UInt(32.W))
-        val rdatab  = Output(UInt(32.W))
+        // val raddra = Input(UInt(5.W))
+        // val raddrb = Input(UInt(5.W))
+        // val rdataa  = Output(UInt(32.W))
+        // val rdatab  = Output(UInt(32.W))
     })
 
     val regs = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
@@ -25,6 +25,6 @@ class REG extends Module {
         regs(io.waddr) := io.wdata
     }
 
-    io.rdataa := regs(io.raddra)
-    io.raddrb := regs(io.raddrb)
+    // io.rdataa := regs(io.raddra)
+    // io.raddrb := regs(io.raddrb)
 }

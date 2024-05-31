@@ -13,13 +13,6 @@ module riscv_cpu(
 wire [31:0] nextPC;
 wire [31:0] pc_out;
 
-risc_V_pc pc (
-    .clk(clk),
-    .rst(rst),
-    .pc_in(nextPC),
-    .pc_out(pc_out)
-);
-
 wire [2:0] ExtOp;
 wire RegWr;
 wire [1:0] ALUAsrc;
@@ -61,7 +54,10 @@ REG reg_file (
     .io_raddra(inst[19:15]),
     .io_raddrb(inst[24:20]),
     .io_rdataa(rs1_val),
-    .io_rdatab(rs2_val)
+    .io_rdatab(rs2_val),
+
+    .io_pc_in(nextPC),
+    .io_pc_out(pc_out)
 );
 
 wire [31:0] imm;
@@ -91,14 +87,11 @@ MuxKeyWithDefault #(1, 2, 12) csr_waddr1_mux (csr_waddr1, csr_ctr, imm[11:0], {
 MuxKeyWithDefault #(1, 2, 32) csr_wdata1_mux (csr_wdata1, csr_ctr, Result, {
     2'b11, pc_out
 });
-wire [31:0] csr_test;
-assign csr_test = Result;
 
 assign csr_waddr2 = 12'h342;
 assign csr_wdata2 = 32'd11;
 
 riscv_V_csr csr (
-    .test(Result),
     .clk(clk),
     .rst(rst),
     .csr_raddr(csr_raddr),

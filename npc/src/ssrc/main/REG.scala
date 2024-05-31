@@ -18,6 +18,14 @@ class REG extends Module {
 
         val pc_in  = Input(UInt(32.W))
         val pc_out = Output(UInt(32.W))
+
+        val csr_ctr    = Input(UInt(2.W))
+        val csr_waddra = Input(UInt(12.W))
+        val csr_waddrb = Input(UInt(12.W))
+        val csr_wdataa = Input(UInt(32.W))
+        val csr_wdatab = Input(UInt(32.W))
+        val csr_raddr  = Input(UInt(12.W))
+        val csr_rdata  = Output(UInt(32.W))
     })
 
     val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
@@ -33,4 +41,16 @@ class REG extends Module {
 
     pc := io.pc_in
     io.pc_out := pc
+
+    // 暂时先实现1024个
+    val csr = RegInit(VecInit(Seq.fill(1024)(0.U(32.W)))) 
+    io.csr_rdata := csr(io.csr_raddr(9, 0))
+
+    when(io.csr_ctr === 2.U || io.csr_ctr === 3.U) {
+        csr(io.csr_waddra(9, 0)) := io.csr_wdataa
+    }
+
+    when(io.csr === 3.U) {
+        csr(io.csr_waddrb(9, 0)) := io.csr_wdatab
+    }
 }

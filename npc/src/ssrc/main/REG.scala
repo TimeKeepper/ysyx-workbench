@@ -1,7 +1,7 @@
 package riscv_cpu
 
 import chisel3._
-import chisel3.util.U_S
+import chisel3.util._
 
 // riscv cpu register file
 

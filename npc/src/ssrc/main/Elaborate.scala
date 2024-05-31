@@ -8,5 +8,5 @@ object Elaborate extends App {
       "locationInfoStyle=wrapInAtSquareBracket"
     ).reduce(_ + "," + _)
   )
-  circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.REG(), args, firtoolOptions)
+  circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.IGU(), args, firtoolOptions)
 }

@@ -15,6 +15,10 @@ class IGU extends Module {
         val imm     = Output(UInt(32.W))
     })
 
+    val regs = RegInit(VecInit(Seq.fill(8)(0.U(32.W))))
+
+    regs(io.extop) := io.inst
+
     when(io.extop === 0.U) {
         io.imm := Cat(Fill(21, io.inst(31)), io.inst(31, 20))
     }.elsewhen(io.extop === 1.U) {

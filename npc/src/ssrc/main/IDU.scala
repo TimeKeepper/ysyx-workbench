@@ -130,7 +130,7 @@ class IDU extends Module {
         val csr_ctr = Output(UInt(2.W))
     })
 
-    val ctrlSignals = ListLookup(io,inst, Decode.default, Decode.map)
+    val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
 
     io.ExtOp := ctrlSignals(0)
     io.RegWr := ctrlSignals(1)

@@ -9,9 +9,9 @@ import javax.smartcardio.ATR
 
 class REG extends Module {
     val io = IO(new Bundle {
-    val in = Input(Vec(32, UInt(32.W)))
+    val in = Input(Vec(32, Bool()))
     val addr = Input(UInt(5.W))
-    val out = Output(UInt(16.W))
+    val out = Output(Bool())
     })
 
     val regs = RegInit(VecInit(Seq.fill(32)(false.B)))

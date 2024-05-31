@@ -146,7 +146,7 @@ ALU alu (
 wire PCAsrc;
 wire PCBsrc;
 
-BranchCond branch (
+BCU branch (
     .clock(clk),
     .reset(rst),
 

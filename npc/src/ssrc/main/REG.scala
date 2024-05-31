@@ -19,7 +19,7 @@ class REG extends Module {
         val rdatab  = Output(UInt(32.W))
     })
 
-    val regs = Wire(Vec(32, UInt(32.W)), 0.U)
+    val regs = Wire(Vec(32, UInt(32.W)))
 
     when(io.wen && io.waddr =/= 0.U) {
         regs(io.waddr) := io.wdata

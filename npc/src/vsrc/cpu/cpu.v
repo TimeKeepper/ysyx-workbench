@@ -22,22 +22,21 @@ wire [2:0] Branch;
 wire MemtoReg;
 wire [1:0] csr_ctr;
 
-Contr_gen contr (
-    .op(inst[6:0]),
-    .func3(inst[14:12]),
-    .func7(inst[31:25]),
-    .priv(inst[31:20]),
+IDU contr (
+    .clock(clk),
+    .reset(rst),
+    .io_inst(inst),
 
-    .ExtOp(ExtOp),
-    .RegWr(RegWr),
-    .ALUAsrc(ALUAsrc),
-    .ALUBsrc(ALUBsrc),
-    .ALUctr(ALUctr),
-    .Branch(Branch),
-    .MemtoReg(MemtoReg),
-    .MemWr(mem_wen),
-    .MemOp(memop),
-    .csr_ctr(csr_ctr)
+    .io_ExtOp(ExtOp),
+    .io_RegWr(RegWr),
+    .io_Branch(Branch),
+    .io_MemtoReg(MemtoReg),
+    .io_MemWr(mem_wen),
+    .io_MemOp(memop),
+    .io_ALUAsrc(ALUAsrc),
+    .io_ALUBsrc(ALUBsrc),
+    .io_ALUctr(ALUctr),
+    .io_csr_ctr(csr_ctr)
 );
 
 wire [31:0] rs1_val;

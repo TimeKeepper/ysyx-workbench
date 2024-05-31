@@ -42,15 +42,15 @@ class REG extends Module {
     pc := io.pc_in
     io.pc_out := pc
 
-    // 暂时先实现1024个
-    val csr = RegInit(VecInit(Seq.fill(1024)(0.U(32.W)))) 
-    io.csr_rdata := csr(io.csr_raddr(9, 0))
+    // 暂时先实现100个
+    val csr = RegInit(VecInit(Seq.fill(100)(0.U(32.W)))) 
+    io.csr_rdata := csr(io.csr_raddr(9, 0) - "h300".U)
 
     when(io.csr_ctr === 2.U || io.csr_ctr === 3.U) {
-        csr(io.csr_waddra(9, 0)) := io.csr_wdataa
+        csr(io.csr_waddra(9, 0) - "h300".U) := io.csr_wdataa
     }
 
     when(io.csr_ctr === 3.U) {
-        csr(io.csr_waddrb(9, 0)) := io.csr_wdatab
+        csr(io.csr_waddrb(9, 0) - "h300".U) := io.csr_wdatab
     }
 }

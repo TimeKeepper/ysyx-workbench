@@ -44,22 +44,6 @@ wire [31:0] rs1_val;
 wire [31:0] rs2_val;
 wire [31:0] sub_busW, busW;
 
-REG reg_file (
-    .clock(clk),
-    .reset(rst),
-    .io_wdata(busW),
-    .io_waddr(inst[11:7]),
-    .io_wen(RegWr),
-
-    .io_raddra(inst[19:15]),
-    .io_raddrb(inst[24:20]),
-    .io_rdataa(rs1_val),
-    .io_rdatab(rs2_val),
-
-    .io_pc_in(nextPC),
-    .io_pc_out(pc_out)
-);
-
 wire [31:0] imm;
 
 IGU imm_get (
@@ -91,16 +75,28 @@ MuxKeyWithDefault #(1, 2, 32) csr_wdata1_mux (csr_wdata1, csr_ctr, Result, {
 assign csr_waddr2 = 12'h342;
 assign csr_wdata2 = 32'd11;
 
-riscv_V_csr csr (
-    .clk(clk),
-    .rst(rst),
-    .csr_raddr(csr_raddr),
-    .csr_waddr1(csr_waddr1),
-    .csr_wdata1(csr_wdata1),
-    .csr_waddr2(csr_waddr2),
-    .csr_wdata2(csr_wdata2),
-    .csr_ctr(csr_ctr),
-    .csr_output(csr_output)
+REG reg_file (
+    .clock(clk),
+    .reset(rst),
+    .io_wdata(busW),
+    .io_waddr(inst[11:7]),
+    .io_wen(RegWr),
+
+    .io_raddra(inst[19:15]),
+    .io_raddrb(inst[24:20]),
+    .io_rdataa(rs1_val),
+    .io_rdatab(rs2_val),
+
+    .io_pc_in(nextPC),
+    .io_pc_out(pc_out),
+
+    .io_csr_ctr(csr_ctr),
+    .io_csr_waddra(csr_waddr1),
+    .io_csr_waddrb(csr_waddr2),
+    .io_csr_wdataa(csr_wdata1),
+    .io_csr_wdatab(csr_wdata2),
+    .io_csr_raddr(csr_raddr),
+    .io_csr_rdata(csr_output)
 );
 
 wire [31:0] alu_srcA;

@@ -9,11 +9,13 @@ import javax.smartcardio.ATR
 
 class REG extends Module {
     val io = IO(new Bundle {
-    val in = Input(Vec(20, UInt(16.W)))
+    val in = Input(Vec(32, UInt(32.W)))
     val addr = Input(UInt(5.W))
     val out = Output(UInt(16.W))
     })
-    io.out := io.in(io.addr)
+
+    val regs = Wire(Vec(32, UInt(32.W)))
+    io.out := regs(io.addr)
 
     // val io = IO(new Bundle {
     //     val wdata = Input(UInt(32.W))

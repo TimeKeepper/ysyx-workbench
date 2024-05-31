@@ -16,6 +16,7 @@ class GCD extends Module {
     val outputValid   = Output(Bool())
   })
 
+  val regs = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
   val x = Reg(UInt())
   val y = Reg(UInt())
 

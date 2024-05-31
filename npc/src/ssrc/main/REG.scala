@@ -8,16 +8,16 @@ import javax.smartcardio.ATR
 // riscv cpu register file
 
 class REG extends Module {
-    val io = IO(new Bundle {
-        val wdata = Input(UInt(32.W))
-        val waddr = Input(UInt(5.W))
-        val wen   = Input(Bool())
+    // val io = IO(new Bundle {
+    //     val wdata = Input(UInt(32.W))
+    //     val waddr = Input(UInt(5.W))
+    //     val wen   = Input(Bool())
 
-        val raddra = Input(UInt(5.W))
-        val raddrb = Input(UInt(5.W))
-        val rdataa  = Output(UInt(32.W))
-        val rdatab  = Output(UInt(32.W))
-    })
+    //     val raddra = Input(UInt(5.W))
+    //     val raddrb = Input(UInt(5.W))
+    //     val rdataa  = Output(UInt(32.W))
+    //     val rdatab  = Output(UInt(32.W))
+    // })
 
     val regs = Reg(Vec(32, UInt(32.W)))
     // val regs = Reg(Wire(Vec(32, UInt(32.W))))

@@ -22,16 +22,16 @@ class CPU() extends Module {
     val BCU = Module(new BCU()) // Branch Control Unit
 
     // wires
-    val ExtOp = Wire(UInt(3.W))
+    val ExtOp = Wire(ExtOp_Type)
     val RegWr = Wire(Bool())
-    val Branch = Wire(UInt(3.W))
+    val Branch = Wire(Bran_Type)
     val MemtoReg = Wire(Bool())
     val MemWr  = Wire(Bool())
-    val MemOp  = Wire(UInt(3.W))
-    val ALUAsrc = Wire(UInt(2.W))
-    val ALUBsrc = Wire(UInt(2.W))
-    val ALUctr = Wire(UInt(4.W))
-    val csr_ctr = Wire(UInt(2.W))
+    val MemOp  = Wire(MemOp_Type)
+    val ALUAsrc = Wire(ALUAsrc_Type)
+    val ALUBsrc = Wire(ALUBSrc_Type)
+    val ALUctr = Wire(ALUctr_Type)
+    val csr_ctr = Wire(CSR_Type)
     
     val Imm = Wire(UInt(32.W))
 
@@ -116,7 +116,7 @@ class CPU() extends Module {
         PCBval := Cur_PC
     }
 
-    when(csr_ctr === 1.U || csr_ctr === 3.U) {
+    when(csr_ctr === CSR_R1W0 || csr_ctr === CSR_R1W2) {
         Next_PC := CSR_RDATA
     }.otherwise {
         Next_PC := PCAval + PCBval
@@ -161,21 +161,21 @@ class CPU() extends Module {
     // ALU Connections
     ALU.io.ALUctr := ALUctr
 
-    when(ALUAsrc === 0.U) {
+    when(ALUAsrc === A_RS1) {
         ALU.io.src_A := GPR_RDATAa
-    }.elsewhen (ALUAsrc === 1.U) {
+    }.elsewhen (ALUAsrc === A_PC) {
         ALU.io.src_A := Cur_PC
-    }.elsewhen (ALUAsrc === 2.U) {
+    }.elsewhen (ALUAsrc === A_CSR) {
         ALU.io.src_A := CSR_RDATA
     }.otherwise {
         ALU.io.src_A := 0.U
     }
 
-    when(ALUBsrc === 0.U) {
+    when(ALUBsrc === B_RS2) {
         ALU.io.src_B := GPR_RDATAb
-    }.elsewhen(ALUBsrc === 1.U) {
+    }.elsewhen(ALUBsrc === B_IMM) {
         ALU.io.src_B := Imm
-    }.elsewhen(ALUBsrc === 2.U) {
+    }.elsewhen(ALUBsrc === B_4) {
         ALU.io.src_B := 4.U
     }.otherwise {
         ALU.io.src_B := GPR_RDATAa

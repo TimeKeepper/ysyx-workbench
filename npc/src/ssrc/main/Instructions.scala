@@ -97,11 +97,11 @@ object signal_value {
 
     // MemOp
     def MemOp_Type = UInt(3.W)
-    def M_4BU  = 2.U(3.W)
-    def M_2BS  = 1.U(3.W)
-    def M_1BS  = 0.U(3.W)
-    def M_2BU  = 5.U(3.W)
-    def M_1BU  = 4.U(3.W)
+    def M_4BU  = 1.U(3.W)
+    def M_2BS  = 2.U(3.W)
+    def M_1BS  = 3.U(3.W)
+    def M_2BU  = 4.U(3.W)
+    def M_1BU  = 5.U(3.W)
 
     // ALUAsrc
     def ALUAsrc_Type = UInt(2.W)
@@ -119,17 +119,17 @@ object signal_value {
     // ALUctr
     def ALUctr_Type = UInt(4.W)
     def ALU_ADD = 0.U(4.W)
-    def ALU_SUB = 8.U(4.W)
-    def ALU_SLL = 1.U(4.W)
-    def ALU_Less_S = 2.U(4.W)
-    def ALU_Less_U = 10.U(4.W)
-    def ALU_B   = 3.U(4.W)
-    def ALU_A   = 11.U(4.W)
-    def ALU_XOR = 4.U(4.W)
-    def ALU_SRL = 5.U(4.W)
-    def ALU_SRA = 13.U(4.W)
-    def ALU_OR  = 6.U(4.W)
-    def ALU_AND = 7.U(4.W)
+    def ALU_SUB = 1.U(4.W)
+    def ALU_SLL = 2.U(4.W)
+    def ALU_Less_S = 3.U(4.W)
+    def ALU_Less_U = 4.U(4.W)
+    def ALU_B   = 5.U(4.W)
+    def ALU_A   = 6.U(4.W)
+    def ALU_XOR = 7.U(4.W)
+    def ALU_SRL = 8.U(4.W)
+    def ALU_SRA = 9.U(4.W)
+    def ALU_OR  = 10.U(4.W)
+    def ALU_AND = 11.U(4.W)
 
     // csr_ctr
     def CSR_Type = UInt(2.W)

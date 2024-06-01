@@ -1,23 +1,35 @@
 package top
 
 import chisel3._
-import gcd._
+import riscv_cpu._
+
+class BlackBoxDPIC extends BlackBox {
+  val io = IO(new Bundle{
+    val inst = Input(UInt(32.W))
+  })
+}
 
 class top extends Module {
   val io = IO(new Bundle {
-    val value1        = Input(UInt(16.W)) 
-    val value2        = Input(UInt(16.W))
-    val loadingValues = Input(Bool())
-    val outputGCD     = Output(UInt(16.W))
-    val outputValid   = Output(Bool())
+    val inst = Input(UInt(32.W))
+    val mem_rdata = Input(UInt(32.W))
+
+    val mem_op = Output(UInt(3.W))
+    val mem_wdata = Output(UInt(32.W))
+    val mem_wen = Output(Bool())
+    val mem_addr = Output(UInt(32.W))
   })
+  
+  val dpic = Module(new BlackBoxDPIC)
+  dpic.io.inst := io.inst
 
-  val submodule = Module(new GCD)
+  val riscv_cpu = Module(new CPU)
 
-  submodule.io.value1        := io.value1
-  submodule.io.value2        := io.value2
-  submodule.io.loadingValues := io.loadingValues
+  riscv_cpu.io.inst := io.inst
+  riscv_cpu.io.mem_rdata := io.mem_rdata
 
-  io.outputGCD   := submodule.io.outputGCD
-  io.outputValid := submodule.io.outputValid
+  io.mem_op := riscv_cpu.io.mem_op
+  io.mem_wdata := riscv_cpu.io.mem_wdata
+  io.mem_wen := riscv_cpu.io.mem_wen
+  io.mem_addr := riscv_cpu.io.mem_addr
 }

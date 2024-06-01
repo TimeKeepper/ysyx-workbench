@@ -79,11 +79,11 @@ object signal_value {
 
     // ExtOp
     def ExtOp_Type = UInt(3.W)
-    def immI = 4.U(3.W)
-    def immU = 3.U(3.W)
+    def immI = 0.U(3.W)
+    def immU = 1.U(3.W)
     def immS = 2.U(3.W)
-    def immB = 1.U(3.W)
-    def immJ = 0.U(3.W)
+    def immB = 3.U(3.W)
+    def immJ = 4.U(3.W)
 
     // Branch
     def Bran_Type = UInt(3.W)

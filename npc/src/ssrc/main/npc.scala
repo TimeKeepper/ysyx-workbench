@@ -11,8 +11,8 @@ class npc extends Module {
         val mem_rdata = Input(UInt(32.W))
         val mem_raddr = Output(UInt(32.W))
 
-        val mem_wdata = Output(UInt(3.W))
-        val mem_wop = Output(MemOp_Type)
+        val mem_wdata = Output(UInt(32.W))
+        val mem_wop = Output(UInt(3.W))
         val mem_wen = Output(Bool())
     })
 

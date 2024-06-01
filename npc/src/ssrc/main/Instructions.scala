@@ -78,6 +78,7 @@ object signal_value {
     def N = false.B
 
     // ExtOp
+    def ExtOp_Type = UInt(3.W)
     def immI = 0.U(3.W)
     def immU = 1.U(3.W)
     def immS = 2.U(3.W)
@@ -85,17 +86,20 @@ object signal_value {
     def immJ = 4.U(3.W)
 
     // ALUAsrc
+    def ALUAsrc_Type = (2.W)
     def A_RS1 = 0.U(2.W)
     def A_PC  = 1.U(2.W)
     def A_CSR = 2.U(2.W)
 
     // ALUBSrc
+    def ALUBSrc_Type = (2.W)
     def B_RS2 = 0.U(2.W)
     def B_IMM = 1.U(2.W)
     def B_4   = 2.U(2.W)
     def B_RS1 = 3.U(2.W)
 
     // ALUctr
+    def ALUctr_Type = (4.W)
     def ALU_ADD = 0.U(4.W)
     def ALU_SUB = 8.U(4.W)
     def ALU_SLL = 1.U(4.W)
@@ -110,6 +114,7 @@ object signal_value {
     def ALU_AND = 7.U(4.W)
 
     // Branch
+    def Bran_Type = (3.W)
     def Bran_NJmp = 0.U(3.W)
     def Bran_Jmp  = 1.U(3.W)
     def Bran_Jmpr = 2.U(3.W)
@@ -119,6 +124,7 @@ object signal_value {
     def Bran_Jge  = 7.U(3.W)
 
     // MemOp
+    def MemOp_Type = (3.W)
     def M_4BU  = 2.U(3.W)
     def M_2BS  = 1.U(3.W)
     def M_1BS  = 0.U(3.W)
@@ -126,6 +132,7 @@ object signal_value {
     def M_1BU  = 4.U(3.W)
 
     // csr_ctr
+    def CSR_ctr_Type = (2.W)
     def CSR_N    = 0.U(2.W)
     def CSR_R1W0 = 1.U(2.W)  // mret
     def CSR_R1W1 = 2.U(2.W)

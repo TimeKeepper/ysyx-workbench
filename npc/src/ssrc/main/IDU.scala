@@ -66,16 +66,16 @@ class IDU extends Module {
     val io = IO(new Bundle {
         val inst = Input(UInt(32.W))
 
-        val ExtOp = Output(UInt(3.W))
+        val ExtOp = Output(ExtOp_Type)
         val RegWr = Output(Bool())
-        val Branch = Output(UInt(3.W))
+        val Branch = Output(Bran_Type)
         val MemtoReg = Output(Bool())
         val MemWr  = Output(Bool())
-        val MemOp  = Output(UInt(3.W))
-        val ALUAsrc = Output(UInt(2.W))
-        val ALUBsrc = Output(UInt(2.W))
-        val ALUctr = Output(UInt(4.W))
-        val csr_ctr = Output(UInt(2.W))
+        val MemOp  = Output(MemOp_Type)
+        val ALUAsrc = Output(ALUAsrc_Type)
+        val ALUBsrc = Output(ALUBSrc_Type)
+        val ALUctr = Output(ALUctr_Type)
+        val csr_ctr = Output(CSR_ctr_Type)
     })
 
     val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)

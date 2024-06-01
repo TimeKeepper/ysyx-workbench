@@ -29,7 +29,7 @@ class top extends Module {
   riscv_cpu.io.mem_rdata := io.mem_rdata
   io.mem_raddr := riscv_cpu.io.mem_raddr
 
-  riscv_cpu.io.mem_wdata := io.mem_wdata
-  riscv_cpu.io.mem_wop := io.mem_wop
-  riscv_cpu.io.mem_wen := io.mem_wen
+  io.mem_wdata := riscv_cpu.io.mem_wdata
+  io.mem_wop := riscv_cpu.io.mem_wop
+  io.mem_wen := riscv_cpu.io.mem_wen
 }

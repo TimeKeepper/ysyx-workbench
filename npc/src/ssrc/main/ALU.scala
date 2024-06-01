@@ -94,7 +94,7 @@ class ALU_BarrelShifter extends Module {
 
 class ALU extends Module {
     val io = IO(new Bundle {
-        val ALUctr = Input(UInt(4.W))
+        val ALUctr = Input(ALUctr_Type)
         val src_A  = Input(UInt(32.W))
         val src_B  = Input(UInt(32.W))
         

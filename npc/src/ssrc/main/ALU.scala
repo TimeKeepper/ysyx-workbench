@@ -11,10 +11,10 @@ class ALU_Ctrl extends Module {
     val io = IO(new Bundle {
         val ALUctr = Input(UInt(4.W))
 
-        val A_L    = Output(Bool())
-        val L_R    = Output(Bool())
-        val U_S    = Output(Bool())
-        val Sub_Add= Output(Bool())
+        val A_L    = Output(UInt(1.W))
+        val L_R    = Output(UInt(1.W))
+        val U_S    = Output(UInt(1.W))
+        val Sub_Add= Output(UInt(1.W))
     })
 
     when(io.ALUctr === ALU_Less_U || io.ALUctr === ALU_SRL) {

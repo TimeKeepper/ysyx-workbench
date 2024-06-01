@@ -136,7 +136,7 @@ class CPU(val xLen: Int) extends Module {
     when(ALUAsrc === 0.U) {
         ALU.io.src_A := GPR_RDATAa
     }.elsewhen (ALUAsrc === 1.U) {
-        ALU.io.src_A := pc_out
+        ALU.io.src_A := Next_PC
     }.elsewhen (ALUAsrc === 2.U) {
         ALU.io.src_A := csr_rdata
     }.otherwise {

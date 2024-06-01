@@ -20,12 +20,12 @@ class top extends Module {
     val mem_wop = Output(UInt(3.W))
     val mem_wen = Output(Bool())
   })
+
+  val riscv_cpu = Module(new CPU)
   
   val dpic = Module(new BlackBoxDPIC)
   dpic.io.inst := io.inst
   dpic.io.gpr_10 := riscv_cpu.REG.gpr(10)
-
-  val riscv_cpu = Module(new CPU)
 
   riscv_cpu.io.inst := dpic.io.inst
   riscv_cpu.io.mem_rdata := io.mem_rdata

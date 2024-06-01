@@ -137,6 +137,14 @@ class CPU() extends Module {
         CSR_WDATAa := Imm(11, 0)
     }
 
+    when(csr_ctr === 1.U) {
+        CSR_RADDR := "h341".U
+    }.elsewhen(csr_ctr === 3.U) {
+        CSR_RADDR := "h305".U
+    }.otherwise {
+        CSR_RADDR := Imm(11, 0)
+    }
+
     CSR_WADDRb := "h342".U
     CSR_WDATAb := 11.U
 

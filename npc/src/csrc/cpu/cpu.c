@@ -80,11 +80,11 @@ uint32_t memory_read(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!(likely(in_pmem(mem_addr)) || (mem_addr == RTC_ADDR) || (mem_addr == RTC_ADDR + 4))) return 0;
     switch(dut.rootp->memop){
-        case 0b010: /*printf("Hit as 0b010!!!\n");*/return ram_read(mem_addr,  4);
-        case 0b101: /*printf("Hit as 0b101!!!\n");*/return ram_read(mem_addr,  2);
-        case 0b100: /*printf("Hit as 0b100!!!\n");*/return ram_read(mem_addr,  1);
-        case 0b001: /*printf("Hit as 0b001!!!\n");*/return SEXT(ram_read(mem_addr,  2), 16);
-        case 0b000: /*printf("Hit as 0b000!!!\n");*/return SEXT(ram_read(mem_addr,  1), 8);
+        case 0b100: return ram_read(mem_addr,  1);
+        case 0b000: return SEXT(ram_read(mem_addr,  1), 8);
+        case 0b101: return ram_read(mem_addr,  2);
+        case 0b001: return SEXT(ram_read(mem_addr,  2), 16);
+        case 0b010: return ram_read(mem_addr,  4);
         default: return 0;
     }
 }
@@ -93,11 +93,12 @@ void memory_write(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!((likely(in_pmem(mem_addr))) || mem_addr == SERIAL_PORT)) return;
     switch(dut.rootp->memop){
-        case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;
-        case 0b001:
-        case 0b101: ram_write(mem_addr,  2, dut.rootp->memdata); break;
         case 0b000:
         case 0b100: ram_write(mem_addr,  1, dut.rootp->memdata); break;
+        case 0b001:
+        case 0b101: ram_write(mem_addr,  2, dut.rootp->memdata); break;
+        
+        case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;
         default: break;
     }
 }

@@ -18,11 +18,11 @@ class npc extends Module {
 
     val riscv_cpu = Module(new CPU)
 
-    CPU.io.inst := io.inst
-    CPU.io.mem_rdata := io.mem_rdata
-    io.mem_raddr := CPU.io.mem_raddr
+    riscv_cpu.io.inst := io.inst
+    riscv_cpu.io.mem_rdata := io.mem_rdata
+    io.mem_raddr := riscv_cpu.io.mem_raddr
 
-    io.mem_wdata := CPU.io.mem_wdata
-    io.mem_wop := CPU.io.mem_wop
-    io.mem_wen := CPU.io.mem_wen
+    io.mem_wdata := riscv_cpu.io.mem_wdata
+    io.mem_wop := riscv_cpu.io.mem_wop
+    io.mem_wen := riscv_cpu.io.mem_wen
 }

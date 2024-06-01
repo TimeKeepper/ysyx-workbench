@@ -174,7 +174,7 @@ class ALU extends Module {
     OR  := io.src_A | io.src_B
     AND := io.src_A & io.src_B
 
-    when(io.ALUctr === 0.U)       {
+    when(io.ALUctr === 0.U || io.ALUctr === 8.U) {// 减法的本质是加法
         io.ALUout := adder
     }.elsewhen(io.ALUctr === 1.U) {
         io.ALUout := shift

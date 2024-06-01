@@ -7,7 +7,7 @@ class CPU() extends Module {
     val io = IO(new Bundle {
         val inst = Input(UInt(32.W))
         val mem_rdata = Input(UInt(32.W))
-        val mem_rdaar = Output(UInt(32.W))
+        val mem_raddr = Output(UInt(32.W))
 
         val mem_wdata = Output(UInt(32.W))
         val mem_wop = Output(UInt(3.W))
@@ -164,4 +164,10 @@ class CPU() extends Module {
 
     PCAsrc := BCU.io.PCAsrc
     PCBsrc := BCU.io.PCBsrc
+
+    // Memory Connections
+    io.mem_raddr := Result
+    io.mem_wdata := GPR_RDATAb
+    io.mem_wop := MemOp
+    io.mem_wen := MemWr
 }

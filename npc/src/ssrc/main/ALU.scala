@@ -164,6 +164,7 @@ class ALU extends Module {
     val slt = Cat(0.U(31.W), Less)
 
     val B   = io.src_B
+    val A   = io.src_A
 
     val XOR = Wire(UInt(32.W))
     val OR  = Wire(UInt(32.W))
@@ -180,7 +181,11 @@ class ALU extends Module {
     }.elsewhen(io.ALUctr(2, 0) === 2.U) {
         io.ALUout := slt
     }.elsewhen(io.ALUctr(2, 0) === 3.U) {
-        io.ALUout := B
+        when(io.ALUctr(3) === 0.U) {
+            io.ALUout := B
+        }.otherwise {
+            io.ALUout := A
+        }
     }.elsewhen(io.ALUctr(2, 0) === 4.U) {
         io.ALUout := XOR
     }.elsewhen(io.ALUctr(2, 0) === 5.U) {

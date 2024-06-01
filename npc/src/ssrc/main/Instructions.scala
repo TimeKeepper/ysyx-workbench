@@ -72,3 +72,62 @@ object Instructions {
     def MRET = BitPat("b00110000001000000000000001110011")
     def NOP = BitPat.bitPatToUInt(BitPat("b00000000000000000000000000010011"))
 }
+
+object signal_value {
+    def Y = true.B
+    def N = false.B
+
+    // ExtOp
+    def immI = 0.U(3.W)
+    def immU = 1.U(3.W)
+    def immS = 2.U(3.W)
+    def immB = 3.U(3.W)
+    def immJ = 4.U(3.W)
+
+    // ALUAsrc
+    def A_RS1 = 0.U(2.W)
+    def A_PC  = 1.U(2.W)
+    def A_CSR = 2.U(2.W)
+
+    // ALUBSrc
+    def B_RS2 = 0.U(2.W)
+    def B_IMM = 1.U(2.W)
+    def B_4   = 2.U(2.W)
+    def B_RS1 = 3.U(2.W)
+
+    // ALUctr
+    def ALU_ADD = 0.U(4.W)
+    def ALU_SUB = 8.U(4.W)
+    def ALU_SLL = 1.U(4.W)
+    def ALU_Less_S = 2.U(4.W)
+    def ALU_Less_U = 10.U(4.W)
+    def ALU_B   = 3.U(4.W)
+    def ALU_A   = 11.U(4.W)
+    def ALU_XOR = 4.U(4.W)
+    def ALU_SRL = 5.U(4.W)
+    def ALU_SRA = 13.U(4.W)
+    def ALU_OR  = 6.U(4.W)
+    def ALU_AND = 7.U(4.W)
+
+    // Branch
+    def Bran_NJmp = 0.U(3.W)
+    def Bran_Jmp  = 1.U(3.W)
+    def Bran_Jmpr = 2.U(3.W)
+    def Bran_Jeq  = 4.U(3.W)
+    def Bran_Jne  = 5.U(3.W)
+    def Bran_Jlt  = 6.U(3.W)
+    def Bran_Jge  = 7.U(3.W)
+
+    // MemOp
+    def M_4BU  = 2.U(3.W)
+    def M_2BS  = 1.U(3.W)
+    def M_1BS  = 0.U(3.W)
+    def M_2BU  = 5.U(3.W)
+    def M_1BU  = 4.U(3.W)
+
+    // csr_ctr
+    def CSR_N    = 0.U(2.W)
+    def CSR_R1W0 = 1.U(2.W)  // mret
+    def CSR_R1W1 = 2.U(2.W)
+    def CSR_R1W2 = 3.U(2.W)  // ecall
+}

@@ -10,30 +10,24 @@ module top(
     output [2:0] memop,
     output [31:0] memdata,
     output mem_wen,
-    output [31:0] mem_addr,
-
-    output [15:0] test,
-    output [31:0] test1
+    output [31:0] mem_addr
 );
 
 always @(inst) begin
     if(inst == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.reg_file.gpr_10));
+        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.REG.gpr_10));
 end
 
-riscv_cpu cpu (
-    .clk(clk),
-    .rst(rst),
-    .inst(inst),
-    .mem_data(mem_data),
+CPU cpu (
+    .clock(clk),
+    .reset(rst),
+    .io_inst(inst),
+    .io_mem_rdata(mem_data),
 
-    .memop(memop),
-    .memdata(memdata),
-    .mem_wen(mem_wen),
-    .mem_addr(mem_addr)
+    .io_mem_wop(memop),
+    .io_mem_wdata(memdata),
+    .io_mem_wen(mem_wen),
+    .io_mem_raddr(mem_addr)
 );
-
-assign test = cpu.Result[15:0];
-assign test1 = cpu.Result;
 
 endmodule

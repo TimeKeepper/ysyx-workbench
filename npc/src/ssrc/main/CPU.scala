@@ -163,7 +163,7 @@ class CPU() extends Module {
     when(ALUAsrc === 0.U) {
         ALU.io.src_A := GPR_RDATAa
     }.elsewhen (ALUAsrc === 1.U) {
-        ALU.io.src_A := Next_PC
+        ALU.io.src_A := Cur_PC
     }.elsewhen (ALUAsrc === 2.U) {
         ALU.io.src_A := CSR_RDATA
     }.otherwise {

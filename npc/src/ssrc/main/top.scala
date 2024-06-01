@@ -6,6 +6,7 @@ import riscv_cpu._
 class BlackBoxDPIC extends BlackBox {
   val io = IO(new Bundle{
     val inst = Input(UInt(32.W))
+    val gpr_10 = Input(UInt(32.W))
   })
 }
 
@@ -22,6 +23,7 @@ class top extends Module {
   
   val dpic = Module(new BlackBoxDPIC)
   dpic.io.inst := io.inst
+  dpic.io.gpr_10 := riscv_cpu.REG.gpr(10)
 
   val riscv_cpu = Module(new CPU)
 

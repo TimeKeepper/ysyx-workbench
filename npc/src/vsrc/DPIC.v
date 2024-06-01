@@ -1,6 +1,6 @@
 import "DPI-C" function int npc_trap (input int ra);
 
-module DPIC(
+module BlackBoxDPIC(
     input [31:0] inst
 );
 

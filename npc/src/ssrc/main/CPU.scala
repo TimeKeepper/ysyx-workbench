@@ -77,7 +77,7 @@ class CPU(val xLen: Int) extends Module {
     IGU.io.inst := io.inst
     IGU.io.Extop := ExtOp
 
-    Imm := IGU.io.Imm
+    Imm := IGU.io.imm
 
     // REG Connections
     GPR_WADDR := io.inst(11, 7)

@@ -9,7 +9,7 @@ import signal_value._
 
 class ALU_Ctrl extends Module {
     val io = IO(new Bundle {
-        val ALUctr = Input(UInt(4.W))
+        val ALUctr = Input(ALUAsrc_Type)
 
         val A_L    = Output(Bool())
         val L_R    = Output(Bool())

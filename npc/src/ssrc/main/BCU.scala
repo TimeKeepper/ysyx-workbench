@@ -3,11 +3,13 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import signal_value._
+
 // riscv cpu branch control unit
 
 class BCU extends Module {
     val io = IO(new Bundle {
-        val Branch = Input(UInt(3.W))
+        val Branch = Input(Bran_Type)
         val Zero   = Input(Bool())
         val Less   = Input(Bool())
 

@@ -79,62 +79,62 @@ object signal_value {
 
     // ExtOp
     def ExtOp_Type = UInt(3.W)
-    def immI = 0.U(3.W)
-    def immU = 1.U(3.W)
-    def immS = 2.U(3.W)
-    def immB = 3.U(3.W)
-    def immJ = 4.U(3.W)
+    def immI = 0.U
+    def immU = 1.U
+    def immS = 2.U
+    def immB = 3.U
+    def immJ = 4.U
 
     // ALUAsrc
     def ALUAsrc_Type = UInt(2.W)
-    def A_RS1 = 0.U(2.W)
-    def A_PC  = 1.U(2.W)
-    def A_CSR = 2.U(2.W)
+    def A_RS1 = 0.U
+    def A_PC  = 1.U
+    def A_CSR = 2.U
 
     // ALUBSrc
     def ALUBSrc_Type = UInt(2.W)
-    def B_RS2 = 0.U(2.W)
-    def B_IMM = 1.U(2.W)
-    def B_4   = 2.U(2.W)
-    def B_RS1 = 3.U(2.W)
+    def B_RS2 = 0.U
+    def B_IMM = 1.U
+    def B_4   = 2.U
+    def B_RS1 = 3.U
 
     // ALUctr
     def ALUctr_Type = UInt(4.W)
-    def ALU_ADD = 0.U(4.W)
-    def ALU_SUB = 8.U(4.W)
-    def ALU_SLL = 1.U(4.W)
-    def ALU_Less_S = 2.U(4.W)
-    def ALU_Less_U = 10.U(4.W)
-    def ALU_B   = 3.U(4.W)
-    def ALU_A   = 11.U(4.W)
-    def ALU_XOR = 4.U(4.W)
-    def ALU_SRL = 5.U(4.W)
-    def ALU_SRA = 13.U(4.W)
-    def ALU_OR  = 6.U(4.W)
-    def ALU_AND = 7.U(4.W)
+    def ALU_ADD = 0.U
+    def ALU_SUB = 8.U
+    def ALU_SLL = 1.U
+    def ALU_Less_S = 2.U
+    def ALU_Less_U = 10.U
+    def ALU_B   = 3.U
+    def ALU_A   = 11.U
+    def ALU_XOR = 4.U
+    def ALU_SRL = 5.U
+    def ALU_SRA = 13.U
+    def ALU_OR  = 6.U
+    def ALU_AND = 7.U
 
     // Branch
     def Bran_Type = UInt(3.W)
-    def Bran_NJmp = 0.U(3.W)
-    def Bran_Jmp  = 1.U(3.W)
-    def Bran_Jmpr = 2.U(3.W)
-    def Bran_Jeq  = 4.U(3.W)
-    def Bran_Jne  = 5.U(3.W)
-    def Bran_Jlt  = 6.U(3.W)
-    def Bran_Jge  = 7.U(3.W)
+    def Bran_NJmp = 0.U
+    def Bran_Jmp  = 1.U
+    def Bran_Jmpr = 2.U
+    def Bran_Jeq  = 4.U
+    def Bran_Jne  = 5.U
+    def Bran_Jlt  = 6.U
+    def Bran_Jge  = 7.U
 
     // MemOp
     def MemOp_Type = UInt(3.W)
-    def M_4BU  = 2.U(3.W)
-    def M_2BS  = 1.U(3.W)
-    def M_1BS  = 0.U(3.W)
-    def M_2BU  = 5.U(3.W)
-    def M_1BU  = 4.U(3.W)
+    def M_4BU  = 2.U
+    def M_2BS  = 1.U
+    def M_1BS  = 0.U
+    def M_2BU  = 5.U
+    def M_1BU  = 4.U
 
     // csr_ctr
     def CSR_ctr_Type = UInt(2.W)
-    def CSR_N    = 0.U(2.W)
-    def CSR_R1W0 = 1.U(2.W)  // mret
-    def CSR_R1W1 = 2.U(2.W)
-    def CSR_R1W2 = 3.U(2.W)  // ecall
+    def CSR_N    = 0.U
+    def CSR_R1W0 = 1.U  // mret
+    def CSR_R1W1 = 2.U
+    def CSR_R1W2 = 3.U  // ecall
 }

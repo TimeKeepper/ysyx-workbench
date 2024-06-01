@@ -176,11 +176,11 @@ class ALU extends Module {
     OR  := io.src_A | io.src_B
     AND := io.src_A & io.src_B
 
-    when(io.ALUctr(2, 0) === 0.U)       {
+    when(io.ALUctr === ALU_ADD || io.ALUctr === ALU_SUB) {
         io.ALUout := adder
-    }.elsewhen(io.ALUctr(2, 0) === 1.U) {
+    }.elsewhen(io.ALUctr === ALU_SLL) {
         io.ALUout := shift
-    }.elsewhen(io.ALUctr(2, 0) === 2.U) {
+    }.elsewhen(io.ALUctr === ALU_Less_S || io.ALUctr(2, 0) === ALU_Less_U) {
         io.ALUout := slt
     }.elsewhen(io.ALUctr(2, 0) === 3.U) {
         when(io.ALUctr(3) === 0.U) {

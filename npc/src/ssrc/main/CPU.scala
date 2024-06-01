@@ -140,7 +140,7 @@ class CPU(val xLen: Int) extends Module {
     }.elsewhen (ALUAsrc === 2.U) {
         ALU.io.src_A := CSR_RDATA
     }.otherwise {
-        ALU.io.src_a := 0.U
+        ALU.io.src_A := 0.U
     }
 
     when(ALUBsrc === 0.U) {

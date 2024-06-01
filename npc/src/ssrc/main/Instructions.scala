@@ -98,8 +98,8 @@ object signal_value {
     // MemOp
     def MemOp_Type = UInt(3.W)
     def M_1BU  = 4.U(3.W)
-    def M_2BU  = 5.U(3.W)
     def M_1BS  = 0.U(3.W)
+    def M_2BU  = 5.U(3.W)
     def M_2BS  = 1.U(3.W)
     def M_4BU  = 2.U(3.W)
 

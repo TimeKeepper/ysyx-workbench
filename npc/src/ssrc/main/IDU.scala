@@ -63,6 +63,7 @@ object Decode {
 // riscv cpu instruction decode unit
 
 class IDU extends Module {
+    import signal_value._
     val io = IO(new Bundle {
         val inst = Input(UInt(32.W))
 

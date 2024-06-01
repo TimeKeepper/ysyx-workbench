@@ -93,10 +93,10 @@ void memory_write(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!((likely(in_pmem(mem_addr))) || mem_addr == SERIAL_PORT)) return;
     switch(dut.rootp->memop){
-        case 0b000: ram_write(mem_addr,  4, dut.rootp->memdata); break;
+        case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;
         case 0b001:
-        case 0b010: ram_write(mem_addr,  2, dut.rootp->memdata); break;
-        case 0b011:
+        case 0b101: ram_write(mem_addr,  2, dut.rootp->memdata); break;
+        case 0b000:
         case 0b100: ram_write(mem_addr,  1, dut.rootp->memdata); break;
         default: break;
     }

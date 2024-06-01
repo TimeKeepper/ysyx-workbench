@@ -157,8 +157,7 @@ class CPU() extends Module {
     REG.io.csr_raddr := CSR_RADDR
 
     val CSR_RDATA_cache = RegInit(0.U(32.W))
-    CSR_RDATA_cache := REG.io.csr_rdata //这条信号由于经过了过长的组合逻辑链，导致其在赋值到目标之前就会被修改，因此加一个cache来保证其正确性。
-    CSR_RDATA := CSR_RDATA_cache
+    CSR_RDATA := REG.io.csr_rdata
 
     // ALU Connections
     ALU.io.ALUctr := ALUctr

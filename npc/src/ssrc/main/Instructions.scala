@@ -86,20 +86,20 @@ object signal_value {
     def immJ = 4.U(3.W)
 
     // ALUAsrc
-    def ALUAsrc_Type = (2.W)
+    def ALUAsrc_Type = UInt(2.W)
     def A_RS1 = 0.U(2.W)
     def A_PC  = 1.U(2.W)
     def A_CSR = 2.U(2.W)
 
     // ALUBSrc
-    def ALUBSrc_Type = (2.W)
+    def ALUBSrc_Type = UInt(2.W)
     def B_RS2 = 0.U(2.W)
     def B_IMM = 1.U(2.W)
     def B_4   = 2.U(2.W)
     def B_RS1 = 3.U(2.W)
 
     // ALUctr
-    def ALUctr_Type = (4.W)
+    def ALUctr_Type = UInt(4.W)
     def ALU_ADD = 0.U(4.W)
     def ALU_SUB = 8.U(4.W)
     def ALU_SLL = 1.U(4.W)
@@ -132,7 +132,7 @@ object signal_value {
     def M_1BU  = 4.U(3.W)
 
     // csr_ctr
-    def CSR_ctr_Type = (2.W)
+    def CSR_ctr_Type = UInt(2.W)
     def CSR_N    = 0.U(2.W)
     def CSR_R1W0 = 1.U(2.W)  // mret
     def CSR_R1W1 = 2.U(2.W)

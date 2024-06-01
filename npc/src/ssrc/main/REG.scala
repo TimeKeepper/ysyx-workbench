@@ -3,6 +3,8 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import signal_value._
+
 // riscv cpu register file
 
 class REG extends Module {
@@ -19,7 +21,7 @@ class REG extends Module {
         val pc_in  = Input(UInt(32.W))
         val pc_out = Output(UInt(32.W))
 
-        val csr_ctr    = Input(UInt(2.W))
+        val csr_ctr    = Input(CSR_Type)
         val csr_waddra = Input(UInt(12.W))
         val csr_waddrb = Input(UInt(12.W))
         val csr_wdataa = Input(UInt(32.W))
@@ -46,11 +48,11 @@ class REG extends Module {
     val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W)))) 
     io.csr_rdata := csr((io.csr_raddr - "h300".U)(6, 0))
 
-    when(io.csr_ctr === 2.U || io.csr_ctr === 3.U) {
+    when(io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2) {
         csr((io.csr_waddra - "h300".U)(6, 0)) := io.csr_wdataa
     }
 
-    when(io.csr_ctr === 3.U) {
+    when(io.csr_ctr === CSR_R1W2) {
         csr((io.csr_waddrb - "h300".U)(6, 0)) := io.csr_wdatab
     }
 }

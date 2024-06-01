@@ -183,16 +183,16 @@ class ALU extends Module {
     }.elsewhen(io.ALUctr(2, 0) === ALU_Less_S(2, 0)) {
         io.ALUout := slt
     }.elsewhen(io.ALUctr(2, 0) === ALU_B(2, 0)) {
-        when(io.ALUctr(3) === 0.U) {
+        when(io.ALUctr(3) === N) {
             io.ALUout := B
         }.otherwise {
             io.ALUout := A
         }
-    }.elsewhen(io.ALUctr(2, 0) === 4.U) {
+    }.elsewhen(io.ALUctr(2, 0) === ALU_XOR(2, 0)) {
         io.ALUout := XOR
-    }.elsewhen(io.ALUctr(2, 0) === 5.U) {
+    }.elsewhen(io.ALUctr(2, 0) === ALU_SRL(2, 0)) {
         io.ALUout := shift
-    }.elsewhen(io.ALUctr(2, 0) === 6.U) {
+    }.elsewhen(io.ALUctr(2, 0) === ALU_OR(2, 0)) {
         io.ALUout := OR
     }.otherwise {
         io.ALUout := AND

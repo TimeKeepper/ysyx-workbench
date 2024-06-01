@@ -138,11 +138,11 @@ class CPU() extends Module {
     }.otherwise {
         CSR_WADDRa := Imm(11, 0)
     }
-    
+
     when(csr_ctr === 3.U) {
         CSR_WDATAa := Cur_PC    // instruction ecall store current pc
     }.otherwise {
-        CSR_WDATAa := Result
+        CSR_WDATAa := GPR_RDATAa
     }
 
     CSR_WADDRb := "h342".U      // instruction ecall write mstatus

@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 
 class CPU(val xLen: Int) extends Module {
-    val io = IO(new Bundle) {
+    val io = IO(new Bundle {
         val inst = Input(UInt(32.W))
         val mem_rdata = Input(UInt(32.W))
         val mem_rdaar = Output(UInt(32.W))
@@ -12,7 +12,7 @@ class CPU(val xLen: Int) extends Module {
         val mem_wdata = Output(UInt(32.W))
         val mem_wop = Output(UInt(3.W))
         val mem_wen = Output(Bool())
-    }
+    })
 
     // Modules
     val IDU = Module(new IDU()) // Instruction Decode Unit

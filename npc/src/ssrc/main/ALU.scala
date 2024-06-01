@@ -163,6 +163,7 @@ class ALU extends Module {
     
     val slt = Cat(0.U(31.W), Less)
 
+    val A   = io.src_A
     val B   = io.src_B
 
     val XOR = Wire(UInt(32.W))

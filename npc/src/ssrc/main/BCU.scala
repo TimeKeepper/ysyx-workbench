@@ -3,37 +3,35 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
-import signal_value._
-
 // riscv cpu branch control unit
 
 class BCU extends Module {
     val io = IO(new Bundle {
-        val Branch = Input(Bran_Type)
-        val Zero   = Input(Bool())
+        val Branch = Input(UInt(3.W))
         val Less   = Input(Bool())
+        val Zero   = Input(Bool())
 
         val PCAsrc = Output(Bool())
         val PCBsrc = Output(Bool())
     })
 
-    when(io.Branch === Bran_Jmp || io.Branch === Bran_Jmpr) {
+    when(io.Branch === 1.U || io.Branch === 2.U) {
         io.PCAsrc := true.B
-    }.elsewhen(io.Branch === Bran_Jeq) {
+    }.elsewhen(io.Branch === 4.U) {
         io.PCAsrc := io.Zero
-    }.elsewhen(io.Branch === Bran_Jne) {
+    }.elsewhen(io.Branch === 5.U) {
         io.PCAsrc := !io.Zero
-    }.elsewhen(io.Branch === Bran_Jlt) {
+    }.elsewhen(io.Branch === 6.U) {
         io.PCAsrc := io.Less
-    }.elsewhen(io.Branch === Bran_Jge) {
+    }.elsewhen(io.Branch === 7.U) {
         io.PCAsrc := !io.Less
     }.otherwise {
-        io.PCAsrc := N
+        io.PCAsrc := false.B
     }
 
-    when(io.Branch === Bran_Jmpr) {
-        io.PCBsrc := Y
+    when(io.Branch === 2.U) {
+        io.PCBsrc := true.B
     }.otherwise {
-        io.PCBsrc := N
+        io.PCBsrc := false.B
     }
 }

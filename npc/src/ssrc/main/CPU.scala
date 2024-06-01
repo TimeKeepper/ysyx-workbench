@@ -88,10 +88,14 @@ class CPU() extends Module {
         GPR_WDATA := Result
     }
 
+    GPR_WADDR := io.inst(11, 7)
+
     REG.io.wdata := GPR_WDATA
     REG.io.waddr := GPR_WADDR
     REG.io.wen := RegWr
 
+    GPR_RADDRa := io.inst(19, 15)
+    GPR_RADDRb := io.inst(24, 20)
     REG.io.raddra := GPR_RADDRa
     REG.io.raddrb := GPR_RADDRb
     GPR_RDATAa := REG.io.rdataa

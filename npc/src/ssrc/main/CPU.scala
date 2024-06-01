@@ -3,7 +3,7 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
-class CPU(val xLen: Int) extends Module {
+class CPU() extends Module {
     val io = IO(new Bundle {
         val inst = Input(UInt(32.W))
         val mem_rdata = Input(UInt(32.W))

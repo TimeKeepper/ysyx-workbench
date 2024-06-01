@@ -116,7 +116,7 @@ class CPU() extends Module {
         PCBval := Cur_PC
     }
 
-    when(csr_ctr(0)) {
+    when(csr_ctr === 1.U || csr_ctr === 3.U) {
         Next_PC := CSR_RDATA
     }.otherwise {
         Next_PC := PCAval + PCBval
@@ -126,27 +126,27 @@ class CPU() extends Module {
     Cur_PC := REG.io.pc_out
 
     when(csr_ctr === 3.U) {
-        CSR_WADDRa := "h341".U
+        CSR_WADDRa := "h341".U   // instruction ecall use csr mepc
     }.otherwise {
         CSR_WADDRa := Imm(11, 0)
     }
 
-    when(csr_ctr === 3.U) {
-        CSR_WDATAa := Cur_PC
-    }.otherwise {
-        CSR_WDATAa := Result
-    }
-
     when(csr_ctr === 1.U) {
-        CSR_RADDR := "h341".U
+        CSR_RADDR := "h341".U   // instruction mret read mepc to recovered pc
     }.elsewhen(csr_ctr === 3.U) {
-        CSR_RADDR := "h305".U
+        CSR_RADDR := "h305".U   // instruction ecall read mtevc to get to error order function
     }.otherwise {
         CSR_RADDR := Imm(11, 0)
     }
 
-    CSR_WADDRb := "h342".U
-    CSR_WDATAb := 11.U
+    when(csr_ctr === 3.U) {
+        CSR_WDATAa := Cur_PC    // instruction ecall store current pc
+    }.otherwise {
+        CSR_WDATAa := Result
+    }
+
+    CSR_WADDRb := "h342".U      // instruction ecall write mstatus
+    CSR_WDATAb := 11.U          // for now, only set error status 11
 
     REG.io.csr_ctr := csr_ctr
     REG.io.csr_waddra := CSR_WADDRa
@@ -156,7 +156,6 @@ class CPU() extends Module {
 
     REG.io.csr_raddr := CSR_RADDR
 
-    val CSR_RDATA_cache = RegInit(0.U(32.W))
     CSR_RDATA := REG.io.csr_rdata
 
     // ALU Connections

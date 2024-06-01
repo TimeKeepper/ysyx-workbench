@@ -57,9 +57,9 @@ object Decode {
 
     // csr_ctr
     val CSR_N    = 0.U(2.W)
-    val CSR_R1W1 = 1.U(2.W)
-    val CSR_R1W2 = 3.U(2.W)
-    val CSR_R1W0 = 2.U(2.W)
+    val CSR_R1W0 = 1.U(2.W)  // mret
+    val CSR_R1W1 = 2.U(2.W)
+    val CSR_R1W2 = 3.U(2.W)  // ecall
 
     import Instructions._
 

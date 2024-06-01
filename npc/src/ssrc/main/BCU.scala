@@ -7,7 +7,7 @@ import chisel3.util._
 
 class BCU extends Module {
     val io = IO(new Bundle {
-        val Branch = Input(UInt(3.W))
+        val Branch = Input(Bran_Type)
         val Zero   = Input(Bool())
         val Less   = Input(Bool())
 
@@ -15,23 +15,23 @@ class BCU extends Module {
         val PCBsrc = Output(Bool())
     })
 
-    when(io.Branch === 1.U || io.Branch === 2.U) {
-        io.PCAsrc := true.B
-    }.elsewhen(io.Branch === 4.U) {
+    when(io.Branch === Bran_Jmp || io.Branch === Bran_Jmpr) {
+        io.PCAsrc := Y
+    }.elsewhen(io.Branch === Bran_Jeq) {
         io.PCAsrc := io.Zero
-    }.elsewhen(io.Branch === 5.U) {
+    }.elsewhen(io.Branch === Bran_Jne) {
         io.PCAsrc := !io.Zero
-    }.elsewhen(io.Branch === 6.U) {
+    }.elsewhen(io.Branch === Bran_Jlt) {
         io.PCAsrc := io.Less
-    }.elsewhen(io.Branch === 7.U) {
+    }.elsewhen(io.Branch === Bran_Jge) {
         io.PCAsrc := !io.Less
     }.otherwise {
-        io.PCAsrc := false.B
+        io.PCAsrc := N
     }
 
-    when(io.Branch === 2.U) {
-        io.PCBsrc := true.B
+    when(io.Branch === Bran_Jmpr) {
+        io.PCBsrc := Y
     }.otherwise {
-        io.PCBsrc := false.B
+        io.PCBsrc := N
     }
 }

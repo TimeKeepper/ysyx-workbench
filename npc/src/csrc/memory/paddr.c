@@ -1,3 +1,4 @@
+#include "sdb/cmd.h"
 #include "utils.h"
 #include <cassert>
 #include <common.h>
@@ -29,7 +30,8 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 static void out_of_bound(paddr_t addr) {
     printf("address =  0x%08x  is out of bound of pmem [ 0x%08x ,  0x%08x ]\n", 
     addr, PMEM_LEFT, PMEM_RIGHT);
-    assert(0);
+    cmd_t(NULL);
+    npc_state.state = NPC_ABORT;
 }
 
 void difftest_skip_ref();

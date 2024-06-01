@@ -15,19 +15,19 @@ module top(
 
 always @(inst) begin
     if(inst == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.reg_file.gpr_10));
+        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.REG.gpr_10));
 end
 
-riscv_cpu cpu (
-    .clk(clk),
-    .rst(rst),
-    .inst(inst),
-    .mem_data(mem_data),
+CPU cpu (
+    .clock(clk),
+    .reset(rst),
+    .io_inst(inst),
+    .io_mem_rdata(mem_data),
 
-    .memop(memop),
-    .memdata(memdata),
-    .mem_wen(mem_wen),
-    .mem_addr(mem_addr)
+    .io_mem_wop(memop),
+    .io_mem_wdata(memdata),
+    .io_mem_wen(mem_wen),
+    .io_mem_raddr(mem_addr)
 );
 
 endmodule

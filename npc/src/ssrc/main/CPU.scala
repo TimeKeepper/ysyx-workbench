@@ -134,7 +134,7 @@ class CPU() extends Module {
     when(csr_ctr === 3.U) {
         CSR_WDATAa := Cur_PC
     }.otherwise {
-        CSR_WDATAa := Imm(11, 0)
+        CSR_WDATAa := Result
     }
 
     when(csr_ctr === 1.U) {

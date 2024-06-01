@@ -3,6 +3,8 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import signal_value._
+
 // riscv cpu analogic and logical unit
 
 class ALU_Ctrl extends Module {
@@ -15,28 +17,28 @@ class ALU_Ctrl extends Module {
         val Sub_Add= Output(Bool())
     })
 
-    when(io.ALUctr === "b1010".U || io.ALUctr === "b0101".U) {
-        io.A_L := false.B
+    when(io.ALUctr === ALU_Less_U || io.ALUctr === ALU_SRL) {
+        io.A_L := N
     }.otherwise {
-        io.A_L := true.B
+        io.A_L := Y
     }
 
-    when(io.ALUctr === "b0001".U || io.ALUctr === "b1001".U) {
-        io.L_R := true.B
+    when(io.ALUctr === ALU_SLL) {
+        io.L_R := Y
     }.otherwise {
-        io.L_R := false.B
+        io.L_R := N
     }
 
-    when(io.ALUctr === "b1010".U) {
-        io.U_S := true.B
+    when(io.ALUctr === ALU_Less_U) {
+        io.U_S := Y
     }.otherwise {
-        io.U_S := false.B
+        io.U_S := N
     }
 
-    when(io.ALUctr === 0.U) {
-        io.Sub_Add := false.B
+    when(io.ALUctr === ALU_ADD) {
+        io.Sub_Add := N
     }.otherwise {
-        io.Sub_Add := true.B
+        io.Sub_Add := Y
     }
 }
 
@@ -155,7 +157,7 @@ class ALU extends Module {
         Less := Sub_Add ^ Carry
     }.elsewhen(io.src_B === "h80000000".U && Sub_Add){
         // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
-        Less := false.B
+        Less := N
     }.otherwise {
         Less := adder(31) ^ Overflow
     }

@@ -4,63 +4,6 @@ import chisel3._
 import chisel3.util._
 
 object Decode {
-    // val Y = true.B
-    // val N = false.B
-
-    // // ExtOp
-    // val immI = 0.U(3.W)
-    // val immU = 1.U(3.W)
-    // val immS = 2.U(3.W)
-    // val immB = 3.U(3.W)
-    // val immJ = 4.U(3.W)
-
-    // // ALUAsrc
-    // val A_RS1 = 0.U(2.W)
-    // val A_PC  = 1.U(2.W)
-    // val A_CSR = 2.U(2.W)
-
-    // // ALUBSrc
-    // val B_RS2 = 0.U(2.W)
-    // val B_IMM = 1.U(2.W)
-    // val B_4   = 2.U(2.W)
-    // val B_RS1 = 3.U(2.W)
-
-    // // ALUctr
-    // val ALU_ADD = 0.U(4.W)
-    // val ALU_SUB = 8.U(4.W)
-    // val ALU_SLL = 1.U(4.W)
-    // val ALU_Less_S = 2.U(4.W)
-    // val ALU_Less_U = 10.U(4.W)
-    // val ALU_B   = 3.U(4.W)
-    // val ALU_A   = 11.U(4.W)
-    // val ALU_XOR = 4.U(4.W)
-    // val ALU_SRL = 5.U(4.W)
-    // val ALU_SRA = 13.U(4.W)
-    // val ALU_OR  = 6.U(4.W)
-    // val ALU_AND = 7.U(4.W)
-
-    // // Branch
-    // val Bran_NJmp = 0.U(3.W)
-    // val Bran_Jmp  = 1.U(3.W)
-    // val Bran_Jmpr = 2.U(3.W)
-    // val Bran_Jeq  = 4.U(3.W)
-    // val Bran_Jne  = 5.U(3.W)
-    // val Bran_Jlt  = 6.U(3.W)
-    // val Bran_Jge  = 7.U(3.W)
-
-    // // MemOp
-    // val M_4BU  = 2.U(3.W)
-    // val M_2BS  = 1.U(3.W)
-    // val M_1BS  = 0.U(3.W)
-    // val M_2BU  = 5.U(3.W)
-    // val M_1BU  = 4.U(3.W)
-
-    // // csr_ctr
-    // val CSR_N    = 0.U(2.W)
-    // val CSR_R1W0 = 1.U(2.W)  // mret
-    // val CSR_R1W1 = 2.U(2.W)
-    // val CSR_R1W2 = 3.U(2.W)  // ecall
-
     import signal_value._
 
     import Instructions._

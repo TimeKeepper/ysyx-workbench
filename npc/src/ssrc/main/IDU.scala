@@ -59,7 +59,7 @@ object Decode {
     val CSR_N    = 0.U(2.W)
     val CSR_R1W1 = 1.U(2.W)
     val CSR_R1W2 = 3.U(2.W)
-    val CSR_R0W1 = 2.U(2.W)
+    val CSR_R1W0 = 2.U(2.W)
 
     import Instructions._
 
@@ -107,10 +107,10 @@ object Decode {
         SB      -> List(immS, N, Bran_NJmp, N, Y, M_1BS, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
         SH      -> List(immS, N, Bran_NJmp, N, Y, M_2BS, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
         SW      -> List(immS, N, Bran_NJmp, N, Y, M_4BU, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
-        CSRRW   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_A,      CSR_R0W1 ),
-        CSRRS   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_OR,     CSR_R0W1 ),
+        CSRRW   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_A,      CSR_R1W1 ),
+        CSRRS   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_OR,     CSR_R1W1 ),
         ECALL   -> List(immI, N, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W2 ),
-        MRET    -> List(immI, N, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W1 )
+        MRET    -> List(immI, N, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W0 )
     )
     // format: on
 }

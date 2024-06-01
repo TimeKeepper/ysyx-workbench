@@ -101,7 +101,7 @@ class CPU(val xLen: Int) extends Module {
     val PCBval = Wire(UInt(32.W))
 
     when(PCAsrc) {
-        PCAval := IMM
+        PCAval := Imm
     }.otherwise {
         PCAval := 4.U
     }

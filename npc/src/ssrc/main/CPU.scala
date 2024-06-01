@@ -125,6 +125,21 @@ class CPU() extends Module {
     REG.io.pc_in := Next_PC
     Cur_PC := REG.io.pc_out
 
+    when(csr_ctr === 3.U) {
+        CSR_WADDRa := "h341".U
+    }.otherwise {
+        CSR_WADDRa := Imm(11, 0)
+    }
+
+    when(csr_ctr === 3.U) {
+        CSR_WDATAa := Cur_PC
+    }.otherwise {
+        CSR_WDATAa := Imm(11, 0)
+    }
+
+    CSR_WADDRb := "h342".U
+    CSR_WDATAb := 11.U
+
     REG.io.csr_ctr := csr_ctr
     REG.io.csr_waddra := CSR_WADDRa
     REG.io.csr_waddrb := CSR_WADDRb

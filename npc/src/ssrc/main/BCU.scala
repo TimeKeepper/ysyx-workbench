@@ -8,8 +8,8 @@ import chisel3.util._
 class BCU extends Module {
     val io = IO(new Bundle {
         val Branch = Input(UInt(3.W))
-        val Less   = Input(Bool())
         val Zero   = Input(Bool())
+        val Less   = Input(Bool())
 
         val PCAsrc = Output(Bool())
         val PCBsrc = Output(Bool())

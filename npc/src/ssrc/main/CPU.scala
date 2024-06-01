@@ -3,6 +3,8 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import signal_value._
+
 class CPU() extends Module {
     val io = IO(new Bundle {
         val inst = Input(UInt(32.W))
@@ -125,21 +127,21 @@ class CPU() extends Module {
     REG.io.pc_in := Next_PC
     Cur_PC := REG.io.pc_out
 
-    when(csr_ctr === 1.U) {
+    when(csr_ctr === CSR_R1W0) {
         CSR_RADDR := "h341".U   // instruction mret read mepc to recovered pc
-    }.elsewhen(csr_ctr === 3.U) {
+    }.elsewhen(csr_ctr === CSR_R1W2) {
         CSR_RADDR := "h305".U   // instruction ecall read mtevc to get to error order function
     }.otherwise {
         CSR_RADDR := Imm(11, 0)
     }
 
-    when(csr_ctr === 3.U) {
+    when(csr_ctr === CSR_R1W2) {
         CSR_WADDRa := "h341".U   // instruction ecall use csr mepc
     }.otherwise {
         CSR_WADDRa := Imm(11, 0)
     }
 
-    when(csr_ctr === 3.U) {
+    when(csr_ctr === CSR_R1W2) {
         CSR_WDATAa := Cur_PC    // instruction ecall store current pc
     }.otherwise {
         CSR_WDATAa := GPR_RDATAa

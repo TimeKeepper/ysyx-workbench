@@ -125,12 +125,6 @@ class CPU() extends Module {
     REG.io.pc_in := Next_PC
     Cur_PC := REG.io.pc_out
 
-    when(csr_ctr === 3.U) {
-        CSR_WADDRa := "h341".U   // instruction ecall use csr mepc
-    }.otherwise {
-        CSR_WADDRa := Imm(11, 0)
-    }
-
     when(csr_ctr === 1.U) {
         CSR_RADDR := "h341".U   // instruction mret read mepc to recovered pc
     }.elsewhen(csr_ctr === 3.U) {
@@ -139,6 +133,12 @@ class CPU() extends Module {
         CSR_RADDR := Imm(11, 0)
     }
 
+    when(csr_ctr === 3.U) {
+        CSR_WADDRa := "h341".U   // instruction ecall use csr mepc
+    }.otherwise {
+        CSR_WADDRa := Imm(11, 0)
+    }
+    
     when(csr_ctr === 3.U) {
         CSR_WDATAa := Cur_PC    // instruction ecall store current pc
     }.otherwise {

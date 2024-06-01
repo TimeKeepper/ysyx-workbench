@@ -14,10 +14,10 @@ class top extends Module {
     val inst = Input(UInt(32.W))
     val mem_rdata = Input(UInt(32.W))
 
-    val mem_op = Output(UInt(3.W))
+    val mem_wop = Output(UInt(3.W))
     val mem_wdata = Output(UInt(32.W))
     val mem_wen = Output(Bool())
-    val mem_addr = Output(UInt(32.W))
+    val mem_wdata = Output(UInt(32.W))
   })
   
   val dpic = Module(new BlackBoxDPIC)
@@ -28,8 +28,8 @@ class top extends Module {
   riscv_cpu.io.inst := io.inst
   riscv_cpu.io.mem_rdata := io.mem_rdata
 
-  io.mem_op := riscv_cpu.io.mem_op
+  io.mem_wop := riscv_cpu.io.mem_wop
   io.mem_wdata := riscv_cpu.io.mem_wdata
   io.mem_wen := riscv_cpu.io.mem_wen
-  io.mem_addr := riscv_cpu.io.mem_addr
+  io.mem_wdata := riscv_cpu.io.mem_wdata
 }

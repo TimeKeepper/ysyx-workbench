@@ -85,6 +85,24 @@ object signal_value {
     def immB = 3.U(3.W)
     def immJ = 4.U(3.W)
 
+    // Branch
+    def Bran_Type = UInt(3.W)
+    def Bran_NJmp = 0.U(3.W)
+    def Bran_Jmp  = 1.U(3.W)
+    def Bran_Jmpr = 2.U(3.W)
+    def Bran_Jeq  = 4.U(3.W)
+    def Bran_Jne  = 5.U(3.W)
+    def Bran_Jlt  = 6.U(3.W)
+    def Bran_Jge  = 7.U(3.W)
+
+    // MemOp
+    def MemOp_Type = UInt(3.W)
+    def M_4BU  = 2.U(3.W)
+    def M_2BS  = 1.U(3.W)
+    def M_1BS  = 0.U(3.W)
+    def M_2BU  = 5.U(3.W)
+    def M_1BU  = 4.U(3.W)
+
     // ALUAsrc
     def ALUAsrc_Type = UInt(2.W)
     def A_RS1 = 0.U(2.W)
@@ -112,24 +130,6 @@ object signal_value {
     def ALU_SRA = 13.U(4.W)
     def ALU_OR  = 6.U(4.W)
     def ALU_AND = 7.U(4.W)
-
-    // Branch
-    def Bran_Type = UInt(3.W)
-    def Bran_NJmp = 0.U(3.W)
-    def Bran_Jmp  = 1.U(3.W)
-    def Bran_Jmpr = 2.U(3.W)
-    def Bran_Jeq  = 4.U(3.W)
-    def Bran_Jne  = 5.U(3.W)
-    def Bran_Jlt  = 6.U(3.W)
-    def Bran_Jge  = 7.U(3.W)
-
-    // MemOp
-    def MemOp_Type = UInt(3.W)
-    def M_4BU  = 2.U(3.W)
-    def M_2BS  = 1.U(3.W)
-    def M_1BS  = 0.U(3.W)
-    def M_2BU  = 5.U(3.W)
-    def M_1BU  = 4.U(3.W)
 
     // csr_ctr
     def CSR_Type = UInt(2.W)

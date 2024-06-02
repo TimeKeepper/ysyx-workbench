@@ -108,7 +108,7 @@ class CPU() extends Module {
 
     when(PCAsrc === PCAsrc_Imm) {
         PCAval := Imm
-    }.elsewhenP(PCAsrc === PCAsrc_4) {
+    }.elsewhen(PCAsrc === PCAsrc_4) {
         PCAval := 4.U
     }.otherwise {
         PCAval := CSR_RDATA

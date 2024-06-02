@@ -15,10 +15,10 @@ module top(
 
 always @(inst) begin
     if(inst == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", npc_trap(cpu.REG.gpr_10));
+        $display("sim has been stop at clk_cnt %d", npc_trap(npc.riscv_cpu.REG.gpr_10));
 end
 
-CPU cpu (
+npc npc (
     .clock(clk),
     .reset(rst),
     .io_inst(inst),

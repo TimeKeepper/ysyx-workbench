@@ -80,11 +80,11 @@ uint32_t memory_read(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!(likely(in_pmem(mem_addr)) || (mem_addr == RTC_ADDR) || (mem_addr == RTC_ADDR + 4))) return 0;
     switch(dut.rootp->memop){
-        case 0b010: /*printf("Hit as 0b010!!!\n");*/return ram_read(mem_addr,  4);
-        case 0b101: /*printf("Hit as 0b101!!!\n");*/return ram_read(mem_addr,  2);
-        case 0b100: /*printf("Hit as 0b100!!!\n");*/return ram_read(mem_addr,  1);
-        case 0b001: /*printf("Hit as 0b001!!!\n");*/return SEXT(ram_read(mem_addr,  2), 16);
-        case 0b000: /*printf("Hit as 0b000!!!\n");*/return SEXT(ram_read(mem_addr,  1), 8);
+        case 0b000: return ram_read(mem_addr,  1);
+        case 0b001: return SEXT(ram_read(mem_addr,  1), 8);
+        case 0b010: return ram_read(mem_addr,  2);
+        case 0b011: return SEXT(ram_read(mem_addr,  2), 16);
+        case 0b100: return ram_read(mem_addr,  4);
         default: return 0;
     }
 }
@@ -93,11 +93,12 @@ void memory_write(void){
     uint32_t mem_addr = dut.rootp->mem_addr;
     if (!((likely(in_pmem(mem_addr))) || mem_addr == SERIAL_PORT)) return;
     switch(dut.rootp->memop){
-        case 0b010: ram_write(mem_addr,  4, dut.rootp->memdata); break;
-        case 0b001:
-        case 0b101: ram_write(mem_addr,  2, dut.rootp->memdata); break;
         case 0b000:
-        case 0b100: ram_write(mem_addr,  1, dut.rootp->memdata); break;
+        case 0b001: ram_write(mem_addr,  1, dut.rootp->memdata); break;
+        case 0b010:
+        case 0b011: ram_write(mem_addr,  2, dut.rootp->memdata); break;
+
+        case 0b100: ram_write(mem_addr,  4, dut.rootp->memdata); break;
         default: break;
     }
 }
@@ -129,49 +130,49 @@ const int sregs_iddr[] = {
 };
 
 void cpu_value_update(void){
-    cpu.pc = dut.rootp->top__DOT__cpu__DOT__REG__DOT__pc;   
-    cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__cpu__DOT__REG__DOT__csr_0;
-    cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__cpu__DOT__REG__DOT__csr_5;
-    cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__cpu__DOT__REG__DOT__csr_65;
-    cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__cpu__DOT__REG__DOT__csr_66;
-    cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__cpu__DOT__REG__DOT__csr_64; 
+    cpu.pc = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc;   
+    cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_0;
+    cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_5;
+    cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_65;
+    cpu.sr[sregs_iddr[3]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_66;
+    cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_64; 
 
-    // if(!dut.rootp->top__DOT__cpu__DOT__RegWr) return;
+    // if(!dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__RegWr) return;
     uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {
-        case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_0);  break;
-        case 1: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_1);  break;
-        case 2: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_2);  break;
-        case 3: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_3);  break;
-        case 4: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_4);  break;
-        case 5: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_5);  break;
-        case 6: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_6);  break;
-        case 7: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_7);  break;
-        case 8: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_8);  break;
-        case 9: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_9);  break;
-        case 10: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_10); break;
-        case 11: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_11); break;
-        case 12: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_12); break;
-        case 13: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_13); break;
-        case 14: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_14); break;
-        case 15: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_15); break;
-        case 16: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_16); break;
-        case 17: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_17); break;
-        case 18: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_18); break;
-        case 19: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_19); break;
-        case 20: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_20); break;
-        case 21: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_21); break;
-        case 22: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_22); break;
-        case 23: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_23); break;
-        case 24: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_24); break;
-        case 25: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_25); break;
-        case 26: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_26); break;
-        case 27: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_27); break;
-        case 28: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_28); break;
-        case 29: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_29); break;
-        case 30: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_30); break;
-        case 31: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__cpu__DOT__REG__DOT__gpr_31); break;
+        case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_0);  break;
+        case 1: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_1);  break;
+        case 2: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_2);  break;
+        case 3: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_3);  break;
+        case 4: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_4);  break;
+        case 5: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_5);  break;
+        case 6: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_6);  break;
+        case 7: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_7);  break;
+        case 8: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_8);  break;
+        case 9: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_9);  break;
+        case 10: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_10); break;
+        case 11: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_11); break;
+        case 12: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_12); break;
+        case 13: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_13); break;
+        case 14: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_14); break;
+        case 15: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_15); break;
+        case 16: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_16); break;
+        case 17: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_17); break;
+        case 18: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_18); break;
+        case 19: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_19); break;
+        case 20: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_20); break;
+        case 21: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_21); break;
+        case 22: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_22); break;
+        case 23: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_23); break;
+        case 24: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_24); break;
+        case 25: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_25); break;
+        case 26: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_26); break;
+        case 27: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_27); break;
+        case 28: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_28); break;
+        case 29: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_29); break;
+        case 30: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_30); break;
+        case 31: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_31); break;
         default: break;
     }
 }
@@ -254,7 +255,7 @@ static void execute(uint64_t n){
         
         watchpoint_catch();          //检查watchpoint
 
-        difftest_step(cpu.pc, dut.rootp->top__DOT__cpu__DOT__REG__DOT__pc);
+        difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
         
         check_special_inst();       //检查特殊指令
         func_called_detect();

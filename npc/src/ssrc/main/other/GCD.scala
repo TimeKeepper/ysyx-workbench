@@ -20,8 +20,8 @@ class GCD extends Module {
   val regs = RegInit(VecInit(Seq.fill(65536)(0.U(16.W))))
 
   regs(io.value2) := io.value1
-  io.output := regs(io.value1)
-  
+  io.output       := regs(io.value1)
+
   val x = Reg(UInt())
   val y = Reg(UInt())
 

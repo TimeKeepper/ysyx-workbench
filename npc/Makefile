@@ -12,7 +12,9 @@ CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
-VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
+DESIGN_FILE ?= $(abspath $(VSRC_DIR))/npc.sv
+VSRC = $(DESIGN_FILE)
+VSRC += $(abspath $(VSRC_DIR))/top.v
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
@@ -85,13 +87,13 @@ CXXFLAGS += -g
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
-# $(VSRC): $(SSRC)
-# 	$(MAKE) verilog
+$(DESIGN_FILE): $(SSRC)
+	$(MAKE) verilog
 
 print:
 	@echo $(INCFLAGS)
 
-$(BIN): $(VSRC) $(CSRC) $(HSRC) $(NVBOARD_ARCHIVE)
+$(BIN): $(CSRC) $(HSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
@@ -110,5 +112,5 @@ trace:$(BIN) $(IMG)
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DTRACE)
 	$(NPC_EXEC)
-
+	
 -include ../Makefile

@@ -4,68 +4,11 @@ import chisel3._
 import chisel3.util._
 
 object Decode {
-    // val Y = true.B
-    // val N = false.B
+  import signal_value._
 
-    // // ExtOp
-    // val immI = 0.U(3.W)
-    // val immU = 1.U(3.W)
-    // val immS = 2.U(3.W)
-    // val immB = 3.U(3.W)
-    // val immJ = 4.U(3.W)
+  import Instructions._
 
-    // // ALUAsrc
-    // val A_RS1 = 0.U(2.W)
-    // val A_PC  = 1.U(2.W)
-    // val A_CSR = 2.U(2.W)
-
-    // // ALUBSrc
-    // val B_RS2 = 0.U(2.W)
-    // val B_IMM = 1.U(2.W)
-    // val B_4   = 2.U(2.W)
-    // val B_RS1 = 3.U(2.W)
-
-    // // ALUctr
-    // val ALU_ADD = 0.U(4.W)
-    // val ALU_SUB = 8.U(4.W)
-    // val ALU_SLL = 1.U(4.W)
-    // val ALU_Less_S = 2.U(4.W)
-    // val ALU_Less_U = 10.U(4.W)
-    // val ALU_B   = 3.U(4.W)
-    // val ALU_A   = 11.U(4.W)
-    // val ALU_XOR = 4.U(4.W)
-    // val ALU_SRL = 5.U(4.W)
-    // val ALU_SRA = 13.U(4.W)
-    // val ALU_OR  = 6.U(4.W)
-    // val ALU_AND = 7.U(4.W)
-
-    // // Branch
-    // val Bran_NJmp = 0.U(3.W)
-    // val Bran_Jmp  = 1.U(3.W)
-    // val Bran_Jmpr = 2.U(3.W)
-    // val Bran_Jeq  = 4.U(3.W)
-    // val Bran_Jne  = 5.U(3.W)
-    // val Bran_Jlt  = 6.U(3.W)
-    // val Bran_Jge  = 7.U(3.W)
-
-    // // MemOp
-    // val M_4BU  = 2.U(3.W)
-    // val M_2BS  = 1.U(3.W)
-    // val M_1BS  = 0.U(3.W)
-    // val M_2BU  = 5.U(3.W)
-    // val M_1BU  = 4.U(3.W)
-
-    // // csr_ctr
-    // val CSR_N    = 0.U(2.W)
-    // val CSR_R1W0 = 1.U(2.W)  // mret
-    // val CSR_R1W1 = 2.U(2.W)
-    // val CSR_R1W2 = 3.U(2.W)  // ecall
-
-    import signal_value._
-
-    import Instructions._
-
-    // format: off
+  // format: off
     val default =
     //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp     ALUAsrc   ALUBsrc   ALUctr     csr_ctr 
     //     |        |       |         |       |        |         |         |         |          |    
@@ -111,8 +54,8 @@ object Decode {
         SW      -> List(immS, N, Bran_NJmp, N, Y, M_4BU, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
         CSRRW   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_A,      CSR_R1W1 ),
         CSRRS   -> List(immI, Y, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_OR,     CSR_R1W1 ),
-        ECALL   -> List(immI, N, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W2 ),
-        MRET    -> List(immI, N, Bran_NJmp, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W0 )
+        ECALL   -> List(immI, N, Bran_Jcsr, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W2 ),
+        MRET    -> List(immI, N, Bran_Jcsr, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W0 )
     )
     // format: on
 }
@@ -120,31 +63,32 @@ object Decode {
 // riscv cpu instruction decode unit
 
 class IDU extends Module {
-    val io = IO(new Bundle {
-        val inst = Input(UInt(32.W))
+  import signal_value._
+  val io = IO(new Bundle {
+    val inst = Input(UInt(32.W))
 
-        val ExtOp = Output(UInt(3.W))
-        val RegWr = Output(Bool())
-        val Branch = Output(UInt(3.W))
-        val MemtoReg = Output(Bool())
-        val MemWr  = Output(Bool())
-        val MemOp  = Output(UInt(3.W))
-        val ALUAsrc = Output(UInt(2.W))
-        val ALUBsrc = Output(UInt(2.W))
-        val ALUctr = Output(UInt(4.W))
-        val csr_ctr = Output(UInt(2.W))
-    })
+    val ExtOp    = Output(ExtOp_Type)
+    val RegWr    = Output(Bool())
+    val Branch   = Output(Bran_Type)
+    val MemtoReg = Output(Bool())
+    val MemWr    = Output(Bool())
+    val MemOp    = Output(MemOp_Type)
+    val ALUAsrc  = Output(ALUAsrc_Type)
+    val ALUBsrc  = Output(ALUBSrc_Type)
+    val ALUctr   = Output(ALUctr_Type)
+    val csr_ctr  = Output(CSR_Type)
+  })
 
-    val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
+  val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
 
-    io.ExtOp := ctrlSignals(0)
-    io.RegWr := ctrlSignals(1)
-    io.Branch := ctrlSignals(2)
-    io.MemtoReg := ctrlSignals(3)
-    io.MemWr := ctrlSignals(4)
-    io.MemOp := ctrlSignals(5)
-    io.ALUAsrc := ctrlSignals(6)
-    io.ALUBsrc := ctrlSignals(7)
-    io.ALUctr := ctrlSignals(8)
-    io.csr_ctr := ctrlSignals(9)
+  io.ExtOp    := ctrlSignals(0)
+  io.RegWr    := ctrlSignals(1)
+  io.Branch   := ctrlSignals(2)
+  io.MemtoReg := ctrlSignals(3)
+  io.MemWr    := ctrlSignals(4)
+  io.MemOp    := ctrlSignals(5)
+  io.ALUAsrc  := ctrlSignals(6)
+  io.ALUBsrc  := ctrlSignals(7)
+  io.ALUctr   := ctrlSignals(8)
+  io.csr_ctr  := ctrlSignals(9)
 }

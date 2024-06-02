@@ -116,7 +116,7 @@ class CPU() extends Module {
 
     when(PCBsrc === PCBsrc_gpr) {
         PCBval := GPR_RDATAa
-    }.eslewhen(PCBsrc === PCBsrc_pc) 
+    }.elsewhen(PCBsrc === PCBsrc_pc) 
         PCBval := Cur_PC{
     }.otherwise {
         PCBval := 0.U

@@ -79,74 +79,74 @@ object signal_value {
 
     // ExtOp
     def ExtOp_Type = UInt(3.W)
-    def immI = 0.U(3.W)
-    def immU = 1.U(3.W)
-    def immS = 2.U(3.W)
-    def immB = 3.U(3.W)
-    def immJ = 4.U(3.W)
+    def immI = 0.U(3.W)          //I型指令
+    def immU = 1.U(3.W)          //U型指令
+    def immS = 2.U(3.W)          //S型指令
+    def immB = 3.U(3.W)          //B型指令
+    def immJ = 4.U(3.W)          //J型指令
 
     // Branch
-    def Bran_Type = UInt(4.W)
-    def Bran_NJmp = 0.U(4.W)
-    def Bran_Jmp  = 1.U(4.W)
-    def Bran_Jmpr = 2.U(4.W)
-    def Bran_Jeq  = 4.U(4.W)
-    def Bran_Jne  = 5.U(4.W)
-    def Bran_Jlt  = 6.U(4.W)
-    def Bran_Jge  = 7.U(4.W)
-    def Bran_Jcsr = 8.U(4.W)
+    def Bran_Type = UInt(4.W)   
+    def Bran_NJmp = 0.U(4.W)     //非跳转
+    def Bran_Jmp  = 1.U(4.W)     //无条件跳转
+    def Bran_Jmpr = 2.U(4.W)     //寄存器基址跳转
+    def Bran_Jeq  = 4.U(4.W)     //相等跳转
+    def Bran_Jne  = 5.U(4.W)     //不相等跳转
+    def Bran_Jlt  = 6.U(4.W)     //小于跳转
+    def Bran_Jge  = 7.U(4.W)     //大于等于跳转
+    def Bran_Jcsr = 8.U(4.W)     //CSR跳转
 
     // Branch sub signal
     def PCAsrc_Type = UInt(2.W)
-    def PCAsrc_Imm  = 0.U(2.W)
-    def PCAsrc_4    = 1.U(2.W)
-    def PCAsrc_csr  = 2.U(2.W)
+    def PCAsrc_Imm  = 0.U(2.W)    //立即数
+    def PCAsrc_4    = 1.U(2.W)    //立即数4
+    def PCAsrc_csr  = 2.U(2.W)    //CSR寄存器
 
     def PCBsrc_Type = UInt(2.W)
-    def PCBsrc_gpr  = 0.U(2.W)
-    def PCBsrc_pc   = 1.U(2.W)
-    def PCBsrc_0    = 2.U(2.W)
+    def PCBsrc_gpr  = 0.U(2.W)    //GPR寄存器
+    def PCBsrc_pc   = 1.U(2.W)    //PC寄存器
+    def PCBsrc_0    = 2.U(2.W)    //立即数0
 
     // MemOp
     def MemOp_Type = UInt(3.W)
-    def M_1BU  = 0.U(3.W)
-    def M_1BS  = 1.U(3.W)
-    def M_2BU  = 2.U(3.W)
-    def M_2BS  = 3.U(3.W)
-    def M_4BU  = 4.U(3.W)
+    def M_1BU  = 0.U(3.W)         //1字节无符号
+    def M_1BS  = 1.U(3.W)         //1字节有符号
+    def M_2BU  = 2.U(3.W)         //2字节无符号
+    def M_2BS  = 3.U(3.W)         //2字节有符号
+    def M_4BU  = 4.U(3.W)         //4字节无符号
 
     // ALUAsrc
     def ALUAsrc_Type = UInt(2.W)
-    def A_RS1 = 0.U(2.W)
-    def A_PC  = 1.U(2.W)
-    def A_CSR = 2.U(2.W)
+    def A_RS1 = 0.U(2.W)          //寄存器资源1
+    def A_PC  = 1.U(2.W)          //PC寄存器
+    def A_CSR = 2.U(2.W)          //CSR寄存器
 
     // ALUBSrc
     def ALUBSrc_Type = UInt(2.W)
-    def B_RS2 = 0.U(2.W)
-    def B_IMM = 1.U(2.W)
-    def B_4   = 2.U(2.W)
-    def B_RS1 = 3.U(2.W)
+    def B_RS2 = 0.U(2.W)          //寄存器资源2
+    def B_IMM = 1.U(2.W)          //立即数
+    def B_4   = 2.U(2.W)          //立即数4
+    def B_RS1 = 3.U(2.W)          //寄存器资源1
 
     // ALUctr
     def ALUctr_Type = UInt(4.W)
-    def ALU_ADD = 0.U(4.W)
-    def ALU_SUB = 1.U(4.W)
-    def ALU_SLL = 2.U(4.W)
-    def ALU_Less_S = 3.U(4.W)
-    def ALU_Less_U = 4.U(4.W)
-    def ALU_A   = 5.U(4.W)
-    def ALU_B   = 6.U(4.W)
-    def ALU_SRL = 7.U(4.W)
-    def ALU_SRA = 8.U(4.W)
-    def ALU_XOR = 9.U(4.W)
-    def ALU_OR  = 10.U(4.W)
-    def ALU_AND = 11.U(4.W)
+    def ALU_ADD = 0.U(4.W)        //加法
+    def ALU_SUB = 1.U(4.W)        //减法
+    def ALU_SLL = 2.U(4.W)        //逻辑左移
+    def ALU_Less_S = 3.U(4.W)     //小于
+    def ALU_Less_U = 4.U(4.W)     //小于无符号
+    def ALU_A   = 5.U(4.W)        //输出A
+    def ALU_B   = 6.U(4.W)        //输出B
+    def ALU_SRL = 7.U(4.W)        //逻辑右移
+    def ALU_SRA = 8.U(4.W)        //算术右移
+    def ALU_XOR = 9.U(4.W)        //异或
+    def ALU_OR  = 10.U(4.W)       //或
+    def ALU_AND = 11.U(4.W)       //与
 
     // csr_ctr
     def CSR_Type = UInt(2.W)
-    def CSR_N    = 0.U(2.W)
-    def CSR_R1W0 = 1.U(2.W)  // mret
-    def CSR_R1W1 = 2.U(2.W)
-    def CSR_R1W2 = 3.U(2.W)  // ecall
+    def CSR_N    = 0.U(2.W)       // 非csr读写指令
+    def CSR_R1W0 = 1.U(2.W)       // 不读写一， 目前只有 mret 符合
+    def CSR_R1W1 = 2.U(2.W)       // 读写一
+    def CSR_R1W2 = 3.U(2.W)       // 读一写二， 目前只有 ecall 符合
 }

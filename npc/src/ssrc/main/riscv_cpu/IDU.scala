@@ -54,8 +54,8 @@ object Decode {
         SW      -> List(immS, N, Bran_NJmp,  N, Y, M_4BU, A_RS1, B_IMM, ALU_ADD,    CSR_N    ),
         CSRRW   -> List(immI, Y, Bran_NJmp,  N, N, M_1BS, A_CSR, B_RS1, ALU_A,      CSR_R1W1 ),
         CSRRS   -> List(immI, Y, Bran_NJmp,  N, N, M_1BS, A_CSR, B_RS1, ALU_OR,     CSR_R1W1 ),
-        ECALL   -> List(immI, N, Bran_yeild, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W2 ),
-        MRET    -> List(immI, N, Bran_yeild, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W0 )
+        ECALL   -> List(immI, N, Bran_jcsr, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W2 ),
+        MRET    -> List(immI, N, Bran_jcsr, N, N, M_1BS, A_CSR, B_RS1, ALU_ADD,    CSR_R1W0 )
     )
     // format: on
 }

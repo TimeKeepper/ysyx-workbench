@@ -94,7 +94,7 @@ object signal_value {
     def Bran_Jne  = 5.U(4.W)
     def Bran_Jlt  = 6.U(4.W)
     def Bran_Jge  = 7.U(4.W)
-    def Bran_yeild = 8.U(4.W)
+    def Bran_Jcsr = 8.U(4.W)
 
     // Branch sub signal
     def PCAsrc_Type = UInt(2.W)

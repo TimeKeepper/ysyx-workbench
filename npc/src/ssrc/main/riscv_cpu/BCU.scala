@@ -51,6 +51,8 @@ class BCU extends Module {
 
     when(io.Branch === Bran_Jmpr) {
         io.PCBsrc := PCBsrc_gpr
+    }.elsewhen(io.Branch === Bran_Jcsr) {
+        io.PCBsrc := PCBsrc_0
     }.otherwise {
         io.PCBsrc := PCBsrc_pc
     }

@@ -13,27 +13,47 @@ class BCU extends Module {
         val Zero   = Input(Bool())
         val Less   = Input(Bool())
 
-        val PCAsrc = Output(Bool())
-        val PCBsrc = Output(Bool())
+        val PCAsrc = Output(PCAsrc_Type)
+        val PCBsrc = Output(PCBsrc_Type)
     })
 
     when(io.Branch === Bran_Jmp || io.Branch === Bran_Jmpr) {
-        io.PCAsrc := Y
+        io.PCAsrc := PCAsrc_Imm
     }.elsewhen(io.Branch === Bran_Jeq) {
-        io.PCAsrc := io.Zero
+        when(io.Zero) {
+            io.PCAsrc := PCAsrc_Imm
+        }.otherwise {
+            io.PCAsrc := PCAsrc_4
+        }
     }.elsewhen(io.Branch === Bran_Jne) {
-        io.PCAsrc := !io.Zero
+        when(io.Zero) {
+            io.PCAsrc := PCAsrc_4
+        }.otherwise {
+            io.PCAsrc := PCAsrc_Imm
+        }
     }.elsewhen(io.Branch === Bran_Jlt) {
-        io.PCAsrc := io.Less
+        when(io.Less) {
+            io.PCAsrc := PCAsrc_Imm
+        }.otherwise {
+            io.PCAsrc := PCAsrc_4
+        }
     }.elsewhen(io.Branch === Bran_Jge) {
-        io.PCAsrc := !io.Less
+        when(io.Less) {
+            io.PCAsrc := PCAsrc_4
+        }.otherwise {
+            io.PCAsrc := PCAsrc_Imm
+        }
+    }.eslewhen(io.Branch === Bran_yeild) {
+        io.PCAsrc := PCAsrc_csr
     }.otherwise {
-        io.PCAsrc := N
+        io.PCAsrc := PCAsrc_4
     }
 
     when(io.Branch === Bran_Jmpr) {
-        io.PCBsrc := Y
+        io.PCBsrc := PCBsrc_gpr
+    }.eslewhen(io.Branch === Bran_yiled) {
+        io.PCBsrc := PCBsrc_0
     }.otherwise {
-        io.PCBsrc := N
+        io.PCBsrc := PCBsrc_pc
     }
 }

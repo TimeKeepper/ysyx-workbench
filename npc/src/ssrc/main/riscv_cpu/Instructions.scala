@@ -96,6 +96,17 @@ object signal_value {
     def Bran_Jge  = 7.U(4.W)
     def Bran_yeild = 8.U(4.W)
 
+    // Branch sub signal
+    def PCAsrc_Type = UInt(2.W)
+    def PCAsrc_Imm  = 0.U(2.W)
+    def PCAsrc_4    = 1.U(2.W)
+    def PCAsrc_csr  = 2.U(2.W)
+
+    def PCBsrc_Type = UInt(2.W)
+    def PCBsrc_gpr  = 0.U(2.W)
+    def PCBsrc_pc   = 1.U(2.W)
+    def PCBsrc_0    = 2.U(2.W)
+
     // MemOp
     def MemOp_Type = UInt(3.W)
     def M_1BU  = 0.U(3.W)

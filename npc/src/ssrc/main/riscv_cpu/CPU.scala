@@ -58,8 +58,8 @@ class CPU() extends Module {
     val Zero = Wire(Bool())
     val Result = Wire(UInt(32.W))
 
-    val PCAsrc = Wire(Bool())
-    val PCBsrc = Wire(Bool())
+    val PCAsrc = Wire(PCAsrc_Type)
+    val PCBsrc = Wire(PCBsrc_Type)
     
     // IDU Connections
     IDU.io.inst := io.inst
@@ -106,23 +106,23 @@ class CPU() extends Module {
     val PCAval = Wire(UInt(32.W))
     val PCBval = Wire(UInt(32.W))
 
-    when(PCAsrc) {
+    when(PCAsrc === PCAsrc_Imm) {
         PCAval := Imm
-    }.otherwise {
+    }.eslewhenP(PCAsrc === PCAsrc_4) {
         PCAval := 4.U
+    }.otherwise {
+        PCAval := CSR_RDATA
     }
 
-    when(PCBsrc) {
+    when(PCBsrc === PCBsrc_gpr) {
         PCBval := GPR_RDATAa
+    }.eslewhen(PCBsrc === PCBsrc_pc) 
+        PCBval := Cur_PC{
     }.otherwise {
-        PCBval := Cur_PC
+        PCBval := 0.U
     }
 
-    when(csr_ctr === CSR_R1W0 || csr_ctr === CSR_R1W2) {
-        Next_PC := CSR_RDATA
-    }.otherwise {
-        Next_PC := PCAval + PCBval
-    }
+    Next_PC := PCAval + PCBval
 
     REG.io.pc_in := Next_PC
     Cur_PC := REG.io.pc_out

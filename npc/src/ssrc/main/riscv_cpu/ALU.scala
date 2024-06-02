@@ -176,23 +176,21 @@ class ALU extends Module {
     OR  := io.src_A | io.src_B
     AND := io.src_A & io.src_B
 
-    when(io.ALUctr(2, 0) === ALU_ADD(2, 0)) {
+    when(io.ALUctr === ALU_ADD || io.ALUctr === ALU_SUB) {
         io.ALUout := adder
-    }.elsewhen(io.ALUctr(2, 0) === ALU_SLL(2, 0)) {
+    }.elsewhen(io.ALUctr === ALU_SLL) {
         io.ALUout := shift
-    }.elsewhen(io.ALUctr(2, 0) === ALU_Less_S(2, 0)) {
+    }.elsewhen(io.ALUctr === ALU_Less_S || io.ALUctr === ALU_Less_U) {
         io.ALUout := slt
-    }.elsewhen(io.ALUctr(2, 0) === ALU_B(2, 0)) {
-        when(io.ALUctr(3) === N) {
-            io.ALUout := B
-        }.otherwise {
-            io.ALUout := A
-        }
-    }.elsewhen(io.ALUctr(2, 0) === ALU_XOR(2, 0)) {
+    }.elsewhen(io.ALUctr === ALU_B) {
+        io.ALUout := B
+    }.elsewhen(io.ALUctr === ALU_A) {
+        io.ALUout := A
+    }.elsewhen(io.ALUctr === ALU_XOR) {
         io.ALUout := XOR
-    }.elsewhen(io.ALUctr(2, 0) === ALU_SRL(2, 0)) {
+    }.elsewhen(io.ALUctr === ALU_SRL || io.ALUctr === ALU_SRA) {
         io.ALUout := shift
-    }.elsewhen(io.ALUctr(2, 0) === ALU_OR(2, 0)) {
+    }.elsewhen(io.ALUctr === ALU_OR) {
         io.ALUout := OR
     }.otherwise {
         io.ALUout := AND

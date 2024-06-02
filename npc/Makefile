@@ -112,5 +112,5 @@ trace:$(BIN) $(IMG)
 	$(eval VERILATOR_CFLAGS += --trace)
 	$(eval CXXFLAGS += -DTRACE)
 	$(NPC_EXEC)
-
+	
 -include ../Makefile

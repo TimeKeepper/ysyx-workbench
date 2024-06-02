@@ -86,14 +86,15 @@ object signal_value {
     def immJ = 4.U(3.W)
 
     // Branch
-    def Bran_Type = UInt(3.W)
-    def Bran_NJmp = 0.U(3.W)
-    def Bran_Jmp  = 1.U(3.W)
-    def Bran_Jmpr = 2.U(3.W)
-    def Bran_Jeq  = 4.U(3.W)
-    def Bran_Jne  = 5.U(3.W)
-    def Bran_Jlt  = 6.U(3.W)
-    def Bran_Jge  = 7.U(3.W)
+    def Bran_Type = UInt(4.W)
+    def Bran_NJmp = 0.U(4.W)
+    def Bran_Jmp  = 1.U(4.W)
+    def Bran_Jmpr = 2.U(4.W)
+    def Bran_Jeq  = 4.U(4.W)
+    def Bran_Jne  = 5.U(4.W)
+    def Bran_Jlt  = 6.U(4.W)
+    def Bran_Jge  = 7.U(4.W)
+    def Bran_yeild = 8.U(4.W)
 
     // MemOp
     def MemOp_Type = UInt(3.W)

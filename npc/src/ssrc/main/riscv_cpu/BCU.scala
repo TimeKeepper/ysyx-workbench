@@ -43,7 +43,7 @@ class BCU extends Module {
         }.otherwise {
             io.PCAsrc := PCAsrc_Imm
         }
-    }.eslewhen(io.Branch === Bran_yeild) {
+    }.elsewhen(io.Branch === Bran_yeild) {
         io.PCAsrc := PCAsrc_csr
     }.otherwise {
         io.PCAsrc := PCAsrc_4
@@ -51,7 +51,7 @@ class BCU extends Module {
 
     when(io.Branch === Bran_Jmpr) {
         io.PCBsrc := PCBsrc_gpr
-    }.eslewhen(io.Branch === Bran_yiled) {
+    }.elsewhen(io.Branch === Bran_yiled) {
         io.PCBsrc := PCBsrc_0
     }.otherwise {
         io.PCBsrc := PCBsrc_pc

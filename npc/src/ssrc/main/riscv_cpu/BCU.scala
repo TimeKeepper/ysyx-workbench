@@ -7,21 +7,19 @@ import signal_value._
 
 // riscv cpu branch control unit
 
-class BCU_Bundle extends Bundle {
-  val Branch = Flipped(Decoupled(Bran_Type))
-  val Zero   = Input(Bool())
-  val Less   = Input(Bool())
-
-  val PCAsrc = Output(PCAsrc_Type)
-  val PCBsrc = Output(PCBsrc_Type)
-}
-
 class BCU extends Module {
-  val io = IO(new BCU_Bundle)
+  val io = IO(new Bundle {
+    val Branch = Flipped(Decoupled(Bran_Type))
+    val Zero   = Input(Bool())
+    val Less   = Input(Bool())
+
+    val PCAsrc = Output(PCAsrc_Type)
+    val PCBsrc = Output(PCBsrc_Type)
+  })
 
   io.Branch.ready := true.B
 
-  val PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(
+  io.PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(
     Seq(
       Bran_Jmp -> PCAsrc_Imm,
       Bran_Jmpr -> PCAsrc_Imm,
@@ -39,8 +37,6 @@ class BCU extends Module {
       Bran_Jcsr -> PCBsrc_0
     )
   )
-
-  io.PCAsrc <> PCAsrc
 
   io.PCBsrc <> PCBsrc
 }

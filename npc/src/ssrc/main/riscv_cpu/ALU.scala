@@ -194,5 +194,5 @@ class ALU extends Module {
     )
   )
 
-  io.ALUout := Result
+  io.ALUout <> Result
 }

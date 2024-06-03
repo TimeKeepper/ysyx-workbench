@@ -25,5 +25,5 @@ class IFU extends Module {
 
     io.inst_output.valid := io.inst_input.valid && io.inst_input.ready
 
-    io.inst_output.bits := io.inst_input
+    io.inst_output.bits := io.inst_input.bits
 }

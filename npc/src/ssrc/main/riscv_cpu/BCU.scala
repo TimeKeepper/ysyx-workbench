@@ -26,16 +26,15 @@ class BCU extends Module {
     Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm),
     Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
     Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
-    Bran_Jcsr -> PCAsrc_csr
+    Bran_Jcsr -> PCAsrc_csr,
+  ))
+
+  val PCBsrc = MuxLookup(io.Branch.bits, PCBsrc_pc)(Seq (
+    Bran_Jmpr -> PCBsrc_gpr
+    Bran_Jcsr -> PCBsrc_0
   ))
 
   io.PCAsrc <> PCAsrc
 
-  when(io.Branch.bits === Bran_Jmpr) {
-    io.PCBsrc := PCBsrc_gpr
-  }.elsewhen(io.Branch.bits === Bran_Jcsr) {
-    io.PCBsrc := PCBsrc_0
-  }.otherwise {
-    io.PCBsrc := PCBsrc_pc
-  }
+  io.PCBsrc <> PCBsrc
 }

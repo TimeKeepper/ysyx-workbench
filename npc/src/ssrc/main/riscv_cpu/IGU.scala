@@ -24,4 +24,6 @@ class IGU extends Module {
       immJ -> Cat(Fill(12, io.inst(31)), io.inst(19, 12), io.inst(20), io.inst(30, 21), 0.U(1.W))
     )
   )
+
+  io.imm <> imm
 }

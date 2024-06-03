@@ -132,11 +132,11 @@ object signal_value {
   def ALUctr_Type = UInt(4.W)
   def ALU_ADD     = 0.U(4.W) //加法
   def ALU_SUB     = 1.U(4.W) //减法
-  def ALU_SLL     = 2.U(4.W) //逻辑左移
+  def ALU_Less_U  = 2.U(4.W) //小于无符号
   def ALU_Less_S  = 3.U(4.W) //小于
-  def ALU_Less_U  = 4.U(4.W) //小于无符号
-  def ALU_A       = 5.U(4.W) //输出A
-  def ALU_B       = 6.U(4.W) //输出B
+  def ALU_A       = 4.U(4.W) //输出A
+  def ALU_B       = 5.U(4.W) //输出B
+  def ALU_SLL     = 6.U(4.W) //逻辑左移
   def ALU_SRL     = 7.U(4.W) //逻辑右移
   def ALU_SRA     = 8.U(4.W) //算术右移
   def ALU_XOR     = 9.U(4.W) //异或

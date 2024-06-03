@@ -187,8 +187,8 @@ class CPU() extends Module {
 
   // BCU Connections
   BCU.io.Branch <> IDU.io.Branch
-  BCU.io.Zero := Zero
-  BCU.io.Less := Less
+  BCU.io.Zero   := Zero
+  BCU.io.Less   := Less
 
   PCAsrc := BCU.io.PCAsrc
   PCBsrc := BCU.io.PCBsrc

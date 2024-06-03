@@ -170,18 +170,20 @@ class ALU extends Module {
   val B = io.src_B
   val A = io.src_A
 
-  io.ALUout = MuxLookup(io.ALUctr, 0.U)(Seq(
+  val Result = MuxLookup(io.ALUctr, 0.U)(Seq(
     ALU_ADD  -> adder,
     ALU_SUB  -> adder,
     ALU_SLL  -> shift,
     ALU_Less_S -> slt,
     ALU_Less_U -> slt,
-    ALU_A    -> A,
     ALU_B    -> B,
+    ALU_A    -> A,
+    ALU_XOR  -> io.src_A ^ io.src_B,
     ALU_SRL  -> shift,
     ALU_SRA  -> shift,
-    ALU_XOR  -> io.src_A ^ io.src_B,
     ALU_OR   -> io.src_A | io.src_B,
     ALU_AND  -> io.src_A & io.src_B
   ))
+
+  io.ALUout := Result
 }

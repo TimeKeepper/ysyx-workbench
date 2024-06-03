@@ -81,15 +81,15 @@ class IDU extends Module {
 
   val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
 
-  io.ExtOp    := ctrlSignals(0)
-  io.RegWr    := ctrlSignals(1)
+  io.ExtOp        := ctrlSignals(0)
+  io.RegWr        := ctrlSignals(1)
   io.Branch.valid := true.B
   io.Branch.bits  := ctrlSignals(2)
-  io.MemtoReg := ctrlSignals(3)
-  io.MemWr    := ctrlSignals(4)
-  io.MemOp    := ctrlSignals(5)
-  io.ALUAsrc  := ctrlSignals(6)
-  io.ALUBsrc  := ctrlSignals(7)
-  io.ALUctr   := ctrlSignals(8)
-  io.csr_ctr  := ctrlSignals(9)
+  io.MemtoReg     := ctrlSignals(3)
+  io.MemWr        := ctrlSignals(4)
+  io.MemOp        := ctrlSignals(5)
+  io.ALUAsrc      := ctrlSignals(6)
+  io.ALUBsrc      := ctrlSignals(7)
+  io.ALUctr       := ctrlSignals(8)
+  io.csr_ctr      := ctrlSignals(9)
 }

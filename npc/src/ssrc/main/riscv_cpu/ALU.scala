@@ -4,7 +4,6 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.MuxLookup
 
-
 import signal_value._
 
 // riscv cpu analogic and logical unit
@@ -178,20 +177,22 @@ class ALU extends Module {
   OR  := io.src_A | io.src_B
   AND := io.src_A & io.src_B
 
-  val Result = MuxLookup(io.ALUctr, 0.U)(Seq(
-    ALU_ADD  -> adder,
-    ALU_SUB  -> adder,
-    ALU_Less_U -> slt,
-    ALU_Less_S -> slt,
-    ALU_A    -> A,
-    ALU_B    -> B,
-    ALU_SLL  -> shift,
-    ALU_SRL  -> shift,
-    ALU_SRA  -> shift,
-    ALU_XOR  -> XOR,
-    ALU_OR   -> OR,
-    ALU_AND  -> AND,
-  ))
+  val Result = MuxLookup(io.ALUctr, 0.U)(
+    Seq(
+      ALU_ADD -> adder,
+      ALU_SUB -> adder,
+      ALU_Less_U -> slt,
+      ALU_Less_S -> slt,
+      ALU_A -> A,
+      ALU_B -> B,
+      ALU_SLL -> shift,
+      ALU_SRL -> shift,
+      ALU_SRA -> shift,
+      ALU_XOR -> XOR,
+      ALU_OR -> OR,
+      ALU_AND -> AND
+    )
+  )
 
   io.ALUout := Result
 }

@@ -7,32 +7,38 @@ import signal_value._
 
 // riscv cpu branch control unit
 
-class BCU extends Module {
-  val io = IO(new Bundle {
-    val Branch = Flipped(Decoupled(Bran_Type))
-    val Zero   = Input(Bool())
-    val Less   = Input(Bool())
+class BCU_Bundle extends Bundle {
+  val Branch = Flipped(Decoupled(Bran_Type))
+  val Zero   = Input(Bool())
+  val Less   = Input(Bool())
 
-    val PCAsrc = Output(PCAsrc_Type)
-    val PCBsrc = Output(PCBsrc_Type)
-  })
+  val PCAsrc = Output(PCAsrc_Type)
+  val PCBsrc = Output(PCBsrc_Type)
+}
+
+class BCU extends Module {
+  val io = IO(new BCU_Bundle)
 
   io.Branch.ready := true.B
 
-  val PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(Seq(
-    Bran_Jmp -> PCAsrc_Imm,
-    Bran_Jmpr -> PCAsrc_Imm,
-    Bran_Jeq -> Mux(io.Zero, PCAsrc_Imm, PCAsrc_4),
-    Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm),
-    Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
-    Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
-    Bran_Jcsr -> PCAsrc_csr,
-  ))
+  val PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(
+    Seq(
+      Bran_Jmp -> PCAsrc_Imm,
+      Bran_Jmpr -> PCAsrc_Imm,
+      Bran_Jeq -> Mux(io.Zero, PCAsrc_Imm, PCAsrc_4),
+      Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm),
+      Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
+      Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
+      Bran_Jcsr -> PCAsrc_csr
+    )
+  )
 
-  val PCBsrc = MuxLookup(io.Branch.bits, PCBsrc_pc)(Seq (
-    Bran_Jmpr -> PCBsrc_gpr,
-    Bran_Jcsr -> PCBsrc_0,
-  ))
+  val PCBsrc = MuxLookup(io.Branch.bits, PCBsrc_pc)(
+    Seq(
+      Bran_Jmpr -> PCBsrc_gpr,
+      Bran_Jcsr -> PCBsrc_0
+    )
+  )
 
   io.PCAsrc <> PCAsrc
 

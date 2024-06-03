@@ -63,7 +63,7 @@ class CPU() extends Module {
   val PCBsrc = Wire(PCBsrc_Type)
 
   // IDU Connections
-  IDU.io.inst := io.inst
+  IDU.io.inst := io.inst.bits
 
   ExtOp    := IDU.io.ExtOp
   RegWr    := IDU.io.RegWr
@@ -76,13 +76,13 @@ class CPU() extends Module {
   csr_ctr  := IDU.io.csr_ctr
 
   // IGU Connections
-  IGU.io.inst  := io.inst
+  IGU.io.inst  := io.inst.bits
   IGU.io.Extop := ExtOp
 
   Imm := IGU.io.imm
 
   // REG Connections
-  GPR_WADDR := io.inst(11, 7)
+  GPR_WADDR := io.inst.bits(11, 7)
 
   when(MemtoReg) {
     GPR_WDATA := io.mem_rdata
@@ -90,14 +90,14 @@ class CPU() extends Module {
     GPR_WDATA := Result
   }
 
-  GPR_WADDR := io.inst(11, 7)
+  GPR_WADDR := io.inst.bits(11, 7)
 
   REG.io.wdata := GPR_WDATA
   REG.io.waddr := GPR_WADDR
   REG.io.wen   := RegWr
 
-  GPR_RADDRa    := io.inst(19, 15)
-  GPR_RADDRb    := io.inst(24, 20)
+  GPR_RADDRa    := io.inst.bits(19, 15)
+  GPR_RADDRb    := io.inst.bits(24, 20)
   REG.io.raddra := GPR_RADDRa
   REG.io.raddrb := GPR_RADDRb
   GPR_RDATAa    := REG.io.rdataa

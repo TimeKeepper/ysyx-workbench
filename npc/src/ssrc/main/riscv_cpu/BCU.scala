@@ -19,7 +19,7 @@ class BCU extends Module {
 
   io.Branch.ready := true.B
 
-  io.PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(
+  val PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(
     Seq(
       Bran_Jmp -> PCAsrc_Imm,
       Bran_Jmpr -> PCAsrc_Imm,
@@ -37,6 +37,8 @@ class BCU extends Module {
       Bran_Jcsr -> PCBsrc_0
     )
   )
+
+  io.PCAsrc <> PCAsrc
 
   io.PCBsrc <> PCBsrc
 }

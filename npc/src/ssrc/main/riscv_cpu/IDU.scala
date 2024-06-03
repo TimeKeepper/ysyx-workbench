@@ -65,7 +65,7 @@ object Decode {
 class IDU extends Module {
   import signal_value._
   val io = IO(new Bundle {
-    val inst = Flipped(Decoupled(UInt(32.W)))
+    val inst = Input(UInt(32.W))
 
     val ExtOp    = Output(ExtOp_Type)
     val RegWr    = Output(Bool())
@@ -79,9 +79,7 @@ class IDU extends Module {
     val csr_ctr  = Output(CSR_Type)
   })
 
-  io.inst.ready := true.B
-
-  val ctrlSignals = ListLookup(io.inst.bits, Decode.default, Decode.map)
+  val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
 
   io.ExtOp        := ctrlSignals(0)
   io.RegWr        := ctrlSignals(1)

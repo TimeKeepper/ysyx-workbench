@@ -2,6 +2,8 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.MuxLookup
+
 
 import signal_value._
 
@@ -176,7 +178,7 @@ class ALU extends Module {
   OR  := io.src_A | io.src_B
   AND := io.src_A & io.src_B
 
-  val Result = MuxLookup(io.ALUctr, 0.U, Seq(
+  val Result = MuxLookup(io.ALUctr, 0.U)(Seq(
     ALU_ADD  -> adder,
     ALU_SUB  -> adder,
     ALU_SLL  -> shift,

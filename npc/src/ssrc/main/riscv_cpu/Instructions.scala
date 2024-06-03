@@ -79,16 +79,11 @@ object signal_value {
 
   // ExtOp
   def ExtOp_Type = UInt(3.W)
-//   def immI       = 0.U(3.W) //I型指令
-//   def immU       = 1.U(3.W) //U型指令
-//   def immS       = 2.U(3.W) //S型指令
-//   def immB       = 3.U(3.W) //B型指令
-//   def immJ       = 4.U(3.W) //J型指令
-  def immI :: \
-      immU :: \
-      immS :: \
-      immB :: \
-      immJ :: Nil = Enum(5)
+  def immI       = 0.U(3.W) //I型指令
+  def immU       = 1.U(3.W) //U型指令
+  def immS       = 2.U(3.W) //S型指令
+  def immB       = 3.U(3.W) //B型指令
+  def immJ       = 4.U(3.W) //J型指令
 
   // Branch
   def Bran_Type = UInt(4.W)

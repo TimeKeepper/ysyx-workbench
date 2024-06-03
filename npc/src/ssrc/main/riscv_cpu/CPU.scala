@@ -26,7 +26,6 @@ class CPU() extends Module {
   // wires
   val ExtOp    = Wire(ExtOp_Type)
   val RegWr    = Wire(Bool())
-  val Branch   = Wire(Bran_Type)
   val MemtoReg = Wire(Bool())
   val MemWr    = Wire(Bool())
   val MemOp    = Wire(MemOp_Type)
@@ -66,7 +65,6 @@ class CPU() extends Module {
 
   ExtOp    := IDU.io.ExtOp
   RegWr    := IDU.io.RegWr
-  Branch   := IDU.io.Branch
   MemtoReg := IDU.io.MemtoReg
   MemWr    := IDU.io.MemWr
   MemOp    := IDU.io.MemOp
@@ -188,7 +186,7 @@ class CPU() extends Module {
   Less   := ALU.io.Less
 
   // BCU Connections
-  BCU.io.Branch := Branch
+  BCU.io.Branch <> IDU.io.Branch
   BCU.io.Zero   := Zero
   BCU.io.Less   := Less
 

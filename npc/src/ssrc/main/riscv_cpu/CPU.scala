@@ -7,7 +7,7 @@ import signal_value._
 
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val inst      = Input(UInt(32.W))
+    val inst      = Flipped(Decoupled(UInt(32.W)))
     val mem_rdata = Input(UInt(32.W))
     val mem_raddr = Output(UInt(32.W))
 
@@ -15,6 +15,8 @@ class CPU() extends Module {
     val mem_wop   = Output(MemOp_Type)
     val mem_wen   = Output(Bool())
   })
+
+  io.inst.ready := true.B
 
   // Modules
   val IDU = Module(new IDU()) // Instruction Decode Unit

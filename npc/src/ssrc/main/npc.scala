@@ -16,9 +16,13 @@ class npc extends Module {
     val mem_wen   = Output(Bool())
   })
 
+  val IFU = Module(new IFU)
+
+  IFU.io.inst_input := io.inst
+
   val riscv_cpu = Module(new CPU)
 
-  riscv_cpu.io.inst      := io.inst
+  riscv_cpu.io.inst      := IFU.io.inst_output
   riscv_cpu.io.mem_rdata := io.mem_rdata
   io.mem_raddr           := riscv_cpu.io.mem_raddr
 

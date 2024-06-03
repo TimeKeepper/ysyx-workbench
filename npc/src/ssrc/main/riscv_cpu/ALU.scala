@@ -105,16 +105,16 @@ class ALU extends Module {
 
   // ALU operation
   val alu_ctrl = Module(new ALU_Ctrl)
-  alu_ctrl.io.ALUctr <> io.ALUctr
+  alu_ctrl.io.ALUctr := io.ALUctr
 
   val A_L     = Wire(Bool())
   val L_R     = Wire(Bool())
   val U_S     = Wire(Bool())
   val Sub_Add = Wire(Bool())
-  A_L     <> alu_ctrl.io.A_L
-  L_R     <> alu_ctrl.io.L_R
-  U_S     <> alu_ctrl.io.U_S
-  Sub_Add <> alu_ctrl.io.Sub_Add
+  A_L     := alu_ctrl.io.A_L
+  L_R     := alu_ctrl.io.L_R
+  U_S     := alu_ctrl.io.U_S
+  Sub_Add := alu_ctrl.io.Sub_Add
 
   // ALU Adder
   val Sub_Add_ex = Wire(SInt(32.W))
@@ -126,20 +126,20 @@ class ALU extends Module {
   B1         := io.src_B ^ Sub_Add_ex.asUInt
 
   val alu_adder = Module(new ALU_Adder)
-  alu_adder.io.A   <> A1
-  alu_adder.io.B   <> B1
-  alu_adder.io.Cin <> Sub_Add
+  alu_adder.io.A   := A1
+  alu_adder.io.B   := B1
+  alu_adder.io.Cin := Sub_Add
 
   val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
   val Overflow = Wire(Bool())
   val Zero     = Wire(Bool())
-  Carry    <> alu_adder.io.Carry
-  adder    <> alu_adder.io.Result
-  Overflow <> alu_adder.io.Overflow
-  Zero     <> alu_adder.io.Zero
+  Carry    := alu_adder.io.Carry
+  adder    := alu_adder.io.Result
+  Overflow := alu_adder.io.Overflow
+  Zero     := alu_adder.io.Zero
 
-  io.Zero <> Zero
+  io.Zero := Zero
 
   // ALU BarrelShifter
   val alu_barrel_shifter = Module(new ALU_BarrelShifter)

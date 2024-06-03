@@ -69,7 +69,7 @@ class IDU extends Module {
 
     val ExtOp    = Output(ExtOp_Type)
     val RegWr    = Output(Bool())
-    val Branch   = Output(Bran_Type)
+    val Branch   = Decoupled(Bran_Type)
     val MemtoReg = Output(Bool())
     val MemWr    = Output(Bool())
     val MemOp    = Output(MemOp_Type)
@@ -83,6 +83,7 @@ class IDU extends Module {
 
   io.ExtOp    := ctrlSignals(0)
   io.RegWr    := ctrlSignals(1)
+  io.Branch.valid := true.B
   io.Branch   := ctrlSignals(2)
   io.MemtoReg := ctrlSignals(3)
   io.MemWr    := ctrlSignals(4)

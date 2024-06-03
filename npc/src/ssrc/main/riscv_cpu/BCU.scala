@@ -9,13 +9,15 @@ import signal_value._
 
 class BCU extends Module {
   val io = IO(new Bundle {
-    val Branch = Input(Bran_Type)
+    val Branch = Flipped(Decoupled(Bran_Type))
     val Zero   = Input(Bool())
     val Less   = Input(Bool())
 
     val PCAsrc = Output(PCAsrc_Type)
     val PCBsrc = Output(PCBsrc_Type)
   })
+
+  io.Branch.ready := true.B
 
   when(io.Branch === Bran_Jmp || io.Branch === Bran_Jmpr) {
     io.PCAsrc := PCAsrc_Imm

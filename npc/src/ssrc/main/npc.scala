@@ -18,7 +18,9 @@ class npc extends Module {
 
   val IFU = Module(new IFU)
 
-  IFU.io.inst_input := io.inst
+  io.inst.ready := true.B
+
+  IFU.io.inst_input <> io.inst
 
   val riscv_cpu = Module(new CPU)
 

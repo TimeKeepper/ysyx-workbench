@@ -84,7 +84,7 @@ class IDU extends Module {
   io.ExtOp    := ctrlSignals(0)
   io.RegWr    := ctrlSignals(1)
   io.Branch.valid := true.B
-  io.Branch.bits   := ctrlSignals(2)
+  io.Branch.bits  := ctrlSignals(2)
   io.MemtoReg := ctrlSignals(3)
   io.MemWr    := ctrlSignals(4)
   io.MemOp    := ctrlSignals(5)

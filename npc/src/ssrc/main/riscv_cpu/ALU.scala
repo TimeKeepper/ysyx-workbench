@@ -176,7 +176,7 @@ class ALU extends Module {
   OR  := io.src_A | io.src_B
   AND := io.src_A & io.src_B
 
-  io.ALUout = MuxLookup(io.ALUctr, 0.U, Seq(
+  val Result = MuxLookup(io.ALUctr, 0.U, Seq(
     ALU_ADD  -> adder,
     ALU_SUB  -> adder,
     ALU_SLL  -> shift,
@@ -190,4 +190,6 @@ class ALU extends Module {
     ALU_OR   -> OR,
     ALU_AND  -> AND
   ))
+
+  io.ALUout := Result
 }

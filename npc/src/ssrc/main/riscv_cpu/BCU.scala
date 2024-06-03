@@ -22,10 +22,10 @@ class BCU extends Module {
   val PCAsrc = MuxLookup(io.Branch.bits, PCAsrc_4)(Seq(
     Bran_Jmp -> PCAsrc_Imm,
     Bran_Jmpr -> PCAsrc_Imm,
-    Bran_Jeq -> Mux(io.Zero, PCAsrc_Imm, PCAsrc_4)
-    Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm)
-    Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4)
-    Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm)
+    Bran_Jeq -> Mux(io.Zero, PCAsrc_Imm, PCAsrc_4),
+    Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm),
+    Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
+    Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
     Bran_Jcsr -> PCAsrc_csr
   ))
 

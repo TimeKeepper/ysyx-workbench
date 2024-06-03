@@ -165,19 +165,32 @@ class ALU extends Module {
   }
   io.Less := Less
 
+  val slt = Cat(0.U(31.W), Less)
+
+  val B = io.src_B
+  val A = io.src_A
+
+  val XOR = Wire(UInt(32.W))
+  val OR  = Wire(UInt(32.W))
+  val AND = Wire(UInt(32.W))
+
+  XOR := io.src_A ^ io.src_B
+  OR  := io.src_A | io.src_B
+  AND := io.src_A & io.src_B
+
   val Result = MuxLookup(io.ALUctr, 0.U)(Seq(
     ALU_ADD  -> adder,
     ALU_SUB  -> adder,
-    ALU_Less_U -> Cat(0.U(31.W), Less),
-    ALU_Less_S -> Cat(0.U(31.W), Less),
-    ALU_A    -> io.src_A,
-    ALU_B    -> io.src_B,
+    ALU_Less_U -> slt,
+    ALU_Less_S -> slt,
+    ALU_A    -> A,
+    ALU_B    -> B,
     ALU_SLL  -> shift,
     ALU_SRL  -> shift,
     ALU_SRA  -> shift,
-    ALU_XOR  -> (io.src_A ^ io.src_B),
-    ALU_OR   -> (io.src_A | io.src_B),
-    ALU_AND  -> (io.src_A & io.src_B)
+    ALU_XOR  -> XOR,
+    ALU_OR   -> OR,
+    ALU_AND  -> AND
   ))
 
   io.ALUout := Result

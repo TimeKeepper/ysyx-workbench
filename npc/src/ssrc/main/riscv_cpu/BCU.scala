@@ -19,41 +19,41 @@ class BCU extends Module {
 
   io.Branch.ready := true.B
 
-  when(io.Branch === Bran_Jmp || io.Branch === Bran_Jmpr) {
+  when(io.Branch.bits === Bran_Jmp || io.Branch.bits === Bran_Jmpr) {
     io.PCAsrc := PCAsrc_Imm
-  }.elsewhen(io.Branch === Bran_Jeq) {
+  }.elsewhen(io.Branch.bits === Bran_Jeq) {
     when(io.Zero) {
       io.PCAsrc := PCAsrc_Imm
     }.otherwise {
       io.PCAsrc := PCAsrc_4
     }
-  }.elsewhen(io.Branch === Bran_Jne) {
+  }.elsewhen(io.Branch.bits === Bran_Jne) {
     when(io.Zero) {
       io.PCAsrc := PCAsrc_4
     }.otherwise {
       io.PCAsrc := PCAsrc_Imm
     }
-  }.elsewhen(io.Branch === Bran_Jlt) {
+  }.elsewhen(io.Branch.bits === Bran_Jlt) {
     when(io.Less) {
       io.PCAsrc := PCAsrc_Imm
     }.otherwise {
       io.PCAsrc := PCAsrc_4
     }
-  }.elsewhen(io.Branch === Bran_Jge) {
+  }.elsewhen(io.Branch.bits === Bran_Jge) {
     when(io.Less) {
       io.PCAsrc := PCAsrc_4
     }.otherwise {
       io.PCAsrc := PCAsrc_Imm
     }
-  }.elsewhen(io.Branch === Bran_Jcsr) {
+  }.elsewhen(io.Branch.bits === Bran_Jcsr) {
     io.PCAsrc := PCAsrc_csr
   }.otherwise {
     io.PCAsrc := PCAsrc_4
   }
 
-  when(io.Branch === Bran_Jmpr) {
+  when(io.Branch.bits === Bran_Jmpr) {
     io.PCBsrc := PCBsrc_gpr
-  }.elsewhen(io.Branch === Bran_Jcsr) {
+  }.elsewhen(io.Branch.bits === Bran_Jcsr) {
     io.PCBsrc := PCBsrc_0
   }.otherwise {
     io.PCBsrc := PCBsrc_pc

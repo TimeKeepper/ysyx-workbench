@@ -190,7 +190,7 @@ class ALU extends Module {
     ALU_SRA  -> shift,
     ALU_XOR  -> XOR,
     ALU_OR   -> OR,
-    ALU_AND  -> AND
+    ALU_AND  -> AND,
   ))
 
   io.ALUout := Result

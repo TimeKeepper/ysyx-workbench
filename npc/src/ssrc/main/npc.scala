@@ -22,7 +22,7 @@ class npc extends Module {
 
   val riscv_cpu = Module(new CPU)
 
-  riscv_cpu.io.inst      <> IFU.io.inst_output
+  riscv_cpu.io.inst_input      <> IFU.io.inst_output
   riscv_cpu.io.mem_rdata := io.mem_rdata
   io.mem_raddr           := riscv_cpu.io.mem_raddr
 

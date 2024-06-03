@@ -16,9 +16,9 @@ class IFU extends Module {
     val s_idle :: s_wait_ready :: Nil = Enum(2)
 
     val state = RegInit(s_idle)
-    state := MuxLookup(state, s_idle)(List(
-        s_idle -> Mux(io.inst_output.valid, s_wait_ready, s_idle)
-        s_wait_ready -> Mux(io.inst_output.ready, s_idle, s_wait_ready)
+    state := MuxLookup(state, s_idle)(Seq(
+        s_idle -> Mux(io.inst_output.valid, s_wait_ready, s_idle),
+        s_wait_ready -> Mux(io.inst_output.ready, s_idle, s_wait_ready),
     ))
 
     io.inst_output.bits := io.inst_input

@@ -178,11 +178,11 @@ class ALU extends Module {
     ALU_Less_U -> slt,
     ALU_B    -> B,
     ALU_A    -> A,
-    ALU_XOR  -> io.src_A ^ io.src_B,
+    ALU_XOR  -> (io.src_A ^ io.src_B),
     ALU_SRL  -> shift,
     ALU_SRA  -> shift,
-    ALU_OR   -> io.src_A | io.src_B,
-    ALU_AND  -> io.src_A & io.src_B
+    ALU_OR   -> (io.src_A | io.src_B),
+    ALU_AND  -> (io.src_A & io.src_B)
   ))
 
   io.ALUout := Result

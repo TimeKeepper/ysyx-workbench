@@ -242,7 +242,7 @@ static void execute(uint64_t n){
     for(;n > 0; n--){
         // nvboard_update();
         dut.inst_bits = ram_read(cpu.pc, 4);
-        dut.inst_valid = 1;
+        dut.inst_valid = !dut.inst_valid;
         dut.eval();                       //取指
 
         // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);

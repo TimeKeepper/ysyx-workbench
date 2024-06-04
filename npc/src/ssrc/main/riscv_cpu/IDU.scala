@@ -86,9 +86,9 @@ class IDU extends Module {
   io.ExtOp        := ctrlSignals(0)
   io.RegWr        := ctrlSignals(1)
   when(io.inst.valid) {
-    io.Branch     := Bran_NoC
+    io.Branch     := ctrlSignals(2)
   }.otherwise {
-    io.Branch       := ctrlSignals(2)
+    io.Branch     := Bran_NoC
   }
   io.MemtoReg     := ctrlSignals(3)
   io.MemWr        := ctrlSignals(4)

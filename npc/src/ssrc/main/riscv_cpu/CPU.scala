@@ -72,7 +72,7 @@ class CPU() extends Module {
   val PCBsrc = Wire(PCBsrc_Type)
 
   // IDU Connections
-  IDU.io.inst <> inst_input
+  IDU.io.inst <> IFU.io.inst_output
 
   ExtOp    := IDU.io.ExtOp
   RegWr    := IDU.io.RegWr

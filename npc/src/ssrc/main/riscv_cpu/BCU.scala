@@ -9,7 +9,7 @@ import signal_value._
 
 class BCU extends Module {
   val io = IO(new Bundle {
-    val Branch = Flipped(Decoupled(Bran_Type))
+    val Branch = Input(Bran_Type)
     val Zero   = Input(Bool())
     val Less   = Input(Bool())
 
@@ -17,9 +17,7 @@ class BCU extends Module {
     val PCBsrc = Output(PCBsrc_Type)
   })
 
-  io.Branch.ready := true.B
-
-  io.PCAsrc := MuxLookup(io.Branch.bits, PCAsrc_4)(
+  io.PCAsrc := MuxLookup(io.Branch, PCAsrc_4)(
     Seq(
       Bran_Jmp -> PCAsrc_Imm,
       Bran_Jmpr -> PCAsrc_Imm,
@@ -28,13 +26,15 @@ class BCU extends Module {
       Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
       Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
       Bran_Jcsr -> PCAsrc_csr
+      Bran_NoC -> PCAsrc_0
     )
   )
 
-  io.PCBsrc := MuxLookup(io.Branch.bits, PCBsrc_pc)(
+  io.PCBsrc := MuxLookup(io.Branch, PCBsrc_pc)(
     Seq(
       Bran_Jmpr -> PCBsrc_gpr,
       Bran_Jcsr -> PCBsrc_0
+      Bran_NoC  -> PCBsrc_pc
     )
   )
 }

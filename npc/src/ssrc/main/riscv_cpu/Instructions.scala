@@ -95,12 +95,14 @@ object signal_value {
   def Bran_Jlt  = 6.U(4.W) //小于跳转
   def Bran_Jge  = 7.U(4.W) //大于等于跳转
   def Bran_Jcsr = 8.U(4.W) //CSR跳转
+  def Bran_NoC  = 9.U(4.W) //不要改变
 
   // Branch sub signal
   def PCAsrc_Type = UInt(2.W)
   def PCAsrc_Imm  = 0.U(2.W) //立即数
-  def PCAsrc_4    = 1.U(2.W) //立即数4
-  def PCAsrc_csr  = 2.U(2.W) //CSR寄存器
+  def PCAsrc_0    = 1.U(2.W) //立即数0
+  def PCAsrc_4    = 2.U(2.W) //立即数4
+  def PCAsrc_csr  = 3.U(2.W) //CSR寄存器
 
   def PCBsrc_Type = UInt(2.W)
   def PCBsrc_gpr  = 0.U(2.W) //GPR寄存器

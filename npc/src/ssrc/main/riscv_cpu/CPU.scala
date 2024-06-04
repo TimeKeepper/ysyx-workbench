@@ -27,8 +27,6 @@ class CPU() extends Module {
     inst := "b00000000000000000000000000010011".U(32.W)
   }
 
-  IFU.io.inst_output.ready := true.B
-
   // Modules
   val IDU = Module(new IDU()) // Instruction Decode Unit
   val IGU = Module(new IGU()) // Immediate Generation Unit
@@ -74,7 +72,7 @@ class CPU() extends Module {
   val PCBsrc = Wire(PCBsrc_Type)
 
   // IDU Connections
-  IDU.io.inst := inst
+  IDU.io.inst <> inst_input
 
   ExtOp    := IDU.io.ExtOp
   RegWr    := IDU.io.RegWr
@@ -121,6 +119,8 @@ class CPU() extends Module {
     PCAval := Imm
   }.elsewhen(PCAsrc === PCAsrc_4) {
     PCAval := 4.U
+  }.elsewhen(PCAsrc === PCAsrc_0) {
+    PCAval := 0.U
   }.otherwise {
     PCAval := CSR_RDATA
   }

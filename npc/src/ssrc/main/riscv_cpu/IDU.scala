@@ -81,7 +81,7 @@ class IDU extends Module {
 
   io.inst.ready := true.B
 
-  val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
+  val ctrlSignals = ListLookup(io.inst.bits, Decode.default, Decode.map)
 
   io.ExtOp        := ctrlSignals(0)
   io.RegWr        := ctrlSignals(1)

@@ -25,16 +25,16 @@ class BCU extends Module {
       Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm),
       Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
       Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
-      Bran_Jcsr -> PCAsrc_csr
-      Bran_NoC -> PCAsrc_0
+      Bran_Jcsr -> PCAsrc_csr,
+      Bran_NoC -> PCAsrc_0,
     )
   )
 
   io.PCBsrc := MuxLookup(io.Branch, PCBsrc_pc)(
     Seq(
       Bran_Jmpr -> PCBsrc_gpr,
-      Bran_Jcsr -> PCBsrc_0
-      Bran_NoC  -> PCBsrc_pc
+      Bran_Jcsr -> PCBsrc_0,
+      Bran_NoC  -> PCBsrc_pc,
     )
   )
 }

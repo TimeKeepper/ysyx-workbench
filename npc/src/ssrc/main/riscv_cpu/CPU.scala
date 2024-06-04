@@ -16,15 +16,18 @@ class CPU() extends Module {
     val mem_wen   = Output(Bool())
   })
 
+  val IFU = Module(new IFU)
+  IFU.io.inst_input <> io.inst_input
+
   val inst = Wire(UInt(32.W))
 
-  when(io.inst_input.valid) {
+  when(IFU.io.inst_output.valid) {
     inst := io.inst_input.bits
   }.otherwise {
     inst := "b00000000000000000000000000010011".U(32.W)
   }
 
-  io.inst_input.ready := true.B
+  IFU.io.inst_output.ready := true.B
 
   // Modules
   val IDU = Module(new IDU()) // Instruction Decode Unit

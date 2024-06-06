@@ -24,7 +24,7 @@ class Homework extends Module {
     //     key_state_update_counter := 0.U
     //     key_state := io.sw1
     // }
-    val key_1 = Module(new key)
+    val key_1 = Module(new key(50))
     val is_key_posedge = Wire(Bool())
     key_1.io.key_in := io.sw1
     is_key_posedge := key_1.io.is_key_posedge

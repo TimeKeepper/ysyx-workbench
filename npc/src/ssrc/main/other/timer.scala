@@ -16,19 +16,23 @@ class Timer(val clk_Mhz: Int) extends Module {
 
     val total_10m_seconds = RegInit(0.U(32.W))
 
-    when(!io.clear){
-        timer_counter := 0.U
-    }.elsewhen(!io.stop){
-        timer_counter := timer_counter
-    }.elsewhen(io.up_or_down){
-        timer_counter := timer_counter + 1.U
-    }.otherwise{
-        timer_counter := timer_counter - 1.U
-    }
+    timer_counter := timer_counter + 1.U
 
     when(timer_counter === ((clk_Mhz * 1024 * 1024)/100 - 1).U) {
         timer_counter := 0.U
-        total_10m_seconds := total_10m_seconds + 1.U
+        when(!io.clear){
+            total_10m_seconds := 0.U
+        }.elsewhen(!io.stop){
+            total_10m_seconds := total_10m_seconds
+        }.elsewhen(io.up_or_down){
+            total_10m_seconds := total_10m_seconds + 1.U
+        }.otherwise{
+            when(total_10m_seconds === 0.U){
+                total_10m_seconds := 0.U
+            }.otherwise{
+                total_10m_seconds := total_10m_seconds - 1.U
+            }
+        }
     }
 
     io.time_10m_seconds := total_10m_seconds

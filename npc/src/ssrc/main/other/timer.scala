@@ -18,7 +18,7 @@ class Timer(val clk_Mhz: Int) extends Module {
 
     when(!io.clear){
         timer_counter := 0.U
-    }.eslewhen(io.stop){
+    }.elsewhen(!io.stop){
         timer_counter := timer_counter
     }.elsewhen(io.up_or_down){
         timer_counter := timer_counter + 1.U

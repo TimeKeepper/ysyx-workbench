@@ -23,10 +23,10 @@ class Homework extends Module {
     val decoder3 = Module(new decoder.BCDDecoder)
     val decoder4 = Module(new decoder.BCDDecoder)
 
-    decoder1.io.in := (time_seconds)(3, 0)
-    decoder2.io.in := (time_seconds % 10.U)(3, 0)
-    decoder3.io.in := (time_seconds % 100.U)(3, 0)
-    decoder4.io.in := (time_seconds % 1000.U)(3, 0)
+    decoder1.io.in := (time_seconds % 10.U)(3, 0)
+    decoder2.io.in := (time_seconds / 10.U % 10.U)(3, 0)
+    decoder3.io.in := (time_seconds / 100.U % 10.U)(3, 0)
+    decoder4.io.in := (time_seconds / 1000.U % 10.U)(3, 0)
 
     val bit_reg = RegInit("b1110".U(4.W))
     bit_reg := Cat(bit_reg(2, 0), bit_reg(3))

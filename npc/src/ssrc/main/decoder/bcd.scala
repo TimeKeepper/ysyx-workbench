@@ -10,18 +10,18 @@ class BCDDecoder extends Module {
         val out = Output(UInt(8.W))
     })
 
-    val num_0 = "b11111101".U
-    val num_1 = "b01100000".U
-    val num_2 = "b11011010".U
-    val num_3 = "b11110010".U
+    val num_0 = "b00111111".U
+    val num_1 = "b00000110".U
+    val num_2 = "b01011011".U
+    val num_3 = "b01001111".U
     val num_4 = "b01100110".U
-    val num_5 = "b10110110".U
-    val num_6 = "b10111110".U
-    val num_7 = "b11100000".U
-    val num_8 = "b11111110".U
-    val num_9 = "b11110110".U
-    val num_A = "b11101110".U
-    val num_B = "b00111110".U
+    val num_5 = "b01101101".U
+    val num_6 = "b01111101".U
+    val num_7 = "b00000111".U
+    val num_8 = "b01111111".U
+    val num_9 = "b01101111".U
+    val num_A = "b01110111".U
+    val num_B = "b01111111".U
     val num_C = "b10011101".U
     val num_D = "b01111010".U
     val num_E = "b10011110".U

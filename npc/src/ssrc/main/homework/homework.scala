@@ -37,4 +37,6 @@ class Homework extends Module {
         "b1011".U -> decoder3.io.out,
         "b0111".U -> decoder4.io.out
     ))
+
+    io.bit := bit_reg
 }

@@ -31,7 +31,7 @@ class Homework extends Module {
     val bit_reg = RegInit("b1110".U(4.W))
     val counter = RegInit(0.U(32.W))
     counter := counter + 1.U
-    when(counter === 1000000.U) {
+    when(counter === 1000.U) {
         counter := 0.U
         bit_reg := Cat(bit_reg(2, 0), bit_reg(3))
     }

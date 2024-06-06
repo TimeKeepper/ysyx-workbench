@@ -51,9 +51,9 @@ class Homework extends Module {
     val decoder4 = Module(new decoder.BCDDecoder)
 
     val time_type_Choice = MuxLookup(state, total_seconds) (Seq(
-        s_second -> total_seconds,
+        s_second -> total_seconds%60.U,
         s_minute -> total_minutes,
-        s_10micro -> total_10m_seconds
+        s_10micro -> total_10m_seconds%99.U
     ))
 
     decoder1.io.in := (time_type_Choice % 10.U)(3, 0)

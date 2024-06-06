@@ -32,9 +32,9 @@ class Homework extends Module {
     bit_reg := Cat(bit_reg(2, 0), bit_reg(3))
 
     io.out := MuxLookup(bit_reg, 0.U(8.W)) (Seq(
-        "b1110" -> decoder1.io.out,
-        "b1101" -> decoder2.io.out,
-        "b1011" -> decoder3.io.out,
-        "b0111" -> decoder4.io.out
-    ))
+        "b1110".U -> decoder1.io.out,
+        "b1101".U -> decoder2.io.out,
+        "b1011".U -> decoder3.io.out,
+        "b0111".U -> decoder4.io.out
+    )
 }

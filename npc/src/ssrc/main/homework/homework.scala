@@ -29,7 +29,12 @@ class Homework extends Module {
     decoder4.io.in := (time_seconds / 1000.U % 10.U)(3, 0)
 
     val bit_reg = RegInit("b1110".U(4.W))
-    bit_reg := Cat(bit_reg(2, 0), bit_reg(3))
+    val counter = RegInit(0.U(32.W))
+    counter := counter + 1.U
+    when(counter === 1000000.U) {
+        counter := 0.U
+        bit_reg := Cat(bit_reg(2, 0), bit_reg(3))
+    }
 
     io.out := MuxLookup(bit_reg, 0.U(8.W)) (Seq(
         "b1110".U -> decoder1.io.out,

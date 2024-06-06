@@ -10,7 +10,7 @@ class key(val clk_Mhz: Int) extends Module {
         val is_key_posedge = Output(Bool())
     })
 
-    val key_reg = RegInit(false.B)
+    val key_reg = RegInit(true.B)
     key_reg := io.key_in
 
     val s_idle :: s_key_wait :: Nil = Enum(2)

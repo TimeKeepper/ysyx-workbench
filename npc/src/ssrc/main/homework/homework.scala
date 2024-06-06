@@ -10,25 +10,20 @@ import chisel3.util.MuxLookup
 class Homework extends Module {
     val io = IO(new Bundle{
         val sw1 = Input(Bool())
+        val clear = Input(Bool())
+        val stop = Input(Bool())
+        val up_or_down = Input(Bool())
         val out = Output(UInt(8.W))
         val bit = Output(UInt(4.W))
     })
 
     val s_second :: s_minute :: s_10micro :: Nil = Enum(3)
     val state = RegInit(s_second)
-    // val key_state = RegInit(true.B)
 
-    // val key_state_update_counter = RegInit(0.U(32.W))
-    // key_state_update_counter := key_state_update_counter + 1.U
-    // when(key_state_update_counter === (1024 * 1024 - 1).U) {
-    //     key_state_update_counter := 0.U
-    //     key_state := io.sw1
-    // }
     val key_1 = Module(new key(50))
     val is_key_posedge = Wire(Bool())
     key_1.io.key_in := io.sw1
     is_key_posedge := key_1.io.is_key_posedge
-
 
     when(is_key_posedge) {
         state := MuxLookup(state, s_second)(Seq(
@@ -43,6 +38,9 @@ class Homework extends Module {
     val total_minutes = Wire(UInt(32.W))
 
     val timer = Module(new Timer(50))
+    timer.io.clear <> io.clear
+    timer.io.stop <> io.stop
+    timer.io.up_or_down <> io.up_or_down
     total_10m_seconds <> timer.io.time_10m_seconds
     total_seconds := total_10m_seconds/100.U
     total_minutes := total_seconds/60.U

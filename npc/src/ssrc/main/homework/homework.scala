@@ -9,7 +9,8 @@ import chisel3.util.MuxLookup
 
 class Homework extends Module {
     val io = IO(new Bundle{
-        val out = Output(Vec(4, UInt(8.W)))
+        val out = Output(UInt(8.W))
+        val bit = Output(UInt(4.W))
     })
 
     val time_seconds = Wire(UInt(32.W))
@@ -27,8 +28,13 @@ class Homework extends Module {
     decoder3.io.in := (time_seconds % 100.U)(3, 0)
     decoder4.io.in := (time_seconds % 1000.U)(3, 0)
 
-    decoder1.io.out <> io.out(0)
-    decoder2.io.out <> io.out(1)
-    decoder3.io.out <> io.out(2)
-    decoder4.io.out <> io.out(3)
+    val bit_reg = RegInit("b1110".U(4.W))
+    bit_reg := Cat(bit_reg(2, 0), bit_reg(3))
+
+    io.out := MuxLookup(bit_reg, 0.U(8.W)) (Seq(
+        "b1110" -> decoder1.io.out,
+        "b1101" -> decoder2.io.out,
+        "b1011" -> decoder3.io.out,
+        "b0111" -> decoder4.io.out
+    ))
 }

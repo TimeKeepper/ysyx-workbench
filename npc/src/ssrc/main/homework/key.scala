@@ -11,7 +11,7 @@ class key extends Module {
     })
 
     val key_in_filited = Wire(Bool())
-    val key_in_debouncer = Module(new Debouncer(100))
+    val key_in_debouncer = Module(new Debouncer(10000))
 
     key_in_debouncer.io.input := io.key_in
     key_in_filited := key_in_debouncer.io.output

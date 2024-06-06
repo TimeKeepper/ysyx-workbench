@@ -31,7 +31,7 @@ class Homework extends Module {
 
     val timer = Module(new Timer(50))
     total_10m_seconds <> timer.io.time_10m_seconds
-    total_seconds := timer.io.total_seconds/100.U
+    total_seconds := total_10m_seconds/100.U
     total_minutes := total_seconds/60.U
 
     val decoder1 = Module(new decoder.BCDDecoder)

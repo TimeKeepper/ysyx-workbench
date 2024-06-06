@@ -21,6 +21,7 @@ class Homework extends Module {
     val key_state_update_counter = RegInit(0.U(32.W))
     key_state_update_counter := key_state_update_counter + 1.U
     when(key_state_update_counter === 1000.U) {
+        key_state_update_counter := 0.U
         key_state := io.sw1
     }
 

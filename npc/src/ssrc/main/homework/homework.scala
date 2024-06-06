@@ -20,7 +20,7 @@ class Homework extends Module {
     val s_second :: s_minute :: s_10micro :: Nil = Enum(3)
     val state = RegInit(s_second)
 
-    val key_1 = Module(new key(50))
+    val key_1 = Module(new key)
     val is_key_posedge = Wire(Bool())
     key_1.io.key_in := io.sw1
     is_key_posedge := key_1.io.is_key_posedge

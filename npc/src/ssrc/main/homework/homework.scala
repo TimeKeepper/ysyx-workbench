@@ -9,16 +9,19 @@ import chisel3.util.MuxLookup
 
 class Homework extends Module {
     val io = IO(new Bundle{
-        val sw1 = Input(Clock())
+        val sw1 = Input(Bool())
         val out = Output(UInt(8.W))
         val bit = Output(UInt(4.W))
     })
 
     val s_second :: s_minute :: s_10micro :: Nil = Enum(3)
     val state = RegInit(s_second)
+    val key_state = RegInit(false.B)
 
-    withClock(io.sw1) {
-        state := MuxLookup(state, s_second) (Seq(
+    key_state := io.sw1
+
+    when(key_state === false.B && io.sw1 === true.B) {
+        state := MuxLookup(state, s_second)(Seq(
             s_second -> s_minute,
             s_minute -> s_10micro,
             s_10micro -> s_second

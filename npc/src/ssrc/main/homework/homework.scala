@@ -16,17 +16,13 @@ class Homework extends Module {
 
     val s_second :: s_minute :: s_10micro :: Nil = Enum(3)
     val state = RegInit(s_second)
-    val key_state = RegInit(true.B)
+    
+    val key1 = Module(new key(50))
 
-    val key_state_update_counter = RegInit(0.U(32.W))
-    key_state_update_counter := key_state_update_counter + 1.U
-    when(key_state_update_counter === (1024 * 1024 - 1).U) {
-        key_state_update_counter := 0.U
-        key_state := io.sw1
-    }
+    key1.io.key_in := io.sw1
 
-    when(key_state === false.B && io.sw1 === true.B) {
-        state := MuxLookup(state, s_second)(Seq(
+    when(key1.io.is_key_posedge){
+        MuxLookup(state, s_second)(Seq(
             s_second -> s_minute,
             s_minute -> s_10micro,
             s_10micro -> s_second

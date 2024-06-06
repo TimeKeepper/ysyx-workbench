@@ -31,5 +31,7 @@ class key(val clk_Mhz: Int) extends Module {
         io.is_key_posedge := true.B
         state := s_idle
         delay_cnt := 0.U
+    }.otherwise {
+        io.is_key_posedge := false.B
     }
 }

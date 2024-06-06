@@ -14,7 +14,7 @@ class Homework extends Module {
 
     val time_seconds = Wire(UInt(32.W))
 
-    val timer = Module(new timer.Timer(50))
+    val timer = Module(new Timer(50))
     time_seconds <> timer.io.time_seconds
 
     val decoder1 = Module(new decoder.BCDDecoder)

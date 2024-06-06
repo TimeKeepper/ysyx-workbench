@@ -9,24 +9,46 @@ import chisel3.util.MuxLookup
 
 class Homework extends Module {
     val io = IO(new Bundle{
+        val sw1 = Input(Clock())
         val out = Output(UInt(8.W))
         val bit = Output(UInt(4.W))
     })
 
-    val time_seconds = Wire(UInt(32.W))
+    val s_second :: s_minute :: s_10micro :: Nil = Enum(3)
+    val state = RegInit(s_second)
+
+    withClock(io.sw1) {
+        state := MuxLookup(state, s_second) (Seq(
+            s_second -> s_minute,
+            s_minute -> s_10micro,
+            s_10micro -> s_second
+        ))
+    }
+
+    val total_10m_seconds = Wire(UInt(32.W))
+    val total_seconds = Wire(UInt(32.W))
+    val total_minutes = Wire(UInt(32.W))
 
     val timer = Module(new Timer(50))
-    time_seconds <> timer.io.time_seconds
+    total_10m_seconds <> timer.io.total_10m_seconds
+    total_seconds := timer.io.total_seconds/100.U
+    total_minutes := total_seconds/60.U
 
     val decoder1 = Module(new decoder.BCDDecoder)
     val decoder2 = Module(new decoder.BCDDecoder)
     val decoder3 = Module(new decoder.BCDDecoder)
     val decoder4 = Module(new decoder.BCDDecoder)
 
-    decoder1.io.in := (time_seconds % 10.U)(3, 0)
-    decoder2.io.in := (time_seconds / 10.U % 10.U)(3, 0)
-    decoder3.io.in := (time_seconds / 100.U % 10.U)(3, 0)
-    decoder4.io.in := (time_seconds / 1000.U % 10.U)(3, 0)
+    val time_type_Choice = MuxLookup(state, total_seconds) (Seq(
+        s_second -> total_seconds,
+        s_minute -> total_minutes,
+        s_10micro -> total_10m_seconds
+    ))
+
+    decoder1.io.in := (time_type_Choice % 10.U)(3, 0)
+    decoder2.io.in := (time_type_Choice / 10.U % 10.U)(3, 0)
+    decoder3.io.in := (time_type_Choice / 100.U % 10.U)(3, 0)
+    decoder4.io.in := (time_type_Choice / 1000.U % 10.U)(3, 0)
 
     val bit_reg = RegInit("b1110".U(4.W))
     val counter = RegInit(0.U(32.W))

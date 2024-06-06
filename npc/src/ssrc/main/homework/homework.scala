@@ -12,9 +12,9 @@ class Homework extends Module {
         val out = Output(Vec(4, UInt(8.W)))
     })
 
-    val time_seconds = wire(UInt(32.W))
+    val time_seconds = Wire(UInt(32.W))
 
-    val timer = Module(new timer.Timer)
+    val timer = Module(new Timer.Timer)
     time_seconds <> timer.io.time_seconds
 
     val decoder1 = Module(new decoder.BCDDecoder)
@@ -27,8 +27,8 @@ class Homework extends Module {
     decoder3.io.in := (time_seconds % 100)(4.W)
     decoder4.io.in := (time_seconds % 1000)(4.W)
 
-    decoder1.io.Output <> io.out(0)
-    decoder2.io.Output <> io.out(1)
-    decoder3.io.Output <> io.out(2)
-    decoder4.io.Output <> io.out(3)
+    decoder1.io.out <> io.out(0)
+    decoder2.io.out <> io.out(1)
+    decoder3.io.out <> io.out(2)
+    decoder4.io.out <> io.out(3)
 }

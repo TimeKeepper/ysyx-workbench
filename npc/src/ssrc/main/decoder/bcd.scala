@@ -20,6 +20,12 @@ class BCDDecoder extends Module {
     val num_7 = "b11100000".U
     val num_8 = "b11111110".U
     val num_9 = "b11110110".U
+    val num_A = "b11101110".U
+    val num_B = "b00111110".U
+    val num_C = "b10011101".U
+    val num_D = "b01111010".U
+    val num_E = "b10011110".U
+    val num_F = "b10001110".U
 
     io.out := MuxLookup(io.in, 0.U)(Seq(
         "h0".U -> num_0,
@@ -31,7 +37,13 @@ class BCDDecoder extends Module {
         "h6".U -> num_6,
         "h7".U -> num_7,
         "h8".U -> num_8,
-        "h9".U -> num_9
+        "h9".U -> num_9,
+        "hA".U -> num_A,
+        "hB".U -> num_B,
+        "hC".U -> num_C,
+        "hD".U -> num_D,
+        "hE".U -> num_E,
+        "hF".U -> num_F
     ))
 
 }

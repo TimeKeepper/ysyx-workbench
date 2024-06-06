@@ -36,5 +36,5 @@ class Homework extends Module {
         "b1101".U -> decoder2.io.out,
         "b1011".U -> decoder3.io.out,
         "b0111".U -> decoder4.io.out
-    )
+    ))
 }

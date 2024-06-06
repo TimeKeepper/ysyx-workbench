@@ -15,7 +15,7 @@ class Timer(val clk_Mhz: Int) extends Module {
 
     timer_counter := timer_counter + 1.U
 
-    when(timer_counter === (clk_Mhz * 1000 - 1).U) {
+    when(timer_counter === (clk_Mhz * 1024 * 1024 - 1).U) {
         timer_counter := 0.U
         total_seconds := total_seconds + 1.U
     }

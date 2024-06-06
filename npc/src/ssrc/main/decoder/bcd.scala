@@ -21,7 +21,7 @@ class BCDDecoder extends Module {
     val num_8 = "b11111110".U
     val num_9 = "b11110110".U
 
-    val out := MuxLookup(io.in, 0.U)(Seq(
+    val out = MuxLookup(io.in, 0.U)(Seq(
         "h0".U -> num_0,
         "h1".U -> num_1,
         "h2".U -> num_2,

@@ -1,7 +1,7 @@
 package homework
 
-import timer
-import decoder
+import timer._
+import decoder._
 
 import chisel3._
 import chisel3.util._

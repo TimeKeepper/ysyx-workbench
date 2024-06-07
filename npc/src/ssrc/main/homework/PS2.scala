@@ -7,7 +7,7 @@ import chisel3.util.MuxLookup
 class PS2Receiver extends Module {
     val io = IO(new Bundle {
         val kclk = Input(Clock())
-        val kdata = Input(UInt(1.W))
+        val kdata = Input(Bool())
         val keycode = Decoupled(UInt(16.W))
     })
 
@@ -17,10 +17,10 @@ class PS2Receiver extends Module {
     val kclk_filiter = Module(new Debouncer(20))
     val kdata_filiter = Module(new Debouncer(20))
 
-    kclk_filiter.io.input := io.kclk
+    kclk_filiter.io.input := io.kclk.asUInt
     kclk_f := kclk_filiter.io.output
 
-    kdata_filiter.io.input := io.kclk
+    kdata_filiter.io.input := io.kdata
     kdata_f := kdata_filiter.io.output
 
     val data_cur = RegInit(0.U(8.W))

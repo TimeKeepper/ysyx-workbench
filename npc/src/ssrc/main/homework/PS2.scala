@@ -30,8 +30,8 @@ class PS2Receiver extends Module {
     val flag_pre = RegInit(true.B)
     flag_pre := flag_cur
 
+    io.keycode.bits := Cat(data_pre, data_cur)
     when(flag_pre === false.B && flag_cur === true.B) {
-        io.keycode.bits := Cat(data_pre, data_cur)
         io.keycode.valid := true.B
         data_pre := data_cur
     }.otherwise {

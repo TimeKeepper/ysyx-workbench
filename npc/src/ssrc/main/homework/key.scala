@@ -16,7 +16,7 @@ class key extends Module {
     key_in_debouncer.io.input := io.key_in
     key_in_filited := key_in_debouncer.io.output
 
-    val key_in_pre = RegInit(false.B)
+    val key_in_pre = RegInit(true.B)
 
     key_in_pre := key_in_filited
 

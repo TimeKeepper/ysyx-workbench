@@ -21,7 +21,7 @@ class PS2Receiver extends Module {
     kclk_f := kclk_filiter.io.out
 
     kdata_filiter.io.clk := io.kclk
-    kdata_f := kdata_filiter.io.out
+    kdata_f := kdata_filiter.io.output
 
     val data_cur = RegInit(0.U(8.W))
     val data_pre = RegInit(0.U(8.W))

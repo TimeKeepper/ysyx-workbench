@@ -13,5 +13,5 @@ object Elaborate extends App {
     ).reduce(_ + "," + _)
   )
   // circt.stage.ChiselStage.emitSystemVerilogFile(new homework.PS2Receiver(), args, firtoolOptions)
-  println(getVerilogString(new homework.PS2Receiver()))
+  println(getVerilogString(new homework.Homework()))
 }

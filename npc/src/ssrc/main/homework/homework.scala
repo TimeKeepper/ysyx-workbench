@@ -37,7 +37,7 @@ class Homework extends Module {
     val total_seconds = Wire(UInt(32.W))
     val total_minutes = Wire(UInt(32.W))
 
-    val timer = Module(new Timer(50))
+    val timer = Module(new Timer(100))
     timer.io.clear <> io.clear
     timer.io.stop <> io.stop
     timer.io.up_or_down <> io.up_or_down

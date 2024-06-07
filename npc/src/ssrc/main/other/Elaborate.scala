@@ -1,3 +1,4 @@
+import chisel3._
 object Elaborate extends App {
   val firtoolOptions = Array(
     "--lowering-options=" + List(

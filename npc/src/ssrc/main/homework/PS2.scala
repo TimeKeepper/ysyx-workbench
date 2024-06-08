@@ -88,7 +88,7 @@ class Mouse_Ps2_Controller extends Module {
                 cnt := 0.U
             }
             when(cnt === 1.U){
-                io.mouse_left_click := keycode[7]
+                io.mouse_left_click := keycode.bits[7]
             }.otherwise{
                 io.mouse_left_click := false.B
             }

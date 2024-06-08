@@ -30,7 +30,7 @@ class PS2Receiver extends Module {
     flag_prev := flag_cur
 
     val cnt = RegInit(0.U(4.W))
-    
+
     withClock(kclk_f) {
         when(cnt === 11.U){
             cnt := 0.U
@@ -42,13 +42,13 @@ class PS2Receiver extends Module {
 
         when(cnt === 10.U) {
             flag_cur := true.B
-            io.keynode.bits := data_cur
+            io.keycode.bits := data_cur
         }.otherwise {
             flag_cur := false.B
         }
     }
 
-    io.keynode.valid := flag_prev === false.B && flag_cur === true.B
+    io.keycode.valid := flag_prev === false.B && flag_cur === true.B
 }
 
 class Mouse_Ps2_Controller extends Module {

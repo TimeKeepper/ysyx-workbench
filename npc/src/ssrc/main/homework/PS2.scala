@@ -95,4 +95,6 @@ class Mouse_Ps2_Controller extends Module {
     }.otherwise{
         io.mouse_left_click := false.B
     }
+
+    io.keycode.ready := true.B
 }

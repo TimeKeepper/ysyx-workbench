@@ -11,9 +11,9 @@ class npc extends Module {
     val mem_rdata = Input(UInt(32.W))
     val mem_raddr = Output(UInt(32.W))
 
-    // val mem_wdata = Output(UInt(32.W))
-    // val mem_wop   = Output(UInt(3.W))
-    // val mem_wen   = Output(Bool())
+    val mem_wdata = Output(UInt(32.W))
+    val mem_wop   = Output(UInt(3.W))
+    val mem_wen   = Output(Bool())
   })
 
   val I_mem = Mem(256, UInt(32.W))
@@ -27,11 +27,11 @@ class npc extends Module {
   riscv_cpu.io.mem_rdata := D_mem(riscv_cpu.io.mem_raddr)
   D_mem(riscv_cpu.io.mem_raddr) := riscv_cpu.io.mem_wdata
 
-  // riscv_cpu.io.inst_input <> io.inst
-  // riscv_cpu.io.mem_rdata  := io.mem_rdata
-  // io.mem_raddr            := riscv_cpu.io.mem_raddr
+  riscv_cpu.io.inst_input <> io.inst
+  riscv_cpu.io.mem_rdata  := io.mem_rdata
+  io.mem_raddr            := riscv_cpu.io.mem_raddr
 
-  // io.mem_wdata := riscv_cpu.io.mem_wdata
-  // io.mem_wop   := riscv_cpu.io.mem_wop
-  // io.mem_wen   := riscv_cpu.io.mem_wen
+  io.mem_wdata := riscv_cpu.io.mem_wdata
+  io.mem_wop   := riscv_cpu.io.mem_wop
+  io.mem_wen   := riscv_cpu.io.mem_wen
 }

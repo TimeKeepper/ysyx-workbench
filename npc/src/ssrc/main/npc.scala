@@ -16,8 +16,8 @@ class npc extends Module {
     // val mem_wen   = Output(Bool())
   })
 
-  val I_mem = Mem(256, 32.W)
-  val D_mem = Mem(256, 32.W)
+  val I_mem = Mem(256, UInt(32.W))
+  val D_mem = Mem(256, UInt(32.W))
 
   val riscv_cpu = Module(new CPU)
 
@@ -26,7 +26,7 @@ class npc extends Module {
 
   riscv_cpu.io.mem_rdata := D_mem.read(riscv_cpu.io.mem_raddr)
   D_mem.write(riscv_cpu.io.mem_waddr)
-  
+
   // riscv_cpu.io.inst_input <> io.inst
   // riscv_cpu.io.mem_rdata  := io.mem_rdata
   // io.mem_raddr            := riscv_cpu.io.mem_raddr

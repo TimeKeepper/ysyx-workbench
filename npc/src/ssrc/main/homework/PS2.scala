@@ -24,6 +24,7 @@ class PS2Receiver extends Module {
     kdata_f := kdata_filiter.io.output
 
     val data_cur = RegInit(0.U(8.W))
+    io.keycode.bits := data_cur
 
     val flag_prev = RegInit(false.B)
     val flag_cur = Wire(Bool())
@@ -42,7 +43,6 @@ class PS2Receiver extends Module {
 
         when(cnt === 10.U) {
             flag_cur := true.B
-            io.keycode.bits := data_cur
         }.otherwise {
             flag_cur := false.B
         }

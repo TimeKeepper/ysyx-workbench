@@ -64,6 +64,7 @@ class Mouse_Ps2_Controller extends Module {
 
     val keycode = Wire(Decoupled(UInt(8.W)))
     ps2_receiver.io.keycode <> keycode
+    keycode.ready := true.B
 
     val s_idle :: s_receiving :: Nil = Enum(2)
 
@@ -95,6 +96,4 @@ class Mouse_Ps2_Controller extends Module {
     }.otherwise{
         io.mouse_left_click := false.B
     }
-
-    io.keycode.ready := true.B
 }

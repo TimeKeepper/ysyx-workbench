@@ -90,11 +90,9 @@ class Mouse_Ps2_Controller extends Module {
         }
     }
 
-    when(state === s_receiving){
-        when(cnt === 1.U){
-            io.mouse_left_click := keycode.bits(7)
-        }.otherwise{
-            io.mouse_left_click := false.B
-        }
+    when(cnt === 1.U && state === s_receiving){
+        io.mouse_left_click := keycode.bits(7)
+    }.otherwise{
+        io.mouse_left_click := false.B
     }
 }

@@ -8,6 +8,7 @@ import signal_value._
 class CPU() extends Module {
   val io = IO(new Bundle {
     val inst_input= Flipped(Decoupled(UInt(32.W)))
+    val pc_output = Output(UInt(32.W))
     val mem_rdata = Input(UInt(32.W))
     val mem_raddr = Output(UInt(32.W))
 
@@ -211,4 +212,6 @@ class CPU() extends Module {
   io.mem_wdata := GPR_RDATAb
   io.mem_wop   := MemOp
   io.mem_wen   := MemWr
+
+  io.pc_output := Cur_PC
 }

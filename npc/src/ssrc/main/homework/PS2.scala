@@ -62,8 +62,8 @@ class Mouse_Ps2_Controller extends Module {
     ps2_receiver.io.kclk := io.kclk
     ps2_receiver.io.kdata := io.kdata
 
-    val keynode = Wire(Decoupled(UInt(8.W)))
-    ps2_receiver.io.keycode <> keynode
+    val keycode = Wire(Decoupled(UInt(8.W)))
+    ps2_receiver.io.keycode <> keycode
 
     val s_idle :: s_receiving :: Nil = Enum(2)
 

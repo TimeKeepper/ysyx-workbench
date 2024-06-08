@@ -8,7 +8,7 @@ class PS2Receiver extends Module {
     val io = IO(new Bundle {
         val kclk = Input(Clock())
         val kdata = Input(Bool())
-        val keycode = Decoupled(UInt(16.W))
+        val keycode = Decoupled(UInt(8.W))
     })
 
     val kclk_f = Wire(Clock())
@@ -18,40 +18,78 @@ class PS2Receiver extends Module {
     val kdata_filiter = Module(new Debouncer(20))
 
     kclk_filiter.io.input := io.kclk.asUInt
-    kclk_f := kclk_filiter.io.output.asClock
+    kclk_f := !(kclk_filiter.io.output.asClock)
 
     kdata_filiter.io.input := io.kdata
     kdata_f := kdata_filiter.io.output
 
     val data_cur = RegInit(0.U(8.W))
-    val data_pre = RegInit(0.U(8.W))
-    val cnt = RegInit(0.U(8.W))
-    val flag_cur = RegInit(false.B)
-    val flag_pre = RegInit(true.B)
-    flag_pre := flag_cur
 
-    io.keycode.bits := Cat(data_pre, data_cur)
-    when(flag_pre === false.B && flag_cur === true.B) {
-        io.keycode.valid := true.B
-        data_pre := data_cur
-    }.otherwise {
-        io.keycode.valid := false.B
-    }
+    val flag_prev = RegInit(false.B)
+    val flag_cur = Wire(Bool())
+    flag_prev := flag_cur
 
     withClock(kclk_f) {
-        when(cnt === 10.U){
+        when(cnt === 11.U){
             cnt := 0.U
         }.otherwise{
             cnt := cnt + 1.U
         }
 
-        data_cur := Cat(kdata_f, data_cur(7,1))
+        data_cur := Cat(data_cur(6,0), kdata_f)
 
-        when(cnt === 9.U) {
+        when(cnt === 10.U) {
             flag_cur := true.B
+            io.keynode.bits := data_cur
         }.otherwise {
             flag_cur := false.B
         }
     }
 
+    io.keynode.valid := flag_prev === false.B && flag_cur === true.B
+}
+
+class Mouse_Ps2_Controller extends Module {
+    val io = IO(new Bundle{
+        val kclk = Input(Clock())
+        val kdata = Input(Bool())
+        val mouse_left_click = Output(Bool())
+    })
+
+    val ps2_receiver = Module(new PS2Receiver)
+    ps2_receiver.io.kclk := io.kclk
+    ps2_receiver.io.kdata := io.kdata
+
+    val keynode = Wire(Decoupled(UInt(8.W)))
+    ps2_receiver.io.keycode <> keynode
+
+    val s_idle :: s_receiving :: Nil = Enum(2)
+
+    val state = RegInit(s_idle)
+
+    val cnt = RegInit(0.U(8.W))
+    switch(state) {
+        is(s_idle) {
+            when(keynode.valid) {
+                cnt := cnt + 1.U
+            }
+            when(cnt == 3,U){
+                cnt := 0.U
+                state := s_receiving
+            }
+        }
+        is(s_receiving) {
+            when(keynode.valid) {
+                cnt := cnt + 1.U
+            }
+            when(cnt == 4.U){
+                cnt := 0.U
+            }
+            when(cnt == 1.U){
+                io.mouse_left_click := keynode[7]
+            }.otherwise{
+                io.mouse_left_click := false.B
+            }
+        }
+    }
 }

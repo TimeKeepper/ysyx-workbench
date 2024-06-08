@@ -25,7 +25,7 @@ class npc extends Module {
   riscv_cpu.io.inst_input.bits := I_mem(riscv_cpu.io.pc_output)
 
   riscv_cpu.io.mem_rdata := D_mem(riscv_cpu.io.mem_raddr)
-  D_mem(riscv_cpu.io.mem_rdata) := riscv_cpu.io.mem_wdata
+  D_mem(riscv_cpu.io.mem_raddr) := riscv_cpu.io.mem_wdata
 
   // riscv_cpu.io.inst_input <> io.inst
   // riscv_cpu.io.mem_rdata  := io.mem_rdata

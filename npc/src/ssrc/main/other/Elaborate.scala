@@ -12,6 +12,5 @@ object Elaborate extends App {
       "locationInfoStyle=wrapInAtSquareBracket"
     ).reduce(_ + "," + _)
   )
-  // circt.stage.ChiselStage.emitSystemVerilogFile(new homework.PS2Receiver(), args, firtoolOptions)
-  println(getVerilogString(new homework.Mouse_Ps2_Controller()))
+  circt.stage.ChiselStage.emitSystemVerilogFile(new npc.npc(), args, firtoolOptions)
 }

@@ -18,7 +18,7 @@ class PS2Receiver extends Module {
     val kdata_filiter = Module(new Debouncer(20))
 
     kclk_filiter.io.input := io.kclk.asUInt
-    kclk_f := !(kclk_filiter.io.output.asClock)
+    kclk_f := (kclk_filiter.io.output.asClock) ^ 1.U
 
     kdata_filiter.io.input := io.kdata
     kdata_f := kdata_filiter.io.output

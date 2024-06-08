@@ -75,7 +75,7 @@ class Mouse_Ps2_Controller extends Module {
             when(keynode.valid) {
                 cnt := cnt + 1.U
             }
-            when(cnt == 3,U){
+            when(cnt === 3.U){
                 cnt := 0.U
                 state := s_receiving
             }
@@ -84,10 +84,10 @@ class Mouse_Ps2_Controller extends Module {
             when(keynode.valid) {
                 cnt := cnt + 1.U
             }
-            when(cnt == 4.U){
+            when(cnt === 4.U){
                 cnt := 0.U
             }
-            when(cnt == 1.U){
+            when(cnt === 1.U){
                 io.mouse_left_click := keycode[7]
             }.otherwise{
                 io.mouse_left_click := false.B

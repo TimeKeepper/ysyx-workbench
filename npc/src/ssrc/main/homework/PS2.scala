@@ -29,6 +29,8 @@ class PS2Receiver extends Module {
     val flag_cur = Wire(Bool())
     flag_prev := flag_cur
 
+    val cnt = RegInit(0.U(4.W))
+    
     withClock(kclk_f) {
         when(cnt === 11.U){
             cnt := 0.U

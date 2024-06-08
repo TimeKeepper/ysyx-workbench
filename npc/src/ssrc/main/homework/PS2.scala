@@ -72,7 +72,7 @@ class Mouse_Ps2_Controller extends Module {
     val cnt = RegInit(0.U(8.W))
     switch(state) {
         is(s_idle) {
-            when(keynode.valid) {
+            when(keycode.valid) {
                 cnt := cnt + 1.U
             }
             when(cnt === 3.U){
@@ -81,7 +81,7 @@ class Mouse_Ps2_Controller extends Module {
             }
         }
         is(s_receiving) {
-            when(keynode.valid) {
+            when(keycode.valid) {
                 cnt := cnt + 1.U
             }
             when(cnt === 4.U){

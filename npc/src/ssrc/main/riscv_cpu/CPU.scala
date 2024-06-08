@@ -7,7 +7,7 @@ import signal_value._
 
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val inst      = Input(UInt(32.W))
+    val inst_input= Flipped(Decoupled(UInt(32.W)))
     val mem_rdata = Input(UInt(32.W))
     val mem_raddr = Output(UInt(32.W))
 
@@ -15,6 +15,17 @@ class CPU() extends Module {
     val mem_wop   = Output(MemOp_Type)
     val mem_wen   = Output(Bool())
   })
+
+  val IFU = Module(new IFU)
+  IFU.io.inst_input <> io.inst_input
+
+  val inst = Wire(UInt(32.W))
+
+  when(IFU.io.inst_output.valid) {
+    inst := io.inst_input.bits
+  }.otherwise {
+    inst := "b00000000000000000000000000010011".U(32.W)
+  }
 
   // Modules
   val IDU = Module(new IDU()) // Instruction Decode Unit
@@ -26,7 +37,6 @@ class CPU() extends Module {
   // wires
   val ExtOp    = Wire(ExtOp_Type)
   val RegWr    = Wire(Bool())
-  val Branch   = Wire(Bran_Type)
   val MemtoReg = Wire(Bool())
   val MemWr    = Wire(Bool())
   val MemOp    = Wire(MemOp_Type)
@@ -62,11 +72,10 @@ class CPU() extends Module {
   val PCBsrc = Wire(PCBsrc_Type)
 
   // IDU Connections
-  IDU.io.inst := io.inst
+  IDU.io.inst <> IFU.io.inst_output
 
   ExtOp    := IDU.io.ExtOp
   RegWr    := IDU.io.RegWr
-  Branch   := IDU.io.Branch
   MemtoReg := IDU.io.MemtoReg
   MemWr    := IDU.io.MemWr
   MemOp    := IDU.io.MemOp
@@ -76,13 +85,13 @@ class CPU() extends Module {
   csr_ctr  := IDU.io.csr_ctr
 
   // IGU Connections
-  IGU.io.inst  := io.inst
+  IGU.io.inst  := inst
   IGU.io.Extop := ExtOp
 
   Imm := IGU.io.imm
 
   // REG Connections
-  GPR_WADDR := io.inst(11, 7)
+  GPR_WADDR := inst(11, 7)
 
   when(MemtoReg) {
     GPR_WDATA := io.mem_rdata
@@ -90,14 +99,14 @@ class CPU() extends Module {
     GPR_WDATA := Result
   }
 
-  GPR_WADDR := io.inst(11, 7)
+  GPR_WADDR := inst(11, 7)
 
   REG.io.wdata := GPR_WDATA
   REG.io.waddr := GPR_WADDR
   REG.io.wen   := RegWr
 
-  GPR_RADDRa    := io.inst(19, 15)
-  GPR_RADDRb    := io.inst(24, 20)
+  GPR_RADDRa    := inst(19, 15)
+  GPR_RADDRb    := inst(24, 20)
   REG.io.raddra := GPR_RADDRa
   REG.io.raddrb := GPR_RADDRb
   GPR_RDATAa    := REG.io.rdataa
@@ -110,6 +119,8 @@ class CPU() extends Module {
     PCAval := Imm
   }.elsewhen(PCAsrc === PCAsrc_4) {
     PCAval := 4.U
+  }.elsewhen(PCAsrc === PCAsrc_0) {
+    PCAval := 0.U
   }.otherwise {
     PCAval := CSR_RDATA
   }
@@ -188,7 +199,7 @@ class CPU() extends Module {
   Less   := ALU.io.Less
 
   // BCU Connections
-  BCU.io.Branch := Branch
+  BCU.io.Branch <> IDU.io.Branch
   BCU.io.Zero   := Zero
   BCU.io.Less   := Less
 

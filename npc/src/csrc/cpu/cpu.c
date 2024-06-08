@@ -138,7 +138,7 @@ void cpu_value_update(void){
     cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_64; 
 
     // if(!dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    uint32_t rd_iddr = BITS(dut.rootp->inst_bits, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {
         case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_0);  break;
@@ -228,7 +228,7 @@ void watchpoint_catch(void){
 }
 
 void check_special_inst(void){
-    switch(dut.inst){
+    switch(dut.inst_bits){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
@@ -241,7 +241,9 @@ static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
     for(;n > 0; n--){
         // nvboard_update();
-        dut.inst = ram_read(cpu.pc, 4);dut.eval();                       //取指
+        dut.inst_bits = ram_read(cpu.pc, 4);
+        dut.inst_valid = !dut.inst_valid;
+        dut.eval();                       //取指
 
         // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);
 

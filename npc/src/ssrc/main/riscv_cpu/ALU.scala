@@ -2,6 +2,7 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.MuxLookup
 
 import signal_value._
 
@@ -176,23 +177,22 @@ class ALU extends Module {
   OR  := io.src_A | io.src_B
   AND := io.src_A & io.src_B
 
-  when(io.ALUctr === ALU_ADD || io.ALUctr === ALU_SUB) {
-    io.ALUout := adder
-  }.elsewhen(io.ALUctr === ALU_SLL) {
-    io.ALUout := shift
-  }.elsewhen(io.ALUctr === ALU_Less_S || io.ALUctr === ALU_Less_U) {
-    io.ALUout := slt
-  }.elsewhen(io.ALUctr === ALU_B) {
-    io.ALUout := B
-  }.elsewhen(io.ALUctr === ALU_A) {
-    io.ALUout := A
-  }.elsewhen(io.ALUctr === ALU_XOR) {
-    io.ALUout := XOR
-  }.elsewhen(io.ALUctr === ALU_SRL || io.ALUctr === ALU_SRA) {
-    io.ALUout := shift
-  }.elsewhen(io.ALUctr === ALU_OR) {
-    io.ALUout := OR
-  }.otherwise {
-    io.ALUout := AND
-  }
+  val Result = MuxLookup(io.ALUctr, 0.U)(
+    Seq(
+      ALU_ADD -> adder,
+      ALU_SUB -> adder,
+      ALU_Less_U -> slt,
+      ALU_Less_S -> slt,
+      ALU_A -> A,
+      ALU_B -> B,
+      ALU_SLL -> shift,
+      ALU_SRL -> shift,
+      ALU_SRA -> shift,
+      ALU_XOR -> XOR,
+      ALU_OR -> OR,
+      ALU_AND -> AND
+    )
+  )
+
+  io.ALUout <> Result
 }

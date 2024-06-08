@@ -65,7 +65,7 @@ object Decode {
 class IDU extends Module {
   import signal_value._
   val io = IO(new Bundle {
-    val inst = Input(UInt(32.W))
+    val inst = Flipped(Decoupled(UInt(32.W)))
 
     val ExtOp    = Output(ExtOp_Type)
     val RegWr    = Output(Bool())
@@ -79,16 +79,30 @@ class IDU extends Module {
     val csr_ctr  = Output(CSR_Type)
   })
 
-  val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
+  io.inst.ready := true.B
 
-  io.ExtOp    := ctrlSignals(0)
-  io.RegWr    := ctrlSignals(1)
-  io.Branch   := ctrlSignals(2)
-  io.MemtoReg := ctrlSignals(3)
-  io.MemWr    := ctrlSignals(4)
-  io.MemOp    := ctrlSignals(5)
-  io.ALUAsrc  := ctrlSignals(6)
-  io.ALUBsrc  := ctrlSignals(7)
-  io.ALUctr   := ctrlSignals(8)
-  io.csr_ctr  := ctrlSignals(9)
+  val s_idle :: s_wait_valid :: Nil = Enum(2)
+  val state = RegInit(s_idle)
+
+  state := MuxLookup(state, s_idle)(Seq(
+    s_idle -> Mux(io.inst.ready, s_wait_valid, s_idle),
+    s_wait_valid -> Mux(io.inst.valid, s_idle, s_wait_valid)
+  ))
+
+  val ctrlSignals = ListLookup(io.inst.bits, Decode.default, Decode.map)
+
+  io.ExtOp        := ctrlSignals(0)
+  io.RegWr        := ctrlSignals(1)
+  when(io.inst.valid) {
+    io.Branch     := ctrlSignals(2)
+  }.otherwise {
+    io.Branch     := Bran_NoC
+  }
+  io.MemtoReg     := ctrlSignals(3)
+  io.MemWr        := ctrlSignals(4)
+  io.MemOp        := ctrlSignals(5)
+  io.ALUAsrc      := ctrlSignals(6)
+  io.ALUBsrc      := ctrlSignals(7)
+  io.ALUctr       := ctrlSignals(8)
+  io.csr_ctr      := ctrlSignals(9)
 }

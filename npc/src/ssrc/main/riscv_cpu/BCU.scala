@@ -17,43 +17,24 @@ class BCU extends Module {
     val PCBsrc = Output(PCBsrc_Type)
   })
 
-  when(io.Branch === Bran_Jmp || io.Branch === Bran_Jmpr) {
-    io.PCAsrc := PCAsrc_Imm
-  }.elsewhen(io.Branch === Bran_Jeq) {
-    when(io.Zero) {
-      io.PCAsrc := PCAsrc_Imm
-    }.otherwise {
-      io.PCAsrc := PCAsrc_4
-    }
-  }.elsewhen(io.Branch === Bran_Jne) {
-    when(io.Zero) {
-      io.PCAsrc := PCAsrc_4
-    }.otherwise {
-      io.PCAsrc := PCAsrc_Imm
-    }
-  }.elsewhen(io.Branch === Bran_Jlt) {
-    when(io.Less) {
-      io.PCAsrc := PCAsrc_Imm
-    }.otherwise {
-      io.PCAsrc := PCAsrc_4
-    }
-  }.elsewhen(io.Branch === Bran_Jge) {
-    when(io.Less) {
-      io.PCAsrc := PCAsrc_4
-    }.otherwise {
-      io.PCAsrc := PCAsrc_Imm
-    }
-  }.elsewhen(io.Branch === Bran_Jcsr) {
-    io.PCAsrc := PCAsrc_csr
-  }.otherwise {
-    io.PCAsrc := PCAsrc_4
-  }
+  io.PCAsrc := MuxLookup(io.Branch, PCAsrc_4)(
+    Seq(
+      Bran_Jmp -> PCAsrc_Imm,
+      Bran_Jmpr -> PCAsrc_Imm,
+      Bran_Jeq -> Mux(io.Zero, PCAsrc_Imm, PCAsrc_4),
+      Bran_Jne -> Mux(io.Zero, PCAsrc_4, PCAsrc_Imm),
+      Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
+      Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
+      Bran_Jcsr -> PCAsrc_csr,
+      Bran_NoC -> PCAsrc_0,
+    )
+  )
 
-  when(io.Branch === Bran_Jmpr) {
-    io.PCBsrc := PCBsrc_gpr
-  }.elsewhen(io.Branch === Bran_Jcsr) {
-    io.PCBsrc := PCBsrc_0
-  }.otherwise {
-    io.PCBsrc := PCBsrc_pc
-  }
+  io.PCBsrc := MuxLookup(io.Branch, PCBsrc_pc)(
+    Seq(
+      Bran_Jmpr -> PCBsrc_gpr,
+      Bran_Jcsr -> PCBsrc_0,
+      Bran_NoC  -> PCBsrc_pc,
+    )
+  )
 }

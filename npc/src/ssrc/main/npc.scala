@@ -22,10 +22,10 @@ class npc extends Module {
   val riscv_cpu = Module(new CPU)
 
   riscv_cpu.io.inst_input.valid := true.B
-  riscv_cpu.io.inst_input.bits := I_mem.read(riscv_cpu.io.pc_output)
+  riscv_cpu.io.inst_input.bits := I_mem(riscv_cpu.io.pc_output)
 
-  riscv_cpu.io.mem_rdata := D_mem.read(riscv_cpu.io.mem_raddr)
-  D_mem.write(riscv_cpu.io.mem_waddr)
+  riscv_cpu.io.mem_rdata := D_mem(riscv_cpu.io.mem_raddr)
+  D_mem(riscv_cpu.io.mem_waddr) := riscv_cpu.io.mem_wdata
 
   // riscv_cpu.io.inst_input <> io.inst
   // riscv_cpu.io.mem_rdata  := io.mem_rdata

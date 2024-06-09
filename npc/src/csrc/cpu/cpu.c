@@ -247,7 +247,6 @@ static void execute(uint64_t n){
         }else {
             dut.inst_valid = false;
         }
-        printf("pc: 0x%08x", cpu.pc);
         dut.eval();                      
 
         single_cycle();                                                     //单周期执行

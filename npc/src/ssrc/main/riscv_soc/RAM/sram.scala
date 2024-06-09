@@ -11,6 +11,8 @@ class SRAM extends Module {
         val inst_output = Decoupled(UInt(32.W))
     })
 
+    val inst_cache = RegInit(0.U(32.W))
+
     val s_idle :: s_wait_ready :: Nil = Enum(2)
     val state = RegInit(s_idle)
 
@@ -20,6 +22,7 @@ class SRAM extends Module {
     when(state === s_idle) {
         when(io.inst_input.valid) {
             state := s_wait_ready
+            inst_cache := io.inst_input.bits
         }.otherwise {
             state := s_idle
         }
@@ -29,5 +32,5 @@ class SRAM extends Module {
         }
     }
 
-    io.inst_output.bits := io.inst_input.bits
+    io.inst_output.bits := inst_cache
 }

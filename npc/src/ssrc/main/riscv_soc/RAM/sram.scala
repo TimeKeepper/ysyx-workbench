@@ -3,7 +3,7 @@ package sram
 import chisel3._
 import chisel3.util._
 
-import signal_value._
+import riscv_cpu.signal_value._
 
 //此模块将32为数据读取并根据memop处理数据，延迟一个周期后发送给cpu
 

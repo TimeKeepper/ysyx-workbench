@@ -16,8 +16,8 @@ class npc extends Module {
     // val mem_wen   = Output(Bool())
   })
 
-  val I_mem = Mem(256, UInt(32.W))
-  val D_mem = Mem(256, UInt(32.W))
+  val I_mem = RegInit(VecInit(Seq.fill(256)(0.U(32.W))))
+  val D_mem = RegInit(VecInit(Seq.fill(256)(0.U(32.W))))
 
   val riscv_cpu = Module(new CPU)
 

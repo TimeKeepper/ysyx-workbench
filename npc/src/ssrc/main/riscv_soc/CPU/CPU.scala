@@ -20,7 +20,7 @@ class CPU() extends Module {
 
   val inst = Wire(UInt(32.W))
 
-  when(inst_input.valid) {
+  when(io.inst_input.valid) {
     inst := io.inst_input.bits
   }.otherwise {
     inst := "b00000000000000000000000000010011".U(32.W)

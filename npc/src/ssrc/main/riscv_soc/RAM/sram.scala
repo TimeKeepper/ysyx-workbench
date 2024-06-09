@@ -15,7 +15,7 @@ class SRAM extends Module {
     val state = RegInit(s_idle)
 
     io.inst_input.ready := state === s_idle
-    io.inst_output.valid := io.inst_input.valid && state === s_wait_ready
+    io.inst_output.valid := state === s_wait_ready
 
     when(state === s_idle) {
         when(io.inst_input.valid) {

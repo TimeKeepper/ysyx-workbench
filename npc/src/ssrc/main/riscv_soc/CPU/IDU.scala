@@ -81,14 +81,6 @@ class IDU extends Module {
 
   io.inst.ready := true.B
 
-  val s_idle :: s_wait_valid :: Nil = Enum(2)
-  val state = RegInit(s_idle)
-
-  state := MuxLookup(state, s_idle)(Seq(
-    s_idle -> Mux(io.inst.ready, s_wait_valid, s_idle),
-    s_wait_valid -> Mux(io.inst.valid, s_idle, s_wait_valid)
-  ))
-
   val ctrlSignals = ListLookup(io.inst.bits, Decode.default, Decode.map)
 
   io.ExtOp        := ctrlSignals(0)

@@ -18,8 +18,8 @@ class npc extends Module {
 
   val riscv_cpu = Module(new CPU)
 
-  val I_mem = Mem(256, UIntt(32.W))
-  val D_mem = Mem(256, UIntt(32.W))
+  val I_mem = Mem(256, UInt(32.W))
+  val D_mem = Mem(256, UInt(32.W))
 
   riscv_cpu.io.inst_input.valid := true.B
   riscv_cpu.io.inst_input.bits  := I_mem.read(riscv_cpu.io.pc_output)

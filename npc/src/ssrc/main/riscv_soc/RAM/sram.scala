@@ -29,5 +29,5 @@ class SRAM extends Module {
         }
     }
 
-    io.inst_output.bits := io.inst_input
+    io.inst_output.bits := io.inst_input.bits
 }

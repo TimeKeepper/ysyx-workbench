@@ -7,9 +7,9 @@ import chisel3.util._
 
 class npc extends Module {
   val io = IO(new Bundle {
-    // val inst      = Flipped(Decoupled(UInt(32.W)))
-    // val mem_rdata = Input(UInt(32.W))
-    // val mem_raddr = Output(UInt(32.W))
+    val inst      = Flipped(Decoupled(UInt(32.W)))
+    val mem_rdata = Input(UInt(32.W))
+    val mem_raddr = Output(UInt(32.W))
 
     // val mem_wdata = Output(UInt(32.W))
     // val mem_wop   = Output(UInt(3.W))

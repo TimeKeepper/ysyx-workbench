@@ -7,9 +7,9 @@ import chisel3.util._
 
 class npc extends Module {
   val io = IO(new Bundle {
-    // val inst      = Flipped(Decoupled(UInt(32.W)))
+    val inst      = Flipped(Decoupled(UInt(32.W)))
     // val mem_rdata = Input(UInt(32.W))
-    // val mem_raddr = Output(UInt(32.W))
+    val mem_raddr = Output(UInt(32.W))
 
     // val mem_wdata = Output(UInt(32.W))
     // val mem_wop   = Output(UInt(3.W))
@@ -23,6 +23,8 @@ class npc extends Module {
 
   riscv_cpu.io.inst_input.valid := true.B
   riscv_cpu.io.inst_input.bits  := I_mem.read(riscv_cpu.io.pc_output)
+  I_mem.write(riscv_cpu.io.pc_output, io.inst.bits)
+
   riscv_cpu.io.mem_rdata        := D_mem.read(riscv_cpu.io.mem_raddr)
   D_mem.write(riscv_cpu.io.mem_raddr, riscv_cpu.io.mem_wdata)
 

@@ -23,7 +23,7 @@ class CPU() extends Module {
   when(io.inst_input.valid) {
     inst := io.inst_input.bits
   }.otherwise {
-    inst := "b00000000000000000000000000010011".U(32.W)
+    inst := NOP.U(32.W)
   }
 
   // Modules

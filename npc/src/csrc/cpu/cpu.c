@@ -241,11 +241,13 @@ static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
     for(;n > 0; n--){
         // nvboard_update();
-        dut.inst_bits = ram_read(cpu.pc, 4);
-        dut.inst_valid = !dut.inst_valid;
-        dut.eval();                       //取指
-
-        // if(cpu.pc == 0x80000a5c) printf("0x%08x\n",dut.inst);
+        if(dut.inst_ready) {
+            dut.inst_bits = ram_read(cpu.pc, 4);
+            dut.inst_valid = true;
+        }else {
+            dut.inst_valid = false;
+        }
+        dut.eval();                      
 
         single_cycle();                                                     //单周期执行
 

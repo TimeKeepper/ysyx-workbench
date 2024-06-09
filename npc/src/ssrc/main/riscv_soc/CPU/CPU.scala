@@ -3,6 +3,7 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import Instructions._
 import signal_value._
 
 class CPU() extends Module {

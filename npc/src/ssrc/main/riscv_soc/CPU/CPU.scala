@@ -18,12 +18,9 @@ class CPU() extends Module {
     val mem_wraddr = Output(UInt(32.W))
   })
 
-  val IFU = Module(new IFU)
-  IFU.io.inst_input <> io.inst_input
-
   val inst = Wire(UInt(32.W))
 
-  when(IFU.io.inst_output.valid) {
+  when(inst_input.valid) {
     inst := io.inst_input.bits
   }.otherwise {
     inst := "b00000000000000000000000000010011".U(32.W)

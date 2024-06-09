@@ -8,12 +8,14 @@ import signal_value._
 class CPU() extends Module {
   val io = IO(new Bundle {
     val inst_input= Flipped(Decoupled(UInt(32.W)))
+    val pc_output = Output(UInt(32.W))
     val mem_rdata = Input(UInt(32.W))
-    val mem_raddr = Output(UInt(32.W))
 
     val mem_wdata = Output(UInt(32.W))
     val mem_wop   = Output(MemOp_Type)
     val mem_wen   = Output(Bool())
+    
+    val mem_wraddr = Output(UInt(32.W))
   })
 
   val IFU = Module(new IFU)
@@ -207,8 +209,10 @@ class CPU() extends Module {
   PCBsrc := BCU.io.PCBsrc
 
   // Memory Connections
-  io.mem_raddr := Result
+  io.mem_wraddr := Result
   io.mem_wdata := GPR_RDATAb
   io.mem_wop   := MemOp
   io.mem_wen   := MemWr
+
+  io.pc_output := Cur_PC
 }

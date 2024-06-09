@@ -32,7 +32,8 @@ npc npc (
     .io_mem_wop(memop),
     .io_mem_wdata(memdata),
     .io_mem_wen(mem_wen),
-    .io_mem_raddr(mem_addr)
+    
+    .io_mem_wraddr(mem_addr)
 );
 
 endmodule

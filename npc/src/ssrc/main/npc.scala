@@ -9,7 +9,7 @@ class npc extends Module {
   val io = IO(new Bundle {
     val inst      = Flipped(Decoupled(UInt(32.W)))
     val mem_rdata = Input(UInt(32.W))
-    val mem_raddr = Output(UInt(32.W))
+    val mem_wraddr = Output(UInt(32.W))
 
     val mem_wdata = Output(UInt(32.W))
     val mem_wop   = Output(UInt(3.W))
@@ -19,10 +19,10 @@ class npc extends Module {
   val riscv_cpu = Module(new CPU)
 
   riscv_cpu.io.inst_input <> io.inst
-  riscv_cpu.io.mem_rdata  := io.mem_rdata
-  io.mem_raddr            := riscv_cpu.io.mem_raddr
+  riscv_cpu.io.mem_rdata  <> io.mem_rdata
+  riscv_cpu.io.mem_wraddr <> io.mem_wraddr
 
-  io.mem_wdata := riscv_cpu.io.mem_wdata
-  io.mem_wop   := riscv_cpu.io.mem_wop
-  io.mem_wen   := riscv_cpu.io.mem_wen
+  riscv_cpu.io.mem_wdata  <> io.mem_wdata
+  riscv_cpu.io.mem_wop    <> io.mem_wop
+  riscv_cpu.io.mem_wen    <> io.mem_wen
 }

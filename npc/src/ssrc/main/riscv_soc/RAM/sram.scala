@@ -18,7 +18,7 @@ class SRAM extends Module {
     io.inst_output.valid := io.inst_input.valid && state === s_wait_ready
 
     when(state === s_idle) {
-        when(io.inst_output.valid) {
+        when(io.inst_input.valid) {
             state := s_wait_ready
         }.otherwise {
             state := s_idle

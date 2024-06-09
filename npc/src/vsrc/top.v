@@ -3,6 +3,7 @@ import "DPI-C" function int npc_trap (input int ra);
 module top(
     input clk,
     input rst,
+    output inst_ready,
     input [31:0] inst_bits,
     input inst_valid,
 
@@ -19,7 +20,6 @@ always @(inst_bits) begin
         $display("sim has been stop at clk_cnt %d", npc_trap(npc.riscv_cpu.REG.gpr_10));
 end
 
-wire inst_ready;
 
 npc npc (
     .clock(clk),
@@ -32,7 +32,7 @@ npc npc (
     .io_mem_wop(memop),
     .io_mem_wdata(memdata),
     .io_mem_wen(mem_wen),
-    
+
     .io_mem_wraddr(mem_addr)
 );
 

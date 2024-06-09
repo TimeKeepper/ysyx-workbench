@@ -24,6 +24,7 @@ class npc extends Module {
   riscv_cpu.io.inst_input.valid := true.B
   riscv_cpu.io.inst_input.bits  := I_mem.read(riscv_cpu.io.pc_output)
   io.inst.ready := true.B
+  io.mem_raddr  := riscv_cpu.io.mem_raddr
   I_mem.write(riscv_cpu.io.pc_output, io.inst.bits)
 
   riscv_cpu.io.mem_rdata        := D_mem.read(riscv_cpu.io.mem_raddr)

@@ -2,7 +2,6 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
-import chisel3.util.MuxLookup
 
 import signal_value._
 
@@ -57,13 +56,13 @@ class WBU extends Module {
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
-    PCAsrc := Muxlookup(bcu.io.PCAsrc, 0.U)(Seq(
+    PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
         A_RS1 -> GPR_Adata,
         A_PC  -> io.PC,
         A_CSR -> io.CSR,
     ))
 
-    PCBsrc := Muxlookup(bcu.io.PCBsrc, 0.U)(Seq(
+    PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
         B_RS2 -> GPR_Bdata,
         B_IMM -> io.IMM,
         B_4   -> 4.U,
@@ -73,7 +72,7 @@ class WBU extends Module {
     io.Next_Pc := PCAsrc + PCBsrc
 
     io.Reg_waddr := io.GPR_waddr
-    io.Reg_wdata := Muxlookup(io.MemtoReg, io.Result)(Seq(
+    io.Reg_wdata := MuxLookup(io.MemtoReg, io.Result)(Seq(
         Y  -> io.mem_rdata,
         N  -> io.Result,
     ))
@@ -81,13 +80,13 @@ class WBU extends Module {
 
     io.CSR_ctr_o <> io.csr_ctr
 
-    io.CSR_waddra := Muxlookup(io.csr_ctr, "h341".U)(Seq(
+    io.CSR_waddra := MuxLookup(io.csr_ctr, "h341".U)(Seq(
         CSR_R1W2 -> io.imm(11, 0)
     ))
 
     io.CSR_waddrb := "h342".U
 
-    io.CSR_wdataa := Muxlookup(io.csr_ctr, io.GPR_Adata)(Seq(
+    io.CSR_wdataa := MuxLookup(io.csr_ctr, io.GPR_Adata)(Seq(
         CSR_R1W2 -> io.PC,
     ))
 

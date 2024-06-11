@@ -2,7 +2,6 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
-import chisel3.util.MuxLookup
 
 import signal_value._
 
@@ -53,13 +52,13 @@ class EXU extends Module {
     alu.io.Zero   <> io.Zero 
     alu.io.Less   <> io.Less
 
-    alu.io.src_A := Muxlookup(io.ALUAsrc, 0.U)(Seq(
+    alu.io.src_A := MuxLookup(io.ALUAsrc, 0.U)(Seq(
         A_RS1 -> io.GPR_Adata,
         A_PC  -> io.PC,
         A_CSR -> io.CSR,
     ))
 
-    alu.io.src_B := Muxlookup(io.ALUBsrc, 0.U)(Seq(
+    alu.io.src_B := MuxLookup(io.ALUBsrc, 0.U)(Seq(
         B_RS2 -> io.GPR_Bdata,
         B_IMM -> io.imm,
         B_4   -> 4.U,

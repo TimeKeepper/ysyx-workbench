@@ -23,7 +23,7 @@ class WBU extends Module {
         val GPR_Adata= Input(UInt(32.W))
         val GPR_Bdata= Input(UInt(32.W))
         val GPR_waddr= Input(UInt(5.W))
-        val IMM      = Input(UInt(32.W))
+        val Imm      = Input(UInt(32.W))
 
         val Mem_wraddr = Output(UInt(32.W))
         val Mem_rdata  = Input(UInt(32.W))
@@ -64,16 +64,16 @@ class WBU extends Module {
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
         B_RS2 -> io.GPR_Bdata,
-        B_IMM -> io.IMM,
+        B_Imm -> io.Imm,
         B_4   -> 4.U,
-        B_RS1 -> GPR_Adata,
+        B_RS1 -> io.GPR_Adata,
     ))
 
     io.Next_Pc := PCAsrc + PCBsrc
 
     io.Reg_waddr := io.GPR_waddr
     io.Reg_wdata := MuxLookup(io.MemtoReg, io.Result)(Seq(
-        Y  -> io.mem_rdata,
+        Y  -> io.Mem_rdata,
         N  -> io.Result,
     ))
     io.Reg_wen <> io.RegWr
@@ -81,7 +81,7 @@ class WBU extends Module {
     io.CSR_ctr_o <> io.csr_ctr
 
     io.CSR_waddra := MuxLookup(io.csr_ctr, "h341".U)(Seq(
-        CSR_R1W2 -> io.imm(11, 0)
+        CSR_R1W2 -> io.Imm(11, 0)
     ))
 
     io.CSR_waddrb := "h342".U

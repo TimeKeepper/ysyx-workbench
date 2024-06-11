@@ -9,15 +9,16 @@ import signal_value._
 
 class EXU extends Module {
     val io = IO(new Bundle{
-        val RegWr    = Input(Bool())
-        val Branch   = Input(Bran_Type)
-        val MemtoReg = Input(Bool())
-        val MemWr    = Input(Bool())
-        val MemOp    = Input(MemOp_Type)
-        val ALUAsrc  = Input(ALUAsrc_Type)
-        val ALUBsrc  = Input(ALUBSrc_Type)
-        val ALUctr   = Input(ALUctr_Type)
-        val csr_ctr  = Input(CSR_Type)
+        val RegWr     = Input(Bool())
+        val Branch    = Input(Bran_Type)
+        val MemtoReg  = Input(Bool())
+        val MemWr     = Input(Bool())
+        val MemOp     = Input(MemOp_Type)
+        val ALUAsrc   = Input(ALUAsrc_Type)
+        val ALUBsrc   = Input(ALUBSrc_Type)
+        val ALUctr    = Input(ALUctr_Type)
+        val csr_ctr   = Input(CSR_Type)
+        val Imm       = Input(UInt(32.W))
         val GPR_Adata = Input(UInt(32.W))
         val GPR_Bdata = Input(UInt(32.W))
         val PC        = Input(UInt(32.W))
@@ -60,7 +61,7 @@ class EXU extends Module {
 
     alu.io.src_B := MuxLookup(io.ALUBsrc, 0.U)(Seq(
         B_RS2 -> io.GPR_Bdata,
-        B_IMM -> io.imm,
+        B_IMM -> io.Imm,
         B_4   -> 4.U,
         B_RS1 -> io.GPR_Adata,
     ))

@@ -35,7 +35,7 @@ class GNU extends Module{
         io.Branch := idu.io.Branch
     }.otherwise {
         inst := NOP.U(32.W)
-        io.Branch := Bran_Noc.U
+        io.Branch := Bran_NoC.U
     }
 
     val idu = Module(new IDU)

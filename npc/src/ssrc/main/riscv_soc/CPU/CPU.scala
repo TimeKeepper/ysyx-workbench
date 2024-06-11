@@ -86,7 +86,7 @@ class CPU() extends Module {
 
   // IGU Connections
   IGU.io.inst  := inst
-  IGU.io.Extop := ExtOp
+  IGU.io.ExtOp := ExtOp
 
   Imm := IGU.io.imm
 

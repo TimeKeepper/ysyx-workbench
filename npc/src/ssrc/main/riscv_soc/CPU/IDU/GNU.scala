@@ -3,7 +3,7 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
-import signal_value._
+import Instructions._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
 class GNU extends Module{

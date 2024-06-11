@@ -57,13 +57,13 @@ class WBU extends Module {
     val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        A_RS1 -> GPR_Adata,
+        A_RS1 -> io.GPR_Adata,
         A_PC  -> io.PC,
         A_CSR -> io.CSR,
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        B_RS2 -> GPR_Bdata,
+        B_RS2 -> io.GPR_Bdata,
         B_IMM -> io.IMM,
         B_4   -> 4.U,
         B_RS1 -> GPR_Adata,

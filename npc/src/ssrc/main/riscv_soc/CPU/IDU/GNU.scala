@@ -50,6 +50,6 @@ class GNU extends Module{
     idu.io.csr_ctr <> io.csr_ctr
 
     igu.io.inst <> inst
-    igu.io.Extop <> idu.io.Extop
+    igu.io.ExtOp <> idu.io.ExtOp
     igu.io.imm  <> io.Imm
 }

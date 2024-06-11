@@ -10,12 +10,12 @@ import signal_value._
 class IGU extends Module {
   val io = IO(new Bundle {
     val inst  = Input(UInt(32.W))
-    val Extop = Input(ExtOp_Type)
+    val ExtOp = Input(ExtOp_Type)
 
     val imm = Output(UInt(32.W))
   })
 
-  val imm = MuxLookup(io.Extop, 0.U)(
+  val imm = MuxLookup(io.ExtOp, 0.U)(
     Seq(
       immI -> Cat(Fill(21, io.inst(31)), io.inst(31, 20)),
       immU -> Cat(io.inst(31, 12), Fill(12, 0.U)),

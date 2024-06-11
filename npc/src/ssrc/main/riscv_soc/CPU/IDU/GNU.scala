@@ -32,8 +32,10 @@ class GNU extends Module{
 
     when(io.inst_input.valid) {
         inst := io.inst_input.bits
+        io.Branch := idu.io.Branch
     }.otherwise {
         inst := NOP.U(32.W)
+        io.Branch := Bran_Noc.U
     }
 
     val idu = Module(new IDU)
@@ -41,7 +43,6 @@ class GNU extends Module{
 
     idu.io.inst <> inst
     idu.io.RegWr <> io.RegWr
-    idu.io.Branch <> io.Branch
     idu.io.MemtoReg <> io.MemtoReg
     idu.io.MemWr <> io.MemWr
     idu.io.MemOp <> io.MemOp

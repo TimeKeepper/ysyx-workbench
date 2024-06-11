@@ -39,7 +39,7 @@ class GNU extends Module{
     val igu = Module(new IGU)
 
     idu.io.inst <> inst
-    idu.io.Regwr <> io.RegWr
+    idu.io.RegWr <> io.RegWr
     idu.io.Branch <> io.Branch
     idu.io.MemtoReg <> io.MemtoReg
     idu.io.MemWr <> io.MemWr

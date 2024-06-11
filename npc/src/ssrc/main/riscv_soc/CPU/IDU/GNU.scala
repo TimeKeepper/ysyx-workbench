@@ -10,6 +10,7 @@ import Instructions._
 class GNU extends Module{
     val io = IO(new Bundle{
         val inst_input= Flipped(Decoupled(UInt(32.W)))
+        val PC_input = Input(UInt(32.W))
         val RegWr    = Output(Bool())
         val Branch   = Output(Bran_Type)
         val MemtoReg = Output(Bool())
@@ -20,8 +21,6 @@ class GNU extends Module{
         val ALUctr   = Output(ALUctr_Type)
         val csr_ctr  = Output(CSR_Type)
         val Imm      = Output(UInt(32.W))
-        val GPR_Adata= Output(UInt(32.W))
-        val GPR_Bdata= Output(UInt(32.W))
         val PC       = Output(UInt(32.W))
     })
 
@@ -52,4 +51,6 @@ class GNU extends Module{
     igu.io.inst <> inst
     igu.io.ExtOp <> idu.io.ExtOp
     igu.io.imm  <> io.Imm
+
+    io.PC <> io.PC_input
 }

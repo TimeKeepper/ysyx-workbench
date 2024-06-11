@@ -28,14 +28,14 @@ class CPU() extends Module {
   }
 
   // Modules
-  val IDU = Module(new IDU()) // Instruction Decode Unit
-  val IGU = Module(new IGU()) // Immediate Generation Unit
+  // val IDU = Module(new IDU()) // Instruction Decode Unit
+  // val IGU = Module(new IGU()) // Immediate Generation Unit
+  val GNU = Module(new GNU()) // Generating Number Unit
   val REG = Module(new REG()) // Register File
   val ALU = Module(new ALU()) // Arithmetic and Logic Unit
   val BCU = Module(new BCU()) // Branch Control Unit
 
   // wires
-  val ExtOp    = Wire(ExtOp_Type)
   val RegWr    = Wire(Bool())
   val MemtoReg = Wire(Bool())
   val MemWr    = Wire(Bool())
@@ -71,24 +71,38 @@ class CPU() extends Module {
   val PCAsrc = Wire(PCAsrc_Type)
   val PCBsrc = Wire(PCBsrc_Type)
 
-  // IDU Connections
-  IDU.io.inst <> io.inst_input
+  // // IDU Connections
+  // IDU.io.inst <> io.inst_input
 
-  ExtOp    := IDU.io.ExtOp
-  RegWr    := IDU.io.RegWr
-  MemtoReg := IDU.io.MemtoReg
-  MemWr    := IDU.io.MemWr
-  MemOp    := IDU.io.MemOp
-  ALUAsrc  := IDU.io.ALUAsrc
-  ALUBsrc  := IDU.io.ALUBsrc
-  ALUctr   := IDU.io.ALUctr
-  csr_ctr  := IDU.io.csr_ctr
+  // ExtOp    := IDU.io.ExtOp
+  // RegWr    := IDU.io.RegWr
+  // MemtoReg := IDU.io.MemtoReg
+  // MemWr    := IDU.io.MemWr
+  // MemOp    := IDU.io.MemOp
+  // ALUAsrc  := IDU.io.ALUAsrc
+  // ALUBsrc  := IDU.io.ALUBsrc
+  // ALUctr   := IDU.io.ALUctr
+  // csr_ctr  := IDU.io.csr_ctr
 
-  // IGU Connections
-  IGU.io.inst  := inst
-  IGU.io.ExtOp := ExtOp
+  // // IGU Connections
+  // IGU.io.inst  := inst
+  // IGU.io.ExtOp := ExtOp
 
-  Imm := IGU.io.imm
+  // Imm := IGU.io.imm
+
+  // GNU Connections
+  GNU.io.inst_input <> io.inst_input
+  GNU.io.PC_input   <> Cur_PC
+  GNU.io.RegWr      <> RegWr
+  GNU.io.MemtoReg   <> MemtoReg
+  GNU.io.MemWr      <> MemWr
+  GNU.io.MemOp      <> MemOp
+  GNU.io.ALUAsrc    <> ALUAsrc
+  GNU.io.ALUBsrc    <> ALUBsrc
+  GNU.io.ALUctr     <> ALUctr
+  GNU.io.csr_ctr    <> csr_ctr
+  GNU.io.Imm        <> Imm
+  GNU.io.PC         <> Cur_PC
 
   // REG Connections
   GPR_WADDR := inst(11, 7)

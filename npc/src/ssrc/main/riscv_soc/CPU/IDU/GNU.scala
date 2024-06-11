@@ -10,6 +10,7 @@ import Instructions._
 class GNU extends Module{
     val io = IO(new Bundle{
         val inst_input= Flipped(Decoupled(UInt(32.W)))
+        val inst     = Output(UInt(32.W))
         val PC_input = Input(UInt(32.W))
         val RegWr    = Output(Bool())
         val Branch   = Output(Bran_Type)
@@ -27,6 +28,7 @@ class GNU extends Module{
     io.inst_input.ready := true.B
 
     val inst = Wire(UInt(32.W))
+    inst <> io.inst
 
     when(io.inst_input.valid) {
         inst := io.inst_input.bits

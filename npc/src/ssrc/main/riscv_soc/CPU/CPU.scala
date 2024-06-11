@@ -21,12 +21,6 @@ class CPU() extends Module {
 
   val inst = Wire(UInt(32.W))
 
-  when(io.inst_input.valid) {
-    inst := io.inst_input.bits
-  }.otherwise {
-    inst := NOP.U(32.W)
-  }
-
   // Modules
   // val IDU = Module(new IDU()) // Instruction Decode Unit
   // val IGU = Module(new IGU()) // Immediate Generation Unit
@@ -93,6 +87,7 @@ class CPU() extends Module {
 
   // GNU Connections
   GNU.io.inst_input <> io.inst_input
+  GNU.io.inst       <> inst
   GNU.io.PC_input   <> Cur_PC
   GNU.io.RegWr      <> RegWr
   GNU.io.Branch     <> Branch

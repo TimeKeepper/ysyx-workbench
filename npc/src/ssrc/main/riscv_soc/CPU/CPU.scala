@@ -28,6 +28,8 @@ class CPU() extends Module {
   val BCU = Module(new BCU()) // Branch Control Unit
 
   // wires
+  GNU.io.inst_input <> io.inst_input
+
   val GPR_WADDR  = Wire(UInt(5.W))
   val GPR_WDATA  = Wire(UInt(32.W))
   val GPR_RADDRa = Wire(UInt(5.W))

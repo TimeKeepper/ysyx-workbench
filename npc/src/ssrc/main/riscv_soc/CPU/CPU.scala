@@ -23,7 +23,6 @@ class CPU() extends Module {
 
   // Modules
   val GNU = Module(new GNU()) // Generating Number Unit
-  // val ALU = Module(new ALU()) // Arithmetic and Logic Unit
   val EXU = Module(new EXU()) // Execution Unit
   val REG = Module(new REG()) // Register File
   val BCU = Module(new BCU()) // Branch Control Unit
@@ -179,33 +178,6 @@ class CPU() extends Module {
   REG.io.csr_raddr := CSR_RADDR
 
   CSR_RDATA := REG.io.csr_rdata
-
-  // // ALU Connections
-  // ALU.io.ALUctr := ALUctr
-
-  // when(ALUAsrc === A_RS1) {
-  //   ALU.io.src_A := GPR_RDATAa
-  // }.elsewhen(ALUAsrc === A_PC) {
-  //   ALU.io.src_A := Cur_PC
-  // }.elsewhen(ALUAsrc === A_CSR) {
-  //   ALU.io.src_A := CSR_RDATA
-  // }.otherwise {
-  //   ALU.io.src_A := 0.U
-  // }
-
-  // when(ALUBsrc === B_RS2) {
-  //   ALU.io.src_B := GPR_RDATAb
-  // }.elsewhen(ALUBsrc === B_IMM) {
-  //   ALU.io.src_B := Imm
-  // }.elsewhen(ALUBsrc === B_4) {
-  //   ALU.io.src_B := 4.U
-  // }.otherwise {
-  //   ALU.io.src_B := GPR_RDATAa
-  // }
-
-  // Result := ALU.io.ALUout
-  // Zero   := ALU.io.Zero
-  // Less   := ALU.io.Less
 
   // BCU Connections
   BCU.io.Branch <> Branch

@@ -22,8 +22,6 @@ class CPU() extends Module {
   val inst = Wire(UInt(32.W))
 
   // Modules
-  // val IDU = Module(new IDU()) // Instruction Decode Unit
-  // val IGU = Module(new IGU()) // Immediate Generation Unit
   val GNU = Module(new GNU()) // Generating Number Unit
   val REG = Module(new REG()) // Register File
   val ALU = Module(new ALU()) // Arithmetic and Logic Unit
@@ -65,25 +63,6 @@ class CPU() extends Module {
 
   val PCAsrc = Wire(PCAsrc_Type)
   val PCBsrc = Wire(PCBsrc_Type)
-
-  // // IDU Connections
-  // IDU.io.inst <> io.inst_input
-
-  // ExtOp    := IDU.io.ExtOp
-  // RegWr    := IDU.io.RegWr
-  // MemtoReg := IDU.io.MemtoReg
-  // MemWr    := IDU.io.MemWr
-  // MemOp    := IDU.io.MemOp
-  // ALUAsrc  := IDU.io.ALUAsrc
-  // ALUBsrc  := IDU.io.ALUBsrc
-  // ALUctr   := IDU.io.ALUctr
-  // csr_ctr  := IDU.io.csr_ctr
-
-  // // IGU Connections
-  // IGU.io.inst  := inst
-  // IGU.io.ExtOp := ExtOp
-
-  // Imm := IGU.io.imm
 
   // GNU Connections
   GNU.io.inst_input <> io.inst_input

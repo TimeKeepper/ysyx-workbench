@@ -31,7 +31,7 @@ class GNU extends Module{
         val PC       = Output(UInt(32.W))
     })
 
-    io.in.inst.ready := true.B
+    io.in.ready := true.B
 
     val inst = Wire(UInt(32.W))
     inst <> io.inst
@@ -39,8 +39,8 @@ class GNU extends Module{
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
-    when(io.in.inst.valid) {
-        inst := io.in.inst.bits
+    when(io.in.valid) {
+        inst := io.in.bits.inst
         io.Branch := idu.io.Branch
     }.otherwise {
         inst := NOP.U(32.W)
@@ -61,5 +61,5 @@ class GNU extends Module{
     igu.io.ExtOp <> idu.io.ExtOp
     igu.io.imm  <> io.Imm
 
-    io.PC <> io.in.PC
+    io.PC <> io.in.bits.PC
 }

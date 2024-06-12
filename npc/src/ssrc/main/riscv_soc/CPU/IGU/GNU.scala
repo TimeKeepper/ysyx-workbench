@@ -7,11 +7,17 @@ import signal_value._
 import Instructions._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
+class GNU_input extends Bundle{
+    val inst = Input(UInt(32.W))
+    val PC   = Input(UInt(32.W))
+}
+
 class GNU extends Module{
     val io = IO(new Bundle{
-        val inst_input= Flipped(Decoupled(UInt(32.W)))
+        val in       = Flipped(Decoupled(new GNU_input))
+        // val inst_input= Flipped(Decoupled(UInt(32.W)))
+        // val PC_input = Input(UInt(32.W))
         val inst     = Output(UInt(32.W))
-        val PC_input = Input(UInt(32.W))
         val RegWr    = Output(Bool())
         val Branch   = Output(Bran_Type)
         val MemtoReg = Output(Bool())
@@ -25,7 +31,7 @@ class GNU extends Module{
         val PC       = Output(UInt(32.W))
     })
 
-    io.inst_input.ready := true.B
+    io.in.inst.ready := true.B
 
     val inst = Wire(UInt(32.W))
     inst <> io.inst
@@ -33,8 +39,8 @@ class GNU extends Module{
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
-    when(io.inst_input.valid) {
-        inst := io.inst_input.bits
+    when(io.in.inst.valid) {
+        inst := io.in.inst.bits
         io.Branch := idu.io.Branch
     }.otherwise {
         inst := NOP.U(32.W)
@@ -55,5 +61,5 @@ class GNU extends Module{
     igu.io.ExtOp <> idu.io.ExtOp
     igu.io.imm  <> io.Imm
 
-    io.PC <> io.PC_input
+    io.PC <> io.in.PC
 }

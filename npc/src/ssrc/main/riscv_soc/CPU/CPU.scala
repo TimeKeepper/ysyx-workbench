@@ -51,8 +51,10 @@ class CPU() extends Module {
   val PCBsrc = Wire(PCBsrc_Type)
 
   // GNU Connections
-  GNU.io.inst_input <> io.inst_input
-  GNU.io.PC_input   <> Cur_PC
+  GNU.io.in.bits.inst <> io.inst_input.bits
+  GNU.io.in.valid     <> io.inst_input.valid
+  GNU.io.in.ready     <> io.inst_input.ready
+  GNU.io.in.bits.PC   <> Cur_PC
 
   // EXU Connections
   EXU.io.RegWr      <> GNU.io.RegWr

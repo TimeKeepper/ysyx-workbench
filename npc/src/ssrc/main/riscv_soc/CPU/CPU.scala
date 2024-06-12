@@ -94,6 +94,7 @@ class CPU() extends Module {
   EXU.io.GPR_Adata  <> GPR_RDATAa
   EXU.io.GPR_Bdata  <> GPR_RDATAb
   EXU.io.PC         <> GNU.io.PC
+  EXU.io.CSR        <> CSR_RDATA
 
   // REG Connections
   GPR_WADDR := inst(11, 7)

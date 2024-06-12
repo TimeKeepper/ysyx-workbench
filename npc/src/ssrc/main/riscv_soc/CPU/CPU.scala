@@ -74,7 +74,7 @@ class CPU() extends Module {
   // REG Connections
   GPR_WADDR := inst(11, 7)
 
-  when(MemtoReg) {
+  when(GNU.io.MemtoReg) {
     GPR_WDATA := io.mem_rdata
   }.otherwise {
     GPR_WDATA := Result
@@ -84,7 +84,7 @@ class CPU() extends Module {
 
   REG.io.wdata := GPR_WDATA
   REG.io.waddr := GPR_WADDR
-  REG.io.wen   := RegWr
+  REG.io.wen   := GNU.io.RegWr
 
   GPR_RADDRa    := inst(19, 15)
   GPR_RADDRb    := inst(24, 20)
@@ -97,7 +97,7 @@ class CPU() extends Module {
   val PCBval = Wire(UInt(32.W))
 
   when(PCAsrc === PCAsrc_Imm) {
-    PCAval := Imm
+    PCAval := GNU.io.Imm
   }.elsewhen(PCAsrc === PCAsrc_4) {
     PCAval := 4.U
   }.elsewhen(PCAsrc === PCAsrc_0) {
@@ -119,18 +119,18 @@ class CPU() extends Module {
   REG.io.pc_in := Next_PC
   Cur_PC       := REG.io.pc_out
 
-  when(csr_ctr === CSR_R1W0) {
+  when(GNU.io.csr_ctr === CSR_R1W0) {
     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
-  }.elsewhen(csr_ctr === CSR_R1W2) {
+  }.elsewhen(GNU.io.csr_ctr === CSR_R1W2) {
     CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
   }.otherwise {
-    CSR_RADDR := Imm(11, 0)
+    CSR_RADDR := GNU.io.Imm(11, 0)
   }
 
   when(csr_ctr === CSR_R1W2) {
     CSR_WADDRa := "h341".U // instruction ecall use csr mepc
   }.otherwise {
-    CSR_WADDRa := Imm(11, 0)
+    CSR_WADDRa := GNU.io.Imm(11, 0)
   }
 
   when(csr_ctr === CSR_R1W2) {
@@ -142,7 +142,7 @@ class CPU() extends Module {
   CSR_WADDRb := "h342".U // instruction ecall write mstatus
   CSR_WDATAb := 11.U // for now, only set error status 11
 
-  REG.io.csr_ctr    := csr_ctr
+  REG.io.csr_ctr    := GNU.io.csr_ctr
   REG.io.csr_waddra := CSR_WADDRa
   REG.io.csr_waddrb := CSR_WADDRb
   REG.io.csr_wdataa := CSR_WDATAa

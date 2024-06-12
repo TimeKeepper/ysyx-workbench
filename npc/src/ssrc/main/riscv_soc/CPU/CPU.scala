@@ -28,18 +28,6 @@ class CPU() extends Module {
   val BCU = Module(new BCU()) // Branch Control Unit
 
   // wires
-  val RegWr    = Wire(Bool())
-  val Branch   = Wire(Bran_Type)
-  val MemtoReg = Wire(Bool())
-  val MemWr    = Wire(Bool())
-  val MemOp    = Wire(MemOp_Type)
-  val ALUAsrc  = Wire(ALUAsrc_Type)
-  val ALUBsrc  = Wire(ALUBSrc_Type)
-  val ALUctr   = Wire(ALUctr_Type)
-  val csr_ctr  = Wire(CSR_Type)
-
-  val Imm = Wire(UInt(32.W))
-
   val GPR_WADDR  = Wire(UInt(5.W))
   val GPR_WDATA  = Wire(UInt(32.W))
   val GPR_RADDRa = Wire(UInt(5.W))

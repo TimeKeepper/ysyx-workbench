@@ -27,6 +27,7 @@ class CPU() extends Module {
 
   // wires
   GNU.io.inst_input <> io.inst_input
+  GNU.io.PC_input   <> Cur_PC
 
   val GPR_WADDR  = Wire(UInt(5.W))
   val GPR_WDATA  = Wire(UInt(32.W))

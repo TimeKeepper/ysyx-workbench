@@ -52,21 +52,6 @@ class CPU() extends Module {
   val PCAsrc = Wire(PCAsrc_Type)
   val PCBsrc = Wire(PCBsrc_Type)
 
-  // GNU Connections
-  GNU.io.inst_input <> io.inst_input
-  GNU.io.inst       <> inst
-  GNU.io.PC_input   <> Cur_PC
-  GNU.io.RegWr      <> RegWr
-  GNU.io.Branch     <> Branch
-  GNU.io.MemtoReg   <> MemtoReg
-  GNU.io.MemWr      <> MemWr
-  GNU.io.MemOp      <> MemOp
-  GNU.io.ALUAsrc    <> ALUAsrc
-  GNU.io.ALUBsrc    <> ALUBsrc
-  GNU.io.ALUctr     <> ALUctr
-  GNU.io.csr_ctr    <> csr_ctr
-  GNU.io.Imm        <> Imm
-
   // EXU Connections
   EXU.io.RegWr      <> GNU.io.RegWr
   EXU.io.Branch     <> GNU.io.Branch

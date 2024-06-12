@@ -19,8 +19,6 @@ class CPU() extends Module {
     val mem_wraddr = Output(UInt(32.W))
   })
 
-  val inst = Wire(UInt(32.W))
-
   // Modules
   val GNU = Module(new GNU()) // Generating Number Unit
   val EXU = Module(new EXU()) // Execution Unit
@@ -74,7 +72,7 @@ class CPU() extends Module {
   EXU.io.Less       <> Less
 
   // REG Connections
-  GPR_WADDR := inst(11, 7)
+  GPR_WADDR := GNU.io.inst(11, 7)
 
   when(GNU.io.MemtoReg) {
     GPR_WDATA := io.mem_rdata
@@ -82,14 +80,14 @@ class CPU() extends Module {
     GPR_WDATA := Result
   }
 
-  GPR_WADDR := inst(11, 7)
+  GPR_WADDR := GNU.io.inst(11, 7)
 
   REG.io.wdata := GPR_WDATA
   REG.io.waddr := GPR_WADDR
   REG.io.wen   := GNU.io.RegWr
 
-  GPR_RADDRa    := inst(19, 15)
-  GPR_RADDRb    := inst(24, 20)
+  GPR_RADDRa    := GNU.io.inst(19, 15)
+  GPR_RADDRb    := GNU.io.inst(24, 20)
   REG.io.raddra := GPR_RADDRa
   REG.io.raddrb := GPR_RADDRb
   GPR_RDATAa    := REG.io.rdataa

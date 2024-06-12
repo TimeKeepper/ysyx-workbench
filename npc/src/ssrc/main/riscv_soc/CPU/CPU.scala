@@ -153,7 +153,7 @@ class CPU() extends Module {
   CSR_RDATA := REG.io.csr_rdata
 
   // BCU Connections
-  BCU.io.Branch <> Branch
+  BCU.io.Branch <> GNU.io.Branch
   BCU.io.Zero   := Zero
   BCU.io.Less   := Less
 

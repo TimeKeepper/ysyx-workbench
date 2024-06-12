@@ -127,13 +127,13 @@ class CPU() extends Module {
     CSR_RADDR := GNU.io.Imm(11, 0)
   }
 
-  when(csr_ctr === CSR_R1W2) {
+  when(GNU.io.csr_ctr === CSR_R1W2) {
     CSR_WADDRa := "h341".U // instruction ecall use csr mepc
   }.otherwise {
     CSR_WADDRa := GNU.io.Imm(11, 0)
   }
 
-  when(csr_ctr === CSR_R1W2) {
+  when(GNU.io.csr_ctr === CSR_R1W2) {
     CSR_WDATAa := Cur_PC // instruction ecall store current pc
   }.otherwise {
     CSR_WDATAa := GPR_RDATAa
@@ -163,8 +163,8 @@ class CPU() extends Module {
   // Memory Connections
   io.mem_wraddr := Result
   io.mem_wdata := GPR_RDATAb
-  io.mem_wop   := MemOp
-  io.mem_wen   := MemWr
+  io.mem_wop   := GNU.io.MemOp
+  io.mem_wen   := GNU.io.MemWr
 
   io.pc_output := Cur_PC
 }

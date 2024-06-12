@@ -23,8 +23,9 @@ class CPU() extends Module {
 
   // Modules
   val GNU = Module(new GNU()) // Generating Number Unit
+  // val ALU = Module(new ALU()) // Arithmetic and Logic Unit
+  val EXU = Module(new EXU()) // Execution Unit
   val REG = Module(new REG()) // Register File
-  val ALU = Module(new ALU()) // Arithmetic and Logic Unit
   val BCU = Module(new BCU()) // Branch Control Unit
 
   // wires
@@ -78,7 +79,21 @@ class CPU() extends Module {
   GNU.io.ALUctr     <> ALUctr
   GNU.io.csr_ctr    <> csr_ctr
   GNU.io.Imm        <> Imm
-  GNU.io.PC         <> Cur_PC
+
+  // EXU Connections
+  EXU.io.RegWr      <> GNU.io.RegWr
+  EXU.io.Branch     <> GNU.io.Branch
+  EXU.io.MemtoReg   <> GNU.io.MemtoReg
+  EXU.io.MemWr      <> GNU.io.MemWr
+  EXU.io.MemOp      <> GNU.io.MemOp
+  EXU.io.ALUAsrc    <> GNU.io.ALUAsrc
+  EXU.io.ALUBsrc    <> GNU.io.ALUBsrc
+  EXU.io.ALUctr     <> GNU.io.ALUctr
+  EXU.io.csr_ctr    <> GNU.io.csr_ctr
+  EXU.io.Imm        <> GNU.io.Imm
+  EXU.io.GPR_Adata  <> GPR_RDATAa
+  EXU.io.GPR_Bdata  <> GPR_RDATAb
+  EXU.io.PC         <> GNU.io.PC
 
   // REG Connections
   GPR_WADDR := inst(11, 7)
@@ -161,32 +176,32 @@ class CPU() extends Module {
 
   CSR_RDATA := REG.io.csr_rdata
 
-  // ALU Connections
-  ALU.io.ALUctr := ALUctr
+  // // ALU Connections
+  // ALU.io.ALUctr := ALUctr
 
-  when(ALUAsrc === A_RS1) {
-    ALU.io.src_A := GPR_RDATAa
-  }.elsewhen(ALUAsrc === A_PC) {
-    ALU.io.src_A := Cur_PC
-  }.elsewhen(ALUAsrc === A_CSR) {
-    ALU.io.src_A := CSR_RDATA
-  }.otherwise {
-    ALU.io.src_A := 0.U
-  }
+  // when(ALUAsrc === A_RS1) {
+  //   ALU.io.src_A := GPR_RDATAa
+  // }.elsewhen(ALUAsrc === A_PC) {
+  //   ALU.io.src_A := Cur_PC
+  // }.elsewhen(ALUAsrc === A_CSR) {
+  //   ALU.io.src_A := CSR_RDATA
+  // }.otherwise {
+  //   ALU.io.src_A := 0.U
+  // }
 
-  when(ALUBsrc === B_RS2) {
-    ALU.io.src_B := GPR_RDATAb
-  }.elsewhen(ALUBsrc === B_IMM) {
-    ALU.io.src_B := Imm
-  }.elsewhen(ALUBsrc === B_4) {
-    ALU.io.src_B := 4.U
-  }.otherwise {
-    ALU.io.src_B := GPR_RDATAa
-  }
+  // when(ALUBsrc === B_RS2) {
+  //   ALU.io.src_B := GPR_RDATAb
+  // }.elsewhen(ALUBsrc === B_IMM) {
+  //   ALU.io.src_B := Imm
+  // }.elsewhen(ALUBsrc === B_4) {
+  //   ALU.io.src_B := 4.U
+  // }.otherwise {
+  //   ALU.io.src_B := GPR_RDATAa
+  // }
 
-  Result := ALU.io.ALUout
-  Zero   := ALU.io.Zero
-  Less   := ALU.io.Less
+  // Result := ALU.io.ALUout
+  // Zero   := ALU.io.Zero
+  // Less   := ALU.io.Less
 
   // BCU Connections
   BCU.io.Branch <> Branch

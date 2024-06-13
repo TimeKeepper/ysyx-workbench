@@ -27,9 +27,6 @@ class CPU() extends Module {
   val BCU             = Module(new BCU()) // Branch Control Unit
 
   // wires
-  val GPR_RADDRa      = Wire(UInt(5.W))
-  val GPR_RADDRb      = Wire(UInt(5.W))
-
   val CSR_WADDRa      = Wire(UInt(12.W))
   val CSR_WADDRb      = Wire(UInt(12.W))
   val CSR_WDATAa      = Wire(UInt(32.W))
@@ -85,14 +82,12 @@ class CPU() extends Module {
   WBU.io.in.Mem_rdata    <> io.mem_rdata
 
   // REG Connections
-  REG.io.wdata := WBU.io.out.GPR_wdata
-  REG.io.waddr := WBU.io.out.GPR_waddr
-  REG.io.wen   := GNU.io.out.RegWr
+  REG.io.wdata <> WBU.io.out.GPR_wdata
+  REG.io.waddr <> WBU.io.out.GPR_waddr
+  REG.io.wen   <> WBU.io.out.GPR_wen
 
-  GPR_RADDRa    := GNU.io.out.inst(19, 15)
-  GPR_RADDRb    := GNU.io.out.inst(24, 20)
-  REG.io.raddra := GPR_RADDRa
-  REG.io.raddrb := GPR_RADDRb
+  REG.io.raddra := GNU.io.out.inst(19, 15)
+  REG.io.raddrb := GNU.io.out.inst(19, 15)
 
   val PCAval = Wire(UInt(32.W))
   val PCBval = Wire(UInt(32.W))

@@ -28,8 +28,8 @@ class CPU() extends Module {
   // GNU Connections
   GNU.io.in.bits.inst <> io.inst_input.bits
   GNU.io.in.bits.PC   <> REG.io.pc_out
-  GNU.io.in.bits.GPR_Adata <> REG.io.rdataa
-  GNU.io.in.bits.GPR_Bdata <> REG.io.rdatab
+  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
+  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready
 
@@ -74,8 +74,8 @@ class CPU() extends Module {
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.GPR_wen   <> WBU.io.out.GPR_wen
 
-  REG.io.raddra <> GNU.io.out.inst(19, 15)
-  REG.io.raddrb <> GNU.io.out.inst(24, 20)
+  REG.io.GPR_raddra <> GNU.io.out.inst(19, 15)
+  REG.io.GPR_raddrb <> GNU.io.out.inst(24, 20)
   REG.io.pc_in  <> WBU.io.out.Next_Pc
 
   REG.io.csr_ctr    := WBU.io.out.CSR_ctr

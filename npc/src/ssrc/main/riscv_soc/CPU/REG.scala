@@ -43,20 +43,20 @@ class REG extends Module {
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
   when(io.in.GPR_wen && io.in.GPR_waddr =/= 0.U) {
-    gpr(io.GPR_waddr) := io.GPR_wdata
+    gpr(io.in.GPR_waddr) := io.in.GPR_wdata
   }
 
-  io.GPR_rdataa := gpr(io.GPR_raddra)
-  io.GPR_rdatab := gpr(io.GPR_raddrb)
+  io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
+  io.out.GPR_rdatab := gpr(io.in.GPR_raddrb)
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  pc        := io.pc_in
-  io.pc_out := pc
+  pc        := io.in.pc_in
+  io.out.pc_out := pc
 
   // 暂时先实现128个
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
-  io.csr_rdata := csr((io.csr_raddr - "h300".U)(6, 0))
+  io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
   when(io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2) {
     csr((io.csr_waddra - "h300".U)(6, 0)) := io.csr_wdataa

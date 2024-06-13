@@ -85,22 +85,22 @@ class WBU extends Module {
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        B_RS2 -> io.GPR_Bdata,
-        B_IMM -> io.Imm,
+        B_RS2 -> io.in.GPR_Bdata,
+        B_IMM -> io.in.Imm,
         B_4   -> 4.U,
-        B_RS1 -> io.GPR_Adata,
+        B_RS1 -> io.in.GPR_Adata,
     ))
 
     io.Next_Pc := PCAsrc + PCBsrc
 
-    io.Reg_waddr := io.GPR_waddr
-    io.Reg_wdata := MuxLookup(io.MemtoReg, io.Result)(Seq(
-        Y  -> io.Mem_rdata,
-        N  -> io.Result,
+    io.Reg_waddr := io.in.GPR_waddr
+    io.Reg_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
+        Y  -> io.in.Mem_rdata,
+        N  -> io.in.Result,
     ))
-    io.Reg_wen <> io.RegWr
+    io.Reg_wen <> io.in.RegWr
 
-    io.CSR_ctr_o <> io.csr_ctr
+    io.CSR_ctr_o <> io.in.csr_ctr
 
     io.CSR_waddra := MuxLookup(io.csr_ctr, "h341".U)(Seq(
         CSR_R1W2 -> io.Imm(11, 0)

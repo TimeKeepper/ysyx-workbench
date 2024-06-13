@@ -110,7 +110,7 @@ class CPU() extends Module {
     PCBval := 0.U
   }
 
-  REG.io.pc_in <> Next_Pc
+  REG.io.pc_in <> WBU.io.out.Next_Pc
 
   when(GNU.io.out.csr_ctr === CSR_R1W0) {
     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc

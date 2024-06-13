@@ -7,62 +7,70 @@ import signal_value._
 
 // riscv excution unit
 
+class EXU_input extends Bundle{
+    val RegWr     = Input(Bool())
+    val Branch    = Input(Bran_Type)
+    val MemtoReg  = Input(Bool())
+    val MemWr     = Input(Bool())
+    val MemOp     = Input(MemOp_Type)
+    val ALUAsrc   = Input(ALUAsrc_Type)
+    val ALUBsrc   = Input(ALUBSrc_Type)
+    val ALUctr    = Input(ALUctr_Type)
+    val csr_ctr   = Input(CSR_Type)
+    val Imm       = Input(UInt(32.W))
+    val GPR_Adata = Input(UInt(32.W))
+    val GPR_Bdata = Input(UInt(32.W))
+    val PC        = Input(UInt(32.W))
+    val CSR       = Input(UInt(32.W))
+}
+
+class EXU_output extends Bundle{
+    val RegWr       = Output(Bool())
+    val Branch      = Output(Bran_Type)
+    val MemtoReg    = Output(Bool())
+    val MemWr       = Output(Bool())
+    val MemOp       = Output(MemOp_Type)
+    val csr_ctr     = Output(CSR_Type)
+    val PC          = Output(UInt(32.W))
+    val CSR         = Output(UInt(32.W))
+    val Result      = Output(UInt(32.W))
+    val Zero        = Output(Bool())
+    val Less        = Output(Bool())
+}
+
 class EXU extends Module {
     val io = IO(new Bundle{
-        val RegWr     = Input(Bool())
-        val Branch    = Input(Bran_Type)
-        val MemtoReg  = Input(Bool())
-        val MemWr     = Input(Bool())
-        val MemOp     = Input(MemOp_Type)
-        val ALUAsrc   = Input(ALUAsrc_Type)
-        val ALUBsrc   = Input(ALUBSrc_Type)
-        val ALUctr    = Input(ALUctr_Type)
-        val csr_ctr   = Input(CSR_Type)
-        val Imm       = Input(UInt(32.W))
-        val GPR_Adata = Input(UInt(32.W))
-        val GPR_Bdata = Input(UInt(32.W))
-        val PC        = Input(UInt(32.W))
-        val CSR       = Input(UInt(32.W))
-        
-        val RegWr_o    = Output(Bool())
-        val Branch_o   = Output(Bran_Type)
-        val MemtoReg_o = Output(Bool())
-        val MemWr_o    = Output(Bool())
-        val MemOp_o    = Output(MemOp_Type)
-        val csr_ctr_o  = Output(CSR_Type)
-        val PC_o       = Output(UInt(32.W))
-        val CSR_o      = Output(UInt(32.W))
-        val Result     = Output(UInt(32.W))
-        val Zero       = Output(Bool())
-        val Less       = Output(Bool())
+        val in  = new EXU_input
+        val out = new EXU_output
     })
-
-    io.RegWr_o    <> io.RegWr
-    io.Branch_o   <> io.Branch
-    io.MemtoReg_o <> io.MemtoReg
-    io.MemWr_o    <> io.MemWr
-    io.MemOp_o    <> io.MemOp
-    io.csr_ctr_o  <> io.csr_ctr
-    io.PC_o       <> io.PC
-    io.CSR_o      <> io.CSR
 
     val alu = Module(new ALU)
 
-    alu.io.ALUctr <> io.ALUctr
-    alu.io.ALUout <> io.Result
-    alu.io.Zero   <> io.Zero 
-    alu.io.Less   <> io.Less
+    io.out.RegWr    <> io.in.RegWr
+    io.out.Branch   <> io.in.Branch
+    io.out.MemtoReg <> io.in.MemtoReg
+    io.out.MemWr    <> io.in.MemWr
+    io.out.MemOp    <> io.in.MemOp
+    io.out.csr_ctr  <> io.in.csr_ctr
+    io.out.PC       <> io.in.PC
+    io.out.CSR      <> io.in.CSR
 
-    alu.io.src_A := MuxLookup(io.ALUAsrc, 0.U)(Seq(
-        A_RS1 -> io.GPR_Adata,
-        A_PC  -> io.PC,
-        A_CSR -> io.CSR,
+    io.out.Result   <> alu.io.ALUout 
+    io.out.Zero     <> alu.io.Zero   
+    io.out.Less     <> alu.io.Less  
+
+    alu.io.ALUctr <> io.in.ALUctr
+
+    alu.io.src_A := MuxLookup(io.in.ALUAsrc, 0.U)(Seq(
+        A_RS1 -> io.in.GPR_Adata,
+        A_PC  -> io.in.PC,
+        A_CSR -> io.in.CSR,
     ))
 
-    alu.io.src_B := MuxLookup(io.ALUBsrc, 0.U)(Seq(
-        B_RS2 -> io.GPR_Bdata,
-        B_IMM -> io.Imm,
+    alu.io.src_B := MuxLookup(io.in.ALUBsrc, 0.U)(Seq(
+        B_RS2 -> io.in.GPR_Bdata,
+        B_IMM -> io.in.Imm,
         B_4   -> 4.U,
-        B_RS1 -> io.GPR_Adata,
+        B_RS1 -> io.in.GPR_Adata,
     ))
 }

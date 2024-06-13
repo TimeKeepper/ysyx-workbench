@@ -26,7 +26,6 @@ class CPU() extends Module {
   val BCU             = Module(new BCU()) // Branch Control Unit
 
   // wires
-  val Next_PC         = Wire(UInt(32.W))
   val Cur_PC          = Wire(UInt(32.W))
 
   val GPR_WDATA       = Wire(UInt(32.W))
@@ -106,9 +105,7 @@ class CPU() extends Module {
     PCBval := 0.U
   }
 
-  Next_PC := PCAval + PCBval
-
-  REG.io.pc_in := Next_PC
+  REG.io.pc_in <> PCAval + PCBval
   Cur_PC       := REG.io.pc_out
 
   when(GNU.io.out.csr_ctr === CSR_R1W0) {

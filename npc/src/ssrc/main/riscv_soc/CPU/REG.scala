@@ -36,8 +36,8 @@ class REG extends Module {
     gpr(io.GPR_waddr) := io.GPR_wdata
   }
 
-  io.rdataa := gpr(io.raddra)
-  io.rdatab := gpr(io.raddrb)
+  io.GPR_rdataa := gpr(io.GPR_raddra)
+  io.GPR_rdatab := gpr(io.GPR_raddrb)
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 

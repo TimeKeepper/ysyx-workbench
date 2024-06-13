@@ -7,19 +7,15 @@ import signal_value._
 
 // riscv cpu register file
 
-class REG extends Module {
-  val io = IO(new Bundle {
+class REG_input extends Bundle{
     val GPR_wdata = Input(UInt(32.W))
     val GPR_waddr = Input(UInt(5.W))
     val GPR_wen   = Input(Bool())
 
     val GPR_raddra = Input(UInt(5.W))
     val GPR_raddrb = Input(UInt(5.W))
-    val GPR_rdataa = Output(UInt(32.W))
-    val GPR_rdatab = Output(UInt(32.W))
-
+    
     val pc_in  = Input(UInt(32.W))
-    val pc_out = Output(UInt(32.W))
 
     val csr_ctr    = Input(CSR_Type)
     val csr_waddra = Input(UInt(12.W))
@@ -27,12 +23,26 @@ class REG extends Module {
     val csr_wdataa = Input(UInt(32.W))
     val csr_wdatab = Input(UInt(32.W))
     val csr_raddr  = Input(UInt(12.W))
+}
+
+class REG_output extends Bundle{
+    val GPR_rdataa = Output(UInt(32.W))
+    val GPR_rdatab = Output(UInt(32.W))
+
+    val pc_out = Output(UInt(32.W))
+
     val csr_rdata  = Output(UInt(32.W))
+}
+
+class REG extends Module {
+  val io = IO(new Bundle {
+    val in         = new REG_input
+    val out        = new REG_output
   })
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.GPR_wen && io.GPR_waddr =/= 0.U) {
+  when(io.in.GPR_wen && io.in.GPR_waddr =/= 0.U) {
     gpr(io.GPR_waddr) := io.GPR_wdata
   }
 

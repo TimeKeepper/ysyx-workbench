@@ -22,6 +22,7 @@ class CPU() extends Module {
   // Modules
   val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
+  val WBU             = Module(new WBU()) // Write Back Unit
   val REG             = Module(new REG()) // Register File
   val BCU             = Module(new BCU()) // Branch Control Unit
 
@@ -66,6 +67,25 @@ class CPU() extends Module {
   EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
   EXU.io.in.PC           <> GNU.io.out.PC
   EXU.io.in.CSR          <> CSR_RDATA
+
+  // WBU Connections
+  WBU.io.in.RegWr        <> EXU.io.out.RegWr
+  WBU.io.in.Branch       <> EXU.io.out.Branch
+  WBU.io.in.MemtoReg     <> EXU.io.out.MemtoReg
+  WBU.io.in.MemWr        <> EXU.io.out.MemWr
+  WBU.io.in.MemOp        <> EXU.io.out.MemOp
+  WBU.io.in.csr_ctr      <> EXU.io.out.csr_ctr
+  WBU.io.in.Imm          <> EXU.io.out.Imm
+  WBU.io.in.GPR_Adata    <> EXU.io.out.GPR_Adata
+  WBU.io.in.GPR_Bdata    <> EXU.io.out.GPR_Bdata
+  WBU.io.in.GPR_waddr    <> EXU.io.out.GPR_waddr
+  WBU.io.in.PC           <> EXU.io.out.PC
+  WBU.io.in.CSR          <> CSR_RDATA
+  WBU.io.in.Result       <> EXU.io.out.Result
+  WBU.io.in.Zero         <> EXU.io.out.Zero
+  WBU.io.in.Less         <> EXU.io.out.Less
+
+  WBU.io.in.Mem_rdata    <> io.mem_rdata
 
   // REG Connections
 

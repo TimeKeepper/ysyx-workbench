@@ -17,12 +17,12 @@ class WBU_input extends Bundle{
     val Imm      = Input(UInt(32.W))
     val GPR_Adata= Input(UInt(32.W))
     val GPR_Bdata= Input(UInt(32.W))
+    val GPR_waddr= Input(UInt(5.W))
     val PC       = Input(UInt(32.W))
     val CSR      = Input(UInt(32.W))
     val Result   = Input(UInt(32.W))
     val Zero     = Input(Bool())
     val Less     = Input(Bool())
-    val GPR_waddr= Input(UInt(5.W))
 
     val Mem_rdata  = Input(UInt(32.W))
 }

@@ -15,7 +15,7 @@ class REG_input extends Bundle{
     val GPR_raddra = Input(UInt(5.W))
     val GPR_raddrb = Input(UInt(5.W))
     
-    val pc_in  = Input(UInt(32.W))
+    val pc  = Input(UInt(32.W))
 
     val csr_ctr    = Input(CSR_Type)
     val csr_waddra = Input(UInt(12.W))
@@ -29,7 +29,7 @@ class REG_output extends Bundle{
     val GPR_rdataa = Output(UInt(32.W))
     val GPR_rdatab = Output(UInt(32.W))
 
-    val pc_out = Output(UInt(32.W))
+    val pc = Output(UInt(32.W))
 
     val csr_rdata  = Output(UInt(32.W))
 }
@@ -51,8 +51,8 @@ class REG extends Module {
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  pc        := io.in.pc_in
-  io.out.pc_out := pc
+  pc        := io.in.pc
+  io.out.pc := pc
 
   // 暂时先实现128个
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))

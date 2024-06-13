@@ -11,7 +11,7 @@ class CPU() extends Module {
     val inst_input    = Flipped(Decoupled(UInt(32.W)))
     val pc_output     = Output(UInt(32.W))
     val mem_rdata     = Input(UInt(32.W))
-      
+
     val mem_wdata     = Output(UInt(32.W))
     val mem_wop       = Output(MemOp_Type)
     val mem_wen       = Output(Bool())
@@ -57,23 +57,23 @@ class CPU() extends Module {
   GNU.io.in.bits.PC   <> Cur_PC
 
   // EXU Connections
-  EXU.io.RegWr        <> GNU.io.out.RegWr
-  EXU.io.Branch       <> GNU.io.out.Branch
-  EXU.io.MemtoReg     <> GNU.io.out.MemtoReg
-  EXU.io.MemWr        <> GNU.io.out.MemWr
-  EXU.io.MemOp        <> GNU.io.out.MemOp
-  EXU.io.ALUAsrc      <> GNU.io.out.ALUAsrc
-  EXU.io.ALUBsrc      <> GNU.io.out.ALUBsrc
-  EXU.io.ALUctr       <> GNU.io.out.ALUctr
-  EXU.io.csr_ctr      <> GNU.io.out.csr_ctr
-  EXU.io.Imm          <> GNU.io.out.Imm
-  EXU.io.GPR_Adata    <> GPR_RDATAa
-  EXU.io.GPR_Bdata    <> GPR_RDATAb
-  EXU.io.PC           <> GNU.io.out.PC
-  EXU.io.CSR          <> CSR_RDATA
-  EXU.io.Result       <> Result
-  EXU.io.Zero         <> Zero
-  EXU.io.Less         <> Less
+  EXU.io.in.RegWr        <> GNU.io.out.RegWr
+  EXU.io.in.Branch       <> GNU.io.out.Branch
+  EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
+  EXU.io.in.MemWr        <> GNU.io.out.MemWr
+  EXU.io.in.MemOp        <> GNU.io.out.MemOp
+  EXU.io.in.ALUAsrc      <> GNU.io.out.ALUAsrc
+  EXU.io.in.ALUBsrc      <> GNU.io.out.ALUBsrc
+  EXU.io.in.ALUctr       <> GNU.io.out.ALUctr
+  EXU.io.in.csr_ctr      <> GNU.io.out.csr_ctr
+  EXU.io.in.Imm          <> GNU.io.out.Imm
+  EXU.io.in.GPR_Adata    <> GPR_RDATAa
+  EXU.io.in.GPR_Bdata    <> GPR_RDATAb
+  EXU.io.in.PC           <> GNU.io.out.PC
+  EXU.io.in.CSR          <> CSR_RDATA
+  EXU.io.out.Result      <> Result
+  EXU.io.out.Zero        <> Zero
+  EXU.io.out.Less        <> Less
 
   // REG Connections
   GPR_WADDR := GNU.io.out.inst(11, 7)

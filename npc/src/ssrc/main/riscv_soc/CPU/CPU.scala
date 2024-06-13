@@ -151,14 +151,14 @@ class CPU() extends Module {
 
   // BCU Connections
   BCU.io.Branch <> GNU.io.out.Branch
-  BCU.io.Zero   := Zero
-  BCU.io.Less   := Less
+  BCU.io.Zero   := EXU.io.out.Zero
+  BCU.io.Less   := EXU.io.out.Less
 
   PCAsrc := BCU.io.PCAsrc
   PCBsrc := BCU.io.PCBsrc
 
   // Memory Connections
-  io.mem_wraddr := Result
+  io.mem_wraddr := EXU.io.out.Result
   io.mem_wdata := GPR_RDATAb
   io.mem_wop   := GNU.io.out.MemOp
   io.mem_wen   := GNU.io.out.MemWr

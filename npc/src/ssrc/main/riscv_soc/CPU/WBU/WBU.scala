@@ -65,16 +65,16 @@ class WBU extends Module {
     val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        A_RS1 -> io.in.GPR_Adata,
-        A_PC  -> io.in.PC,
-        A_CSR -> io.in.CSR,
+        PCAsrc_Imm -> io.in.Imm,
+        PCAsrc_0  -> 0.U,
+        PCAsrc_4 -> 4.U,
+        PCAsrc_csr -> io.in.CSR,
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        B_RS2 -> io.in.GPR_Bdata,
-        B_IMM -> io.in.Imm,
-        B_4   -> 4.U,
-        B_RS1 -> io.in.GPR_Adata,
+        PCBsrc_gpr -> io.in.GPR_Adata,
+        PCBsrc_pc  -> io.in.PC,
+        PCBsrc_0   -> 0.U,
     ))
 
     io.out.Next_Pc := PCAsrc + PCBsrc

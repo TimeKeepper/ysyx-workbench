@@ -24,7 +24,6 @@ class CPU() extends Module {
   val EXU             = Module(new EXU()) // Execution Unit
   val WBU             = Module(new WBU()) // Write Back Unit
   val REG             = Module(new REG()) // Register File
-  val BCU             = Module(new BCU()) // Branch Control Unit
 
   // GNU Connections
   GNU.io.in.bits.inst <> io.inst_input.bits
@@ -86,11 +85,6 @@ class CPU() extends Module {
   REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
 
   REG.io.csr_raddr := GNU.io.out.CSR_raddr
-
-  // BCU Connections
-  BCU.io.Branch <> GNU.io.out.Branch
-  BCU.io.Zero   := EXU.io.out.Zero
-  BCU.io.Less   := EXU.io.out.Less
 
   // Memory Connections
   io.mem_wraddr := EXU.io.out.Result

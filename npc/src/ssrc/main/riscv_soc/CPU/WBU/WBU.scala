@@ -64,24 +64,24 @@ class WBU extends Module {
         val CSR_wdatab= Output(UInt(32.W))
     })
 
-    io.Mem_wraddr <> io.Result
-    io.Mem_wdata  <> io.GPR_Bdata
-    io.MemOp_o    <> io.MemOp
-    io.MemWr_o    <> io.MemWr
+    io.Mem_wraddr <> io.in.Result
+    io.Mem_wdata  <> io.in.GPR_Bdata
+    io.MemOp_o    <> io.in.MemOp
+    io.MemWr_o    <> io.in.MemWr
 
     val bcu = Module(new BCU)
 
-    bcu.io.Branch   <> io.Branch
-    bcu.io.Zero     <> io.Zero
-    bcu.io.Less     <> io.Less
+    bcu.io.Branch   <> io.in.Branch
+    bcu.io.Zero     <> io.in.Zero
+    bcu.io.Less     <> io.in.Less
     
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        A_RS1 -> io.GPR_Adata,
-        A_PC  -> io.PC,
-        A_CSR -> io.CSR,
+        A_RS1 -> io.in.GPR_Adata,
+        A_PC  -> io.in.PC,
+        A_CSR -> io.in.CSR,
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(

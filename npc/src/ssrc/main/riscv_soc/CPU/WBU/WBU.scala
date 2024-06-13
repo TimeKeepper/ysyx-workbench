@@ -34,10 +34,10 @@ class WBU_output extends Bundle{
     val MemWr    = Output(Bool())
 
     val Next_Pc   = Output(UInt(32.W))
-    val Reg_waddr = Output(UInt(5.W))
-    val Reg_wdata = Output(UInt(32.W))
-    val Reg_wen   = Output(Bool())
-    val CSR_ctr = Output(CSR_Type)
+    val GPR_waddr = Output(UInt(5.W))
+    val GPR_wdata = Output(UInt(32.W))
+    val GPR_wen   = Output(Bool())
+    val CSR_ctr   = Output(CSR_Type)
     val CSR_waddra= Output(UInt(12.W))
     val CSR_waddrb= Output(UInt(12.W))
     val CSR_wdataa= Output(UInt(32.W))
@@ -79,12 +79,12 @@ class WBU extends Module {
 
     io.out.Next_Pc := PCAsrc + PCBsrc
 
-    io.out.Reg_waddr := io.in.GPR_waddr
-    io.out.Reg_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
+    io.out.GPR_waddr := io.in.GPR_waddr
+    io.out.GPR_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
         Y  -> io.in.Mem_rdata,
         N  -> io.in.Result,
     ))
-    io.out.Reg_wen <> io.in.RegWr
+    io.out.GPR_wen <> io.in.RegWr
 
     io.out.CSR_ctr <> io.in.csr_ctr
 

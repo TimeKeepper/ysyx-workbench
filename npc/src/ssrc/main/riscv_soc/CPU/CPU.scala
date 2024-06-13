@@ -50,6 +50,8 @@ class CPU() extends Module {
   GNU.io.in.bits.inst <> io.inst_input.bits
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready
+  GNU.io.in.GPR_Adata <> GPR_RDATAa
+  GNU.io.in.GPR_Bdata <> GPR_RDATAb
   GNU.io.in.bits.PC   <> Cur_PC
 
   // EXU Connections
@@ -63,8 +65,8 @@ class CPU() extends Module {
   EXU.io.in.ALUctr       <> GNU.io.out.ALUctr
   EXU.io.in.csr_ctr      <> GNU.io.out.csr_ctr
   EXU.io.in.Imm          <> GNU.io.out.Imm
-  EXU.io.in.GPR_Adata    <> GPR_RDATAa
-  EXU.io.in.GPR_Bdata    <> GPR_RDATAb
+  EXU.io.in.GPR_Adata    <> GNU.io.in.GPR_Adata
+  EXU.io.in.GPR_Bdata    <> GNU.io.in.GPR_Bdata
   EXU.io.in.PC           <> GNU.io.out.PC
   EXU.io.in.CSR          <> CSR_RDATA
 

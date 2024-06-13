@@ -25,15 +25,24 @@ class CPU() extends Module {
   val WBU             = Module(new WBU()) // Write Back Unit
   val REG             = Module(new REG()) // Register File
 
-  // GNU Connections
-  GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.PC   <> REG.io.pc_out
-  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
-  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+  // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
+  io.pc_output <> REG.io.pc_out
+
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready
 
-  // EXU Connections
+  GNU.io.in.bits.inst <> io.inst_input.bits
+  GNU.io.in.bits.PC   <> REG.io.pc_out
+
+  // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
+  GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
+  GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
+  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
+  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+
+  // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
+  GNU.io.out.CSR_raddr <> REG.io.csr_raddr
+
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
   EXU.io.in.Branch       <> GNU.io.out.Branch
   EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
@@ -73,9 +82,6 @@ class CPU() extends Module {
   REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.GPR_wen   <> WBU.io.out.GPR_wen
-
-  REG.io.GPR_raddra <> GNU.io.out.inst(19, 15)
-  REG.io.GPR_raddrb <> GNU.io.out.inst(24, 20)
   REG.io.pc_in  <> WBU.io.out.Next_Pc
 
   REG.io.csr_ctr    := WBU.io.out.CSR_ctr
@@ -84,13 +90,9 @@ class CPU() extends Module {
   REG.io.csr_wdataa := WBU.io.out.CSR_wdataa
   REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
 
-  REG.io.csr_raddr := GNU.io.out.CSR_raddr
-
   // Memory Connections
   io.mem_wraddr := EXU.io.out.Result
   io.mem_wdata := EXU.io.out.GPR_Bdata
   io.mem_wop   := GNU.io.out.MemOp
   io.mem_wen   := GNU.io.out.MemWr
-
-  io.pc_output := REG.io.pc_out
 }

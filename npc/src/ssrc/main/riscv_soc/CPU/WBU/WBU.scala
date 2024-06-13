@@ -92,11 +92,11 @@ class WBU extends Module {
         CSR_R1W2 -> io.in.Imm(11, 0)
     ))
 
-    io.CSR_waddrb := "h342".U
+    io.out.CSR_waddrb := "h342".U
 
-    io.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.GPR_Adata)(Seq(
+    io.out.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.GPR_Adata)(Seq(
         CSR_R1W2 -> io.in.PC,
     ))
 
-    io.CSR_wdatab := 11.U
+    io.out.CSR_wdatab := 11.U
 }

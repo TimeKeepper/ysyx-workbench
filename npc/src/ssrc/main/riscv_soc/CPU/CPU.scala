@@ -59,7 +59,7 @@ class CPU() extends Module {
   EXU.io.in.PC           <> GNU.io.out.PC
   EXU.io.in.CSR          <> REG.io.csr_rdata
 
-  // WBU Connections
+  // 第二步，EXU处理完成之后将结果传递给WBU，WBU根据结果更新系统状态，包括GPR，CSR，PC以及内存
   WBU.io.in.RegWr        <> EXU.io.out.RegWr
   WBU.io.in.Branch       <> EXU.io.out.Branch
   WBU.io.in.MemtoReg     <> EXU.io.out.MemtoReg
@@ -78,7 +78,6 @@ class CPU() extends Module {
 
   WBU.io.in.Mem_rdata    <> io.mem_rdata
 
-  // REG Connections
   REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.GPR_wen   <> WBU.io.out.GPR_wen
@@ -90,7 +89,6 @@ class CPU() extends Module {
   REG.io.csr_wdataa := WBU.io.out.CSR_wdataa
   REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
 
-  // Memory Connections
   io.mem_wraddr := EXU.io.out.Result
   io.mem_wdata := EXU.io.out.GPR_Bdata
   io.mem_wop   := GNU.io.out.MemOp

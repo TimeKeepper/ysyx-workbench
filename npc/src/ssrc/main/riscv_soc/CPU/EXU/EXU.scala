@@ -20,6 +20,7 @@ class EXU_input extends Bundle{
     val Imm       = Input(UInt(32.W))
     val GPR_Adata = Input(UInt(32.W))
     val GPR_Bdata = Input(UInt(32.W))
+    val GPR_waddr = Input(UInt(5.W))
     val PC        = Input(UInt(32.W))
     val CSR       = Input(UInt(32.W))
 }
@@ -31,6 +32,10 @@ class EXU_output extends Bundle{
     val MemWr       = Output(Bool())
     val MemOp       = Output(MemOp_Type)
     val csr_ctr     = Output(CSR_Type)
+    val Imm         = Output(UInt(32.W))
+    val GPR_Adata   = Output(UInt(32.W))
+    val GPR_Bdata   = Output(UInt(32.W))
+    val GPR_waddr   = Output(UInt(5.W))
     val PC          = Output(UInt(32.W))
     val CSR         = Output(UInt(32.W))
     val Result      = Output(UInt(32.W))
@@ -52,6 +57,10 @@ class EXU extends Module {
     io.out.MemWr    <> io.in.MemWr
     io.out.MemOp    <> io.in.MemOp
     io.out.csr_ctr  <> io.in.csr_ctr
+    io.out.Imm      <> io.in.Imm
+    io.out.GPR_Adata<> io.in.GPR_Adata
+    io.out.GPR_Bdata<> io.in.GPR_Bdata
+    io.out.GPR_waddr<> io.in.GPR_waddr
     io.out.PC       <> io.in.PC
     io.out.CSR      <> io.in.CSR
 

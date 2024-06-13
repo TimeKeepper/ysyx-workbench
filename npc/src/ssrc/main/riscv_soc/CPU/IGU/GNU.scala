@@ -9,6 +9,8 @@ import Instructions._
 
 class GNU_input extends Bundle{
     val inst = Input(UInt(32.W))
+    val GPR_Adata = Input(UInt(32.W))
+    val GPR_Bdata = Input(UInt(32.W))
     val PC   = Input(UInt(32.W))
 }
 
@@ -24,7 +26,11 @@ class GNU_output extends Bundle{
     val ALUctr   = Output(ALUctr_Type)
     val csr_ctr  = Output(CSR_Type)
     val Imm      = Output(UInt(32.W))
+    val GPR_Adata = Output(UInt(32.W))
+    val GPR_Bdata = Output(UInt(32.W))
+    val GPR_waddr = Output(UInt(5.W))
     val PC       = Output(UInt(32.W))
+    val CSR_raddr= Output(UInt(12.W))
 }
 
 class GNU extends Module{
@@ -63,6 +69,21 @@ class GNU extends Module{
     igu.io.ExtOp    <> idu.io.ExtOp
     igu.io.imm      <> io.out.Imm
 
+    io.out.GPR_Adata <> io.in.bits.GPR_Adata
+    io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
+    io.out.GPR_waddr <> inst(11, 7)
     io.out.PC       <> io.in.bits.PC
     io.out.inst     <> inst
+ 
+    io.out.CSR_raddr := MuxLookup(io.out.csr_ctr, io.out.Imm(11, 0))(Seq(
+        CSR_R1W0 -> "h341".U,
+        CSR_R1W2 -> "h305".U,
+    ))
+    // when(io.out.csr_ctr === CSR_R1W0) {
+    //     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
+    // }.elsewhen(GNU.io.out.csr_ctr === CSR_R1W2) {
+    //     CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
+    // }.otherwise {
+    //     CSR_RADDR := GNU.io.out.Imm(11, 0)
+    // }
 }

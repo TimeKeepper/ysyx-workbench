@@ -22,37 +22,27 @@ class CPU() extends Module {
   // Modules
   val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
+  val WBU             = Module(new WBU()) // Write Back Unit
   val REG             = Module(new REG()) // Register File
-  val BCU             = Module(new BCU()) // Branch Control Unit
 
-  // wires
-  val Next_PC         = Wire(UInt(32.W))
-  val Cur_PC          = Wire(UInt(32.W))
+  // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
+  io.pc_output <> REG.io.pc_out
 
-  val GPR_WADDR       = Wire(UInt(5.W))
-  val GPR_WDATA       = Wire(UInt(32.W))
-  val GPR_RADDRa      = Wire(UInt(5.W))
-  val GPR_RADDRb      = Wire(UInt(5.W))
-  val GPR_RDATAa      = Wire(UInt(32.W))
-  val GPR_RDATAb      = Wire(UInt(32.W))
-
-  val CSR_WADDRa      = Wire(UInt(12.W))
-  val CSR_WADDRb      = Wire(UInt(12.W))
-  val CSR_WDATAa      = Wire(UInt(32.W))
-  val CSR_WDATAb      = Wire(UInt(32.W))
-  val CSR_RADDR       = Wire(UInt(12.W))
-  val CSR_RDATA       = Wire(UInt(32.W))
-
-  val PCAsrc          = Wire(PCAsrc_Type)
-  val PCBsrc          = Wire(PCBsrc_Type)
-
-  // GNU Connections
-  GNU.io.in.bits.inst <> io.inst_input.bits
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready
-  GNU.io.in.bits.PC   <> Cur_PC
 
-  // EXU Connections
+  GNU.io.in.bits.inst <> io.inst_input.bits
+  GNU.io.in.bits.PC   <> REG.io.pc_out
+
+  // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
+  GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
+  GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
+  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
+  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+
+  // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
+  GNU.io.out.CSR_raddr <> REG.io.csr_raddr
+
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
   EXU.io.in.Branch       <> GNU.io.out.Branch
   EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
@@ -63,105 +53,44 @@ class CPU() extends Module {
   EXU.io.in.ALUctr       <> GNU.io.out.ALUctr
   EXU.io.in.csr_ctr      <> GNU.io.out.csr_ctr
   EXU.io.in.Imm          <> GNU.io.out.Imm
-  EXU.io.in.GPR_Adata    <> GPR_RDATAa
-  EXU.io.in.GPR_Bdata    <> GPR_RDATAb
+  EXU.io.in.GPR_Adata    <> GNU.io.out.GPR_Adata
+  EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
+  EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
   EXU.io.in.PC           <> GNU.io.out.PC
-  EXU.io.in.CSR          <> CSR_RDATA
+  EXU.io.in.CSR          <> REG.io.csr_rdata
 
-  // REG Connections
-  GPR_WADDR := GNU.io.out.inst(11, 7)
+  // 第二步，EXU处理完成之后将结果传递给WBU，WBU根据结果更新系统状态，包括GPR，CSR，PC以及内存
+  WBU.io.in.RegWr        <> EXU.io.out.RegWr
+  WBU.io.in.Branch       <> EXU.io.out.Branch
+  WBU.io.in.MemtoReg     <> EXU.io.out.MemtoReg
+  WBU.io.in.MemWr        <> EXU.io.out.MemWr
+  WBU.io.in.MemOp        <> EXU.io.out.MemOp
+  WBU.io.in.csr_ctr      <> EXU.io.out.csr_ctr
+  WBU.io.in.Imm          <> EXU.io.out.Imm
+  WBU.io.in.GPR_Adata    <> EXU.io.out.GPR_Adata
+  WBU.io.in.GPR_Bdata    <> EXU.io.out.GPR_Bdata
+  WBU.io.in.GPR_waddr    <> EXU.io.out.GPR_waddr
+  WBU.io.in.PC           <> EXU.io.out.PC
+  WBU.io.in.CSR          <> REG.io.csr_rdata
+  WBU.io.in.Result       <> EXU.io.out.Result
+  WBU.io.in.Zero         <> EXU.io.out.Zero
+  WBU.io.in.Less         <> EXU.io.out.Less
 
-  when(GNU.io.out.MemtoReg) {
-    GPR_WDATA := io.mem_rdata
-  }.otherwise {
-    GPR_WDATA := EXU.io.out.Result
-  }
+  WBU.io.in.Mem_rdata    <> io.mem_rdata
 
-  GPR_WADDR := GNU.io.out.inst(11, 7)
+  REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
+  REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
+  REG.io.GPR_wen   <> WBU.io.out.GPR_wen
+  REG.io.pc_in  <> WBU.io.out.Next_Pc
 
-  REG.io.wdata := GPR_WDATA
-  REG.io.waddr := GPR_WADDR
-  REG.io.wen   := GNU.io.out.RegWr
+  REG.io.csr_ctr    := WBU.io.out.CSR_ctr
+  REG.io.csr_waddra := WBU.io.out.CSR_waddra
+  REG.io.csr_waddrb := WBU.io.out.CSR_waddrb
+  REG.io.csr_wdataa := WBU.io.out.CSR_wdataa
+  REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
 
-  GPR_RADDRa    := GNU.io.out.inst(19, 15)
-  GPR_RADDRb    := GNU.io.out.inst(24, 20)
-  REG.io.raddra := GPR_RADDRa
-  REG.io.raddrb := GPR_RADDRb
-  GPR_RDATAa    := REG.io.rdataa
-  GPR_RDATAb    := REG.io.rdatab
-
-  val PCAval = Wire(UInt(32.W))
-  val PCBval = Wire(UInt(32.W))
-
-  when(PCAsrc === PCAsrc_Imm) {
-    PCAval := GNU.io.out.Imm
-  }.elsewhen(PCAsrc === PCAsrc_4) {
-    PCAval := 4.U
-  }.elsewhen(PCAsrc === PCAsrc_0) {
-    PCAval := 0.U
-  }.otherwise {
-    PCAval := CSR_RDATA
-  }
-
-  when(PCBsrc === PCBsrc_gpr) {
-    PCBval := GPR_RDATAa
-  }.elsewhen(PCBsrc === PCBsrc_pc) {
-    PCBval := Cur_PC
-  }.otherwise {
-    PCBval := 0.U
-  }
-
-  Next_PC := PCAval + PCBval
-
-  REG.io.pc_in := Next_PC
-  Cur_PC       := REG.io.pc_out
-
-  when(GNU.io.out.csr_ctr === CSR_R1W0) {
-    CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
-  }.elsewhen(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
-  }.otherwise {
-    CSR_RADDR := GNU.io.out.Imm(11, 0)
-  }
-
-  when(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_WADDRa := "h341".U // instruction ecall use csr mepc
-  }.otherwise {
-    CSR_WADDRa := GNU.io.out.Imm(11, 0)
-  }
-
-  when(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_WDATAa := Cur_PC // instruction ecall store current pc
-  }.otherwise {
-    CSR_WDATAa := GPR_RDATAa
-  }
-
-  CSR_WADDRb := "h342".U // instruction ecall write mstatus
-  CSR_WDATAb := 11.U // for now, only set error status 11
-
-  REG.io.csr_ctr    := GNU.io.out.csr_ctr
-  REG.io.csr_waddra := CSR_WADDRa
-  REG.io.csr_waddrb := CSR_WADDRb
-  REG.io.csr_wdataa := CSR_WDATAa
-  REG.io.csr_wdatab := CSR_WDATAb
-
-  REG.io.csr_raddr := CSR_RADDR
-
-  CSR_RDATA := REG.io.csr_rdata
-
-  // BCU Connections
-  BCU.io.Branch <> GNU.io.out.Branch
-  BCU.io.Zero   := EXU.io.out.Zero
-  BCU.io.Less   := EXU.io.out.Less
-
-  PCAsrc := BCU.io.PCAsrc
-  PCBsrc := BCU.io.PCBsrc
-
-  // Memory Connections
   io.mem_wraddr := EXU.io.out.Result
-  io.mem_wdata := GPR_RDATAb
+  io.mem_wdata := EXU.io.out.GPR_Bdata
   io.mem_wop   := GNU.io.out.MemOp
   io.mem_wen   := GNU.io.out.MemWr
-
-  io.pc_output := Cur_PC
 }

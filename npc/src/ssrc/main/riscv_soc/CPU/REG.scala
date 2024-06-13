@@ -9,14 +9,14 @@ import signal_value._
 
 class REG extends Module {
   val io = IO(new Bundle {
-    val wdata = Input(UInt(32.W))
-    val waddr = Input(UInt(5.W))
-    val wen   = Input(Bool())
+    val GPR_wdata = Input(UInt(32.W))
+    val GPR_waddr = Input(UInt(5.W))
+    val GPR_wen   = Input(Bool())
 
-    val raddra = Input(UInt(5.W))
-    val raddrb = Input(UInt(5.W))
-    val rdataa = Output(UInt(32.W))
-    val rdatab = Output(UInt(32.W))
+    val GPR_raddra = Input(UInt(5.W))
+    val GPR_raddrb = Input(UInt(5.W))
+    val GPR_rdataa = Output(UInt(32.W))
+    val GPR_rdatab = Output(UInt(32.W))
 
     val pc_in  = Input(UInt(32.W))
     val pc_out = Output(UInt(32.W))
@@ -32,12 +32,12 @@ class REG extends Module {
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.wen && io.waddr =/= 0.U) {
-    gpr(io.waddr) := io.wdata
+  when(io.GPR_wen && io.GPR_waddr =/= 0.U) {
+    gpr(io.GPR_waddr) := io.GPR_wdata
   }
 
-  io.rdataa := gpr(io.raddra)
-  io.rdatab := gpr(io.raddrb)
+  io.GPR_rdataa := gpr(io.GPR_raddra)
+  io.GPR_rdatab := gpr(io.GPR_raddrb)
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 

@@ -31,8 +31,6 @@ class CPU() extends Module {
 
   val GPR_WADDR       = Wire(UInt(5.W))
   val GPR_WDATA       = Wire(UInt(32.W))
-  val GPR_RADDRa      = Wire(UInt(5.W))
-  val GPR_RADDRb      = Wire(UInt(5.W))
   val GPR_RDATAa      = Wire(UInt(32.W))
   val GPR_RDATAb      = Wire(UInt(32.W))
 
@@ -89,8 +87,6 @@ class CPU() extends Module {
   GPR_RADDRb    := GNU.io.out.inst(24, 20)
   REG.io.raddra := GPR_RADDRa
   REG.io.raddrb := GPR_RADDRb
-  GPR_RDATAa    := REG.io.rdataa
-  GPR_RDATAb    := REG.io.rdatab
 
   val PCAval = Wire(UInt(32.W))
   val PCBval = Wire(UInt(32.W))

@@ -49,7 +49,7 @@ class GNU extends Module{
         io.out.Branch   := Bran_NoC
     }
 
-    idu.io.inst     <> io.out.inst
+    idu.io.inst     <> inst
     idu.io.RegWr    <> io.out.RegWr
     idu.io.MemtoReg <> io.out.MemtoReg
     idu.io.MemWr    <> io.out.MemWr

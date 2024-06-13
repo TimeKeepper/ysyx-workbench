@@ -8,47 +8,47 @@ import signal_value._
 
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val inst_input= Flipped(Decoupled(UInt(32.W)))
-    val pc_output = Output(UInt(32.W))
-    val mem_rdata = Input(UInt(32.W))
-
-    val mem_wdata = Output(UInt(32.W))
-    val mem_wop   = Output(MemOp_Type)
-    val mem_wen   = Output(Bool())
+    val inst_input    = Flipped(Decoupled(UInt(32.W)))
+    val pc_output     = Output(UInt(32.W))
+    val mem_rdata     = Input(UInt(32.W))
+      
+    val mem_wdata     = Output(UInt(32.W))
+    val mem_wop       = Output(MemOp_Type)
+    val mem_wen       = Output(Bool())
     
-    val mem_wraddr = Output(UInt(32.W))
+    val mem_wraddr    = Output(UInt(32.W))
   })
 
   // Modules
-  val GNU = Module(new GNU()) // Generating Number Unit
-  val EXU = Module(new EXU()) // Execution Unit
-  val REG = Module(new REG()) // Register File
-  val BCU = Module(new BCU()) // Branch Control Unit
+  val GNU             = Module(new GNU()) // Generating Number Unit
+  val EXU             = Module(new EXU()) // Execution Unit
+  val REG             = Module(new REG()) // Register File
+  val BCU             = Module(new BCU()) // Branch Control Unit
 
   // wires
-  val Next_PC = Wire(UInt(32.W))
-  val Cur_PC  = Wire(UInt(32.W))
+  val Next_PC         = Wire(UInt(32.W))
+  val Cur_PC          = Wire(UInt(32.W))
 
-  val GPR_WADDR  = Wire(UInt(5.W))
-  val GPR_WDATA  = Wire(UInt(32.W))
-  val GPR_RADDRa = Wire(UInt(5.W))
-  val GPR_RADDRb = Wire(UInt(5.W))
-  val GPR_RDATAa = Wire(UInt(32.W))
-  val GPR_RDATAb = Wire(UInt(32.W))
+  val GPR_WADDR       = Wire(UInt(5.W))
+  val GPR_WDATA       = Wire(UInt(32.W))
+  val GPR_RADDRa      = Wire(UInt(5.W))
+  val GPR_RADDRb      = Wire(UInt(5.W))
+  val GPR_RDATAa      = Wire(UInt(32.W))
+  val GPR_RDATAb      = Wire(UInt(32.W))
 
-  val CSR_WADDRa = Wire(UInt(12.W))
-  val CSR_WADDRb = Wire(UInt(12.W))
-  val CSR_WDATAa = Wire(UInt(32.W))
-  val CSR_WDATAb = Wire(UInt(32.W))
-  val CSR_RADDR  = Wire(UInt(12.W))
-  val CSR_RDATA  = Wire(UInt(32.W))
+  val CSR_WADDRa      = Wire(UInt(12.W))
+  val CSR_WADDRb      = Wire(UInt(12.W))
+  val CSR_WDATAa      = Wire(UInt(32.W))
+  val CSR_WDATAb      = Wire(UInt(32.W))
+  val CSR_RADDR       = Wire(UInt(12.W))
+  val CSR_RDATA       = Wire(UInt(32.W))
 
-  val Less   = Wire(Bool())
-  val Zero   = Wire(Bool())
-  val Result = Wire(UInt(32.W))
+  val Less            = Wire(Bool())
+  val Zero            = Wire(Bool())
+  val Result          = Wire(UInt(32.W))
 
-  val PCAsrc = Wire(PCAsrc_Type)
-  val PCBsrc = Wire(PCBsrc_Type)
+  val PCAsrc          = Wire(PCAsrc_Type)
+  val PCBsrc          = Wire(PCBsrc_Type)
 
   // GNU Connections
   GNU.io.in.bits.inst <> io.inst_input.bits
@@ -57,23 +57,23 @@ class CPU() extends Module {
   GNU.io.in.bits.PC   <> Cur_PC
 
   // EXU Connections
-  EXU.io.RegWr      <> GNU.io.out.RegWr
-  EXU.io.Branch     <> GNU.io.out.Branch
-  EXU.io.MemtoReg   <> GNU.io.out.MemtoReg
-  EXU.io.MemWr      <> GNU.io.out.MemWr
-  EXU.io.MemOp      <> GNU.io.out.MemOp
-  EXU.io.ALUAsrc    <> GNU.io.out.ALUAsrc
-  EXU.io.ALUBsrc    <> GNU.io.out.ALUBsrc
-  EXU.io.ALUctr     <> GNU.io.out.ALUctr
-  EXU.io.csr_ctr    <> GNU.io.out.csr_ctr
-  EXU.io.Imm        <> GNU.io.out.Imm
-  EXU.io.GPR_Adata  <> GPR_RDATAa
-  EXU.io.GPR_Bdata  <> GPR_RDATAb
-  EXU.io.PC         <> GNU.io.out.PC
-  EXU.io.CSR        <> CSR_RDATA
-  EXU.io.Result     <> Result
-  EXU.io.Zero       <> Zero
-  EXU.io.Less       <> Less
+  EXU.io.RegWr        <> GNU.io.out.RegWr
+  EXU.io.Branch       <> GNU.io.out.Branch
+  EXU.io.MemtoReg     <> GNU.io.out.MemtoReg
+  EXU.io.MemWr        <> GNU.io.out.MemWr
+  EXU.io.MemOp        <> GNU.io.out.MemOp
+  EXU.io.ALUAsrc      <> GNU.io.out.ALUAsrc
+  EXU.io.ALUBsrc      <> GNU.io.out.ALUBsrc
+  EXU.io.ALUctr       <> GNU.io.out.ALUctr
+  EXU.io.csr_ctr      <> GNU.io.out.csr_ctr
+  EXU.io.Imm          <> GNU.io.out.Imm
+  EXU.io.GPR_Adata    <> GPR_RDATAa
+  EXU.io.GPR_Bdata    <> GPR_RDATAb
+  EXU.io.PC           <> GNU.io.out.PC
+  EXU.io.CSR          <> CSR_RDATA
+  EXU.io.Result       <> Result
+  EXU.io.Zero         <> Zero
+  EXU.io.Less         <> Less
 
   // REG Connections
   GPR_WADDR := GNU.io.out.inst(11, 7)

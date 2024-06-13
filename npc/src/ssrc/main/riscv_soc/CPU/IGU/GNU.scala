@@ -35,30 +35,34 @@ class GNU extends Module{
 
     io.in.ready := true.B
 
+    val inst = Wire(UInt(32.W))
+    inst <> io.out.inst
+
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
     when(io.in.valid) {
-        io.out.inst     := io.in.bits.inst
+        inst            := io.in.bits.inst
         io.out.Branch   := idu.io.Branch
     }.otherwise {
-        io.out.inst     := NOP.U(32.W)
+        inst            := NOP.U(32.W)
         io.out.Branch   := Bran_NoC
     }
 
-    idu.io.inst <> io.out.inst
-    idu.io.RegWr <> io.out.RegWr
+    idu.io.inst     <> io.out.inst
+    idu.io.RegWr    <> io.out.RegWr
     idu.io.MemtoReg <> io.out.MemtoReg
-    idu.io.MemWr <> io.out.MemWr
-    idu.io.MemOp <> io.out.MemOp
-    idu.io.ALUAsrc <> io.out.ALUAsrc
-    idu.io.ALUBsrc <> io.out.ALUBsrc
-    idu.io.ALUctr <> io.out.ALUctr
-    idu.io.csr_ctr <> io.out.csr_ctr
+    idu.io.MemWr    <> io.out.MemWr
+    idu.io.MemOp    <> io.out.MemOp
+    idu.io.ALUAsrc  <> io.out.ALUAsrc
+    idu.io.ALUBsrc  <> io.out.ALUBsrc
+    idu.io.ALUctr   <> io.out.ALUctr
+    idu.io.csr_ctr  <> io.out.csr_ctr
 
-    igu.io.inst <> io.out.inst
-    igu.io.ExtOp <> idu.io.ExtOp
-    igu.io.imm  <> io.out.Imm
+    igu.io.inst     <> inst
+    igu.io.ExtOp    <> idu.io.ExtOp
+    igu.io.imm      <> io.out.Imm
 
-    io.out.PC <> io.in.bits.PC
+    io.out.PC       <> io.in.bits.PC
+    io.out.inst     <> inst
 }

@@ -69,26 +69,26 @@ class CPU() extends Module {
   EXU.io.Imm        <> GNU.io.out.Imm
   EXU.io.GPR_Adata  <> GPR_RDATAa
   EXU.io.GPR_Bdata  <> GPR_RDATAb
-  EXU.io.PC         <> GNU.io.PC
+  EXU.io.PC         <> GNU.io.out.PC
   EXU.io.CSR        <> CSR_RDATA
   EXU.io.Result     <> Result
   EXU.io.Zero       <> Zero
   EXU.io.Less       <> Less
 
   // REG Connections
-  GPR_WADDR := GNU.io.inst(11, 7)
+  GPR_WADDR := GNU.io.out.inst(11, 7)
 
-  when(GNU.io.MemtoReg) {
+  when(GNU.io.out.MemtoReg) {
     GPR_WDATA := io.mem_rdata
   }.otherwise {
     GPR_WDATA := Result
   }
 
-  GPR_WADDR := GNU.io.inst(11, 7)
+  GPR_WADDR := GNU.io.out.inst(11, 7)
 
   REG.io.wdata := GPR_WDATA
   REG.io.waddr := GPR_WADDR
-  REG.io.wen   := GNU.io.RegWr
+  REG.io.wen   := GNU.io.out.RegWr
 
   GPR_RADDRa    := GNU.io.inst(19, 15)
   GPR_RADDRb    := GNU.io.inst(24, 20)
@@ -101,7 +101,7 @@ class CPU() extends Module {
   val PCBval = Wire(UInt(32.W))
 
   when(PCAsrc === PCAsrc_Imm) {
-    PCAval := GNU.io.Imm
+    PCAval := GNU.io.out.Imm
   }.elsewhen(PCAsrc === PCAsrc_4) {
     PCAval := 4.U
   }.elsewhen(PCAsrc === PCAsrc_0) {
@@ -123,21 +123,21 @@ class CPU() extends Module {
   REG.io.pc_in := Next_PC
   Cur_PC       := REG.io.pc_out
 
-  when(GNU.io.csr_ctr === CSR_R1W0) {
+  when(GNU.io.out.csr_ctr === CSR_R1W0) {
     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
-  }.elsewhen(GNU.io.csr_ctr === CSR_R1W2) {
+  }.elsewhen(GNU.io.out.csr_ctr === CSR_R1W2) {
     CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
   }.otherwise {
     CSR_RADDR := GNU.io.Imm(11, 0)
   }
 
-  when(GNU.io.csr_ctr === CSR_R1W2) {
+  when(GNU.io.out.csr_ctr === CSR_R1W2) {
     CSR_WADDRa := "h341".U // instruction ecall use csr mepc
   }.otherwise {
     CSR_WADDRa := GNU.io.Imm(11, 0)
   }
 
-  when(GNU.io.csr_ctr === CSR_R1W2) {
+  when(GNU.io.out.csr_ctr === CSR_R1W2) {
     CSR_WDATAa := Cur_PC // instruction ecall store current pc
   }.otherwise {
     CSR_WDATAa := GPR_RDATAa

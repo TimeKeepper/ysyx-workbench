@@ -43,10 +43,6 @@ class CPU() extends Module {
   val CSR_RADDR       = Wire(UInt(12.W))
   val CSR_RDATA       = Wire(UInt(32.W))
 
-  val Less            = Wire(Bool())
-  val Zero            = Wire(Bool())
-  val Result          = Wire(UInt(32.W))
-
   val PCAsrc          = Wire(PCAsrc_Type)
   val PCBsrc          = Wire(PCBsrc_Type)
 
@@ -71,9 +67,6 @@ class CPU() extends Module {
   EXU.io.in.GPR_Bdata    <> GPR_RDATAb
   EXU.io.in.PC           <> GNU.io.out.PC
   EXU.io.in.CSR          <> CSR_RDATA
-  EXU.io.out.Result      <> Result
-  EXU.io.out.Zero        <> Zero
-  EXU.io.out.Less        <> Less
 
   // REG Connections
   GPR_WADDR := GNU.io.out.inst(11, 7)
@@ -81,7 +74,7 @@ class CPU() extends Module {
   when(GNU.io.out.MemtoReg) {
     GPR_WDATA := io.mem_rdata
   }.otherwise {
-    GPR_WDATA := Result
+    GPR_WDATA := EXU.io.out.Result
   }
 
   GPR_WADDR := GNU.io.out.inst(11, 7)

@@ -50,10 +50,10 @@ class WBU extends Module {
         val out = new WBU_output
     })
 
-    io.Mem_wraddr <> io.in.Result
-    io.Mem_wdata  <> io.in.GPR_Bdata
-    io.MemOp_o    <> io.in.MemOp
-    io.MemWr_o    <> io.in.MemWr
+    io.out.Mem_wraddr <> io.in.Result
+    io.out.Mem_wdata  <> io.in.GPR_Bdata
+    io.out.MemOp_o    <> io.in.MemOp
+    io.out.MemWr_o    <> io.in.MemWr
 
     val bcu = Module(new BCU)
 
@@ -77,18 +77,18 @@ class WBU extends Module {
         B_RS1 -> io.in.GPR_Adata,
     ))
 
-    io.Next_Pc := PCAsrc + PCBsrc
+    io.out.Next_Pc := PCAsrc + PCBsrc
 
-    io.Reg_waddr := io.in.GPR_waddr
-    io.Reg_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
+    io.out.Reg_waddr := io.in.GPR_waddr
+    io.out.Reg_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
         Y  -> io.in.Mem_rdata,
         N  -> io.in.Result,
     ))
-    io.Reg_wen <> io.in.RegWr
+    io.out.Reg_wen <> io.in.RegWr
 
-    io.CSR_ctr_o <> io.in.csr_ctr
+    io.out.CSR_ctr_o <> io.in.csr_ctr
 
-    io.CSR_waddra := MuxLookup(io.in.csr_ctr, "h341".U)(Seq(
+    io.out.CSR_waddra := MuxLookup(io.in.csr_ctr, "h341".U)(Seq(
         CSR_R1W2 -> io.in.Imm(11, 0)
     ))
 

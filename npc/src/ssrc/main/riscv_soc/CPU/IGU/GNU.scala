@@ -68,7 +68,7 @@ class GNU extends Module{
     igu.io.imm      <> io.out.Imm
 
     io.out.PC       <> io.in.bits.PC
-    io.out.GPR_Adata       := io.in.bits.GPR_Adata
-    io.out.GPR_Bdata       := io.in.bits.GPR_Bdata
+    io.out.GPR_Adata       <> io.in.bits.GPR_Adata
+    io.out.GPR_Bdata       <> io.in.bits.GPR_Bdata
     io.out.inst     <> inst
 }

@@ -26,22 +26,22 @@ class CPU() extends Module {
   val REG             = Module(new REG()) // Register File
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.pc_output <> REG.io.pc_out
+  io.pc_output <> REG.io.out.pc_out
 
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready
 
   GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.PC   <> REG.io.pc_out
+  GNU.io.in.bits.PC   <> REG.io.out.pc_out
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
-  GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
-  GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
-  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
-  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+  GNU.io.out.inst(19, 15) <> REG.io.in.GPR_raddra
+  GNU.io.out.inst(24, 20) <> REG.io.in.GPR_raddrb
+  GNU.io.in.bits.GPR_Adata <> REG.io.out.GPR_rdataa
+  GNU.io.in.bits.GPR_Bdata <> REG.io.out.GPR_rdatab
 
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
-  GNU.io.out.CSR_raddr <> REG.io.csr_raddr
+  GNU.io.out.CSR_raddr <> REG.io.in.csr_raddr
 
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
   EXU.io.in.Branch       <> GNU.io.out.Branch
@@ -57,7 +57,7 @@ class CPU() extends Module {
   EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
   EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
   EXU.io.in.PC           <> GNU.io.out.PC
-  EXU.io.in.CSR          <> REG.io.csr_rdata
+  EXU.io.in.CSR          <> REG.io.out.csr_rdata
 
   // 第二步，EXU处理完成之后将结果传递给WBU，WBU根据结果更新系统状态，包括GPR，CSR，PC以及内存
   WBU.io.in.RegWr        <> EXU.io.out.RegWr
@@ -71,17 +71,17 @@ class CPU() extends Module {
   WBU.io.in.GPR_Bdata    <> EXU.io.out.GPR_Bdata
   WBU.io.in.GPR_waddr    <> EXU.io.out.GPR_waddr
   WBU.io.in.PC           <> EXU.io.out.PC
-  WBU.io.in.CSR          <> REG.io.csr_rdata
+  WBU.io.in.CSR          <> REG.io.out.csr_rdata
   WBU.io.in.Result       <> EXU.io.out.Result
   WBU.io.in.Zero         <> EXU.io.out.Zero
   WBU.io.in.Less         <> EXU.io.out.Less
 
   WBU.io.in.Mem_rdata    <> io.mem_rdata
 
-  REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
-  REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
-  REG.io.GPR_wen   <> WBU.io.out.GPR_wen
-  REG.io.pc_in  <> WBU.io.out.Next_Pc
+  REG.io.in.GPR_wdata <> WBU.io.out.GPR_wdata
+  REG.io.in.GPR_waddr <> WBU.io.out.GPR_waddr
+  REG.io.in.GPR_wen   <> WBU.io.out.GPR_wen
+  REG.io.in.pc_in  <> WBU.io.out.Next_Pc
 
   REG.io.csr_ctr    := WBU.io.out.CSR_ctr
   REG.io.csr_waddra := WBU.io.out.CSR_waddra

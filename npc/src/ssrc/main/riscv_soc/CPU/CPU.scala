@@ -88,29 +88,7 @@ class CPU() extends Module {
 
   REG.io.raddra <> GNU.io.out.inst(19, 15)
   REG.io.raddrb <> GNU.io.out.inst(24, 20)
-
-  val PCAval = Wire(UInt(32.W))
-  val PCBval = Wire(UInt(32.W))
-
-  when(PCAsrc === PCAsrc_Imm) {
-    PCAval := GNU.io.out.Imm
-  }.elsewhen(PCAsrc === PCAsrc_4) {
-    PCAval := 4.U
-  }.elsewhen(PCAsrc === PCAsrc_0) {
-    PCAval := 0.U
-  }.otherwise {
-    PCAval := CSR_RDATA
-  }
-
-  when(PCBsrc === PCBsrc_gpr) {
-    PCBval := EXU.io.out.GPR_Adata
-  }.elsewhen(PCBsrc === PCBsrc_pc) {
-    PCBval := REG.io.pc_out
-  }.otherwise {
-    PCBval := 0.U
-  }
-
-  REG.io.pc_in <> WBU.io.out.Next_Pc
+  REG.io.pc_in  <> WBU.io.out.Next_Pc
 
   when(GNU.io.out.csr_ctr === CSR_R1W0) {
     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc

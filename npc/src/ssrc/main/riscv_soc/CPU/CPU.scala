@@ -48,8 +48,8 @@ class CPU() extends Module {
 
   // GNU Connections
   GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.GPR_Adata <> GPR_RDATAa
-  GNU.io.in.bits.GPR_Bdata <> GPR_RDATAb
+  GNU.io.in.bits.GPR_Adata := GPR_RDATAa
+  GNU.io.in.bits.GPR_Bdata := GPR_RDATAb
   GNU.io.in.bits.PC   <> Cur_PC
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready

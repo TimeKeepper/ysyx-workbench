@@ -27,8 +27,6 @@ class CPU() extends Module {
   val BCU             = Module(new BCU()) // Branch Control Unit
 
   // wires
-  val Cur_PC          = Wire(UInt(32.W))
-
   val GPR_WDATA       = Wire(UInt(32.W))
   val GPR_RADDRa      = Wire(UInt(5.W))
   val GPR_RADDRb      = Wire(UInt(5.W))
@@ -45,7 +43,7 @@ class CPU() extends Module {
 
   // GNU Connections
   GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.PC   <> Cur_PC
+  GNU.io.in.bits.PC   <> REG.io.pc_out
   GNU.io.in.bits.GPR_Adata <> REG.io.rdataa
   GNU.io.in.bits.GPR_Bdata <> REG.io.rdatab
   GNU.io.in.valid     <> io.inst_input.valid
@@ -120,13 +118,12 @@ class CPU() extends Module {
   when(PCBsrc === PCBsrc_gpr) {
     PCBval := EXU.io.out.GPR_Adata
   }.elsewhen(PCBsrc === PCBsrc_pc) {
-    PCBval := Cur_PC
+    PCBval := REG.io.pc_out
   }.otherwise {
     PCBval := 0.U
   }
 
   REG.io.pc_in <> PCAval + PCBval
-  Cur_PC       := REG.io.pc_out
 
   when(GNU.io.out.csr_ctr === CSR_R1W0) {
     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
@@ -143,7 +140,7 @@ class CPU() extends Module {
   }
 
   when(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_WDATAa := Cur_PC // instruction ecall store current pc
+    CSR_WDATAa := REG.io.pc_out // instruction ecall store current pc
   }.otherwise {
     CSR_WDATAa := EXU.io.out.GPR_Adata
   }
@@ -175,5 +172,5 @@ class CPU() extends Module {
   io.mem_wop   := GNU.io.out.MemOp
   io.mem_wen   := GNU.io.out.MemWr
 
-  io.pc_output := Cur_PC
+  io.pc_output := REG.io.pc_out
 }

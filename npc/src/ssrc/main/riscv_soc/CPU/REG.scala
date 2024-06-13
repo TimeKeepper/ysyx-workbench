@@ -9,9 +9,9 @@ import signal_value._
 
 class REG extends Module {
   val io = IO(new Bundle {
-    val wdata = Input(UInt(32.W))
-    val waddr = Input(UInt(5.W))
-    val wen   = Input(Bool())
+    val GPR_wdata = Input(UInt(32.W))
+    val GPR_waddr = Input(UInt(5.W))
+    val GPR_wen   = Input(Bool())
 
     val raddra = Input(UInt(5.W))
     val raddrb = Input(UInt(5.W))
@@ -32,8 +32,8 @@ class REG extends Module {
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.wen && io.waddr =/= 0.U) {
-    gpr(io.waddr) := io.wdata
+  when(io.GPR_wen && io.GPR_waddr =/= 0.U) {
+    gpr(io.GPR_waddr) := io.GPR_wdata
   }
 
   io.rdataa := gpr(io.raddra)

@@ -70,9 +70,9 @@ class CPU() extends Module {
   WBU.io.in.Mem_rdata    <> io.mem_rdata
 
   // REG Connections
-  REG.io.wdata <> WBU.io.out.GPR_wdata
-  REG.io.waddr <> WBU.io.out.GPR_waddr
-  REG.io.wen   <> WBU.io.out.GPR_wen
+  REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
+  REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
+  REG.io.GPR_wen   <> WBU.io.out.GPR_wen
 
   REG.io.raddra <> GNU.io.out.inst(19, 15)
   REG.io.raddrb <> GNU.io.out.inst(24, 20)

@@ -26,17 +26,6 @@ class CPU() extends Module {
   val REG             = Module(new REG()) // Register File
   val BCU             = Module(new BCU()) // Branch Control Unit
 
-  // wires
-  val CSR_WADDRa      = Wire(UInt(12.W))
-  val CSR_WADDRb      = Wire(UInt(12.W))
-  val CSR_WDATAa      = Wire(UInt(32.W))
-  val CSR_WDATAb      = Wire(UInt(32.W))
-  val CSR_RADDR       = Wire(UInt(12.W))
-  val CSR_RDATA       = Wire(UInt(32.W))
-
-  val PCAsrc          = Wire(PCAsrc_Type)
-  val PCBsrc          = Wire(PCBsrc_Type)
-
   // GNU Connections
   GNU.io.in.bits.inst <> io.inst_input.bits
   GNU.io.in.bits.PC   <> REG.io.pc_out
@@ -89,29 +78,6 @@ class CPU() extends Module {
   REG.io.raddra <> GNU.io.out.inst(19, 15)
   REG.io.raddrb <> GNU.io.out.inst(24, 20)
   REG.io.pc_in  <> WBU.io.out.Next_Pc
-
-  when(GNU.io.out.csr_ctr === CSR_R1W0) {
-    CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
-  }.elsewhen(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
-  }.otherwise {
-    CSR_RADDR := GNU.io.out.Imm(11, 0)
-  }
-
-  when(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_WADDRa := "h341".U // instruction ecall use csr mepc
-  }.otherwise {
-    CSR_WADDRa := GNU.io.out.Imm(11, 0)
-  }
-
-  when(GNU.io.out.csr_ctr === CSR_R1W2) {
-    CSR_WDATAa := REG.io.pc_out // instruction ecall store current pc
-  }.otherwise {
-    CSR_WDATAa := EXU.io.out.GPR_Adata
-  }
-
-  CSR_WADDRb := "h342".U // instruction ecall write mstatus
-  CSR_WDATAb := 11.U // for now, only set error status 11
 
   REG.io.csr_ctr    := WBU.io.out.CSR_ctr
   REG.io.csr_waddra := WBU.io.out.CSR_waddra

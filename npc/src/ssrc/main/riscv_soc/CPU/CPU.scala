@@ -57,16 +57,16 @@ class CPU() extends Module {
   GNU.io.in.bits.PC   <> Cur_PC
 
   // EXU Connections
-  EXU.io.RegWr      <> GNU.io.RegWr
-  EXU.io.Branch     <> GNU.io.Branch
-  EXU.io.MemtoReg   <> GNU.io.MemtoReg
-  EXU.io.MemWr      <> GNU.io.MemWr
-  EXU.io.MemOp      <> GNU.io.MemOp
-  EXU.io.ALUAsrc    <> GNU.io.ALUAsrc
-  EXU.io.ALUBsrc    <> GNU.io.ALUBsrc
-  EXU.io.ALUctr     <> GNU.io.ALUctr
-  EXU.io.csr_ctr    <> GNU.io.csr_ctr
-  EXU.io.Imm        <> GNU.io.Imm
+  EXU.io.RegWr      <> GNU.io.out.RegWr
+  EXU.io.Branch     <> GNU.io.out.Branch
+  EXU.io.MemtoReg   <> GNU.io.out.MemtoReg
+  EXU.io.MemWr      <> GNU.io.out.MemWr
+  EXU.io.MemOp      <> GNU.io.out.MemOp
+  EXU.io.ALUAsrc    <> GNU.io.out.ALUAsrc
+  EXU.io.ALUBsrc    <> GNU.io.out.ALUBsrc
+  EXU.io.ALUctr     <> GNU.io.out.ALUctr
+  EXU.io.csr_ctr    <> GNU.io.out.csr_ctr
+  EXU.io.Imm        <> GNU.io.out.Imm
   EXU.io.GPR_Adata  <> GPR_RDATAa
   EXU.io.GPR_Bdata  <> GPR_RDATAb
   EXU.io.PC         <> GNU.io.PC

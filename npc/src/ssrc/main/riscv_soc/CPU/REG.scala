@@ -59,10 +59,10 @@ class REG extends Module {
   io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
   when(io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2) {
-    csr((io.csr_waddra - "h300".U)(6, 0)) := io.csr_wdataa
+    csr((io.in.csr_waddra - "h300".U)(6, 0)) := io.in.csr_wdataa
   }
 
   when(io.csr_ctr === CSR_R1W2) {
-    csr((io.csr_waddrb - "h300".U)(6, 0)) := io.csr_wdatab
+    csr((io.in.csr_waddrb - "h300".U)(6, 0)) := io.in.csr_wdatab
   }
 }

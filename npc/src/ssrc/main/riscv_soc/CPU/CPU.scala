@@ -129,7 +129,7 @@ class CPU() extends Module {
   when(GNU.io.out.csr_ctr === CSR_R1W2) {
     CSR_WDATAa := Cur_PC // instruction ecall store current pc
   }.otherwise {
-    CSR_WDATAa := GPR_RDATAa
+    CSR_WDATAa := EXU.io.out.GPR_Adata
   }
 
   CSR_WADDRb := "h342".U // instruction ecall write mstatus
@@ -155,7 +155,7 @@ class CPU() extends Module {
 
   // Memory Connections
   io.mem_wraddr := EXU.io.out.Result
-  io.mem_wdata := GPR_RDATAb
+  io.mem_wdata := EXU.io.out.GPR_Bdata
   io.mem_wop   := GNU.io.out.MemOp
   io.mem_wen   := GNU.io.out.MemWr
 

@@ -30,14 +30,14 @@ class WBU_input extends Bundle{
 class WBU_output extends Bundle{
     val Mem_wraddr = Output(UInt(32.W))
     val Mem_wdata  = Output(UInt(32.W))
-    val MemOp_o    = Output(MemOp_Type)
-    val MemWr_o    = Output(Bool())
+    val MemOp    = Output(MemOp_Type)
+    val MemWr    = Output(Bool())
 
     val Next_Pc   = Output(UInt(32.W))
     val Reg_waddr = Output(UInt(5.W))
     val Reg_wdata = Output(UInt(32.W))
     val Reg_wen   = Output(Bool())
-    val CSR_ctr_o = Output(CSR_Type)
+    val CSR_ctr = Output(CSR_Type)
     val CSR_waddra= Output(UInt(12.W))
     val CSR_waddrb= Output(UInt(12.W))
     val CSR_wdataa= Output(UInt(32.W))
@@ -52,8 +52,8 @@ class WBU extends Module {
 
     io.out.Mem_wraddr <> io.in.Result
     io.out.Mem_wdata  <> io.in.GPR_Bdata
-    io.out.MemOp_o    <> io.in.MemOp
-    io.out.MemWr_o    <> io.in.MemWr
+    io.out.MemOp    <> io.in.MemOp
+    io.out.MemWr    <> io.in.MemWr
 
     val bcu = Module(new BCU)
 
@@ -86,7 +86,7 @@ class WBU extends Module {
     ))
     io.out.Reg_wen <> io.in.RegWr
 
-    io.out.CSR_ctr_o <> io.in.csr_ctr
+    io.out.CSR_ctr <> io.in.csr_ctr
 
     io.out.CSR_waddra := MuxLookup(io.in.csr_ctr, "h341".U)(Seq(
         CSR_R1W2 -> io.in.Imm(11, 0)

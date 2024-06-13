@@ -29,7 +29,6 @@ class CPU() extends Module {
   val Next_PC         = Wire(UInt(32.W))
   val Cur_PC          = Wire(UInt(32.W))
 
-  val GPR_WADDR       = Wire(UInt(5.W))
   val GPR_WDATA       = Wire(UInt(32.W))
   val GPR_RADDRa      = Wire(UInt(5.W))
   val GPR_RADDRb      = Wire(UInt(5.W))

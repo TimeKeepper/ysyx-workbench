@@ -67,7 +67,7 @@ class GNU extends Module{
     idu.io.MemWr <> io.out.MemWr
     idu.io.MemOp <> io.out.MemOp
     idu.io.ALUAsrc <> io.out.ALUAsrc
-    idu.io.ALUBsrc <> io.out.LUBsrc
+    idu.io.ALUBsrc <> io.out.ALUBsrc
     idu.io.ALUctr <> io.out.ALUctr
     idu.io.csr_ctr <> io.out.csr_ctr
 

@@ -90,8 +90,8 @@ class CPU() extends Module {
   REG.io.waddr := GPR_WADDR
   REG.io.wen   := GNU.io.out.RegWr
 
-  GPR_RADDRa    := GNU.io.inst(19, 15)
-  GPR_RADDRb    := GNU.io.inst(24, 20)
+  GPR_RADDRa    := GNU.io.out.inst(19, 15)
+  GPR_RADDRb    := GNU.io.out.inst(24, 20)
   REG.io.raddra := GPR_RADDRa
   REG.io.raddrb := GPR_RADDRb
   GPR_RDATAa    := REG.io.rdataa
@@ -128,7 +128,7 @@ class CPU() extends Module {
   }.elsewhen(GNU.io.out.csr_ctr === CSR_R1W2) {
     CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
   }.otherwise {
-    CSR_RADDR := GNU.io.Imm(11, 0)
+    CSR_RADDR := GNU.io.out.Imm(11, 0)
   }
 
   when(GNU.io.out.csr_ctr === CSR_R1W2) {
@@ -167,8 +167,8 @@ class CPU() extends Module {
   // Memory Connections
   io.mem_wraddr := Result
   io.mem_wdata := GPR_RDATAb
-  io.mem_wop   := GNU.io.MemOp
-  io.mem_wen   := GNU.io.MemWr
+  io.mem_wop   := GNU.io.out.MemOp
+  io.mem_wen   := GNU.io.out.MemWr
 
   io.pc_output := Cur_PC
 }

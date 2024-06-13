@@ -8,10 +8,8 @@ import Instructions._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
 class GNU_input extends Bundle{
-    val inst        = Input(UInt(32.W))
-    val GPR_Adata   = Input(UInt(32.W))
-    val GPR_Bdata   = Input(UInt(32.W))
-    val PC          = Input(UInt(32.W))
+    val inst = Input(UInt(32.W))
+    val PC   = Input(UInt(32.W))
 }
 
 class GNU_output extends Bundle{
@@ -26,8 +24,6 @@ class GNU_output extends Bundle{
     val ALUctr   = Output(ALUctr_Type)
     val csr_ctr  = Output(CSR_Type)
     val Imm      = Output(UInt(32.W))
-    val GPR_Adata = Input(UInt(32.W))
-    val GPR_Bdata = Input(UInt(32.W))
     val PC       = Output(UInt(32.W))
 }
 
@@ -68,7 +64,5 @@ class GNU extends Module{
     igu.io.imm      <> io.out.Imm
 
     io.out.PC       <> io.in.bits.PC
-    io.out.GPR_Adata       <> io.in.bits.GPR_Adata
-    io.out.GPR_Bdata       <> io.in.bits.GPR_Bdata
     io.out.inst     <> inst
 }

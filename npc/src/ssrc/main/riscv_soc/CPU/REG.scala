@@ -13,10 +13,10 @@ class REG extends Module {
     val GPR_waddr = Input(UInt(5.W))
     val GPR_wen   = Input(Bool())
 
-    val raddra = Input(UInt(5.W))
-    val raddrb = Input(UInt(5.W))
-    val rdataa = Output(UInt(32.W))
-    val rdatab = Output(UInt(32.W))
+    val GPR_raddra = Input(UInt(5.W))
+    val GPR_raddrb = Input(UInt(5.W))
+    val GPR_rdataa = Output(UInt(32.W))
+    val GPR_rdatab = Output(UInt(32.W))
 
     val pc_in  = Input(UInt(32.W))
     val pc_out = Output(UInt(32.W))

@@ -134,7 +134,7 @@ class CPU() extends Module {
   when(GNU.io.out.csr_ctr === CSR_R1W2) {
     CSR_WADDRa := "h341".U // instruction ecall use csr mepc
   }.otherwise {
-    CSR_WADDRa := GNU.io.Imm(11, 0)
+    CSR_WADDRa := GNU.io.out.Imm(11, 0)
   }
 
   when(GNU.io.out.csr_ctr === CSR_R1W2) {
@@ -146,7 +146,7 @@ class CPU() extends Module {
   CSR_WADDRb := "h342".U // instruction ecall write mstatus
   CSR_WDATAb := 11.U // for now, only set error status 11
 
-  REG.io.csr_ctr    := GNU.io.csr_ctr
+  REG.io.csr_ctr    := GNU.io.out.csr_ctr
   REG.io.csr_waddra := CSR_WADDRa
   REG.io.csr_waddrb := CSR_WADDRb
   REG.io.csr_wdataa := CSR_WDATAa
@@ -157,7 +157,7 @@ class CPU() extends Module {
   CSR_RDATA := REG.io.csr_rdata
 
   // BCU Connections
-  BCU.io.Branch <> GNU.io.Branch
+  BCU.io.Branch <> GNU.io.out.Branch
   BCU.io.Zero   := Zero
   BCU.io.Less   := Less
 

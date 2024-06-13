@@ -47,21 +47,7 @@ class WBU_output extends Bundle{
 class WBU extends Module {
     val io = IO(new Bundle{
         val in = new WBU_input 
-
-        val Mem_wraddr = Output(UInt(32.W))
-        val Mem_wdata  = Output(UInt(32.W))
-        val MemOp_o    = Output(MemOp_Type)
-        val MemWr_o    = Output(Bool())
-
-        val Next_Pc   = Output(UInt(32.W))
-        val Reg_waddr = Output(UInt(5.W))
-        val Reg_wdata = Output(UInt(32.W))
-        val Reg_wen   = Output(Bool())
-        val CSR_ctr_o = Output(CSR_Type)
-        val CSR_waddra= Output(UInt(12.W))
-        val CSR_waddrb= Output(UInt(12.W))
-        val CSR_wdataa= Output(UInt(32.W))
-        val CSR_wdatab= Output(UInt(32.W))
+        val out = new WBU_output
     })
 
     io.Mem_wraddr <> io.in.Result

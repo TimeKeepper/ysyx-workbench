@@ -55,10 +55,10 @@ class GNU extends Module{
 
     when(io.in.valid) {
         inst := io.in.bits.inst
-        io.Branch := idu.io.Branch
+        io.out.Branch := idu.io.Branch
     }.otherwise {
         inst := NOP.U(32.W)
-        io.Branch := Bran_NoC
+        io.out.Branch := Bran_NoC
     }
 
     idu.io.inst <> inst

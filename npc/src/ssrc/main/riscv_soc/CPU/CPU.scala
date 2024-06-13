@@ -65,8 +65,8 @@ class CPU() extends Module {
   EXU.io.in.ALUctr       <> GNU.io.out.ALUctr
   EXU.io.in.csr_ctr      <> GNU.io.out.csr_ctr
   EXU.io.in.Imm          <> GNU.io.out.Imm
-  EXU.io.in.GPR_Adata    <> GPR_RDATAa
-  EXU.io.in.GPR_Bdata    <> GPR_RDATAb
+  EXU.io.in.GPR_Adata    <> GNU.io.out.GPR_Adata
+  EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
   EXU.io.in.PC           <> GNU.io.out.PC
   EXU.io.in.CSR          <> CSR_RDATA
 

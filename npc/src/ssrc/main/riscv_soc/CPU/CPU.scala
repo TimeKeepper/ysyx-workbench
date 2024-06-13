@@ -26,13 +26,13 @@ class CPU() extends Module {
   val REG             = Module(new REG()) // Register File
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.pc_output <> REG.io.out.pc_out
+  io.pc_output <> REG.io.out.pc
 
   GNU.io.in.valid     <> io.inst_input.valid
   GNU.io.in.ready     <> io.inst_input.ready
 
   GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.PC   <> REG.io.out.pc_out
+  GNU.io.in.bits.PC   <> REG.io.out.pc
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.inst(19, 15) <> REG.io.in.GPR_raddra
@@ -81,7 +81,7 @@ class CPU() extends Module {
   REG.io.in.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.in.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.in.GPR_wen   <> WBU.io.out.GPR_wen
-  REG.io.in.pc_in  <> WBU.io.out.Next_Pc
+  REG.io.in.pc  <> WBU.io.out.Next_Pc
 
   REG.io.in.csr_ctr    := WBU.io.out.CSR_ctr
   REG.io.in.csr_waddra := WBU.io.out.CSR_waddra

@@ -12,29 +12,43 @@ class GNU_input extends Bundle{
     val PC   = Input(UInt(32.W))
 }
 
+class GNU_output extends Bundle{
+    val inst     = Output(UInt(32.W))
+    val RegWr    = Output(Bool())
+    val Branch   = Output(Bran_Type)
+    val MemtoReg = Output(Bool())
+    val MemWr    = Output(Bool())
+    val MemOp    = Output(MemOp_Type)
+    val ALUAsrc  = Output(ALUAsrc_Type)
+    val ALUBsrc  = Output(ALUBSrc_Type)
+    val ALUctr   = Output(ALUctr_Type)
+    val csr_ctr  = Output(CSR_Type)
+    val Imm      = Output(UInt(32.W))
+    val PC       = Output(UInt(32.W))
+}
+
 class GNU extends Module{
     val io = IO(new Bundle{
         val in       = Flipped(Decoupled(new GNU_input))
-        // val inst_input= Flipped(Decoupled(UInt(32.W)))
-        // val PC_input = Input(UInt(32.W))
-        val inst     = Output(UInt(32.W))
-        val RegWr    = Output(Bool())
-        val Branch   = Output(Bran_Type)
-        val MemtoReg = Output(Bool())
-        val MemWr    = Output(Bool())
-        val MemOp    = Output(MemOp_Type)
-        val ALUAsrc  = Output(ALUAsrc_Type)
-        val ALUBsrc  = Output(ALUBSrc_Type)
-        val ALUctr   = Output(ALUctr_Type)
-        val csr_ctr  = Output(CSR_Type)
-        val Imm      = Output(UInt(32.W))
-        val PC       = Output(UInt(32.W))
+        val out      = new GNU_output
+        // val inst     = Output(UInt(32.W))
+        // val RegWr    = Output(Bool())
+        // val Branch   = Output(Bran_Type)
+        // val MemtoReg = Output(Bool())
+        // val MemWr    = Output(Bool())
+        // val MemOp    = Output(MemOp_Type)
+        // val ALUAsrc  = Output(ALUAsrc_Type)
+        // val ALUBsrc  = Output(ALUBSrc_Type)
+        // val ALUctr   = Output(ALUctr_Type)
+        // val csr_ctr  = Output(CSR_Type)
+        // val Imm      = Output(UInt(32.W))
+        // val PC       = Output(UInt(32.W))
     })
 
     io.in.ready := true.B
 
     val inst = Wire(UInt(32.W))
-    inst <> io.inst
+    inst <> io.out.inst
 
     val idu = Module(new IDU)
     val igu = Module(new IGU)
@@ -48,18 +62,18 @@ class GNU extends Module{
     }
 
     idu.io.inst <> inst
-    idu.io.RegWr <> io.RegWr
-    idu.io.MemtoReg <> io.MemtoReg
-    idu.io.MemWr <> io.MemWr
-    idu.io.MemOp <> io.MemOp
-    idu.io.ALUAsrc <> io.ALUAsrc
-    idu.io.ALUBsrc <> io.ALUBsrc
-    idu.io.ALUctr <> io.ALUctr
-    idu.io.csr_ctr <> io.csr_ctr
+    idu.io.RegWr <> io.out.RegWr
+    idu.io.MemtoReg <> io.out.MemtoReg
+    idu.io.MemWr <> io.out.MemWr
+    idu.io.MemOp <> io.out.MemOp
+    idu.io.ALUAsrc <> io.out.ALUAsrc
+    idu.io.ALUBsrc <> io.out.LUBsrc
+    idu.io.ALUctr <> io.out.ALUctr
+    idu.io.csr_ctr <> io.out.csr_ctr
 
     igu.io.inst <> inst
     igu.io.ExtOp <> idu.io.ExtOp
-    igu.io.imm  <> io.Imm
+    igu.io.imm  <> io.out.Imm
 
-    io.PC <> io.in.bits.PC
+    io.out.PC <> io.in.bits.PC
 }

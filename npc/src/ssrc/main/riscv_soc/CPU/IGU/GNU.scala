@@ -28,6 +28,7 @@ class GNU_output extends Bundle{
     val Imm      = Output(UInt(32.W))
     val GPR_Adata = Output(UInt(32.W))
     val GPR_Bdata = Output(UInt(32.W))
+    val GPR_waddr = Output(UInt(5.W))
     val PC       = Output(UInt(32.W))
 }
 
@@ -69,6 +70,7 @@ class GNU extends Module{
 
     io.out.GPR_Adata <> io.in.bits.GPR_Adata
     io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
+    io.out.GPR_waddr <> idu.io.in.bits.inst(11, 7)
     io.out.PC       <> io.in.bits.PC
     io.out.inst     <> inst
 }

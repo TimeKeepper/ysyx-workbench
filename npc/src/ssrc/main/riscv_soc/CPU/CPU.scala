@@ -65,11 +65,11 @@ class CPU() extends Module {
   EXU.io.in.Imm          <> GNU.io.out.Imm
   EXU.io.in.GPR_Adata    <> GNU.io.out.GPR_Adata
   EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
+  EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
   EXU.io.in.PC           <> GNU.io.out.PC
   EXU.io.in.CSR          <> CSR_RDATA
 
   // REG Connections
-  GPR_WADDR := GNU.io.out.inst(11, 7)
 
   when(GNU.io.out.MemtoReg) {
     GPR_WDATA := io.mem_rdata
@@ -77,10 +77,8 @@ class CPU() extends Module {
     GPR_WDATA := EXU.io.out.Result
   }
 
-  GPR_WADDR := GNU.io.out.inst(11, 7)
-
   REG.io.wdata := GPR_WDATA
-  REG.io.waddr := GPR_WADDR
+  REG.io.waddr := EXU.io.out.GPR_waddr
   REG.io.wen   := GNU.io.out.RegWr
 
   GPR_RADDRa    := GNU.io.out.inst(19, 15)

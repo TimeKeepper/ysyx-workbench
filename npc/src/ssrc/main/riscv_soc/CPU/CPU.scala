@@ -114,7 +114,7 @@ class CPU() extends Module {
   CSR_WDATAb := 11.U // for now, only set error status 11
 
   REG.io.csr_ctr    := WBU.io.out.CSR_ctr
-  REG.io.csr_waddra := WBU.io.out.CSR_waddra
+  REG.io.csr_waddra := CSR_WADDRa
   REG.io.csr_waddrb := WBU.io.out.CSR_waddrb
   REG.io.csr_wdataa := WBU.io.out.CSR_wdataa
   REG.io.csr_wdatab := WBU.io.out.CSR_wdatab

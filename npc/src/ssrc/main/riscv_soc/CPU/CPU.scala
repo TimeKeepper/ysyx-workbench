@@ -49,7 +49,7 @@ class CPU() extends Module {
   EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
   EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
   EXU.io.in.PC           <> GNU.io.out.PC
-  EXU.io.in.CSR          <> CSR_RDATA
+  EXU.io.in.CSR          <> REG.io.csr_rdata
 
   // WBU Connections
   WBU.io.in.RegWr        <> EXU.io.out.RegWr
@@ -63,7 +63,7 @@ class CPU() extends Module {
   WBU.io.in.GPR_Bdata    <> EXU.io.out.GPR_Bdata
   WBU.io.in.GPR_waddr    <> EXU.io.out.GPR_waddr
   WBU.io.in.PC           <> EXU.io.out.PC
-  WBU.io.in.CSR          <> CSR_RDATA
+  WBU.io.in.CSR          <> REG.io.csr_rdata
   WBU.io.in.Result       <> EXU.io.out.Result
   WBU.io.in.Zero         <> EXU.io.out.Zero
   WBU.io.in.Less         <> EXU.io.out.Less
@@ -86,8 +86,6 @@ class CPU() extends Module {
   REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
 
   REG.io.csr_raddr := GNU.io.out.CSR_raddr
-
-  CSR_RDATA := REG.io.csr_rdata
 
   // BCU Connections
   BCU.io.Branch <> GNU.io.out.Branch

@@ -30,12 +30,12 @@ class IFU extends Module {
   val s_wait_valid :: s_wait_ready :: Nil = Enum(2)
   val state                               = RegInit(s_wait_valid)
 
-  io.in.ready  := state === s_wait_valid
+  io.in.ready  := (state === s_wait_valid) && io.inst_done
   io.out.valid := state === s_wait_ready
 
   state := MuxLookup(state, s_wait_ready)(
     Seq(
-      s_wait_valid -> Mux(io.in.valid && io.inst_done, s_wait_ready, s_wait_valid),
+      s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
       s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
     )
   )

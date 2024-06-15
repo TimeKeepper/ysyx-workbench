@@ -43,7 +43,7 @@ class GNU extends Module {
   val state                               = RegInit(s_wait_valid)
 
   io.in.ready  := (state === s_wait_valid)
-  io.out.valid := (state === s_wait_ready)
+  io.out.valid := (state === s_wait_valid)
 
   state := MuxLookup(state, s_wait_valid)(
     Seq(

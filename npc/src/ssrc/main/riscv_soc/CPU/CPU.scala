@@ -36,8 +36,8 @@ class CPU() extends Module {
 
   GNU.io.in.valid <> IFU.io.out.valid
   GNU.io.in.ready <> IFU.io.out.ready
-  GNU.io.out.valid <> IFU.io.in.ready
-  GNU.io.out.ready := 1.U
+  GNU.io.out.valid <> IFU.io.in.valid
+  GNU.io.out.ready <> IFU.io.in.ready
 
   GNU.io.in.bits.inst <> IFU.io.out.bits.inst
   GNU.io.in.bits.PC <> IFU.io.out.bits.pc

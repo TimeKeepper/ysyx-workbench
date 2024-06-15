@@ -41,28 +41,28 @@ class CPU() extends Module {
   GNU.io.in.bits.PC <> IFU.io.out.bits.pc
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
-  GNU.io.out.inst(19, 15) <> REG.io.in.GPR_raddra
-  GNU.io.out.inst(24, 20) <> REG.io.in.GPR_raddrb
+  GNU.io.out.bits.inst(19, 15) <> REG.io.in.GPR_raddra
+  GNU.io.out.bits.inst(24, 20) <> REG.io.in.GPR_raddrb
   GNU.io.in.bits.GPR_Adata <> REG.io.out.GPR_rdataa
   GNU.io.in.bits.GPR_Bdata <> REG.io.out.GPR_rdatab
 
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
-  GNU.io.out.CSR_raddr <> REG.io.in.csr_raddr
+  GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr
 
-  EXU.io.in.RegWr <> GNU.io.out.RegWr
-  EXU.io.in.Branch <> GNU.io.out.Branch
-  EXU.io.in.MemtoReg <> GNU.io.out.MemtoReg
-  EXU.io.in.MemWr <> GNU.io.out.MemWr
-  EXU.io.in.MemOp <> GNU.io.out.MemOp
-  EXU.io.in.ALUAsrc <> GNU.io.out.ALUAsrc
-  EXU.io.in.ALUBsrc <> GNU.io.out.ALUBsrc
-  EXU.io.in.ALUctr <> GNU.io.out.ALUctr
-  EXU.io.in.csr_ctr <> GNU.io.out.csr_ctr
-  EXU.io.in.Imm <> GNU.io.out.Imm
-  EXU.io.in.GPR_Adata <> GNU.io.out.GPR_Adata
-  EXU.io.in.GPR_Bdata <> GNU.io.out.GPR_Bdata
-  EXU.io.in.GPR_waddr <> GNU.io.out.GPR_waddr
-  EXU.io.in.PC <> GNU.io.out.PC
+  EXU.io.in.RegWr <> GNU.io.out.bits.RegWr
+  EXU.io.in.Branch <> GNU.io.out.bits.Branch
+  EXU.io.in.MemtoReg <> GNU.io.out.bits.MemtoReg
+  EXU.io.in.MemWr <> GNU.io.out.bits.MemWr
+  EXU.io.in.MemOp <> GNU.io.out.bits.MemOp
+  EXU.io.in.ALUAsrc <> GNU.io.out.bits.ALUAsrc
+  EXU.io.in.ALUBsrc <> GNU.io.out.bits.ALUBsrc
+  EXU.io.in.ALUctr <> GNU.io.out.bits.ALUctr
+  EXU.io.in.csr_ctr <> GNU.io.out.bits.csr_ctr
+  EXU.io.in.Imm <> GNU.io.out.bits.Imm
+  EXU.io.in.GPR_Adata <> GNU.io.out.bits.GPR_Adata
+  EXU.io.in.GPR_Bdata <> GNU.io.out.bits.GPR_Bdata
+  EXU.io.in.GPR_waddr <> GNU.io.out.bits.GPR_waddr
+  EXU.io.in.PC <> GNU.io.out.bits.PC
   EXU.io.in.CSR <> REG.io.out.csr_rdata
 
   // 第二步，EXU处理完成之后将结果传递给WBU，WBU根据结果更新系统状态，包括GPR，CSR，PC以及内存
@@ -97,6 +97,6 @@ class CPU() extends Module {
 
   io.mem_wraddr := EXU.io.out.Result
   io.mem_wdata  := EXU.io.out.GPR_Bdata
-  io.mem_wop    := GNU.io.out.MemOp
+  io.mem_wop    := GNU.io.out.bits.MemOp
   io.mem_wen    := GNU.io.out.MemWr
 }

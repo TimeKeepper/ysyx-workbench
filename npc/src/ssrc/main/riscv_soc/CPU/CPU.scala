@@ -52,6 +52,8 @@ class CPU() extends Module {
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr
 
+  EXU.io.in.valid <> GNU.io.out.valid
+  EXU.io.in.ready <> GNU.io.out.ready
   EXU.io.in.RegWr <> GNU.io.out.bits.RegWr
   EXU.io.in.Branch <> GNU.io.out.bits.Branch
   EXU.io.in.MemtoReg <> GNU.io.out.bits.MemtoReg

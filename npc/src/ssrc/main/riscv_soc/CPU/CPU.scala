@@ -20,7 +20,7 @@ class CPU() extends Module {
   })
 
   // Modules
-  val IFU = Module(new IFU()) // Instruction Fetch Unit
+  // val IFU = Module(new IFU()) // Instruction Fetch Unit
   val GNU = Module(new GNU()) // Generating Number Unit
   val EXU = Module(new EXU()) // Execution Unit
   val WBU = Module(new WBU()) // Write Back Unit
@@ -29,19 +29,20 @@ class CPU() extends Module {
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.pc_output <> REG.io.out.pc
 
-  IFU.io.in.valid <> io.inst_input.valid
-  IFU.io.in.ready <> io.inst_input.ready
-  IFU.io.in.bits.inst <> io.inst_input.bits
-  IFU.io.in.bits.pc <> REG.io.out.pc
+  // IFU.io.in.valid <> io.inst_input.valid
+  // IFU.io.in.ready <> io.inst_input.ready
+  // IFU.io.in.bits.inst <> io.inst_input.bits
+  // IFU.io.in.bits.pc <> REG.io.out.pc
 
-  GNU.io.in.valid <> IFU.io.out.valid
-  GNU.io.in.ready <> IFU.io.out.ready
-  GNU.io.out.valid <> IFU.io.inst_done
-  GNU.io.out.ready <> 1.U
+  // GNU.io.in.valid <> IFU.io.out.valid
+  // GNU.io.in.ready <> IFU.io.out.ready
+  // GNU.io.out.valid <> IFU.io.inst_done
+  // GNU.io.out.ready <> 1.U
 
-  GNU.io.in.bits.inst <> IFU.io.out.bits.inst
-  GNU.io.in.bits.PC <> IFU.io.out.bits.pc
-
+  GNU.io.in.valid <> io.inst_input.valid
+  GNU.io.in.ready <> io.inst_input.ready
+  GNU.io.in.bits.inst <> io.inst_input.bits
+  GNU.io.in.bits.PC <> REG.io.out.pc
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.bits.inst(19, 15) <> REG.io.in.GPR_raddra
   GNU.io.out.bits.inst(24, 20) <> REG.io.in.GPR_raddrb

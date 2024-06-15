@@ -98,5 +98,5 @@ class CPU() extends Module {
   io.mem_wraddr := EXU.io.out.Result
   io.mem_wdata  := EXU.io.out.GPR_Bdata
   io.mem_wop    := GNU.io.out.bits.MemOp
-  io.mem_wen    := GNU.io.out.MemWr
+  io.mem_wen    := GNU.io.out.bits.MemWr
 }

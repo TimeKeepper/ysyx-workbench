@@ -17,12 +17,9 @@ class npc extends Module {
     val mem_wen   = Output(Bool())
   })
 
-  val sram = Module(new SRAM)
-  sram.io.inst_input <> io.inst
-
   val riscv_cpu = Module(new CPU)
 
-  riscv_cpu.io.inst_input <> sram.io.inst_output
+  riscv_cpu.io.inst_input <> io.inst
   riscv_cpu.io.mem_rdata <> io.mem_rdata
   riscv_cpu.io.mem_wraddr <> io.mem_wraddr
 

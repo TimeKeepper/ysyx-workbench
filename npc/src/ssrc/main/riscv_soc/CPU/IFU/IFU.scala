@@ -32,7 +32,7 @@ class IFU extends Module {
   io.in.ready  := state === s_wait_valid
   io.out.valid := state === s_wait_ready
 
-  state := MuxLookup(state, s_wait_valid)(
+  state := MuxLookup(state, s_wait_ready)(
     Seq(
       s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
       s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)

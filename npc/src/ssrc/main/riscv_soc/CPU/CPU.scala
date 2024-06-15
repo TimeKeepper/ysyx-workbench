@@ -30,13 +30,12 @@ class CPU() extends Module {
   io.pc_output <> REG.io.out.pc
 
   IFU.io.in.valid <> io.inst_input.valid
-  IFU.io.in.ready <> io.inst_input.ready
   IFU.io.in.bits.inst <> io.inst_input.bits
   IFU.io.in.bits.pc <> REG.io.out.pc
 
   GNU.io.in.valid <> IFU.io.out.valid
   GNU.io.in.ready <> IFU.io.out.ready
-  GNU.io.out.valid <> IFU.io.in.ready
+  GNU.io.out.valid <> io.inst_input.ready
   GNU.io.out.ready <> 1.U
 
   GNU.io.in.bits.inst <> IFU.io.out.bits.inst

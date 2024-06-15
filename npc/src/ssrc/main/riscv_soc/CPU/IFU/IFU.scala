@@ -21,6 +21,7 @@ class IFU extends Module {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new IFU_input))
     val out = Decoupled(new IFU_output)
+    val inst_done = Output(Bool())
   })
 
   val pc   = RegInit(0.U(32.W))
@@ -34,7 +35,7 @@ class IFU extends Module {
 
   state := MuxLookup(state, s_wait_ready)(
     Seq(
-      s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
+      s_wait_valid -> Mux(io.in.valid && io.inst_done, s_wait_ready, s_wait_valid),
       s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
     )
   )

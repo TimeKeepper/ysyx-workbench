@@ -33,7 +33,6 @@ class BCU extends Module {
     Seq(
       Bran_Jmpr -> PCBsrc_gpr,
       Bran_Jcsr -> PCBsrc_0,
-      Bran_NoC -> PCBsrc_pc
     )
   )
 }

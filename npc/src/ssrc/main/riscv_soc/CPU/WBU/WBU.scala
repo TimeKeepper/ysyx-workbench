@@ -75,6 +75,7 @@ class WBU extends Module {
   PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(
     Seq(
       PCBsrc_gpr -> io.in.GPR_Adata,
+      PCBsrc_pc -> io.in.PC,
       PCBsrc_0 -> 0.U
     )
   )

@@ -75,7 +75,7 @@ class GNU extends Module {
   io.out.bits.GPR_Bdata <> io.in.bits.GPR_Bdata
   io.out.bits.GPR_waddr <> io.out.bits.inst(11, 7)
   io.out.bits.PC <> io.in.bits.PC
-  io.out.bits.io.out.bits.inst <> io.out.bits.inst
+  io.out.bits.inst <> io.out.bits.inst
 
   io.out.bits.CSR_raddr := MuxLookup(io.out.bits.csr_ctr, io.out.bits.Imm(11, 0))(
     Seq(

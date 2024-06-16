@@ -52,19 +52,11 @@ class GNU extends Module {
     )
   )
 
-  val inst = Wire(UInt(32.W))
-  inst <> io.out.bits.inst
-
   val idu = Module(new IDU)
   val igu = Module(new IGU)
 
-  when(io.in.valid) {
-    inst          := io.in.bits.inst
-  }.otherwise {
-    inst          := NOP.U(32.W)
-  }
 
-  idu.io.inst <> inst
+  idu.io.inst <> io.out.bits.inst
   idu.io.RegWr <> io.out.bits.RegWr
   io.out.bits.Branch <> idu.io.Branch
   idu.io.MemtoReg <> io.out.bits.MemtoReg

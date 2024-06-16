@@ -36,13 +36,14 @@ class CPU() extends Module {
 
   GNU.io.in.valid <> IFU.io.out.valid
   GNU.io.in.ready <> IFU.io.out.ready
-  GNU.io.out.valid <> IFU.io.inst_done
+  GNU.io.in.bits.inst <> IFU.io.out.bits
+  GNU.io.in.bits.PC <> IFU.io.out.pc
   GNU.io.out.ready <> 1.U
 
-  GNU.io.in.valid <> io.inst_input.valid
-  GNU.io.in.ready <> io.inst_input.ready
-  GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.PC <> REG.io.out.pc
+  // GNU.io.in.valid <> io.inst_input.valid
+  // GNU.io.in.ready <> io.inst_input.ready
+  // GNU.io.in.bits.inst <> io.inst_input.bits
+  // GNU.io.in.bits.PC <> REG.io.out.pc
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.bits.inst(19, 15) <> REG.io.in.GPR_raddra
   GNU.io.out.bits.inst(24, 20) <> REG.io.in.GPR_raddrb

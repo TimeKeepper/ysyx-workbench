@@ -73,7 +73,7 @@ class GNU extends Module {
 
   io.out.bits.GPR_Adata <> io.in.bits.GPR_Adata
   io.out.bits.GPR_Bdata <> io.in.bits.GPR_Bdata
-  io.out.bits.GPR_waddr <> inst(11, 7)
+  io.out.bits.GPR_waddr <> io.in.bits.inst(11, 7)
   io.out.bits.PC <> io.in.bits.PC
   io.out.bits.inst <> io.in.bits.inst
 

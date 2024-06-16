@@ -26,6 +26,7 @@ class BCU extends Module {
       Bran_Jlt -> Mux(io.Less, PCAsrc_Imm, PCAsrc_4),
       Bran_Jge -> Mux(io.Less, PCAsrc_4, PCAsrc_Imm),
       Bran_Jcsr -> PCAsrc_csr,
+      Bran_NoC -> PCAsrc_0,
     )
   )
 
@@ -33,6 +34,7 @@ class BCU extends Module {
     Seq(
       Bran_Jmpr -> PCBsrc_gpr,
       Bran_Jcsr -> PCBsrc_0,
+      Bran_NoC  -> PCBsrc_pc,
     )
   )
 }

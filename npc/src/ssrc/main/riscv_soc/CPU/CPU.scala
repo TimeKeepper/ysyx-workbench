@@ -20,7 +20,7 @@ class CPU() extends Module {
   })
 
   // Modules
-  // val IFU = Module(new IFU()) // Instruction Fetch Unit
+  val IFU = Module(new IFU()) // Instruction Fetch Unit
   val GNU = Module(new GNU()) // Generating Number Unit
   val EXU = Module(new EXU()) // Execution Unit
   val WBU = Module(new WBU()) // Write Back Unit

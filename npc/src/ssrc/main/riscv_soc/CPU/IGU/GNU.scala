@@ -67,15 +67,15 @@ class GNU extends Module {
   idu.io.ALUctr <> io.out.bits.ALUctr
   idu.io.csr_ctr <> io.out.bits.csr_ctr
 
-  igu.io.inst <> inst
+  igu.io.inst <> io.out.bits.inst
   igu.io.ExtOp <> idu.io.ExtOp
   igu.io.imm <> io.out.bits.Imm
 
   io.out.bits.GPR_Adata <> io.in.bits.GPR_Adata
   io.out.bits.GPR_Bdata <> io.in.bits.GPR_Bdata
-  io.out.bits.GPR_waddr <> inst(11, 7)
+  io.out.bits.GPR_waddr <> io.out.bits.inst(11, 7)
   io.out.bits.PC <> io.in.bits.PC
-  io.out.bits.inst <> inst
+  io.out.bits.io.out.bits.inst <> io.out.bits.inst
 
   io.out.bits.CSR_raddr := MuxLookup(io.out.bits.csr_ctr, io.out.bits.Imm(11, 0))(
     Seq(

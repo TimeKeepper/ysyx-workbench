@@ -21,7 +21,6 @@ class IFU extends Module {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new IFU_input))
     val out = Decoupled(new IFU_output)
-    val inst_done = Input(Bool())
   })
 
   val pc   = RegInit(0.U(32.W))

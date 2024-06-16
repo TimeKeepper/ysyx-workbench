@@ -29,15 +29,15 @@ class CPU() extends Module {
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.pc_output <> REG.io.out.pc
 
-  // IFU.io.in.valid <> io.inst_input.valid
-  // IFU.io.in.ready <> io.inst_input.ready
-  // IFU.io.in.bits.inst <> io.inst_input.bits
-  // IFU.io.in.bits.pc <> REG.io.out.pc
+  IFU.io.in.valid <> io.inst_input.valid
+  IFU.io.in.ready <> io.inst_input.ready
+  IFU.io.in.bits.inst <> io.inst_input.bits
+  IFU.io.in.bits.pc <> REG.io.out.pc
 
-  // GNU.io.in.valid <> IFU.io.out.valid
-  // GNU.io.in.ready <> IFU.io.out.ready
-  // GNU.io.out.valid <> IFU.io.inst_done
-  // GNU.io.out.ready <> 1.U
+  GNU.io.in.valid <> IFU.io.out.valid
+  GNU.io.in.ready <> IFU.io.out.ready
+  GNU.io.out.valid <> IFU.io.inst_done
+  GNU.io.out.ready <> 1.U
 
   GNU.io.in.valid <> io.inst_input.valid
   GNU.io.in.ready <> io.inst_input.ready

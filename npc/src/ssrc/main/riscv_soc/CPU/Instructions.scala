@@ -86,7 +86,7 @@ object signal_value {
   def immJ       = 4.U(3.W) //J型指令
 
   // Branch
-  def Bran_Type = UInt(4.W)
+  def Bran_Type = UInt(3.W)
   def Bran_NJmp = 0.U(4.W) //非跳转
   def Bran_Jmp  = 1.U(4.W) //无条件跳转
   def Bran_Jmpr = 2.U(4.W) //寄存器基址跳转
@@ -95,7 +95,6 @@ object signal_value {
   def Bran_Jlt  = 6.U(4.W) //小于跳转
   def Bran_Jge  = 7.U(4.W) //大于等于跳转
   def Bran_Jcsr = 8.U(4.W) //CSR跳转
-  def Bran_NoC  = 9.U(4.W) //不要改变
 
   // Branch sub signal
   def PCAsrc_Type = UInt(2.W)

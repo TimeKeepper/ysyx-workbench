@@ -23,6 +23,8 @@ class REG_input extends Bundle {
   val csr_wdataa = Input(UInt(32.W))
   val csr_wdatab = Input(UInt(32.W))
   val csr_raddr  = Input(UInt(12.W))
+
+  val valid      = Input(Bool())
 }
 
 class REG_output extends Bundle {
@@ -42,7 +44,7 @@ class REG extends Module {
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.in.GPR_wen && io.in.GPR_waddr =/= 0.U) {
+  when(io.in.GPR_wen && (io.in.GPR_waddr =/= 0.U) && io.valid) {
     gpr(io.in.GPR_waddr) := io.in.GPR_wdata
   }
 
@@ -51,18 +53,20 @@ class REG extends Module {
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  pc        := io.in.pc
+  when(io.in.valid) {
+    pc        := io.in.pc
+  }
   io.out.pc := pc
 
   // 暂时先实现128个
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
   io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
-  when(io.in.csr_ctr === CSR_R1W1 || io.in.csr_ctr === CSR_R1W2) {
+  when((io.in.csr_ctr === CSR_R1W1) || (io.in.csr_ctr === CSR_R1W2U) && io.valid) {
     csr((io.in.csr_waddra - "h300".U)(6, 0)) := io.in.csr_wdataa
   }
 
-  when(io.in.csr_ctr === CSR_R1W2) {
+  when((io.in.csr_ctr === CSR_R1W2U) && io.valid) {
     csr((io.in.csr_waddrb - "h300".U)(6, 0)) := io.in.csr_wdatab
   }
 }

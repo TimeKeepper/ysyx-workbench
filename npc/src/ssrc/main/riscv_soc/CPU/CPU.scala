@@ -94,6 +94,7 @@ class CPU() extends Module {
   REG.io.in.csr_waddrb := WBU.io.out.CSR_waddrb
   REG.io.in.csr_wdataa := WBU.io.out.CSR_wdataa
   REG.io.in.csr_wdatab := WBU.io.out.CSR_wdatab
+  REG.io.in.valid      := GNU.io.out.valid
 
   io.mem_wraddr := EXU.io.out.Result
   io.mem_wdata  := EXU.io.out.GPR_Bdata

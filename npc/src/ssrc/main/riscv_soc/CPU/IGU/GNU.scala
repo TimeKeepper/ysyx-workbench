@@ -36,7 +36,7 @@ class GNU_output extends Bundle {
 class GNU extends Module {
   val io = IO(new Bundle {
     val in  = Flipped(Decoupled(new GNU_input))
-    val out = new GNU_output
+    val out = Decoupled(new GNU_output)
   })
 
   val s_wait_valid :: s_wait_ready :: Nil = Enum(2)

@@ -2,6 +2,7 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.MuxLookup
 
 import signal_value._
 

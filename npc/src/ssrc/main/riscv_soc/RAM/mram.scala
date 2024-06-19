@@ -1,6 +1,7 @@
 package ram
 
 import chisel3._
+import chisel3.util._
 
 class MRAM_in extends Bundle {
     val addr = Input(UInt(32.W))

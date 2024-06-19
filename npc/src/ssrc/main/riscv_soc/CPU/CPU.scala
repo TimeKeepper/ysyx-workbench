@@ -73,7 +73,7 @@ class CPU() extends Module {
   WBU.io.in.Zero         <> EXU.io.out.Zero
   WBU.io.in.Less         <> EXU.io.out.Less
 
-  WBU.io.in.DMem_rdata    <> io.Dmem_rdata
+  WBU.io.in.Mem_rdata    <> io.Dmem_rdata
 
   REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr

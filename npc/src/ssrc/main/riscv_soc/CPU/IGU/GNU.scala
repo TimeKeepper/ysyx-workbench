@@ -44,6 +44,7 @@ class GNU extends Module{
 
     idu.io.inst     <> io.in.inst
     idu.io.RegWr    <> io.out.RegWr
+    idu.io.Branch   <> io.out.Branch
     idu.io.MemtoReg <> io.out.MemtoReg
     idu.io.MemWr    <> io.out.MemWr
     idu.io.MemOp    <> io.out.MemOp

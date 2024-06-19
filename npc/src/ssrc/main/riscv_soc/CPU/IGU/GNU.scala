@@ -66,11 +66,4 @@ class GNU extends Module{
         CSR_R1W0 -> "h341".U,
         CSR_R1W2 -> "h305".U,
     ))
-    // when(io.out.csr_ctr === CSR_R1W0) {
-    //     CSR_RADDR := "h341".U // instruction mret read mepc to recovered pc
-    // }.elsewhen(GNU.io.out.csr_ctr === CSR_R1W2) {
-    //     CSR_RADDR := "h305".U // instruction ecall read mtevc to get to error order function
-    // }.otherwise {
-    //     CSR_RADDR := GNU.io.out.Imm(11, 0)
-    // }
 }

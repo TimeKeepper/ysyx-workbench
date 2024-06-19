@@ -34,8 +34,8 @@ class CPU() extends Module {
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
   GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
-  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
-  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+  GNU.io.in.GPR_Adata <> REG.io.GPR_rdataa
+  GNU.io.in.GPR_Bdata <> REG.io.GPR_rdatab
 
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
   GNU.io.out.CSR_raddr <> REG.io.csr_raddr

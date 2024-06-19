@@ -16,7 +16,7 @@ class MyRAM extends Module {
         val out = new MRAM_out
     })
 
-    MuxLookup(io.out.data, 0.U(32.W))(Seq(
+    io.out.data := MuxLookup(io.in.addr, 0.U(32.W))(Seq(
         0x80000000.U(32.W) -> 0x00000513.U(32.W), // li a0 0
         0x80000004.U(32.W) -> 0x00150513.U(32.W), // add a0 a0 1
         0x80000008.U(32.W) -> 0x00a12023.U(32.W), // sw a0 0(sp)

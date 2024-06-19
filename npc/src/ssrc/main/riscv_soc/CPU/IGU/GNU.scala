@@ -56,10 +56,10 @@ class GNU extends Module{
     igu.io.ExtOp    <> idu.io.ExtOp
     igu.io.imm      <> io.out.Imm
 
-    io.out.GPR_Adata <> io.in.bits.GPR_Adata
-    io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
+    io.out.GPR_Adata <> io.in.GPR_Adata
+    io.out.GPR_Bdata <> io.in.GPR_Bdata
     io.out.GPR_waddr <> inst(11, 7)
-    io.out.PC       <> io.in.bits.PC
+    io.out.PC       <> io.in.PC
     io.out.inst     <> io.in.inst
  
     io.out.CSR_raddr := MuxLookup(io.out.csr_ctr, io.out.Imm(11, 0))(Seq(

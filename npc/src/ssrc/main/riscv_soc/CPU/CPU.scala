@@ -8,7 +8,7 @@ import signal_value._
 
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val inst_input    = Flipped(Decoupled(UInt(32.W)))
+    val inst_input    = Input(UInt(32.W))
     val pc_output     = Output(UInt(32.W))
     val mem_rdata     = Input(UInt(32.W))
 
@@ -28,11 +28,8 @@ class CPU() extends Module {
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.pc_output <> REG.io.pc_out
 
-  GNU.io.in.valid     <> io.inst_input.valid
-  GNU.io.in.ready     <> io.inst_input.ready
-
-  GNU.io.in.bits.inst <> io.inst_input.bits
-  GNU.io.in.bits.PC   <> REG.io.pc_out
+  GNU.io.in.inst <> io.inst_input
+  GNU.io.in.PC   <> REG.io.pc_out
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra

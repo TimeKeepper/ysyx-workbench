@@ -14,7 +14,7 @@
 #endif
 
 // #define WAVE_TRACE
-// #define ITRACE
+#define ITRACE
 // #define CONFIG_DIFFTEST
 // #define CONFIG_WATCHPOINT
 

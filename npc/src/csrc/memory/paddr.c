@@ -18,7 +18,7 @@ static const uint32_t img [] = {
   0x00000513,  // li a0 0
   0x00150513,  // add a0 a0 1
   0x00a12023,  // sw a0 0(sp)
-  0xffbfffef,  // jmp 0x80000004
+  0xffdfffef,  // jmp 0x80000004
 };
 
 void init_mem() {

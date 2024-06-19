@@ -18,9 +18,9 @@ class MyRAM extends Module {
     })
 
     io.out.data := MuxLookup(io.in.addr, 0.U(32.W))(Seq(
-        0x80000000.U(32.W) -> 0x00000513.U(32.W), // li a0 0
-        0x80000004.U(32.W) -> 0x00150513.U(32.W), // add a0 a0 1
-        0x80000008.U(32.W) -> 0x00a12023.U(32.W), // sw a0 0(sp)
-        0x8000000c.U(32.W) -> 0xffbfffef.U(32.W)  // jmp 0x80000004
+        "h80000000".U(32.W) -> "h00000513".U(32.W), // li a0 0
+        "h80000004".U(32.W) -> "h00150513".U(32.W), // add a0 a0 1
+        "h80000008".U(32.W) -> "h00a12023".U(32.W), // sw a0 0(sp)
+        "h8000000c".U(32.W) -> "hffbfffef".U(32.W)  // jmp 0x80000004
     ))
 }

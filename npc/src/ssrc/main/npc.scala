@@ -1,7 +1,7 @@
 package npc
 
 import riscv_cpu._
-import sram._
+import ram._
 
 import chisel3._
 import chisel3.util._

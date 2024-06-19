@@ -58,7 +58,7 @@ class GNU extends Module{
 
     io.out.GPR_Adata <> io.in.GPR_Adata
     io.out.GPR_Bdata <> io.in.GPR_Bdata
-    io.out.GPR_waddr <> inst(11, 7)
+    io.out.GPR_waddr <> io.in.inst(11, 7)
     io.out.PC       <> io.in.PC
     io.out.inst     <> io.in.inst
  

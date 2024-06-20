@@ -39,13 +39,21 @@ module work(
 );
 
     wire f_clk, f_rst;
+    wire [31:0] PC, inst;
     filiter clk_filiter(clk, rst, clk, f_clk);
     filiter rst_filiter(clk, rst, rst, f_rst);
 
     MyRAM RAM(
         .clock(f_clk),
         .reset(f_rst),
-        
+        .io_in_addr(PC),
+        .io_out_data(inst)
+    )
+
+    CPU riscv_cpu(
+        .clock(f_clk),
+        .reset(f_rst),
+        .io_inst_input(inst),
     )
 
 endmodule

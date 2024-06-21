@@ -10,9 +10,9 @@ object Decode {
 
   // format: off
     val default =
-    //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp     ALUAsrc   ALUBsrc   ALUctr     csr_ctr 
-    //     |        |       |         |       |        |         |         |         |          |    
-    List(immI,     N,   Bran_NJmp,    N,      N,    M_1BS,   A_RS1,     B_RS2,  ALU_ADD,    CSR_N)
+    //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp       ALUAsrc    ALUBsrc         ALUctr     csr_ctr 
+    //     |        |       |         |       |        |           |          |               |          |    
+    List(Imm_I,     N,   Bran_NJmp,   N,      N,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
 
     val map = Array(
         BitPat(LUI)     -> List(Imm_U, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),
@@ -67,7 +67,7 @@ class IDU extends Module {
   val io = IO(new Bundle {
     val inst = Input(UInt(32.W))
 
-    val ExtOp    = Output(ExtOp_Type)
+    val ExtOp    = Output(Imm_Type)
     val RegWr    = Output(Bool())
     val Branch   = Output(Bran_Type)
     val MemtoReg = Output(Bool())

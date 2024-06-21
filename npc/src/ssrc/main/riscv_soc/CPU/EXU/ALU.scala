@@ -18,25 +18,25 @@ class ALU_Ctrl extends Module {
     val Sub_Add = Output(Bool())
   })
 
-  when(io.ALUctr === ALU_Less_U || io.ALUctr === ALU_SRL) {
+  when(io.ALUctr === ALUctr_Less_U || io.ALUctr === ALUctr_SRL) {
     io.A_L := N
   }.otherwise {
     io.A_L := Y
   }
 
-  when(io.ALUctr === ALU_SLL) {
+  when(io.ALUctr === ALUctr_SLL) {
     io.L_R := Y
   }.otherwise {
     io.L_R := N
   }
 
-  when(io.ALUctr === ALU_Less_U) {
+  when(io.ALUctr === ALUctr_Less_U) {
     io.U_S := Y
   }.otherwise {
     io.U_S := N
   }
 
-  when(io.ALUctr === ALU_ADD) {
+  when(io.ALUctr === ALUctr_ADD) {
     io.Sub_Add := N
   }.otherwise {
     io.Sub_Add := Y
@@ -179,18 +179,18 @@ class ALU extends Module {
 
   val Result = MuxLookup(io.ALUctr, 0.U)(
     Seq(
-      ALU_ADD -> adder,
-      ALU_SUB -> adder,
-      ALU_Less_U -> slt,
-      ALU_Less_S -> slt,
-      ALU_A -> A,
-      ALU_B -> B,
-      ALU_SLL -> shift,
-      ALU_SRL -> shift,
-      ALU_SRA -> shift,
-      ALU_XOR -> XOR,
-      ALU_OR -> OR,
-      ALU_AND -> AND
+      ALUctr_ADD -> adder,
+      ALUctr_SUB -> adder,
+      ALUctr_Less_U -> slt,
+      ALUctr_Less_S -> slt,
+      ALUctr_A -> A,
+      ALUctr_B -> B,
+      ALUctr_SLL -> shift,
+      ALUctr_SRL -> shift,
+      ALUctr_SRA -> shift,
+      ALUctr_XOR -> XOR,
+      ALUctr_OR -> OR,
+      ALUctr_AND -> AND
     )
   )
 

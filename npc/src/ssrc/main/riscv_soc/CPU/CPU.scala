@@ -8,15 +8,15 @@ import signal_value._
 
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val inst_input    = Input(UInt(32.W))
-    val pc_output     = Output(UInt(32.W))
-    val mem_rdata     = Input(UInt(32.W))
+    val Imem_rdata    = Input(UInt(32.W))
+    val Imem_raddr     = Output(UInt(32.W))
+    val Dmem_rdata     = Input(UInt(32.W))
 
-    val mem_wdata     = Output(UInt(32.W))
-    val mem_wop       = Output(MemOp_Type)
-    val mem_wen       = Output(Bool())
+    val Dmem_wdata     = Output(UInt(32.W))
+    val Dmem_wop       = Output(MemOp_Type)
+    val Dmem_wen       = Output(Bool())
     
-    val mem_wraddr    = Output(UInt(32.W))
+    val Dmem_wraddr    = Output(UInt(32.W))
   })
 
   // Modules
@@ -26,9 +26,9 @@ class CPU() extends Module {
   val REG             = Module(new REG()) // Register File
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.pc_output <> REG.io.pc_out
+  io.Imem_raddr <> REG.io.pc_out
 
-  GNU.io.in.inst <> io.inst_input
+  GNU.io.in.inst <> io.Imem_rdata
   GNU.io.in.PC   <> REG.io.pc_out
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
@@ -73,7 +73,7 @@ class CPU() extends Module {
   WBU.io.in.Zero         <> EXU.io.out.Zero
   WBU.io.in.Less         <> EXU.io.out.Less
 
-  WBU.io.in.Mem_rdata    <> io.mem_rdata
+  WBU.io.in.Mem_rdata    <> io.Dmem_rdata
 
   REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
@@ -86,8 +86,8 @@ class CPU() extends Module {
   REG.io.csr_wdataa := WBU.io.out.CSR_wdataa
   REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
 
-  io.mem_wraddr := EXU.io.out.Result
-  io.mem_wdata := EXU.io.out.GPR_Bdata
-  io.mem_wop   := GNU.io.out.MemOp
-  io.mem_wen   := GNU.io.out.MemWr
+  io.Dmem_wraddr := EXU.io.out.Result
+  io.Dmem_wdata := EXU.io.out.GPR_Bdata
+  io.Dmem_wop   := GNU.io.out.MemOp
+  io.Dmem_wen   := GNU.io.out.MemWr
 }

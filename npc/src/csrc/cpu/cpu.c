@@ -77,28 +77,28 @@ void ram_write(paddr_t addr, int len, word_t data){
 }
 
 uint32_t memory_read(void){
-    uint32_t mem_addr = dut.rootp->mem_addr;
-    if (!(likely(in_pmem(mem_addr)) || (mem_addr == RTC_ADDR) || (mem_addr == RTC_ADDR + 4))) return 0;
-    switch(dut.rootp->memop){
-        case 0b000: return ram_read(mem_addr,  1);
-        case 0b001: return SEXT(ram_read(mem_addr,  1), 8);
-        case 0b010: return ram_read(mem_addr,  2);
-        case 0b011: return SEXT(ram_read(mem_addr,  2), 16);
-        case 0b100: return ram_read(mem_addr,  4);
+    uint32_t Dmem_addr = dut.rootp->Dmem_addr;
+    if (!(likely(in_pmem(Dmem_addr)) || (Dmem_addr == RTC_ADDR) || (Dmem_addr == RTC_ADDR + 4))) return 0;
+    switch(dut.rootp->Dmemop){
+        case 0b000: return ram_read(Dmem_addr,  1);
+        case 0b001: return SEXT(ram_read(Dmem_addr,  1), 8);
+        case 0b010: return ram_read(Dmem_addr,  2);
+        case 0b011: return SEXT(ram_read(Dmem_addr,  2), 16);
+        case 0b100: return ram_read(Dmem_addr,  4);
         default: return 0;
     }
 }
 
 void memory_write(void){
-    uint32_t mem_addr = dut.rootp->mem_addr;
-    if (!((likely(in_pmem(mem_addr))) || mem_addr == SERIAL_PORT)) return;
-    switch(dut.rootp->memop){
+    uint32_t Dmem_addr = dut.rootp->Dmem_addr;
+    if (!((likely(in_pmem(Dmem_addr))) || Dmem_addr == SERIAL_PORT)) return;
+    switch(dut.rootp->Dmemop){
         case 0b000:
-        case 0b001: ram_write(mem_addr,  1, dut.rootp->memdata); break;
+        case 0b001: ram_write(Dmem_addr,  1, dut.rootp->Dmemdata); break;
         case 0b010:
-        case 0b011: ram_write(mem_addr,  2, dut.rootp->memdata); break;
+        case 0b011: ram_write(Dmem_addr,  2, dut.rootp->Dmemdata); break;
 
-        case 0b100: ram_write(mem_addr,  4, dut.rootp->memdata); break;
+        case 0b100: ram_write(Dmem_addr,  4, dut.rootp->Dmemdata); break;
         default: break;
     }
 }
@@ -106,7 +106,7 @@ void memory_write(void){
 static void single_cycle() {
     dut.clk = 0; dut.eval();wave_Trace_once();                    //译码，执行
     
-    if(!dut.rootp->mem_wen) dut.rootp->mem_data = memory_read();  //写回
+    if(!dut.rootp->Dmem_wen) dut.rootp->Dmem_data = memory_read();  //写回
 
     dut.clk = 1; dut.eval();wave_Trace_once();                    //更新pc
     clk_cnt++;
@@ -130,7 +130,7 @@ const int sregs_iddr[] = {
 };
 
 void cpu_value_update(void){
-    cpu.pc = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc;   
+    cpu.pc = dut.rootp->Imem_raddr;   
     cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_0;
     cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_5;
     cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_65;
@@ -138,7 +138,7 @@ void cpu_value_update(void){
     cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_64; 
 
     // if(!dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = BITS(dut.rootp->inst, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    uint32_t rd_iddr = BITS(dut.rootp->Imem_rdata, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {
         case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_0);  break;
@@ -182,12 +182,12 @@ void itrace_catch(bool is_printf){
     #ifdef ITRACE
     char* p = itrace_buf;
 
-    uint8_t* inst = (uint8_t*)&dut.inst;
+    uint8_t* inst = (uint8_t*)&dut.Imem_rdata;
     p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", cpu.pc);
     for(int i = 3; i >= 0; i--){
         p += snprintf(p, 4, "%02x ", inst[i]);
     }
-    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.inst, 4);
+    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.Imem_rdata, 4);
 
     instr_buf_push(itrace_buf);
 
@@ -228,7 +228,7 @@ void watchpoint_catch(void){
 }
 
 void check_special_inst(void){
-    switch(dut.inst){
+    switch(dut.Imem_rdata){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
@@ -241,13 +241,13 @@ static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
     for(;n > 0; n--){
         // nvboard_update();
-        dut.inst = ram_read(cpu.pc, 4);
-        
+        dut.Imem_rdata = ram_read(cpu.pc, 4);
+
         dut.eval();                      
 
         single_cycle();                                                     //单周期执行
 
-        if(dut.rootp->mem_wen) memory_write();          //写内存
+        if(dut.rootp->Dmem_wen) memory_write();          //写内存
 
         itrace_catch(is_itrace);
 

@@ -14,8 +14,15 @@ static uint8_t pmem[DEFAULT_MSIZE] PG_ALIGN = {};
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - DEFAULT_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + DEFAULT_MBASE; }
 
+static const uint32_t img [] = {
+  0x00000513,  // li a0 0
+  0x00150513,  // add a0 a0 1
+  0x00a12023,  // sw a0 0(sp)
+  0xff9fffef,  // jmp 0x80000004
+};
+
 void init_mem() {
-    memset(pmem, rand(), DEFAULT_MSIZE);
+    memcpy(pmem, img, sizeof(img));
 }
 
 static word_t pmem_read(paddr_t addr, int len) {

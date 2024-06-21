@@ -78,12 +78,12 @@ object signal_value {
   def N = false.B
 
   // ExtOp
-  def ExtOp_Type = UInt(3.W)
-  def immI       = 0.U(3.W) //I型指令
-  def immU       = 1.U(3.W) //U型指令
-  def immS       = 2.U(3.W) //S型指令
-  def immB       = 3.U(3.W) //B型指令
-  def immJ       = 4.U(3.W) //J型指令
+  def Imm_Type   = UInt(3.W)
+  def Imm_I       = 0.U(3.W) //I型指令
+  def Imm_U       = 1.U(3.W) //U型指令
+  def Imm_S       = 2.U(3.W) //S型指令
+  def Imm_B       = 3.U(3.W) //B型指令
+  def Imm_J       = 4.U(3.W) //J型指令
 
   // Branch
   def Bran_Type = UInt(4.W)
@@ -111,39 +111,39 @@ object signal_value {
 
   // MemOp
   def MemOp_Type = UInt(3.W)
-  def M_1BU      = 0.U(3.W) //1字节无符号
-  def M_1BS      = 1.U(3.W) //1字节有符号
-  def M_2BU      = 2.U(3.W) //2字节无符号
-  def M_2BS      = 3.U(3.W) //2字节有符号
-  def M_4BU      = 4.U(3.W) //4字节无符号
+  def MemOp_1BU      = 0.U(3.W) //1字节无符号
+  def MemOp_1BS      = 1.U(3.W) //1字节有符号
+  def MemOp_2BU      = 2.U(3.W) //2字节无符号
+  def MemOp_2BS      = 3.U(3.W) //2字节有符号
+  def MemOp_4BU      = 4.U(3.W) //4字节无符号
 
   // ALUAsrc
   def ALUAsrc_Type = UInt(2.W)
-  def A_RS1        = 0.U(2.W) //寄存器资源1
-  def A_PC         = 1.U(2.W) //PC寄存器
-  def A_CSR        = 2.U(2.W) //CSR寄存器
+  def ALUAsrc_RS1        = 0.U(2.W) //寄存器资源1
+  def ALUAsrc_PC         = 1.U(2.W) //PC寄存器
+  def ALUAsrc_CSR        = 2.U(2.W) //CSR寄存器
 
   // ALUBSrc
   def ALUBSrc_Type = UInt(2.W)
-  def B_RS2        = 0.U(2.W) //寄存器资源2
-  def B_IMM        = 1.U(2.W) //立即数
-  def B_4          = 2.U(2.W) //立即数4
-  def B_RS1        = 3.U(2.W) //寄存器资源1
+  def ALUBSrc_RS2        = 0.U(2.W) //寄存器资源2
+  def ALUBSrc_IMM        = 1.U(2.W) //立即数
+  def ALUBSrc_4          = 2.U(2.W) //立即数4
+  def ALUBSrc_RS1        = 3.U(2.W) //寄存器资源1
 
   // ALUctr
   def ALUctr_Type = UInt(4.W)
-  def ALU_ADD     = 0.U(4.W) //加法
-  def ALU_SUB     = 1.U(4.W) //减法
-  def ALU_Less_U  = 2.U(4.W) //小于无符号
-  def ALU_Less_S  = 3.U(4.W) //小于
-  def ALU_A       = 4.U(4.W) //输出A
-  def ALU_B       = 5.U(4.W) //输出B
-  def ALU_SLL     = 6.U(4.W) //逻辑左移
-  def ALU_SRL     = 7.U(4.W) //逻辑右移
-  def ALU_SRA     = 8.U(4.W) //算术右移
-  def ALU_XOR     = 9.U(4.W) //异或
-  def ALU_OR      = 10.U(4.W) //或
-  def ALU_AND     = 11.U(4.W) //与
+  def ALUctr_ADD     = 0.U(4.W) //加法
+  def ALUctr_SUB     = 1.U(4.W) //减法
+  def ALUctr_Less_U  = 2.U(4.W) //小于无符号
+  def ALUctr_Less_S  = 3.U(4.W) //小于
+  def ALUctr_A       = 4.U(4.W) //输出A
+  def ALUctr_B       = 5.U(4.W) //输出B
+  def ALUctr_SLL     = 6.U(4.W) //逻辑左移
+  def ALUctr_SRL     = 7.U(4.W) //逻辑右移
+  def ALUctr_SRA     = 8.U(4.W) //算术右移
+  def ALUctr_XOR     = 9.U(4.W) //异或
+  def ALUctr_OR      = 10.U(4.W) //或
+  def ALUctr_AND     = 11.U(4.W) //与
 
   // csr_ctr
   def CSR_Type = UInt(2.W)

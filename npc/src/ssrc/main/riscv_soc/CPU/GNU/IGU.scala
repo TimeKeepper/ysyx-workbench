@@ -10,7 +10,7 @@ import signal_value._
 class IGU extends Module {
   val io = IO(new Bundle {
     val inst  = Input(UInt(32.W))
-    val ExtOp = Input(ExtOp_Type)
+    val ExtOp = Input(Imm_Type)
 
     val imm = Output(UInt(32.W))
   })

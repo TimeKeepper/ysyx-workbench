@@ -71,15 +71,15 @@ class EXU extends Module {
     alu.io.ALUctr <> io.in.ALUctr
 
     alu.io.src_A := MuxLookup(io.in.ALUAsrc, 0.U)(Seq(
-        A_RS1 -> io.in.GPR_Adata,
-        A_PC  -> io.in.PC,
-        A_CSR -> io.in.CSR,
+        ALUAsrc_RS1 -> io.in.GPR_Adata,
+        ALUAsrc_PC  -> io.in.PC,
+        ALUAsrc_CSR -> io.in.CSR,
     ))
 
     alu.io.src_B := MuxLookup(io.in.ALUBsrc, 0.U)(Seq(
-        B_RS2 -> io.in.GPR_Bdata,
-        B_IMM -> io.in.Imm,
-        B_4   -> 4.U,
-        B_RS1 -> io.in.GPR_Adata,
+        ALUBSrc_RS2 -> io.in.GPR_Bdata,
+        ALUBSrc_IMM -> io.in.Imm,
+        ALUBSrc_4   -> 4.U,
+        ALUBSrc_RS1 -> io.in.GPR_Adata,
     ))
 }

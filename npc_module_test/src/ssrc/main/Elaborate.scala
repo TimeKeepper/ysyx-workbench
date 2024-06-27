@@ -1,4 +1,4 @@
-import homework
+import homework._
 
 object Elaborate extends App {
   val firtoolOptions = Array(

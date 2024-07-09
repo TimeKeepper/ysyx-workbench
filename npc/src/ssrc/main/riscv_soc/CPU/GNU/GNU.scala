@@ -44,7 +44,7 @@ class GNU extends Module{
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
-    idu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP)
+    idu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP.U)
     idu.io.RegWr    <> io.out.RegWr
     idu.io.Branch   <> io.out.Branch
     idu.io.MemtoReg <> io.out.MemtoReg
@@ -55,13 +55,13 @@ class GNU extends Module{
     idu.io.ALUctr   <> io.out.ALUctr
     idu.io.csr_ctr  <> io.out.csr_ctr
 
-    igu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP)
+    igu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP.U)
     igu.io.ExtOp    <> idu.io.ExtOp
     igu.io.imm      <> io.out.Imm
 
     io.out.GPR_Adata <> io.in.bits.GPR_Adata
     io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
-    io.out.GPR_waddr <> Mux(io.in.valid, io.in.bits.inst(11, 7), NOP(11, 7))
+    io.out.GPR_waddr <> Mux(io.in.valid, io.in.bits.inst(11, 7), NOP.U(11, 7))
     io.out.PC       <> io.in.bits.PC
     io.out.inst     <> io.in.bits.inst
  

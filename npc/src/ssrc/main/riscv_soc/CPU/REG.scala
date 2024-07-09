@@ -41,9 +41,7 @@ class REG extends Module {
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  when(io.inst_valid === true.B) {
-    pc        := io.pc_in
-  }
+  pc        := io.pc_in
   io.pc_out := pc
 
   // 暂时先实现128个

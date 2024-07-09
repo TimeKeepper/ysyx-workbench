@@ -7,7 +7,7 @@ import chisel3.util._
 
 class SRAM extends Module {
     val io = IO(new Bundle{
-        val inst_input = Input(UInt(32.W))
+        val inst_input = Flipped(Decoupled(UInt(32.W)))
         val inst_output = Decoupled(UInt(32.W))
     })
     
@@ -16,9 +16,9 @@ class SRAM extends Module {
     val s_idle :: s_wait_ready :: Nil = Enum(2)
     val state = RegInit(s_idle)
 
-    inst_cache := io.inst_input
+    inst_cache := io.inst_input.bits
     
-    io.inst_output.bits := io.inst_input
+    io.inst_output.bits := inst_cache
     
     state := MuxLookup(state, s_idle)(
         Seq(
@@ -27,6 +27,6 @@ class SRAM extends Module {
         )
     )
 
-    // io.inst_output.valid := (state === s_idle)
-    io.inst_output.valid := true.B
+    io.inst_output.valid := io.inst_input.valid
+    io.inst_input.ready  := state === s_idle
 }

@@ -18,7 +18,7 @@ class SRAM extends Module {
 
     inst_cache := io.inst_input
     
-    io.inst_output.bits := inst_cache
+    io.inst_output.bits := io.inst_input
     
     state := MuxLookup(state, s_idle)(
         Seq(
@@ -27,5 +27,6 @@ class SRAM extends Module {
         )
     )
 
-    io.inst_output.valid := (state === s_idle)
+    // io.inst_output.valid := (state === s_idle)
+    io.inst_output.valid := true.B
 }

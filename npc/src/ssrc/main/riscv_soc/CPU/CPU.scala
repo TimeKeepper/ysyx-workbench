@@ -30,7 +30,7 @@ class CPU() extends Module {
 
   GNU.io.in.ready     <> io.Imem_rdata.ready
   GNU.io.in.valid     <> io.Imem_rdata.valid
-  GNU.io.in.bits.inst <> io.Imem_rdata
+  GNU.io.in.bits.inst <> io.Imem_rdata.bits
   GNU.io.in.bits.PC   <> REG.io.pc_out
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，

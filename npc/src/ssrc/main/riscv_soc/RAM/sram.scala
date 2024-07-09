@@ -27,6 +27,5 @@ class SRAM extends Module {
         )
     )
 
-    // io.inst_output.valid := (state === s_idle)
-    io.inst_output.valid := true.B
+    io.inst_output.valid := (state === s_idle)
 }

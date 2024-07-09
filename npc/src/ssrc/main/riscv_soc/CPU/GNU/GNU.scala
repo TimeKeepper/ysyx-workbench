@@ -39,14 +39,24 @@ class GNU extends Module{
         val out      = new GNU_output
     })
 
+    val s_idle :: s_busy :: Nil = Enum(2)
+    val state = RegInit(s_idle)
+
+    state := MuxLookup(state, s_idle)(
+        Seq(
+            s_idle -> Mux(io.in.valid, s_busy, s_idle),
+            s_busy -> s_idle
+        )
+    )
+
     io.in.ready := true.B
 
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
-    idu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP.U)
+    idu.io.inst     <> Mux(s_busy, io.in.bits.inst, NOP.U)
     idu.io.RegWr    <> io.out.RegWr
-    io.out.Branch   <> Mux(io.in.valid, idu.io.Branch, Bran_NoC)
+    io.out.Branch   <> Mux(s_busy, idu.io.Branch, Bran_NoC)
     idu.io.MemtoReg <> io.out.MemtoReg
     idu.io.MemWr    <> io.out.MemWr
     idu.io.MemOp    <> io.out.MemOp
@@ -55,13 +65,13 @@ class GNU extends Module{
     idu.io.ALUctr   <> io.out.ALUctr
     idu.io.csr_ctr  <> io.out.csr_ctr
 
-    igu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP.U)
+    igu.io.inst     <> Mux(s_busy, io.in.bits.inst, NOP.U)
     igu.io.ExtOp    <> idu.io.ExtOp
     igu.io.imm      <> io.out.Imm
 
     io.out.GPR_Adata <> io.in.bits.GPR_Adata
     io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
-    io.out.GPR_waddr <> Mux(io.in.valid, io.in.bits.inst(11, 7), NOP.U(11, 7))
+    io.out.GPR_waddr <> Mux(s_busy, io.in.bits.inst(11, 7), NOP.U(11, 7))
     io.out.PC       <> io.in.bits.PC
     io.out.inst     <> io.in.bits.inst
  

@@ -104,11 +104,11 @@ void memory_write(void){
 }
 
 static void single_cycle() {
-    dut.clk = 0; dut.eval();wave_Trace_once();                    //译码，执行
+    dut.clk = 0; dut.eval();wave_Trace_once();                  
     
-    if(!dut.rootp->Dmem_wen) dut.rootp->Dmem_data = memory_read();  //写回
+    if(!dut.rootp->Dmem_wen) dut.rootp->Dmem_data = memory_read();  
 
-    dut.clk = 1; dut.eval();wave_Trace_once();                    //更新pc
+    dut.clk = 1; dut.eval();wave_Trace_once();                   
     clk_cnt++;
 }
 
@@ -274,6 +274,7 @@ int npc_trap (int ra){
     printf("ra: %d\n", ra);
     if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
+    wave_Trace_once();
     wave_Trace_close(); 
     return clk_cnt;
 }

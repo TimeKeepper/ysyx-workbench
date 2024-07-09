@@ -138,7 +138,7 @@ void cpu_value_update(void){
     cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__csr_64; 
 
     // if(!dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = BITS(dut.rootp->Imem_rdata, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    uint32_t rd_iddr = BITS(dut.rootp->io_Imem_rdata_bits, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {
         case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__gpr_0);  break;
@@ -228,7 +228,7 @@ void watchpoint_catch(void){
 }
 
 void check_special_inst(void){
-    switch(dut.Imem_rdata){
+    switch(dut.io_Imem_rdata_bits){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
@@ -241,7 +241,12 @@ static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
     for(;n > 0; n--){
         // nvboard_update();
-        dut.Imem_rdata = ram_read(cpu.pc, 4);
+        if(dut.io_Imem_rdata_ready){
+            dut.io_Imem_rdata_bits = ram_read(cpu.pc, 4);
+            dut.io_Imem_rdata_valid = 1;
+        }else {
+            dut.io_Imem_rdata_valid = 0;
+        }
 
         dut.eval();                      
 

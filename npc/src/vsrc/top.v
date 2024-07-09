@@ -4,7 +4,9 @@ module top(
     input clk,
     input rst,
     output [31:0] Imem_raddr,
-    input [31:0] Imem_rdata,
+    output       io_Imem_rdata_ready,
+    input        io_Imem_rdata_valid,
+    input [31:0] io_Imem_rdata_bits,
 
     input [31:0] Dmem_data,
 
@@ -14,8 +16,8 @@ module top(
     output [31:0] Dmem_addr
 );
 
-always @(Imem_rdata) begin
-    if(Imem_rdata == 32'h00100073)
+always @(io_Imem_rdata_bits) begin
+    if(io_Imem_rdata_bits == 32'h00100073)
         $display("sim has been stop at clk_cnt %d", npc_trap(npc.riscv_cpu.REG.gpr_10));
 end
 
@@ -23,7 +25,9 @@ end
 npc npc (
     .clock(clk),
     .reset(rst),
-    .io_Imem_rdata(Imem_rdata),
+    .io_Imem_rdata_ready(io_Imem_rdata_ready),
+    .io_Imem_rdata_valid(io_Imem_rdata_valid),
+    .io_Imem_rdata_bits(io_Imem_rdata_bits),
     .io_Imem_raddr(Imem_raddr),
 
     .io_Dmem_rdata(Dmem_data),

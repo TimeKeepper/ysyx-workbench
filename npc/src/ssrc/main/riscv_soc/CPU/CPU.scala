@@ -81,7 +81,6 @@ class CPU() extends Module {
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.GPR_wen   <> WBU.io.out.GPR_wen
   REG.io.pc_in     <> WBU.io.out.Next_Pc
-  REG.io.inst_valid <> io.Imem_rdata.valid
 
   REG.io.csr_ctr    := WBU.io.out.CSR_ctr
   REG.io.csr_waddra := WBU.io.out.CSR_waddra

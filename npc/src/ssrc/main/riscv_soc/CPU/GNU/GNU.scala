@@ -39,6 +39,8 @@ class GNU extends Module{
         val out      = new GNU_output
     })
 
+    io.in.ready := true.B
+
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 

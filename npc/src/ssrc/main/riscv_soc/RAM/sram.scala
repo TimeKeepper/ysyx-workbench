@@ -8,7 +8,8 @@ import chisel3.util._
 class SRAM extends Module {
     val io = IO(new Bundle{
         val inst_input = Input(UInt(32.W))
-        val inst_output = Output(UInt(32.W))
+        val inst_output = Decoupled(UInt(32.W))
     })
-    io.inst_output := io.inst_input
+    io.inst_output.bits := io.inst_input
+    io.inst_output.valid := true.B
 }

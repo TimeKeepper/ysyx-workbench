@@ -35,14 +35,14 @@ class GNU_output extends Bundle{
 
 class GNU extends Module{
     val io = IO(new Bundle{
-        val in       = Input(new GNU_input)
+        val in       = Flipped(Decoupled(new GNU_input))
         val out      = new GNU_output
     })
 
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
-    idu.io.inst     <> io.in.inst
+    idu.io.inst     <> io.in.bits.inst
     idu.io.RegWr    <> io.out.RegWr
     idu.io.Branch   <> io.out.Branch
     idu.io.MemtoReg <> io.out.MemtoReg
@@ -53,15 +53,15 @@ class GNU extends Module{
     idu.io.ALUctr   <> io.out.ALUctr
     idu.io.csr_ctr  <> io.out.csr_ctr
 
-    igu.io.inst     <> io.in.inst
+    igu.io.inst     <> io.in.bits.inst
     igu.io.ExtOp    <> idu.io.ExtOp
     igu.io.imm      <> io.out.Imm
 
-    io.out.GPR_Adata <> io.in.GPR_Adata
-    io.out.GPR_Bdata <> io.in.GPR_Bdata
-    io.out.GPR_waddr <> io.in.inst(11, 7)
-    io.out.PC       <> io.in.PC
-    io.out.inst     <> io.in.inst
+    io.out.GPR_Adata <> io.in.bits.GPR_Adata
+    io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
+    io.out.GPR_waddr <> io.in.bits.inst(11, 7)
+    io.out.PC       <> io.in.bits.PC
+    io.out.inst     <> io.in.bits.inst
  
     io.out.CSR_raddr := MuxLookup(io.out.csr_ctr, io.out.Imm(11, 0))(Seq(
         CSR_R1W0 -> "h341".U,

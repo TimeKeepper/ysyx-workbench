@@ -46,7 +46,7 @@ class GNU extends Module{
 
     idu.io.inst     <> Mux(io.in.valid, io.in.bits.inst, NOP.U)
     idu.io.RegWr    <> io.out.RegWr
-    idu.io.Branch   <> io.out.Branch
+    io.out.Branch   <> Mux(io.in.valid, idu.io.Branch, Bran_NoC)
     idu.io.MemtoReg <> io.out.MemtoReg
     idu.io.MemWr    <> io.out.MemWr
     idu.io.MemOp    <> io.out.MemOp

@@ -39,13 +39,13 @@ class GNU extends Module{
         val out      = new GNU_output
     })
 
-    val s_idle :: s_busy :: Nil = Enum(2)
-    val state = RegInit(s_idle)
+    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+    val state = RegInit(s_wait_valid)
 
-    state := MuxLookup(state, s_idle)(
+    state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_idle -> Mux(io.in.valid, s_busy, s_idle),
-            s_busy -> s_idle
+            s_wait_valid -> Mux(io.in.valid, s_busy, s_wait_valid),
+            s_busy -> s_wait_valid
         )
     )
 

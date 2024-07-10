@@ -24,7 +24,7 @@ class SRAM extends Module {
     
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid       -> Mux(io.inst_output.valid, s_wait_ready, s_wait_valid),
+            s_wait_valid -> Mux(io.inst_output.valid, s_wait_ready, s_wait_valid),
             s_wait_ready -> Mux(io.inst_output.ready, s_wait_valid, s_wait_ready)
         )
     )

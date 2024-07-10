@@ -16,7 +16,9 @@ class SRAM extends Module {
     val s_idle :: s_wait_ready :: Nil = Enum(2)
     val state = RegInit(s_idle)
 
-    inst_cache := io.inst_input.bits
+    when(io.inst_input.valid && io.inst_input.ready){
+        inst_cache := io.inst_input.bits
+    }
     
     io.inst_output.bits := inst_cache
     

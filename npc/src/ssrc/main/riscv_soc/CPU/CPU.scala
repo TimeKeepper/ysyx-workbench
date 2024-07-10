@@ -6,14 +6,43 @@ import chisel3.util._
 import Instructions._
 import signal_value._
 
-class Imem_input extends Bundle{
+class CPU_input extends Bundle{
   val inst = Input(UInt(32.W))
   val addr = Input(UInt(32.W))
 }
 
+class CPU_REG_input extends Bundle{
+  val inst_valid = Output(Bool())
+
+  val GPR_wdata = Output(UInt(32.W))
+  val GPR_waddr = Output(UInt(5.W))
+  val GPR_wen   = Output(Bool())
+
+  val GPR_raddra = Output(UInt(5.W))
+  val GPR_raddrb = Output(UInt(5.W))
+
+  val pc  = Output(UInt(32.W))
+
+  val csr_ctr    = Output(CSR_Type)
+  val csr_waddra = Output(UInt(12.W))
+  val csr_waddrb = Output(UInt(12.W))
+  val csr_wdataa = Output(UInt(32.W))
+  val csr_wdatab = Output(UInt(32.W))
+  val csr_raddr  = Output(UInt(12.W))
+}
+
+class CPU_REG_output extends Bundle{
+  val GPR_rdataa = Input(UInt(32.W))
+  val GPR_rdatab = Input(UInt(32.W))
+
+  val pc = Input(UInt(32.W))
+
+  val csr_rdata = Input(UInt(32.W))
+}
+
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val Imem_input     = Flipped(Decoupled(new Imem_input))
+    val in     = Flipped(Decoupled(new CPU_input))
     val Imem_raddr     = Decoupled(UInt(32.W))
     val Dmem_rdata     = Input(UInt(32.W))
 
@@ -22,6 +51,9 @@ class CPU() extends Module {
     val Dmem_wen       = Output(Bool())
     
     val Dmem_wraddr    = Output(UInt(32.W))
+
+    val reg_in = new CPU_REG_input
+    val reg_out = new CPU_REG_output
   })
 
   val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
@@ -29,7 +61,7 @@ class CPU() extends Module {
 
   state := MuxLookup(state, s_wait_valid)(
     Seq(
-        s_wait_valid -> Mux(io.Imem_input.valid, s_wait_ready, s_wait_valid),
+        s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
         s_wait_ready -> Mux(io.Imem_raddr.ready, s_wait_valid, s_wait_ready),
     )
   )
@@ -38,25 +70,24 @@ class CPU() extends Module {
   val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
   val WBU             = Module(new WBU()) // Write Back Unit
-  val REG             = Module(new REG()) // Register File
 
   io.Imem_raddr.valid := state === s_wait_ready
-  io.Imem_input.ready := state === s_wait_valid
+  io.in.ready := state === s_wait_valid
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.Imem_raddr.bits <> REG.io.pc_out
+  io.Imem_raddr.bits <> io.reg_out.pc
 
-  GNU.io.in.inst <> io.Imem_input.bits.inst
-  GNU.io.in.PC   <> io.Imem_input.bits.addr
+  GNU.io.in.inst <> io.in.bits.inst
+  GNU.io.in.PC   <> io.in.bits.addr
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
-  GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
-  GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
-  GNU.io.in.GPR_Adata <> REG.io.GPR_rdataa
-  GNU.io.in.GPR_Bdata <> REG.io.GPR_rdatab
+  GNU.io.out.inst(19, 15) <> io.reg_in.GPR_raddra
+  GNU.io.out.inst(24, 20) <> io.reg_in.GPR_raddrb
+  GNU.io.in.GPR_Adata <> io.reg_out.GPR_rdataa
+  GNU.io.in.GPR_Bdata <> io.reg_out.GPR_rdatab
 
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
-  GNU.io.out.CSR_raddr <> REG.io.csr_raddr
+  GNU.io.out.CSR_raddr <> io.reg_in.csr_raddr
 
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
   EXU.io.in.Branch       <> GNU.io.out.Branch
@@ -72,7 +103,7 @@ class CPU() extends Module {
   EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
   EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
   EXU.io.in.PC           <> GNU.io.out.PC
-  EXU.io.in.CSR          <> REG.io.csr_rdata
+  EXU.io.in.CSR          <> io.reg_out.csr_rdata
 
   // 第二步，EXU处理完成之后将结果传递给WBU，WBU根据结果更新系统状态，包括GPR，CSR，PC以及内存
   WBU.io.in.RegWr        <> EXU.io.out.RegWr
@@ -86,24 +117,24 @@ class CPU() extends Module {
   WBU.io.in.GPR_Bdata    <> EXU.io.out.GPR_Bdata
   WBU.io.in.GPR_waddr    <> EXU.io.out.GPR_waddr
   WBU.io.in.PC           <> EXU.io.out.PC
-  WBU.io.in.CSR          <> REG.io.csr_rdata
+  WBU.io.in.CSR          <> io.reg_out.csr_rdata
   WBU.io.in.Result       <> EXU.io.out.Result
   WBU.io.in.Zero         <> EXU.io.out.Zero
   WBU.io.in.Less         <> EXU.io.out.Less
 
   WBU.io.in.Mem_rdata    <> io.Dmem_rdata
 
-  REG.io.inst_valid <> io.Imem_input.valid
-  REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
-  REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
-  REG.io.GPR_wen   <> WBU.io.out.GPR_wen
-  REG.io.pc_in     <> WBU.io.out.Next_Pc
+  io.reg_in.inst_valid <> io.in.valid
+  io.reg_in.GPR_wdata <> WBU.io.out.GPR_wdata
+  io.reg_in.GPR_waddr <> WBU.io.out.GPR_waddr
+  io.reg_in.GPR_wen   <> WBU.io.out.GPR_wen
+  io.reg_in.pc        <> WBU.io.out.Next_Pc
 
-  REG.io.csr_ctr    := WBU.io.out.CSR_ctr
-  REG.io.csr_waddra := WBU.io.out.CSR_waddra
-  REG.io.csr_waddrb := WBU.io.out.CSR_waddrb
-  REG.io.csr_wdataa := WBU.io.out.CSR_wdataa
-  REG.io.csr_wdatab := WBU.io.out.CSR_wdatab
+  io.reg_in.csr_ctr    := WBU.io.out.CSR_ctr
+  io.reg_in.csr_waddra := WBU.io.out.CSR_waddra
+  io.reg_in.csr_waddrb := WBU.io.out.CSR_waddrb
+  io.reg_in.csr_wdataa := WBU.io.out.CSR_wdataa
+  io.reg_in.csr_wdatab := WBU.io.out.CSR_wdatab
 
   io.Dmem_wraddr := EXU.io.out.Result
   io.Dmem_wdata := EXU.io.out.GPR_Bdata

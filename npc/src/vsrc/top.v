@@ -20,7 +20,7 @@ module top(
 
 always @(io_Imem_rdata_bits) begin
     if(io_Imem_rdata_bits == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", npc_trap(npc.riscv_cpu.REG.gpr_10));
+        $display("sim has been stop at clk_cnt %d", npc_trap(npc.REG.gpr_10));
 end
 
 

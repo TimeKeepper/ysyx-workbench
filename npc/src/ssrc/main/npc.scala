@@ -24,8 +24,8 @@ class npc extends Module {
   val riscv_cpu = Module(new CPU)
 
   IFU.io.in.bits.inst <> io.Imem_rdata.bits
-  IFU.io.in.valid     <> riscv_cpu.io.Imem_input.valid
-  IFU.io.in.ready     <> riscv_cpu.io.Imem_input.ready
+  IFU.io.in.valid     <> riscv_cpu.io.Imem_raddr.valid
+  IFU.io.in.ready     <> riscv_cpu.io.Imem_raddr.ready
   IFU.io.in.ready     <> io.Imem_rdata.ready
   IFU.io.in.bits.addr <> riscv_cpu.io.Imem_raddr.bits
   IFU.io.out.bits.inst  <> riscv_cpu.io.Imem_input.bits.inst

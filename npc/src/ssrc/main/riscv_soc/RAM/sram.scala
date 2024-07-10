@@ -13,22 +13,22 @@ class SRAM extends Module {
     
     val inst_cache = RegInit(UInt(32.W), "h0".U)
 
-    val s_idle :: s_wait_ready :: Nil = Enum(2)
-    val state = RegInit(s_idle)
+    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+    val state = RegInit(s_wait_valid)
 
-    when(io.inst_input.valid && io.inst_input.ready){
+    when(io.inst_input.valid && io.inst_input.ready) {
         inst_cache := io.inst_input.bits
     }
     
     io.inst_output.bits := inst_cache
     
-    state := MuxLookup(state, s_idle)(
+    state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_idle       -> Mux(io.inst_output.valid, s_wait_ready, s_idle),
-            s_wait_ready -> Mux(io.inst_output.ready, s_idle, s_wait_ready)
+            s_wait_valid       -> Mux(io.inst_output.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.inst_output.ready, s_wait_valid, s_wait_ready)
         )
     )
 
     io.inst_output.valid := io.inst_input.valid
-    io.inst_input.ready  := state === s_idle
+    io.inst_input.ready  := state === s_wait_valid
 }

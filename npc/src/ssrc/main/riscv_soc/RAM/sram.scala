@@ -17,7 +17,7 @@ class Icache_output extends Bundle{
 
 class Icache extends Module {
     val io = IO(new Bundle{
-        val in = Flipped(Decoupled(Icache_input))
+        val in = Flipped(Decoupled(new Icache_input))
         val inst_output = Decoupled(UInt(32.W))
     })
     

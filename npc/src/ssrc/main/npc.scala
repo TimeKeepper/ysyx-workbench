@@ -10,6 +10,7 @@ class npc extends Module {
   val io = IO(new Bundle {
     val Imem_rdata = Flipped(Decoupled(UInt(32.W)))
     val Imem_raddr = Output(UInt(32.W))
+    
     val Dmem_rdata = Input(UInt(32.W))
     val Dmem_wraddr = Output(UInt(32.W))
 

@@ -31,8 +31,8 @@ class npc extends Module {
   IFU.io.out.bits.inst  <> riscv_cpu.io.Imem_input.bits.inst
   IFU.io.out.bits.addr  <> riscv_cpu.io.Imem_input.bits.addr
   IFU.io.out.bits.addr  <> io.Imem_raddr
-  IFU.io.out.valid      <> riscv_cpu.io.Imem_rdata.valid
-  IFU.io.out.ready      <> riscv_cpu.io.Imem_rdata.ready
+  IFU.io.out.valid      <> riscv_cpu.io.Imem_input.valid
+  IFU.io.out.ready      <> riscv_cpu.io.Imem_input.ready
 
   riscv_cpu.io.Dmem_rdata  <> io.Dmem_rdata
   riscv_cpu.io.Dmem_wraddr <> io.Dmem_wraddr

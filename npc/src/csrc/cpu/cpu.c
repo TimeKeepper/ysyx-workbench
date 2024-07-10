@@ -247,9 +247,7 @@ static void execute(uint64_t n){
             dut.io_Imem_rdata_valid = 1;
         }else {
             dut.io_Imem_rdata_valid = 0;
-        }
-
-        dut.eval();                      
+        }                   
 
         single_cycle();                                                     //单周期执行
 

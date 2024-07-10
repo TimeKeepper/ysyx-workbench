@@ -247,24 +247,22 @@ static void execute(uint64_t n){
             dut.io_Imem_rdata_valid = 1;
         }else {
             dut.io_Imem_rdata_valid = 0;
-        }
+        }                   
 
-        dut.eval();                      
+        single_cycle();         
 
-        single_cycle();                                                     //单周期执行
+            if(dut.rootp->Dmem_wen) memory_write();          //写内存
 
-        if(dut.rootp->Dmem_wen) memory_write();          //写内存
+            itrace_catch(is_itrace);
 
-        itrace_catch(is_itrace);
+            cpu_value_update();          //更新寄存器
+            
+            watchpoint_catch();          //检查watchpoint
 
-        cpu_value_update();          //更新寄存器
-        
-        watchpoint_catch();          //检查watchpoint
-
-        difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
-        
-        check_special_inst();       //检查特殊指令
-        func_called_detect();
+            difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
+            
+            check_special_inst();       //检查特殊指令
+            func_called_detect();                                            //单周期执行
 
         if (npc_state.state != NPC_RUNNING) break;
     }

@@ -243,7 +243,7 @@ static void execute(uint64_t n){
     for(;n > 0; n--){
         // nvboard_update();
         if(dut.io_Imem_rdata_ready){
-            dut.io_Imem_rdata_bits = ram_read(cpu.pc, 4);
+            dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4);
             dut.io_Imem_rdata_valid = 1;
         }else {
             dut.io_Imem_rdata_valid = 0;

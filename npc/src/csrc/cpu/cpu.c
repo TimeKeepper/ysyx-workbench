@@ -240,16 +240,9 @@ void check_special_inst(void){
 void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
-    //最初的指令地址
-    dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4);
     for(;n > 0; n--){
         // nvboard_update();
-        if(dut.io_Imem_rdata_ready){
-            dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4);
-            dut.io_Imem_rdata_valid = 1;
-        }else {
-            dut.io_Imem_rdata_valid = 0;
-        }                   
+        dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4); 
 
         single_cycle();         
 

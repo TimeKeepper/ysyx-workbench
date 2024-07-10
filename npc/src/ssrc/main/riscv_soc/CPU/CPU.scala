@@ -20,13 +20,16 @@ class CPU() extends Module {
   })
 
   // Modules
+  val IFU             = Module(new IFU()) // Instruction Fetch Unit
   val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
   val WBU             = Module(new WBU()) // Write Back Unit
   val REG             = Module(new REG()) // Register File
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.Imem_raddr <> REG.io.pc_out
+  IFU.io.in.pc        <> REG.io.pc_out
+  IFU.io.out.pc       <> io.Imem_raddr
+  IFU.io.in.inst      <> io.in.inst
 
   GNU.io.in.ready     <> io.Imem_rdata.ready
   GNU.io.in.valid     <> io.Imem_rdata.valid

@@ -59,7 +59,7 @@ class CPU() extends Module {
   GNU.io.out.CSR_raddr <> REG.io.csr_raddr
 
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
-  EXU.io.in.Branch       <> Mux(io.Imem_rdata.valid, GNU.io.out.Branch, Bran_Noc)
+  EXU.io.in.Branch       <> Mux(io.Imem_rdata.valid, GNU.io.out.Branch, Bran_NoC)
   EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
   EXU.io.in.MemWr        <> GNU.io.out.MemWr
   EXU.io.in.MemOp        <> GNU.io.out.MemOp

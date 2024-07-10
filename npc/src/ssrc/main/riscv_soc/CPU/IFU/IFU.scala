@@ -32,9 +32,11 @@ class IFU extends Module {
     )
     
     val inst_cache = RegInit(UInt(32.W), "h0".U)
+    val addr_cache = RegInit(UInt(32.W), "h80000000".U)
 
     when(io.in.valid && io.in.ready) {
         inst_cache := io.in.bits.inst
+        addr_cache := io.in.bits.addr
     }
     
     io.out.bits.inst := inst_cache

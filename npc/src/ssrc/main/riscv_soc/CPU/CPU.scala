@@ -6,9 +6,14 @@ import chisel3.util._
 import Instructions._
 import signal_value._
 
+class Imem_input extends Bundle{
+  val inst = Input(UInt(32.W))
+  val addr = Input(UInt(32.W))
+}
+
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val Imem_rdata     = Flipped(Decoupled(UInt(32.W)))
+    val Imem_input     = Flipped(Decoupled(new Imem_input))
     val Imem_raddr     = Decoupled(UInt(32.W))
     val Dmem_rdata     = Input(UInt(32.W))
 
@@ -24,7 +29,7 @@ class CPU() extends Module {
 
   state := MuxLookup(state, s_wait_valid)(
     Seq(
-        s_wait_valid -> Mux(io.Imem_rdata.valid, s_wait_ready, s_wait_valid),
+        s_wait_valid -> Mux(io.Imem_input.valid, s_wait_ready, s_wait_valid),
         s_wait_ready -> Mux(io.Imem_raddr.ready, s_wait_valid, s_wait_ready),
     )
   )
@@ -36,7 +41,7 @@ class CPU() extends Module {
   val REG             = Module(new REG()) // Register File
 
   io.Imem_raddr.valid := state === s_wait_ready
-  io.Imem_rdata.ready := state === s_wait_valid
+  io.Imem_input.ready := state === s_wait_valid
 
   val Imem_raddr_cache = RegInit("h80000000".U(32.W))
   when(io.Imem_raddr.valid && io.Imem_raddr.ready){
@@ -46,8 +51,8 @@ class CPU() extends Module {
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.Imem_raddr.bits <> Imem_raddr_cache
 
-  GNU.io.in.inst <> Mux(io.Imem_rdata.valid, io.Imem_rdata.bits, NOP.U)
-  GNU.io.in.PC   <> REG.io.pc_out
+  GNU.io.in.inst <> Mux(io.Imem_input.valid, io.Imem_input.bits.inst, NOP.U)
+  GNU.io.in.PC   <> io.Imem_input.bits.addr
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
@@ -59,7 +64,7 @@ class CPU() extends Module {
   GNU.io.out.CSR_raddr <> REG.io.csr_raddr
 
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
-  EXU.io.in.Branch       <> Mux(io.Imem_rdata.valid, GNU.io.out.Branch, Bran_NoC)
+  EXU.io.in.Branch       <> Mux(io.Imem_input.valid, GNU.io.out.Branch, Bran_NoC)
   EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
   EXU.io.in.MemWr        <> GNU.io.out.MemWr
   EXU.io.in.MemOp        <> GNU.io.out.MemOp

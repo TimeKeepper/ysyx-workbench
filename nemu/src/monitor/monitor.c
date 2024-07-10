@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <gelf.h>
 #include <libelf.h>
+#include <signal.h>
 
 void init_rand();
 void init_log(const char *log_file);
@@ -184,6 +185,18 @@ static int parse_args(int argc, char *argv[]) {
   return 0;
 }
 
+void SIGINT_handler(int signal){
+    if(signal == SIGINT){
+        printf(ANSI_FMT("\nprogram interrupted\n", ANSI_FG_BLUE));
+        nemu_state.state = NEMU_STOP;
+    }
+}
+
+void init_sig(void){
+    signal(SIGINT, SIGINT_handler);
+}
+
+
 void init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
 
@@ -227,6 +240,9 @@ void init_monitor(int argc, char *argv[]) {
                                "bad"))) "-pc-linux-gnu"
   ));
 #endif
+
+  /* Initialize signal handler. */
+  init_sig();
 
   /* Display welcome message. */
   welcome();

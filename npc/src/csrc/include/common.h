@@ -16,7 +16,7 @@
 #define WAVE_TRACE
 // #define ITRACE
 // #define CONFIG_DIFFTEST
-// #define CONFIG_WATCHPOINT
+#define CONFIG_WATCHPOINT
 
 typedef uint32_t paddr_t;
 typedef uint32_t word_t;

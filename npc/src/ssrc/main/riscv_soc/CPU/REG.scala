@@ -52,7 +52,7 @@ class REG extends Module {
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
   io.csr_rdata := csr((io.csr_raddr - "h300".U)(6, 0))
 
-  when(io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2 && io.inst_valid === true.B) {
+  when((io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2) && io.inst_valid === true.B) {
     csr((io.csr_waddra - "h300".U)(6, 0)) := io.csr_wdataa
   }
 

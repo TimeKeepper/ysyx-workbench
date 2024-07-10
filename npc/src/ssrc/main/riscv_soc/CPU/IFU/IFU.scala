@@ -22,7 +22,7 @@ class IFU extends Module {
     })
 
     val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
-    val state = RegInit(s_wait_ready)
+    val state = RegInit(s_wait_valid)
     
     state := MuxLookup(state, s_wait_ready)(
         Seq(

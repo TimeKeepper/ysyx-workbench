@@ -25,7 +25,7 @@ class CPU() extends Module {
   })
 
   val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
-  val state = RegInit(s_wait_valid)
+  val state = RegInit(s_wait_ready)
 
   state := MuxLookup(state, s_wait_valid)(
     Seq(
@@ -42,11 +42,6 @@ class CPU() extends Module {
 
   io.Imem_raddr.valid := state === s_wait_ready
   io.Imem_input.ready := state === s_wait_valid
-
-  // val Imem_raddr_cache = RegInit("h80000000".U(32.W))
-  // when(io.Imem_input.valid && io.Imem_input.ready){
-  //   Imem_raddr_cache := REG.io.pc_out
-  // } 
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.Imem_raddr.bits <> REG.io.pc_out
@@ -113,5 +108,5 @@ class CPU() extends Module {
   io.Dmem_wraddr := EXU.io.out.Result
   io.Dmem_wdata := EXU.io.out.GPR_Bdata
   io.Dmem_wop   := GNU.io.out.MemOp
-  io.Dmem_wen   := GNU.io.out.MemWr & io.Imem_input.valid
+  io.Dmem_wen   := GNU.io.out.MemWr & (state === s_wait_ready)
 }

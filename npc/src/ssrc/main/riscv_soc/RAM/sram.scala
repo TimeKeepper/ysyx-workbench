@@ -26,7 +26,7 @@ class Icache extends Module {
     
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.out.valid, s_wait_ready, s_wait_valid),
+            s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
             s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
         )
     )
@@ -40,7 +40,7 @@ class Icache extends Module {
     io.out.bits.inst := inst_cache
     io.out.bits.addr := io.in.bits.addr
 
-    io.out.valid := io.in.valid
+    io.out.valid := state === s_wait_ready
     io.in.ready  := state === s_wait_valid
 }
 

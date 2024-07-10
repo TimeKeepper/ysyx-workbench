@@ -20,11 +20,18 @@ class Icache extends Module {
         val in = Flipped(Decoupled(new Icache_input))
         val out = Decoupled(new Icache_output)
     })
-    
-    val inst_cache = RegInit(UInt(32.W), "h0".U)
 
     val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
     val state = RegInit(s_wait_valid)
+    
+    state := MuxLookup(state, s_wait_valid)(
+        Seq(
+            s_wait_valid -> Mux(io.out.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
+        )
+    )
+    
+    val inst_cache = RegInit(UInt(32.W), "h0".U)
 
     when(io.in.valid && io.in.ready) {
         inst_cache := io.in.bits.inst
@@ -32,6 +39,30 @@ class Icache extends Module {
     
     io.out.bits.inst := inst_cache
     io.out.bits.addr := io.in.bits.addr
+
+    io.out.valid := io.in.valid
+    io.in.ready  := state === s_wait_valid
+}
+
+class Dcache_input extends Bundle{
+    val addr = Input(UInt(32.W))
+    val data = Input(UInt(32.W))
+    val memop = Input(UInt(3.W))
+    val memwen = Input(Bool())
+}
+
+class Dcache_output extends Bundle{
+    val data = Output(UInt(32.W))
+}
+
+class Dcache extends Module {
+    val io = IO(new Bundle{
+        val in = Flipped(Decoupled(new Dcache_input))
+        val out = Decoupled(new Dcache_output)
+    })
+
+    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+    val state = RegInit(s_wait_valid)
     
     state := MuxLookup(state, s_wait_valid)(
         Seq(
@@ -40,6 +71,4 @@ class Icache extends Module {
         )
     )
 
-    io.out.valid := io.in.valid
-    io.in.ready  := state === s_wait_valid
 }

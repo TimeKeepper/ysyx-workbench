@@ -9,7 +9,7 @@ import signal_value._
 class CPU() extends Module {
   val io = IO(new Bundle {
     val Imem_rdata     = Flipped(Decoupled(UInt(32.W)))
-    val Imem_raddr     = Output(UInt(32.W))
+    val Imem_raddr     = Decoupled(UInt(32.W))
     val Dmem_rdata     = Input(UInt(32.W))
 
     val Dmem_wdata     = Output(UInt(32.W))
@@ -19,6 +19,24 @@ class CPU() extends Module {
     val Dmem_wraddr    = Output(UInt(32.W))
   })
 
+  val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+  val state = RegInit(s_wait_valid)
+
+  state := MuxLookup(state, s_wait_valid)(
+    Seq(
+        s_wait_valid -> Mux(io.Imem_rdata.valid, s_wait_ready, s_wait_valid),
+        s_wait_ready -> Mux(io.Imem_raddr.ready, s_wait_valid, s_wait_ready),
+    )
+  )
+
+  io.out.valid := state === s_wait_ready
+  io.in.ready  := state === s_wait_valid
+
+  val Imem_raddr_cache = RegInit(0.U(32.W))
+  when(io.Imem_raddr.valid && io.Imem_raddr.ready){
+    Imem_raddr_cache := REG.io.pc_out
+  } 
+
   // Modules
   val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
@@ -26,24 +44,22 @@ class CPU() extends Module {
   val REG             = Module(new REG()) // Register File
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.Imem_raddr <> REG.io.pc_out
+  io.Imem_raddr <> Imem_raddr_cache
 
-  GNU.io.in.ready     <> io.Imem_rdata.ready
-  GNU.io.in.valid     <> io.Imem_rdata.valid
-  GNU.io.in.bits.inst <> io.Imem_rdata.bits
-  GNU.io.in.bits.PC   <> REG.io.pc_out
+  GNU.io.in.inst <> Mux(io.Imem_rdata.valid, io.Imem_rdata.bits, NOP.U)
+  GNU.io.in.PC   <> REG.io.pc_out
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
   GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
-  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
-  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+  GNU.io.in.GPR_Adata <> REG.io.GPR_rdataa
+  GNU.io.in.GPR_Bdata <> REG.io.GPR_rdatab
 
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
   GNU.io.out.CSR_raddr <> REG.io.csr_raddr
 
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
-  EXU.io.in.Branch       <> GNU.io.out.Branch
+  EXU.io.in.Branch       <> Mux(io.Imem_rdata.valid, GNU.io.out.Branch, Bran_Noc)
   EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
   EXU.io.in.MemWr        <> GNU.io.out.MemWr
   EXU.io.in.MemOp        <> GNU.io.out.MemOp

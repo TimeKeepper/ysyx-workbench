@@ -45,24 +45,24 @@ class EXU_output extends Bundle{
 
 class EXU extends Module {
     val io = IO(new Bundle{
-        val in  = Flipped(Decoupled(new EXU_input))
-        val out = Decoupled(new EXU_output)
+        val in  = new EXU_input
+        val out = new EXU_output
     })
 
     val alu = Module(new ALU)
 
-    io.out.bits.RegWr    <> io.in.bits.RegWr
-    io.out.bits.Branch   <> io.in.bits.Branch
-    io.out.bits.MemtoReg <> io.in.bits.MemtoReg
-    io.out.bits.MemWr    <> io.in.bits.MemWr
-    io.out.bits.MemOp    <> io.in.bits.MemOp
-    io.out.bits.csr_ctr  <> io.in.bits.csr_ctr
-    io.out.bits.Imm      <> io.in.bits.Imm
-    io.out.bits.GPR_Adata<> io.in.bits.GPR_Adata
-    io.out.bits.GPR_Bdata<> io.in.bits.GPR_Bdata
-    io.out.bits.GPR_waddr<> io.in.bits.GPR_waddr
-    io.out.bits.PC       <> io.in.bits.PC
-    io.out.bits.CSR      <> io.in.bits.CSR
+    io.out.RegWr    <> io.in.RegWr
+    io.out.Branch   <> io.in.Branch
+    io.out.MemtoReg <> io.in.MemtoReg
+    io.out.MemWr    <> io.in.MemWr
+    io.out.MemOp    <> io.in.MemOp
+    io.out.csr_ctr  <> io.in.csr_ctr
+    io.out.Imm      <> io.in.Imm
+    io.out.GPR_Adata<> io.in.GPR_Adata
+    io.out.GPR_Bdata<> io.in.GPR_Bdata
+    io.out.GPR_waddr<> io.in.GPR_waddr
+    io.out.PC       <> io.in.PC
+    io.out.CSR      <> io.in.CSR
 
     io.out.Result   <> alu.io.ALUout 
     io.out.Zero     <> alu.io.Zero   

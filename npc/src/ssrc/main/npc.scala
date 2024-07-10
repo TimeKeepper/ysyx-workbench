@@ -10,7 +10,6 @@ class npc extends Module {
   val io = IO(new Bundle {
     val Imem_rdata = Flipped(Decoupled(UInt(32.W)))
     val Imem_raddr = Output(UInt(32.W))
-    
     val Dmem_rdata = Input(UInt(32.W))
     val Dmem_wraddr = Output(UInt(32.W))
 
@@ -19,18 +18,20 @@ class npc extends Module {
     val Dmem_wen   = Output(Bool())
   })
   
-  val Icache = Module(new Icache)
+  val IFU = Module(new IFU)
 
   val riscv_cpu = Module(new CPU)
 
-  Icache.io.in.bits.inst <> io.Imem_rdata.bits
-  Icache.io.in.valid     <> io.Imem_rdata.valid
-  Icache.io.in.ready     <> io.Imem_rdata.ready
-  Icache.io.in.bits.addr <> riscv_cpu.io.Imem_raddr
-  Icache.io.out.bits.inst  <> riscv_cpu.io.Imem_rdata.bits
-  Icache.io.out.bits.addr  <> io.Imem_raddr
-  Icache.io.out.valid      <> riscv_cpu.io.Imem_rdata.valid
-  Icache.io.out.ready      <> riscv_cpu.io.Imem_rdata.ready
+  IFU.io.in.bits.inst <> io.Imem_rdata.bits
+  IFU.io.in.valid     <> riscv_cpu.io.Imem_raddr.valid
+  IFU.io.in.ready     <> riscv_cpu.io.Imem_raddr.ready
+  IFU.io.in.ready     <> io.Imem_rdata.ready
+  IFU.io.in.bits.addr <> riscv_cpu.io.Imem_raddr.bits
+  IFU.io.out.bits.inst  <> riscv_cpu.io.Imem_input.bits.inst
+  IFU.io.out.bits.addr  <> riscv_cpu.io.Imem_input.bits.addr
+  io.Imem_raddr  <> riscv_cpu.io.Imem_raddr.bits
+  IFU.io.out.valid      <> riscv_cpu.io.Imem_input.valid
+  IFU.io.out.ready      <> riscv_cpu.io.Imem_input.ready
 
   riscv_cpu.io.Dmem_rdata  <> io.Dmem_rdata
   riscv_cpu.io.Dmem_wraddr <> io.Dmem_wraddr

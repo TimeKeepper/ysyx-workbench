@@ -6,10 +6,15 @@ import chisel3.util._
 import Instructions._
 import signal_value._
 
+class Imem_input extends Bundle{
+  val inst = Input(UInt(32.W))
+  val addr = Input(UInt(32.W))
+}
+
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val Imem_rdata     = Flipped(Decoupled(UInt(32.W)))
-    val Imem_raddr     = Output(UInt(32.W))
+    val Imem_input     = Flipped(Decoupled(new Imem_input))
+    val Imem_raddr     = Decoupled(UInt(32.W))
     val Dmem_rdata     = Input(UInt(32.W))
 
     val Dmem_wdata     = Output(UInt(32.W))
@@ -19,25 +24,36 @@ class CPU() extends Module {
     val Dmem_wraddr    = Output(UInt(32.W))
   })
 
+  val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+  val state = RegInit(s_wait_ready)
+
+  state := MuxLookup(state, s_wait_valid)(
+    Seq(
+        s_wait_valid -> Mux(io.Imem_input.valid, s_wait_ready, s_wait_valid),
+        s_wait_ready -> Mux(io.Imem_raddr.ready, s_wait_valid, s_wait_ready),
+    )
+  )
+
   // Modules
   val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
   val WBU             = Module(new WBU()) // Write Back Unit
   val REG             = Module(new REG()) // Register File
 
-  // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.Imem_raddr <> REG.io.pc_out
+  io.Imem_raddr.valid := state === s_wait_ready
+  io.Imem_input.ready := state === s_wait_valid
 
-  GNU.io.in.ready     <> io.Imem_rdata.ready
-  GNU.io.in.valid     <> io.Imem_rdata.valid
-  GNU.io.in.bits.inst <> io.Imem_rdata.bits
-  GNU.io.in.bits.PC   <> REG.io.pc_out
+  // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
+  io.Imem_raddr.bits <> REG.io.pc_out
+
+  GNU.io.in.inst <> io.Imem_input.bits.inst
+  GNU.io.in.PC   <> io.Imem_input.bits.addr
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
   GNU.io.out.inst(19, 15) <> REG.io.GPR_raddra
   GNU.io.out.inst(24, 20) <> REG.io.GPR_raddrb
-  GNU.io.in.bits.GPR_Adata <> REG.io.GPR_rdataa
-  GNU.io.in.bits.GPR_Bdata <> REG.io.GPR_rdatab
+  GNU.io.in.GPR_Adata <> REG.io.GPR_rdataa
+  GNU.io.in.GPR_Bdata <> REG.io.GPR_rdatab
 
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
   GNU.io.out.CSR_raddr <> REG.io.csr_raddr
@@ -77,6 +93,7 @@ class CPU() extends Module {
 
   WBU.io.in.Mem_rdata    <> io.Dmem_rdata
 
+  REG.io.inst_valid <> io.Imem_input.valid
   REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.GPR_wen   <> WBU.io.out.GPR_wen
@@ -91,5 +108,5 @@ class CPU() extends Module {
   io.Dmem_wraddr := EXU.io.out.Result
   io.Dmem_wdata := EXU.io.out.GPR_Bdata
   io.Dmem_wop   := GNU.io.out.MemOp
-  io.Dmem_wen   := GNU.io.out.MemWr && io.Imem_rdata.valid
+  io.Dmem_wen   := GNU.io.out.MemWr & (state === s_wait_ready)
 }

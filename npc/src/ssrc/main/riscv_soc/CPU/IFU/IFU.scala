@@ -40,7 +40,7 @@ class IFU extends Module {
     }
     
     io.out.bits.inst := inst_cache
-    io.out.bits.addr := io.in.bits.addr
+    io.out.bits.addr := addr_cache
 
     io.out.valid := state === s_wait_ready
     io.in.ready  := state === s_wait_valid

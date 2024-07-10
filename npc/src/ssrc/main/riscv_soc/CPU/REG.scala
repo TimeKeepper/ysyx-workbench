@@ -34,7 +34,7 @@ class REG extends Module {
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.GPR_wen && io.GPR_waddr =/= 0.U && inst_valid === true.B) {
+  when(io.GPR_wen && io.GPR_waddr =/= 0.U && io.inst_valid === true.B) {
     gpr(io.GPR_waddr) := io.GPR_wdata
   }
 
@@ -43,7 +43,7 @@ class REG extends Module {
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  when(inst_valid === true.B){
+  when(io.inst_valid === true.B){
     pc        := io.pc_in
   }
   io.pc_out := pc
@@ -52,11 +52,11 @@ class REG extends Module {
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
   io.csr_rdata := csr((io.csr_raddr - "h300".U)(6, 0))
 
-  when(io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2 && inst_valid === true.B) {
+  when(io.csr_ctr === CSR_R1W1 || io.csr_ctr === CSR_R1W2 && io.inst_valid === true.B) {
     csr((io.csr_waddra - "h300".U)(6, 0)) := io.csr_wdataa
   }
 
-  when(io.csr_ctr === CSR_R1W2 && inst_valid === true.B) {
+  when(io.csr_ctr === CSR_R1W2 && io.inst_valid === true.B) {
     csr((io.csr_waddrb - "h300".U)(6, 0)) := io.csr_wdatab
   }
 }

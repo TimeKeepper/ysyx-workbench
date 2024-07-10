@@ -254,7 +254,7 @@ static void execute(uint64_t n){
             
             watchpoint_catch();          //检查watchpoint
 
-            difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
+            if(dut.io_Imem_rdata_ready) difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
             
             check_special_inst();       //检查特殊指令
             func_called_detect();                                            //单周期执行

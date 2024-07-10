@@ -45,7 +45,7 @@ class CPU() extends Module {
 
   val Imem_raddr_cache = RegInit("h80000000".U(32.W))
   when(io.Imem_raddr.valid && io.Imem_raddr.ready){
-    Imem_raddr_cache := REG.io.pc_out
+    Imem_raddr_cache := WBU.io.out.Next_Pc
   } 
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，

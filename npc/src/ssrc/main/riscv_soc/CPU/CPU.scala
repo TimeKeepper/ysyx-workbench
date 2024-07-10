@@ -45,13 +45,13 @@ class CPU() extends Module {
 
   val Imem_raddr_cache = RegInit("h80000000".U(32.W))
   when(io.Imem_raddr.valid && io.Imem_raddr.ready){
-    Imem_raddr_cache := WBU.io.out.Next_Pc
+    Imem_raddr_cache := REG.io.pc_out
   } 
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.Imem_raddr.bits <> Imem_raddr_cache
 
-  GNU.io.in.inst <> Mux(io.Imem_input.valid, io.Imem_input.bits.inst, NOP.U)
+  GNU.io.in.inst <> io.Imem_input.bits.inst
   GNU.io.in.PC   <> io.Imem_input.bits.addr
 
   // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
@@ -64,7 +64,7 @@ class CPU() extends Module {
   GNU.io.out.CSR_raddr <> REG.io.csr_raddr
 
   EXU.io.in.RegWr        <> GNU.io.out.RegWr
-  EXU.io.in.Branch       <> Mux(io.Imem_input.valid, GNU.io.out.Branch, Bran_NoC)
+  EXU.io.in.Branch       <> GNU.io.out.Branch
   EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
   EXU.io.in.MemWr        <> GNU.io.out.MemWr
   EXU.io.in.MemOp        <> GNU.io.out.MemOp

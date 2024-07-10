@@ -243,7 +243,6 @@ static void execute(uint64_t n){
     for(;n > 0; n--){
         // nvboard_update();
         if(dut.io_Imem_rdata_ready){
-            printf("Imem_rdata_ready, addr: 0x%08x\n", dut.Imem_raddr);
             dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4);
             dut.io_Imem_rdata_valid = 1;
         }else {

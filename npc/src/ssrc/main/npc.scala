@@ -26,7 +26,9 @@ class npc extends Module {
   Icache.io.in.valid     <> io.Imem_rdata.valid
   Icache.io.in.ready     <> io.Imem_rdata.ready
   Icache.io.in.bits.addr <> riscv_cpu.io.Imem_raddr
-  Icache.io.out.bits.inst  <> riscv_cpu.io.Imem_rdata
+  Icache.io.out.bits.inst  <> riscv_cpu.io.Imem_rdata.bits
+  Icache.io.out.valid      <> riscv_cpu.io.Imem_rdata.valid
+  Icache.io.out.ready      <> riscv_cpu.io.Imem_rdata.ready
 
   riscv_cpu.io.Imem_raddr  <> io.Imem_raddr
   riscv_cpu.io.Dmem_rdata  <> io.Dmem_rdata

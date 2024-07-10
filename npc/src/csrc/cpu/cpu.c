@@ -109,7 +109,10 @@ static void single_cycle() {
     
     if(!dut.rootp->Dmem_wen) dut.rootp->Dmem_data = memory_read();  
 
-    dut.clk = 1; dut.eval();wave_Trace_once();                   
+    dut.clk = 1; dut.eval();wave_Trace_once();         
+
+    if(dut.rootp->Dmem_wen) memory_write();
+
     clk_cnt++;
 }
 
@@ -250,8 +253,6 @@ static void execute(uint64_t n){
         }                   
 
         single_cycle();         
-
-            if(dut.rootp->Dmem_wen) memory_write();          //写内存
 
             itrace_catch(is_itrace);
 

@@ -36,7 +36,7 @@ class GNU_output extends Bundle{
 class GNU extends Module{
     val io = IO(new Bundle{
         val in       = Flipped(Decoupled(new GNU_input))
-        val out      = new GNU_output
+        val out      = Decoupled(new GNU_output)
     })
 
     val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
@@ -45,37 +45,40 @@ class GNU extends Module{
     state := MuxLookup(state, s_wait_valid)(
         Seq(
             s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> s_wait_valid
+            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
         )
     )
 
-    io.in.ready := true.B
+    io.out.valid := io.in.valid
+    io.in.ready  := state === s_wait_valid
 
     val idu = Module(new IDU)
     val igu = Module(new IGU)
 
+    io.out.valid    <> state === s_wait_ready
+    io.out.ready    <> state === s_wait_valid
     idu.io.inst     <> Mux(state === s_wait_ready, io.in.bits.inst, NOP.U)
-    idu.io.RegWr    <> io.out.RegWr
-    io.out.Branch   <> Mux(state === s_wait_ready, idu.io.Branch, Bran_NoC)
-    idu.io.MemtoReg <> io.out.MemtoReg
-    idu.io.MemWr    <> io.out.MemWr
-    idu.io.MemOp    <> io.out.MemOp
-    idu.io.ALUAsrc  <> io.out.ALUAsrc
-    idu.io.ALUBsrc  <> io.out.ALUBsrc
-    idu.io.ALUctr   <> io.out.ALUctr
-    idu.io.csr_ctr  <> io.out.csr_ctr
+    idu.io.RegWr    <> io.out.bits.RegWr
+    io.out.bits.Branch   <> Mux(state === s_wait_ready, idu.io.Branch, Bran_NoC)
+    idu.io.MemtoReg <> io.out.bits.MemtoReg
+    idu.io.MemWr    <> io.out.bits.MemWr
+    idu.io.MemOp    <> io.out.bits.MemOp
+    idu.io.ALUAsrc  <> io.out.bits.ALUAsrc
+    idu.io.ALUBsrc  <> io.out.bits.ALUBsrc
+    idu.io.ALUctr   <> io.out.bits.ALUctr
+    idu.io.csr_ctr  <> io.out.bits.csr_ctr
 
     igu.io.inst     <> Mux(state === s_wait_ready, io.in.bits.inst, NOP.U)
     igu.io.ExtOp    <> idu.io.ExtOp
-    igu.io.imm      <> io.out.Imm
+    igu.io.imm      <> io.out.bits.Imm
 
-    io.out.GPR_Adata <> io.in.bits.GPR_Adata
-    io.out.GPR_Bdata <> io.in.bits.GPR_Bdata
-    io.out.GPR_waddr <> Mux(state === s_wait_ready, io.in.bits.inst(11, 7), NOP.U(11, 7))
-    io.out.PC       <> io.in.bits.PC
-    io.out.inst     <> io.in.bits.inst
+    io.out.bits.GPR_Adata <> io.in.bits.GPR_Adata
+    io.out.bits.GPR_Bdata <> io.in.bits.GPR_Bdata
+    io.out.bits.GPR_waddr <> Mux(state === s_wait_ready, io.in.bits.inst(11, 7), NOP.U(11, 7))
+    io.out.bits.PC       <> io.in.bits.PC
+    io.out.bits.inst     <> io.in.bits.inst
  
-    io.out.CSR_raddr := MuxLookup(io.out.csr_ctr, io.out.Imm(11, 0))(Seq(
+    io.out.bits.CSR_raddr := MuxLookup(io.out.bits.csr_ctr, io.out.bits.Imm(11, 0))(Seq(
         CSR_R1W0 -> "h341".U,
         CSR_R1W2 -> "h305".U,
     ))

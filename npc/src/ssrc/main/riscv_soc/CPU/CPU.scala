@@ -29,6 +29,12 @@ class CPU() extends Module {
     )
   )
 
+  // Modules
+  val GNU             = Module(new GNU()) // Generating Number Unit
+  val EXU             = Module(new EXU()) // Execution Unit
+  val WBU             = Module(new WBU()) // Write Back Unit
+  val REG             = Module(new REG()) // Register File
+
   io.Imem_raddr.valid := state === s_wait_ready
   io.Imem_rdata.ready := state === s_wait_valid
 
@@ -36,12 +42,6 @@ class CPU() extends Module {
   when(io.Imem_raddr.valid && io.Imem_raddr.ready){
     Imem_raddr_cache := REG.io.pc_out
   } 
-
-  // Modules
-  val GNU             = Module(new GNU()) // Generating Number Unit
-  val EXU             = Module(new EXU()) // Execution Unit
-  val WBU             = Module(new WBU()) // Write Back Unit
-  val REG             = Module(new REG()) // Register File
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.Imem_raddr.bits <> Imem_raddr_cache

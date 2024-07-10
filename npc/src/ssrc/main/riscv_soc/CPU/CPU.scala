@@ -29,7 +29,7 @@ class CPU() extends Module {
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   IFU.io.in.pc        <> REG.io.pc_out
   IFU.io.out.pc       <> io.Imem_raddr
-  IFU.io.in.inst      <> io.in.inst
+  IFU.io.in.inst      <> io.Imem_rdata.bits
 
   GNU.io.in.ready     <> io.Imem_rdata.ready
   GNU.io.in.valid     <> io.Imem_rdata.valid

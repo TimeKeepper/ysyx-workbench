@@ -16,6 +16,8 @@ class npc extends Module {
     val Dmem_wdata = Output(UInt(32.W))
     val Dmem_wop   = Output(UInt(3.W))
     val Dmem_wen   = Output(Bool())
+
+    val inst_comp  = Output(Bool())
   })
   
   val IFU = Module(new IFU)
@@ -39,4 +41,12 @@ class npc extends Module {
   riscv_cpu.io.Dmem_wdata  <> io.Dmem_wdata
   riscv_cpu.io.Dmem_wop    <> io.Dmem_wop
   riscv_cpu.io.Dmem_wen    <> io.Dmem_wen
+
+  val comp_cache = RegInit(Bool(), false.B)
+  comp_cache := IFU.io.in.ready
+  when((comp_cache === false.B) && (IFU.io.in.ready === true.B)) {
+    io.inst_comp := true.B
+  }.otherwise {
+    io.inst_comp := false.B
+  }
 }

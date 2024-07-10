@@ -13,7 +13,9 @@ module top(
     output [2:0] Dmemop,
     output [31:0] Dmemdata,
     output Dmem_wen,
-    output [31:0] Dmem_addr
+    output [31:0] Dmem_addr,
+
+    output inst_comp
 );
 
 always @(io_Imem_rdata_bits) begin
@@ -35,7 +37,9 @@ npc npc (
     .io_Dmem_wop(Dmemop),
     .io_Dmem_wen(Dmem_wen),
 
-    .io_Dmem_wraddr(Dmem_addr)
+    .io_Dmem_wraddr(Dmem_addr),
+
+    .io_inst_comp(inst_comp)
 );
 
 endmodule

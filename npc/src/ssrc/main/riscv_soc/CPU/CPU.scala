@@ -98,6 +98,7 @@ class CPU() extends Module {
 
   WBU.io.in.Mem_rdata    <> io.Dmem_rdata
 
+  REG.io.inst_valid <> io.Imem_input.valid
   REG.io.GPR_wdata <> WBU.io.out.GPR_wdata
   REG.io.GPR_waddr <> WBU.io.out.GPR_waddr
   REG.io.GPR_wen   <> WBU.io.out.GPR_wen

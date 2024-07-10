@@ -18,7 +18,7 @@ class Icache_output extends Bundle{
 class Icache extends Module {
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Icache_input))
-        val inst_output = Decoupled(UInt(32.W))
+        val out = Decoupled(new Icache_output)
     })
     
     val inst_cache = RegInit(UInt(32.W), "h0".U)
@@ -30,15 +30,16 @@ class Icache extends Module {
         inst_cache := io.in.bits.inst
     }
     
-    io.inst_output.bits := inst_cache
+    io.out.bits.inst := inst_cache
+    io.out.bits.addr := io.in.bits.addr
     
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.inst_output.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.inst_output.ready, s_wait_valid, s_wait_ready)
+            s_wait_valid -> Mux(io.out.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
         )
     )
 
-    io.inst_output.valid := io.in.valid
+    io.out.valid := io.in.valid
     io.in.ready  := state === s_wait_valid
 }

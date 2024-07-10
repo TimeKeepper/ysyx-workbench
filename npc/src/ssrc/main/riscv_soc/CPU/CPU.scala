@@ -38,7 +38,7 @@ class CPU() extends Module {
   io.Imem_raddr.valid := state === s_wait_ready
   io.Imem_rdata.ready := state === s_wait_valid
 
-  val Imem_raddr_cache = RegInit(0.U(32.W))
+  val Imem_raddr_cache = RegInit("h80000000".U(32.W))
   when(io.Imem_raddr.valid && io.Imem_raddr.ready){
     Imem_raddr_cache := REG.io.pc_out
   } 

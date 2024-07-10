@@ -15,10 +15,10 @@ class IFU_output extends Bundle{
 
 class IFU extends Module{
     val io = IO(new Bundle{
-        val input = new IFU_input
-        val output = new IFU_output
+        val in = new IFU_input
+        val out = new IFU_output
     })
 
-    io.output.pc := io.input.pc
-    io.output.inst := io.input.inst
+    io.out.pc := io.in.pc
+    io.out.inst := io.in.inst
 }

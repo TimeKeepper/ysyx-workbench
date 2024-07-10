@@ -1,24 +1,24 @@
-package ram
+package riscv_cpu
 
 import chisel3._
 import chisel3.util._
 
-class Icache_input extends Bundle{
+class IFU_input extends Bundle{
     val inst = Input(UInt(32.W))
     val addr = Input(UInt(32.W))
 }
 
-class Icache_output extends Bundle{
+class IFU_output extends Bundle{
     val inst = Output(UInt(32.W))
     val addr = Output(UInt(32.W))
 }
 
 //此模块将32为数据读取并根据memop处理数据，延迟一个周期后发送给cpu
 
-class Icache extends Module {
+class IFU extends Module {
     val io = IO(new Bundle{
-        val in = Flipped(Decoupled(new Icache_input))
-        val out = Decoupled(new Icache_output)
+        val in = Flipped(Decoupled(new IFU_input))
+        val out = Decoupled(new IFU_output)
     })
 
     val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)

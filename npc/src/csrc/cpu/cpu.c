@@ -109,7 +109,9 @@ static void single_cycle() {
     
     if(!dut.rootp->Dmem_wen) dut.rootp->Dmem_data = memory_read();  
 
-    dut.clk = 1; dut.eval();wave_Trace_once();                   
+    dut.clk = 1; dut.eval();wave_Trace_once();        
+
+    if(dut.rootp->Dmem_wen) memory_write();          //写内存           
     clk_cnt++;
 }
 
@@ -240,13 +242,11 @@ void check_special_inst(void){
 void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
-    for(;n > 0; n--){
+    for(;n > 0;){
         // nvboard_update();
         dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4); 
 
         single_cycle();         
-
-            if(dut.rootp->Dmem_wen) memory_write();          //写内存
 
             itrace_catch(is_itrace);
 
@@ -254,8 +254,11 @@ static void execute(uint64_t n){
             
             watchpoint_catch();          //检查watchpoint
 
-            if(dut.inst_comp) difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
-            
+            if(dut.inst_comp) {
+                n--;
+                difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__REG__DOT__pc);
+            }
+
             check_special_inst();       //检查特殊指令
             func_called_detect();                                            //单周期执行
 

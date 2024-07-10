@@ -43,13 +43,13 @@ class CPU() extends Module {
   io.Imem_raddr.valid := state === s_wait_ready
   io.Imem_input.ready := state === s_wait_valid
 
-  val Imem_raddr_cache = RegInit("h80000000".U(32.W))
-  when(io.Imem_input.valid && io.Imem_input.ready){
-    Imem_raddr_cache := REG.io.pc_out
-  } 
+  // val Imem_raddr_cache = RegInit("h80000000".U(32.W))
+  // when(io.Imem_input.valid && io.Imem_input.ready){
+  //   Imem_raddr_cache := REG.io.pc_out
+  // } 
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
-  io.Imem_raddr.bits <> Imem_raddr_cache
+  io.Imem_raddr.bits <> REG.io.pc_out
 
   GNU.io.in.inst <> io.Imem_input.bits.inst
   GNU.io.in.PC   <> io.Imem_input.bits.addr

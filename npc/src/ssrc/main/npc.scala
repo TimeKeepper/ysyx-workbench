@@ -21,6 +21,7 @@ class npc extends Module {
   })
   
   val IFU             = Module(new IFU)
+  val GNU             = Module(new GNU)
   val riscv_cpu       = Module(new CPU)
   val REG             = Module(new REG()) 
 
@@ -29,11 +30,18 @@ class npc extends Module {
   IFU.io.in.ready     <> riscv_cpu.io.Imem_raddr.ready
   IFU.io.in.ready     <> io.Imem_rdata.ready
   IFU.io.in.bits.addr <> riscv_cpu.io.Imem_raddr.bits
-  IFU.io.out.bits.inst  <> riscv_cpu.io.in.bits.inst
-  IFU.io.out.bits.addr  <> riscv_cpu.io.in.bits.addr
   io.Imem_raddr  <> riscv_cpu.io.Imem_raddr.bits
-  IFU.io.out.valid      <> riscv_cpu.io.in.valid
-  IFU.io.out.ready      <> riscv_cpu.io.in.ready
+  
+  IFU.io.out.valid      <> GNU.io.in.valid
+  IFU.io.out.ready      <> GNU.io.in.ready
+  IFU.io.out.bits.addr  <> GNU.io.in.bits.PC
+  IFU.io.out.bits.inst  <> GNU.io.in.bits.inst
+  REG.io.in.GPR_raddra  <> IFU.io.out.bits.inst(19, 15)
+  REG.io.in.GPR_raddrb  <> IFU.io.out.bits.inst(24, 20)
+  REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
+  REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
+
+  GNU.io.out            <> riscv_cpu.io.in
 
   riscv_cpu.io.Dmem_rdata  <> io.Dmem_rdata
   riscv_cpu.io.Dmem_wraddr <> io.Dmem_wraddr
@@ -42,12 +50,24 @@ class npc extends Module {
   riscv_cpu.io.Dmem_wop    <> io.Dmem_wop
   riscv_cpu.io.Dmem_wen    <> io.Dmem_wen
 
-  riscv_cpu.io.reg_in     <> REG.io.in
-  riscv_cpu.io.reg_out    <> REG.io.out
+  riscv_cpu.io.reg_in.inst_valid <> REG.io.in.inst_valid
+  riscv_cpu.io.reg_in.GPR_wdata <> REG.io.in.GPR_wdata
+  riscv_cpu.io.reg_in.GPR_waddr <> REG.io.in.GPR_waddr
+  riscv_cpu.io.reg_in.GPR_wen   <> REG.io.in.GPR_wen
+  riscv_cpu.io.reg_in.pc         <> REG.io.in.pc
+  riscv_cpu.io.reg_in.csr_ctr    <> REG.io.in.csr_ctr   
+  riscv_cpu.io.reg_in.csr_waddra <> REG.io.in.csr_waddra
+  riscv_cpu.io.reg_in.csr_waddrb <> REG.io.in.csr_waddrb
+  riscv_cpu.io.reg_in.csr_wdataa <> REG.io.in.csr_wdataa
+  riscv_cpu.io.reg_in.csr_wdatab <> REG.io.in.csr_wdatab
+  riscv_cpu.io.reg_in.csr_raddr  <> REG.io.in.csr_raddr 
+
+  riscv_cpu.io.reg_out.pc         <> REG.io.out.pc
+  riscv_cpu.io.reg_out.csr_rdata  <> REG.io.out.csr_rdata
 
   val comp_cache = RegInit(Bool(), false.B)
-  comp_cache := IFU.io.in.ready
-  when((comp_cache === false.B) && (IFU.io.in.ready === true.B)) {
+  comp_cache := IFU.io.in.valid
+  when((comp_cache === false.B) && (IFU.io.in.valid === true.B)) {
     io.inst_comp := true.B
   }.otherwise {
     io.inst_comp := false.B

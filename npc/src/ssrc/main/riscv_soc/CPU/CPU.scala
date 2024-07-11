@@ -6,20 +6,12 @@ import chisel3.util._
 import Instructions._
 import signal_value._
 
-class CPU_input extends Bundle{
-  val inst = Input(UInt(32.W))
-  val addr = Input(UInt(32.W))
-}
-
 class CPU_REG_input extends Bundle{
   val inst_valid = Output(Bool())
 
   val GPR_wdata = Output(UInt(32.W))
   val GPR_waddr = Output(UInt(5.W))
   val GPR_wen   = Output(Bool())
-
-  val GPR_raddra = Output(UInt(5.W))
-  val GPR_raddrb = Output(UInt(5.W))
 
   val pc  = Output(UInt(32.W))
 
@@ -32,17 +24,33 @@ class CPU_REG_input extends Bundle{
 }
 
 class CPU_REG_output extends Bundle{
-  val GPR_rdataa = Input(UInt(32.W))
-  val GPR_rdatab = Input(UInt(32.W))
-
   val pc = Input(UInt(32.W))
 
   val csr_rdata = Input(UInt(32.W))
 }
 
+class CPU_GNU_output extends Bundle{
+    val inst     = Input(UInt(32.W))
+    val RegWr    = Input(Bool())
+    val Branch   = Input(Bran_Type)
+    val MemtoReg = Input(Bool())
+    val MemWr    = Input(Bool())
+    val MemOp    = Input(MemOp_Type)
+    val ALUAsrc  = Input(ALUAsrc_Type)
+    val ALUBsrc  = Input(ALUBSrc_Type)
+    val ALUctr   = Input(ALUctr_Type)
+    val csr_ctr  = Input(CSR_Type)
+    val Imm      = Input(UInt(32.W))
+    val GPR_Adata = Input(UInt(32.W))
+    val GPR_Bdata = Input(UInt(32.W))
+    val GPR_waddr = Input(UInt(5.W))
+    val PC       = Input(UInt(32.W))
+    val CSR_raddr= Input(UInt(12.W))
+}
+
 class CPU() extends Module {
   val io = IO(new Bundle {
-    val in     = Flipped(Decoupled(new CPU_input))
+    val in     = Flipped(Decoupled(new CPU_GNU_output))
     val Imem_raddr     = Decoupled(UInt(32.W))
     val Dmem_rdata     = Input(UInt(32.W))
 
@@ -67,7 +75,6 @@ class CPU() extends Module {
   )
 
   // Modules
-  val GNU             = Module(new GNU()) // Generating Number Unit
   val EXU             = Module(new EXU()) // Execution Unit
   val WBU             = Module(new WBU()) // Write Back Unit
 
@@ -77,32 +84,23 @@ class CPU() extends Module {
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.Imem_raddr.bits <> io.reg_out.pc
 
-  GNU.io.in.inst <> io.in.bits.inst
-  GNU.io.in.PC   <> io.in.bits.addr
-
-  // GNU处理完成之后传递给REG读取两个GPR德值并返回给GNU，
-  GNU.io.out.inst(19, 15) <> io.reg_in.GPR_raddra
-  GNU.io.out.inst(24, 20) <> io.reg_in.GPR_raddrb
-  GNU.io.in.GPR_Adata <> io.reg_out.GPR_rdataa
-  GNU.io.in.GPR_Bdata <> io.reg_out.GPR_rdatab
-
   // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
-  GNU.io.out.CSR_raddr <> io.reg_in.csr_raddr
+  io.in.bits.CSR_raddr <> io.reg_in.csr_raddr
 
-  EXU.io.in.RegWr        <> GNU.io.out.RegWr
-  EXU.io.in.Branch       <> GNU.io.out.Branch
-  EXU.io.in.MemtoReg     <> GNU.io.out.MemtoReg
-  EXU.io.in.MemWr        <> GNU.io.out.MemWr
-  EXU.io.in.MemOp        <> GNU.io.out.MemOp
-  EXU.io.in.ALUAsrc      <> GNU.io.out.ALUAsrc
-  EXU.io.in.ALUBsrc      <> GNU.io.out.ALUBsrc
-  EXU.io.in.ALUctr       <> GNU.io.out.ALUctr
-  EXU.io.in.csr_ctr      <> GNU.io.out.csr_ctr
-  EXU.io.in.Imm          <> GNU.io.out.Imm
-  EXU.io.in.GPR_Adata    <> GNU.io.out.GPR_Adata
-  EXU.io.in.GPR_Bdata    <> GNU.io.out.GPR_Bdata
-  EXU.io.in.GPR_waddr    <> GNU.io.out.GPR_waddr
-  EXU.io.in.PC           <> GNU.io.out.PC
+  EXU.io.in.RegWr        <> io.in.bits.RegWr
+  EXU.io.in.Branch       <> io.in.bits.Branch
+  EXU.io.in.MemtoReg     <> io.in.bits.MemtoReg
+  EXU.io.in.MemWr        <> io.in.bits.MemWr
+  EXU.io.in.MemOp        <> io.in.bits.MemOp
+  EXU.io.in.ALUAsrc      <> io.in.bits.ALUAsrc
+  EXU.io.in.ALUBsrc      <> io.in.bits.ALUBsrc
+  EXU.io.in.ALUctr       <> io.in.bits.ALUctr
+  EXU.io.in.csr_ctr      <> io.in.bits.csr_ctr
+  EXU.io.in.Imm          <> io.in.bits.Imm
+  EXU.io.in.GPR_Adata    <> io.in.bits.GPR_Adata
+  EXU.io.in.GPR_Bdata    <> io.in.bits.GPR_Bdata
+  EXU.io.in.GPR_waddr    <> io.in.bits.GPR_waddr
+  EXU.io.in.PC           <> io.in.bits.PC
   EXU.io.in.CSR          <> io.reg_out.csr_rdata
 
   // 第二步，EXU处理完成之后将结果传递给WBU，WBU根据结果更新系统状态，包括GPR，CSR，PC以及内存
@@ -138,6 +136,6 @@ class CPU() extends Module {
 
   io.Dmem_wraddr := EXU.io.out.Result
   io.Dmem_wdata := EXU.io.out.GPR_Bdata
-  io.Dmem_wop   := GNU.io.out.MemOp
-  io.Dmem_wen   := GNU.io.out.MemWr & (state === s_wait_ready)
+  io.Dmem_wop   := io.in.bits.MemOp
+  io.Dmem_wen   := io.in.bits.MemWr & (state === s_wait_ready)
 }

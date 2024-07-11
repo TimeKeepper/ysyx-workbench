@@ -26,25 +26,27 @@ class npc extends Module {
   val REG             = Module(new REG()) 
 
   IFU.io.in.bits.inst <> io.Imem_rdata.bits
+  IFU.io.in.bits.addr <> riscv_cpu.io.Imem_raddr.bits
   IFU.io.in.valid     <> riscv_cpu.io.Imem_raddr.valid
   IFU.io.in.ready     <> riscv_cpu.io.Imem_raddr.ready
   IFU.io.in.ready     <> io.Imem_rdata.ready
-  IFU.io.in.bits.addr <> riscv_cpu.io.Imem_raddr.bits
-  io.Imem_raddr  <> riscv_cpu.io.Imem_raddr.bits
+  io.Imem_raddr       <> riscv_cpu.io.Imem_raddr.bits
   
+  // bus IFU -> GNU
   IFU.io.out.valid      <> GNU.io.in.valid
   IFU.io.out.ready      <> GNU.io.in.ready
   IFU.io.out.bits.addr  <> GNU.io.in.bits.PC
   IFU.io.out.bits.inst  <> GNU.io.in.bits.inst
-  REG.io.in.GPR_raddra  <> IFU.io.out.bits.inst(19, 15)
-  REG.io.in.GPR_raddrb  <> IFU.io.out.bits.inst(24, 20)
+
+  // bus GNU -> REG -> GNU without delay
+  IFU.io.out.bits.inst(19, 15) <> REG.io.in.GPR_raddra 
+  IFU.io.out.bits.inst(24, 20) <> REG.io.in.GPR_raddrb 
   REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
   REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
-  REG.io.in.csr_raddr   <> GNU.io.out.bits.CSR_raddr
 
-  GNU.io.out.valid         <> riscv_cpu.io.in.valid        
-  GNU.io.out.ready         <> riscv_cpu.io.in.ready        
-  GNU.io.out.bits.inst      <> riscv_cpu.io.in.bits.inst     
+  // bus GNU -> riscv_cpu
+  GNU.io.out.valid          <> riscv_cpu.io.in.valid        
+  GNU.io.out.ready          <> riscv_cpu.io.in.ready     
   GNU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr    
   GNU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch   
   GNU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg 
@@ -58,28 +60,31 @@ class npc extends Module {
   GNU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata
   GNU.io.out.bits.GPR_Bdata <> riscv_cpu.io.in.bits.GPR_Bdata
   GNU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr
-  GNU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC       
+  GNU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC     
 
-  riscv_cpu.io.Dmem_rdata  <> io.Dmem_rdata
-  riscv_cpu.io.Dmem_wraddr <> io.Dmem_wraddr
+  // bus riscv_cpu -> REG -> riscv_cpu without delay
+  GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
+  REG.io.out.csr_rdata      <> riscv_cpu.io.reg_out.csr_rdata
 
-  riscv_cpu.io.Dmem_wdata  <> io.Dmem_wdata
-  riscv_cpu.io.Dmem_wop    <> io.Dmem_wop
-  riscv_cpu.io.Dmem_wen    <> io.Dmem_wen
+  // bus riscv_cpu -> Dmem and Dmem -> riscv_cpu without delay
+  io.Dmem_rdata             <> riscv_cpu.io.Dmem_rdata
+  riscv_cpu.io.Dmem_wraddr  <> io.Dmem_wraddr
+  riscv_cpu.io.Dmem_wdata   <> io.Dmem_wdata
+  riscv_cpu.io.Dmem_wop     <> io.Dmem_wop
+  riscv_cpu.io.Dmem_wen     <> io.Dmem_wen
 
+  // bus riscv_cpu -> REG -> riscv_cpu with delay
   riscv_cpu.io.reg_in.inst_valid <> REG.io.in.inst_valid
-  riscv_cpu.io.reg_in.GPR_wdata <> REG.io.in.GPR_wdata
-  riscv_cpu.io.reg_in.GPR_waddr <> REG.io.in.GPR_waddr
-  riscv_cpu.io.reg_in.GPR_wen   <> REG.io.in.GPR_wen
+  riscv_cpu.io.reg_in.GPR_wdata  <> REG.io.in.GPR_wdata
+  riscv_cpu.io.reg_in.GPR_waddr  <> REG.io.in.GPR_waddr
+  riscv_cpu.io.reg_in.GPR_wen    <> REG.io.in.GPR_wen
   riscv_cpu.io.reg_in.pc         <> REG.io.in.pc
   riscv_cpu.io.reg_in.csr_ctr    <> REG.io.in.csr_ctr   
   riscv_cpu.io.reg_in.csr_waddra <> REG.io.in.csr_waddra
   riscv_cpu.io.reg_in.csr_waddrb <> REG.io.in.csr_waddrb
   riscv_cpu.io.reg_in.csr_wdataa <> REG.io.in.csr_wdataa
   riscv_cpu.io.reg_in.csr_wdatab <> REG.io.in.csr_wdatab
-
-  riscv_cpu.io.reg_out.pc         <> REG.io.out.pc
-  riscv_cpu.io.reg_out.csr_rdata  <> REG.io.out.csr_rdata
+  riscv_cpu.io.reg_out.pc        <> REG.io.out.pc
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := IFU.io.in.valid

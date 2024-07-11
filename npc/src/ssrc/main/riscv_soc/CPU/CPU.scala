@@ -29,7 +29,6 @@ class CPU_REG_output extends Bundle{
 }
 
 class CPU_GNU_output extends Bundle{
-    val inst     = Input(UInt(32.W))
     val RegWr    = Input(Bool())
     val Branch   = Input(Bran_Type)
     val MemtoReg = Input(Bool())

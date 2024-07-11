@@ -15,7 +15,6 @@ class GNU_input extends Bundle{
 }
 
 class GNU_output extends Bundle{
-    val inst     = Output(UInt(32.W))
     val RegWr    = Output(Bool())
     val Branch   = Output(Bran_Type)
     val MemtoReg = Output(Bool())
@@ -49,7 +48,6 @@ class GNU extends Module{
         )
     )
 
-    val inst_cache = RegInit(0.U(32.W))
     val RegWr_cache = RegInit(false.B)
     val Branch_cache = RegInit(Bran_NJmp)
     val MemtoReg_cache = RegInit(false.B)
@@ -72,7 +70,6 @@ class GNU extends Module{
     val igu = Module(new IGU)
 
     when(io.in.valid && io.in.ready){
-        inst_cache := io.in.bits.inst
         RegWr_cache := idu.io.RegWr
         Branch_cache := idu.io.Branch
         MemtoReg_cache := idu.io.MemtoReg
@@ -92,7 +89,6 @@ class GNU extends Module{
 
     idu.io.inst     <> io.in.bits.inst
 
-    io.out.bits.inst     <> inst_cache
     io.out.bits.RegWr    <> RegWr_cache
     io.out.bits.Branch   <> Branch_cache
     io.out.bits.MemtoReg  <> MemtoReg_cache

@@ -62,6 +62,7 @@ class GNU extends Module{
     val GPR_Bdata_cache = RegInit(0.U(32.W))
     val GPR_waddr_cache = RegInit(0.U(5.W))
     val PC_cache = RegInit(0.U(32.W))
+    val CSR_raddr_cache = RegInit(0.U(12.W))
 
     io.out.valid := state === s_wait_ready
     io.in.ready  := state === s_wait_valid
@@ -84,6 +85,10 @@ class GNU extends Module{
         GPR_Bdata_cache := io.in.bits.GPR_Bdata
         GPR_waddr_cache := io.in.bits.inst(11, 7)
         PC_cache := io.in.bits.PC
+        CSR_raddr_cache := MuxLookup(idu.io.csr_ctr, igu.io.imm(11, 0))(Seq(
+            CSR_R1W0 -> "h341".U,
+            CSR_R1W2 -> "h305".U,
+        ))
     }
 
 
@@ -103,10 +108,11 @@ class GNU extends Module{
     io.out.bits.GPR_Bdata <> GPR_Bdata_cache
     io.out.bits.GPR_waddr <> GPR_waddr_cache
     io.out.bits.PC       <> PC_cache
-    io.out.bits.CSR_raddr<> MuxLookup(io.out.bits.csr_ctr, io.out.bits.Imm(11, 0))(Seq(
-        CSR_R1W0 -> "h341".U,
-        CSR_R1W2 -> "h305".U,
-    ))
+    // io.out.bits.CSR_raddr<> MuxLookup(io.out.bits.csr_ctr, io.out.bits.Imm(11, 0))(Seq(
+    //     CSR_R1W0 -> "h341".U,
+    //     CSR_R1W2 -> "h305".U,
+    // ))
+    io.out.bits.CSR_raddr <> CSR_raddr_cache
 
     igu.io.inst     <> io.in.bits.inst
     igu.io.ExtOp    <> idu.io.ExtOp

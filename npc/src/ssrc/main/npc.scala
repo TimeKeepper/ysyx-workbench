@@ -40,8 +40,25 @@ class npc extends Module {
   REG.io.in.GPR_raddrb  <> IFU.io.out.bits.inst(24, 20)
   REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
   REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
+  REG.io.in.csr_raddr   <> GNU.io.out.bits.CSR_raddr
 
-  GNU.io.out            <> riscv_cpu.io.in
+  GNU.io.out.valid         <> riscv_cpu.io.in.valid        
+  GNU.io.out.ready         <> riscv_cpu.io.in.ready        
+  GNU.io.out.bits.inst      <> riscv_cpu.io.in.bits.inst     
+  GNU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr    
+  GNU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch   
+  GNU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg 
+  GNU.io.out.bits.MemWr     <> riscv_cpu.io.in.bits.MemWr    
+  GNU.io.out.bits.MemOp     <> riscv_cpu.io.in.bits.MemOp    
+  GNU.io.out.bits.ALUAsrc   <> riscv_cpu.io.in.bits.ALUAsrc  
+  GNU.io.out.bits.ALUBsrc   <> riscv_cpu.io.in.bits.ALUBsrc  
+  GNU.io.out.bits.ALUctr    <> riscv_cpu.io.in.bits.ALUctr   
+  GNU.io.out.bits.csr_ctr   <> riscv_cpu.io.in.bits.csr_ctr  
+  GNU.io.out.bits.Imm       <> riscv_cpu.io.in.bits.Imm      
+  GNU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata
+  GNU.io.out.bits.GPR_Bdata <> riscv_cpu.io.in.bits.GPR_Bdata
+  GNU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr
+  GNU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC       
 
   riscv_cpu.io.Dmem_rdata  <> io.Dmem_rdata
   riscv_cpu.io.Dmem_wraddr <> io.Dmem_wraddr
@@ -60,7 +77,6 @@ class npc extends Module {
   riscv_cpu.io.reg_in.csr_waddrb <> REG.io.in.csr_waddrb
   riscv_cpu.io.reg_in.csr_wdataa <> REG.io.in.csr_wdataa
   riscv_cpu.io.reg_in.csr_wdatab <> REG.io.in.csr_wdatab
-  riscv_cpu.io.reg_in.csr_raddr  <> REG.io.in.csr_raddr 
 
   riscv_cpu.io.reg_out.pc         <> REG.io.out.pc
   riscv_cpu.io.reg_out.csr_rdata  <> REG.io.out.csr_rdata

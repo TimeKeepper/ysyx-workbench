@@ -14,6 +14,10 @@
 #define ADDR_MEPC 0x341
 #define ADDR_MCAUSE 0x342
 
+const int sregs_iddr[] = {
+  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE, ADDR_MSCRATCH
+};
+
 typedef struct {
     word_t gpr[32];
     vaddr_t pc;

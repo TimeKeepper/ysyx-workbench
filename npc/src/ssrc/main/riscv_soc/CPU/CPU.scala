@@ -20,7 +20,6 @@ class CPU_REG_input extends Bundle{
   val csr_waddrb = Output(UInt(12.W))
   val csr_wdataa = Output(UInt(32.W))
   val csr_wdatab = Output(UInt(32.W))
-  val csr_raddr  = Output(UInt(12.W))
 }
 
 class CPU_REG_output extends Bundle{
@@ -45,7 +44,6 @@ class CPU_GNU_output extends Bundle{
     val GPR_Bdata = Input(UInt(32.W))
     val GPR_waddr = Input(UInt(5.W))
     val PC       = Input(UInt(32.W))
-    val CSR_raddr= Input(UInt(12.W))
 }
 
 class CPU() extends Module {
@@ -83,9 +81,6 @@ class CPU() extends Module {
 
   // 第一步 REG将pc输出给IFU读取指令 IFU将读取指令传递给GNU，
   io.Imem_raddr.bits <> io.reg_out.pc
-
-  // GNU将控制信号和两个寄存器值传递给EXU，同时根据需要读取的地址将csr寄存器的值传递给EXU
-  io.in.bits.CSR_raddr <> io.reg_in.csr_raddr
 
   EXU.io.in.RegWr        <> io.in.bits.RegWr
   EXU.io.in.Branch       <> io.in.bits.Branch

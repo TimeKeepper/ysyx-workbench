@@ -82,7 +82,7 @@ class WBU extends Module {
     io.out.GPR_waddr := io.in.GPR_waddr
     io.out.GPR_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
         Y  -> io.in.Mem_rdata,
-        N  -> io.in.Result,
+        N  -> Mux(io.in.csr_ctr === CSR_N, io.in.Result, io.in.CSR),
     ))
     io.out.GPR_wen <> io.in.RegWr
 
@@ -94,7 +94,7 @@ class WBU extends Module {
 
     io.out.CSR_waddrb := "h342".U
 
-    io.out.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.GPR_Adata)(Seq(
+    io.out.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.Result)(Seq(
         CSR_R1W2 -> io.in.PC,
     ))
 

@@ -92,6 +92,13 @@ bool isa_difftest_checkregs(CPU_State *ref_r, vaddr_t pc) {
       return false;
     }
   }
+  for(int i = 0; i < 5; i++){
+    if(ref_r->sr[sregs_iddr[i]] != cpu.sr[sregs_iddr[i]]){
+      printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+      printf("reg:" ANSI_FG_YELLOW "%d" ANSI_NONE ", ref_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", sregs_iddr[i], ref_r->sr[sregs_iddr[i]], cpu.sr[sregs_iddr[i]]);
+      return false;
+    }
+  }
   return true;
 }
 

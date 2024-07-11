@@ -52,7 +52,7 @@ object Decode {
         BitPat(SB)      -> List(Imm_S, N, Bran_NJmp, N, Y, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
         BitPat(SH)      -> List(Imm_S, N, Bran_NJmp, N, Y, MemOp_2BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
         BitPat(SW)      -> List(Imm_S, N, Bran_NJmp, N, Y, MemOp_4BU, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
-        BitPat(CSRRW)   -> List(Imm_I, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_A,      CSR_R1W1 ),
+        BitPat(CSRRW)   -> List(Imm_I, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_B,      CSR_R1W1 ),
         BitPat(CSRRS)   -> List(Imm_I, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_OR,     CSR_R1W1 ),
         BitPat(ECALL)   -> List(Imm_I, N, Bran_Jcsr, N, N, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_ADD,    CSR_R1W2 ),
         BitPat(MRET)    -> List(Imm_I, N, Bran_Jcsr, N, N, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_ADD,    CSR_R1W0 )

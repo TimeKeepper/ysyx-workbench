@@ -128,10 +128,6 @@ void cpu_reset(int n, int argc, char **argv){
     clk_cnt = 0;
 }
 
-const int sregs_iddr[] = {
-  ADDR_MSTATUS, ADDR_MTVEC, ADDR_MEPC, ADDR_MCAUSE, ADDR_MSCRATCH
-};
-
 void cpu_value_update(void){
     cpu.pc = dut.rootp->Imem_raddr;   
     cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__npc__DOT__REG__DOT__csr_0;

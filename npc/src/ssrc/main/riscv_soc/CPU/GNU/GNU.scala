@@ -48,24 +48,24 @@ class GNU extends Module{
         )
     )
 
-    val RegWr_cache = RegInit(false.B)
-    val Branch_cache = RegInit(Bran_NJmp)
-    val MemtoReg_cache = RegInit(false.B)
-    val MemWr_cache = RegInit(false.B)
-    val MemOp_cache = RegInit(MemOp_1BS)
-    val ALUAsrc_cache = RegInit(ALUAsrc_RS1)
-    val ALUBsrc_cache = RegInit(ALUBSrc_RS2)
-    val ALUctr_cache = RegInit(ALUctr_ADD)
-    val csr_ctr_cache = RegInit(CSR_N)
-    val Imm_cache = RegInit(0.U(32.W))
+    io.out.valid := state === s_wait_ready
+    io.in.ready  := state === s_wait_valid
+
+    val RegWr_cache     = RegInit(false.B)
+    val Branch_cache    = RegInit(Bran_NJmp)
+    val MemtoReg_cache  = RegInit(false.B)
+    val MemWr_cache     = RegInit(false.B)
+    val MemOp_cache     = RegInit(MemOp_1BS)
+    val ALUAsrc_cache   = RegInit(ALUAsrc_RS1)
+    val ALUBsrc_cache   = RegInit(ALUBSrc_RS2)
+    val ALUctr_cache    = RegInit(ALUctr_ADD)
+    val csr_ctr_cache   = RegInit(CSR_N)
+    val Imm_cache       = RegInit(0.U(32.W))
     val GPR_Adata_cache = RegInit(0.U(32.W))
     val GPR_Bdata_cache = RegInit(0.U(32.W))
     val GPR_waddr_cache = RegInit(0.U(5.W))
-    val PC_cache = RegInit(0.U(32.W))
+    val PC_cache        = RegInit(0.U(32.W))
     val CSR_raddr_cache = RegInit(0.U(12.W))
-
-    io.out.valid := state === s_wait_ready
-    io.in.ready  := state === s_wait_valid
 
     val idu = Module(new IDU)
     val igu = Module(new IGU)

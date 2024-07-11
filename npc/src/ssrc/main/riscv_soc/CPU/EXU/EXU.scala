@@ -45,41 +45,88 @@ class EXU_output extends Bundle{
 
 class EXU extends Module {
     val io = IO(new Bundle{
-        val in  = new EXU_input
-        val out = new EXU_output
+        val in  = Flipped(Decoupled(new EXU_input))
+        val out = Decoupled(new EXU_output)
     })
+
+    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+    val state = RegInit(s_wait_valid)
+
+    state := MuxLookup(state, s_wait_valid)(
+        Seq(
+            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
+        )
+    )
+
+    io.out.valid := state === s_wait_ready
+    io.in.ready  := state === s_wait_valid
+
+    val RegWr_cache       = RegInit(false.B)
+    val Branch_cache      = RegInit(Bran_NJmp)
+    val MemtoReg_cache    = RegInit(false.B)
+    val MemWr_cache       = RegInit(false.B)
+    val MemOp_cache       = RegInit(MemOp_1BS)
+    val csr_ctr_cache     = RegInit(CSR_N)
+    val Imm_cache         = RegInit(0.U(32.W))
+    val GPR_Adata_cache   = RegInit(0.U(32.W))
+    val GPR_Bdata_cache   = RegInit(0.U(32.W))
+    val GPR_waddr_cache   = RegInit(0.U(5.W))
+    val PC_cache          = RegInit(0.U(32.W))
+    val CSR_cache         = RegInit(0.U(32.W))
+    val Result_cache      = RegInit(0.U(32.W))
+    val Zero_cache        = RegInit(false.B)
+    val Less_cache        = RegInit(false.B)
 
     val alu = Module(new ALU)
 
-    io.out.RegWr    <> io.in.RegWr
-    io.out.Branch   <> io.in.Branch
-    io.out.MemtoReg <> io.in.MemtoReg
-    io.out.MemWr    <> io.in.MemWr
-    io.out.MemOp    <> io.in.MemOp
-    io.out.csr_ctr  <> io.in.csr_ctr
-    io.out.Imm      <> io.in.Imm
-    io.out.GPR_Adata<> io.in.GPR_Adata
-    io.out.GPR_Bdata<> io.in.GPR_Bdata
-    io.out.GPR_waddr<> io.in.GPR_waddr
-    io.out.PC       <> io.in.PC
-    io.out.CSR      <> io.in.CSR
+    when(io.in.valid && io.in.ready){
+        RegWr_cache       := io.in.bits.RegWr
+        Branch_cache      := io.in.bits.Branch
+        MemtoReg_cache    := io.in.bits.MemtoReg
+        MemWr_cache       := io.in.bits.MemWr
+        MemOp_cache       := io.in.bits.MemOp
+        csr_ctr_cache     := io.in.bits.csr_ctr
+        Imm_cache         := io.in.bits.Imm
+        GPR_Adata_cache   := io.in.bits.GPR_Adata
+        GPR_Bdata_cache   := io.in.bits.GPR_Bdata
+        GPR_waddr_cache   := io.in.bits.GPR_waddr
+        PC_cache          := io.in.bits.PC
+        CSR_cache         := io.in.bits.CSR
+        Result_cache      := alu.io.ALUout 
+        Zero_cache        := alu.io.Zero   
+        Less_cache        := alu.io.Less  
+    }
 
-    io.out.Result   <> alu.io.ALUout 
-    io.out.Zero     <> alu.io.Zero   
-    io.out.Less     <> alu.io.Less  
+    io.out.bits.RegWr        <> RegWr_cache    
+    io.out.bits.Branch       <> Branch_cache   
+    io.out.bits.MemtoReg     <> MemtoReg_cache 
+    io.out.bits.MemWr        <> MemWr_cache    
+    io.out.bits.MemOp        <> MemOp_cache    
+    io.out.bits.csr_ctr      <> csr_ctr_cache  
+    io.out.bits.Imm          <> Imm_cache      
+    io.out.bits.GPR_Adata    <> GPR_Adata_cache
+    io.out.bits.GPR_Bdata    <> GPR_Bdata_cache
+    io.out.bits.GPR_waddr    <> GPR_waddr_cache
+    io.out.bits.PC           <> PC_cache       
+    io.out.bits.CSR          <> CSR_cache      
 
-    alu.io.ALUctr <> io.in.ALUctr
+    io.out.bits.Result       <> Result_cache 
+    io.out.bits.Zero         <> Zero_cache   
+    io.out.bits.Less         <> Less_cache   
 
-    alu.io.src_A := MuxLookup(io.in.ALUAsrc, 0.U)(Seq(
-        ALUAsrc_RS1 -> io.in.GPR_Adata,
-        ALUAsrc_PC  -> io.in.PC,
-        ALUAsrc_CSR -> io.in.CSR,
+    alu.io.ALUctr <> io.in.bits.ALUctr
+
+    alu.io.src_A := MuxLookup(io.in.bits.ALUAsrc, 0.U)(Seq(
+        ALUAsrc_RS1 -> io.in.bits.GPR_Adata,
+        ALUAsrc_PC  -> io.in.bits.PC,
+        ALUAsrc_CSR -> io.in.bits.CSR,
     ))
 
-    alu.io.src_B := MuxLookup(io.in.ALUBsrc, 0.U)(Seq(
-        ALUBSrc_RS2 -> io.in.GPR_Bdata,
-        ALUBSrc_IMM -> io.in.Imm,
+    alu.io.src_B := MuxLookup(io.in.bits.ALUBsrc, 0.U)(Seq(
+        ALUBSrc_RS1 -> io.in.bits.GPR_Adata,
+        ALUBSrc_RS2 -> io.in.bits.GPR_Bdata,
+        ALUBSrc_IMM -> io.in.bits.Imm,
         ALUBSrc_4   -> 4.U,
-        ALUBSrc_RS1 -> io.in.GPR_Adata,
     ))
 }

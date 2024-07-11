@@ -22,6 +22,7 @@ class npc extends Module {
   
   val IFU             = Module(new IFU)
   val GNU             = Module(new GNU)
+  val EXU             = Module(new EXU)
   val riscv_cpu       = Module(new CPU)
   val REG             = Module(new REG()) 
 
@@ -44,27 +45,46 @@ class npc extends Module {
   REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
   REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
 
-  // bus GNU -> riscv_cpu
-  GNU.io.out.valid          <> riscv_cpu.io.in.valid        
-  GNU.io.out.ready          <> riscv_cpu.io.in.ready     
-  GNU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr    
-  GNU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch   
-  GNU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg 
-  GNU.io.out.bits.MemWr     <> riscv_cpu.io.in.bits.MemWr    
-  GNU.io.out.bits.MemOp     <> riscv_cpu.io.in.bits.MemOp    
-  GNU.io.out.bits.ALUAsrc   <> riscv_cpu.io.in.bits.ALUAsrc  
-  GNU.io.out.bits.ALUBsrc   <> riscv_cpu.io.in.bits.ALUBsrc  
-  GNU.io.out.bits.ALUctr    <> riscv_cpu.io.in.bits.ALUctr   
-  GNU.io.out.bits.csr_ctr   <> riscv_cpu.io.in.bits.csr_ctr  
-  GNU.io.out.bits.Imm       <> riscv_cpu.io.in.bits.Imm      
-  GNU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata
-  GNU.io.out.bits.GPR_Bdata <> riscv_cpu.io.in.bits.GPR_Bdata
-  GNU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr
-  GNU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC     
+  // bus GNU -> EXU
+  GNU.io.out.valid          <> EXU.io.in.valid        
+  GNU.io.out.ready          <> EXU.io.in.ready     
+  GNU.io.out.bits.RegWr     <> EXU.io.in.bits.RegWr    
+  GNU.io.out.bits.Branch    <> EXU.io.in.bits.Branch   
+  GNU.io.out.bits.MemtoReg  <> EXU.io.in.bits.MemtoReg 
+  GNU.io.out.bits.MemWr     <> EXU.io.in.bits.MemWr    
+  GNU.io.out.bits.MemOp     <> EXU.io.in.bits.MemOp    
+  GNU.io.out.bits.ALUAsrc   <> EXU.io.in.bits.ALUAsrc  
+  GNU.io.out.bits.ALUBsrc   <> EXU.io.in.bits.ALUBsrc  
+  GNU.io.out.bits.ALUctr    <> EXU.io.in.bits.ALUctr   
+  GNU.io.out.bits.csr_ctr   <> EXU.io.in.bits.csr_ctr  
+  GNU.io.out.bits.Imm       <> EXU.io.in.bits.Imm      
+  GNU.io.out.bits.GPR_Adata <> EXU.io.in.bits.GPR_Adata
+  GNU.io.out.bits.GPR_Bdata <> EXU.io.in.bits.GPR_Bdata
+  GNU.io.out.bits.GPR_waddr <> EXU.io.in.bits.GPR_waddr
+  GNU.io.out.bits.PC        <> EXU.io.in.bits.PC     
 
-  // bus riscv_cpu -> REG -> riscv_cpu without delay
+  // bus GNU -> REG -> EXU without delay
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
-  REG.io.out.csr_rdata      <> riscv_cpu.io.reg_out.csr_rdata
+  REG.io.out.csr_rdata      <> EXU.io.in.bits.CSR   
+ 
+  // bus EXU -> riscv_cpu
+  EXU.io.out.valid          <> riscv_cpu.io.in.valid
+  EXU.io.out.ready          <> riscv_cpu.io.in.ready
+  EXU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr    
+  EXU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch   
+  EXU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg 
+  EXU.io.out.bits.MemWr     <> riscv_cpu.io.in.bits.MemWr    
+  EXU.io.out.bits.MemOp     <> riscv_cpu.io.in.bits.MemOp    
+  EXU.io.out.bits.csr_ctr   <> riscv_cpu.io.in.bits.csr_ctr  
+  EXU.io.out.bits.Imm       <> riscv_cpu.io.in.bits.Imm      
+  EXU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata
+  EXU.io.out.bits.GPR_Bdata <> riscv_cpu.io.in.bits.GPR_Bdata
+  EXU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr
+  EXU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC       
+  EXU.io.out.bits.CSR       <> riscv_cpu.io.in.bits.CSR      
+  EXU.io.out.bits.Result    <> riscv_cpu.io.in.bits.Result   
+  EXU.io.out.bits.Zero      <> riscv_cpu.io.in.bits.Zero     
+  EXU.io.out.bits.Less      <> riscv_cpu.io.in.bits.Less     
 
   // bus riscv_cpu -> Dmem and Dmem -> riscv_cpu without delay
   io.Dmem_rdata             <> riscv_cpu.io.Dmem_rdata

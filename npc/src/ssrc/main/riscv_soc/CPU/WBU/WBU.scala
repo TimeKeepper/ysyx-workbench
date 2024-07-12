@@ -50,52 +50,55 @@ class WBU extends Module {
         val out = new WBU_output
     })
 
-    io.out.Mem_wraddr <> io.in.Result
-    io.out.Mem_wdata  <> io.in.GPR_Bdata
-    io.out.MemOp    <> io.in.MemOp
-    io.out.MemWr    <> io.in.MemWr
-
+    val lsu = Module(new LSU)
     val bcu = Module(new BCU)
 
-    bcu.io.Branch   <> io.in.Branch
-    bcu.io.Zero     <> io.in.Zero
-    bcu.io.Less     <> io.in.Less
+    lsu.io.in       <> io.in
+
+    io.out.Mem_wraddr   <> lsu.io.out.Mem_wraddr
+    io.out.Mem_wdata    <> lsu.io.out.Mem_wdata 
+    io.out.MemOp        <> lsu.io.out.MemOp     
+    io.out.MemWr        <> lsu.io.out.MemWr     
+
+    bcu.io.Branch   <> lsu.io.out.Branch
+    bcu.io.Zero     <> lsu.io.out.Zero
+    bcu.io.Less     <> lsu.io.out.Less
     
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        PCAsrc_Imm -> io.in.Imm,
+        PCAsrc_Imm -> lsu.io.out.Imm,
         PCAsrc_0  -> 0.U,
         PCAsrc_4 -> 4.U,
-        PCAsrc_csr -> io.in.CSR,
+        PCAsrc_csr -> lsu.io.out.CSR,
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        PCBsrc_gpr -> io.in.GPR_Adata,
-        PCBsrc_pc  -> io.in.PC,
+        PCBsrc_gpr -> lsu.io.out.GPR_Adata,
+        PCBsrc_pc  -> lsu.io.out.PC,
         PCBsrc_0   -> 0.U,
     ))
 
     io.out.Next_Pc := PCAsrc + PCBsrc
 
-    io.out.GPR_waddr := io.in.GPR_waddr
-    io.out.GPR_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
-        Y  -> io.in.Mem_rdata,
-        N  -> Mux(io.in.csr_ctr === CSR_N, io.in.Result, io.in.CSR),
+    io.out.GPR_waddr := lsu.io.out.GPR_waddr
+    io.out.GPR_wdata := MuxLookup(lsu.io.out.MemtoReg, lsu.io.out.Result)(Seq(
+        Y  -> lsu.io.out.Mem_rdata,
+        N  -> Mux(lsu.io.out.csr_ctr === CSR_N, lsu.io.out.Result, lsu.io.out.CSR),
     ))
-    io.out.GPR_wen <> io.in.RegWr
+    io.out.GPR_wen <> lsu.io.out.RegWr
 
-    io.out.CSR_ctr <> io.in.csr_ctr
+    io.out.CSR_ctr <> lsu.io.out.csr_ctr
 
-    io.out.CSR_waddra := MuxLookup(io.in.csr_ctr, io.in.Imm(11, 0))(Seq(
+    io.out.CSR_waddra := MuxLookup(lsu.io.out.csr_ctr, lsu.io.out.Imm(11, 0))(Seq(
         CSR_R1W2 -> "h341".U
     ))
 
     io.out.CSR_waddrb := "h342".U
 
-    io.out.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.Result)(Seq(
-        CSR_R1W2 -> io.in.PC,
+    io.out.CSR_wdataa := MuxLookup(lsu.io.out.csr_ctr, lsu.io.out.Result)(Seq(
+        CSR_R1W2 -> lsu.io.out.PC,
     ))
 
     io.out.CSR_wdatab := 11.U

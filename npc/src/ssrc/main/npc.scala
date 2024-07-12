@@ -23,6 +23,7 @@ class npc extends Module {
   val IFU             = Module(new IFU)
   val GNU             = Module(new GNU)
   val EXU             = Module(new EXU)
+  val LSU             = Module(new LSU)
   val riscv_cpu       = Module(new CPU)
   val REG             = Module(new REG()) 
 
@@ -67,31 +68,48 @@ class npc extends Module {
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
   REG.io.out.csr_rdata      <> EXU.io.in.bits.CSR   
  
-  // bus EXU -> riscv_cpu
-  EXU.io.out.valid          <> riscv_cpu.io.in.valid
-  EXU.io.out.ready          <> riscv_cpu.io.in.ready
-  EXU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr    
-  EXU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch   
-  EXU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg 
-  EXU.io.out.bits.MemWr     <> riscv_cpu.io.in.bits.MemWr    
-  EXU.io.out.bits.MemOp     <> riscv_cpu.io.in.bits.MemOp    
-  EXU.io.out.bits.csr_ctr   <> riscv_cpu.io.in.bits.csr_ctr  
-  EXU.io.out.bits.Imm       <> riscv_cpu.io.in.bits.Imm      
-  EXU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata
-  EXU.io.out.bits.GPR_Bdata <> riscv_cpu.io.in.bits.GPR_Bdata
-  EXU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr
-  EXU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC       
-  EXU.io.out.bits.CSR       <> riscv_cpu.io.in.bits.CSR      
-  EXU.io.out.bits.Result    <> riscv_cpu.io.in.bits.Result   
-  EXU.io.out.bits.Zero      <> riscv_cpu.io.in.bits.Zero     
-  EXU.io.out.bits.Less      <> riscv_cpu.io.in.bits.Less     
+  // bus EXU -> LSU
+  EXU.io.out.valid          <> LSU.io.in.valid
+  EXU.io.out.ready          <> LSU.io.in.ready
+  EXU.io.out.bits.RegWr     <> LSU.io.in.bits.RegWr    
+  EXU.io.out.bits.Branch    <> LSU.io.in.bits.Branch   
+  EXU.io.out.bits.MemtoReg  <> LSU.io.in.bits.MemtoReg 
+  EXU.io.out.bits.MemWr     <> LSU.io.in.bits.MemWr    
+  EXU.io.out.bits.MemOp     <> LSU.io.in.bits.MemOp    
+  EXU.io.out.bits.csr_ctr   <> LSU.io.in.bits.csr_ctr  
+  EXU.io.out.bits.Imm       <> LSU.io.in.bits.Imm      
+  EXU.io.out.bits.GPR_Adata <> LSU.io.in.bits.GPR_Adata
+  EXU.io.out.bits.GPR_Bdata <> LSU.io.in.bits.GPR_Bdata
+  EXU.io.out.bits.GPR_waddr <> LSU.io.in.bits.GPR_waddr
+  EXU.io.out.bits.PC        <> LSU.io.in.bits.PC       
+  EXU.io.out.bits.CSR       <> LSU.io.in.bits.CSR      
+  EXU.io.out.bits.Result    <> LSU.io.in.bits.Result   
+  EXU.io.out.bits.Zero      <> LSU.io.in.bits.Zero     
+  EXU.io.out.bits.Less      <> LSU.io.in.bits.Less     
 
-  // bus riscv_cpu -> Dmem and Dmem -> riscv_cpu without delay
-  io.Dmem_rdata             <> riscv_cpu.io.Dmem_rdata
-  riscv_cpu.io.Dmem_wraddr  <> io.Dmem_wraddr
-  riscv_cpu.io.Dmem_wdata   <> io.Dmem_wdata
-  riscv_cpu.io.Dmem_wop     <> io.Dmem_wop
-  riscv_cpu.io.Dmem_wen     <> io.Dmem_wen
+  // bus LSU -> Dmem and Dmem -> LSU without delay
+  io.Dmem_rdata                <> LSU.io.in.bits.Mem_rdata
+  LSU.io.out.bits.Mem_wraddr   <> io.Dmem_wraddr
+  LSU.io.out.bits.Mem_wdata    <> io.Dmem_wdata
+  LSU.io.out.bits.MemOp        <> io.Dmem_wop
+  LSU.io.out.bits.MemWr        <> io.Dmem_wen
+
+  // bus LSU -> riscv_cpu
+  LSU.io.out.valid          <> riscv_cpu.io.in.valid
+  LSU.io.out.ready          <> riscv_cpu.io.in.ready
+  LSU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr     
+  LSU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch    
+  LSU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg  
+  LSU.io.out.bits.csr_ctr   <> riscv_cpu.io.in.bits.csr_ctr   
+  LSU.io.out.bits.Imm       <> riscv_cpu.io.in.bits.Imm       
+  LSU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata 
+  LSU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr 
+  LSU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC        
+  LSU.io.out.bits.CSR       <> riscv_cpu.io.in.bits.CSR       
+  LSU.io.out.bits.Result    <> riscv_cpu.io.in.bits.Result    
+  LSU.io.out.bits.Zero      <> riscv_cpu.io.in.bits.Zero      
+  LSU.io.out.bits.Less      <> riscv_cpu.io.in.bits.Less      
+  LSU.io.out.bits.Mem_rdata <> riscv_cpu.io.in.bits.Mem_rdata 
 
   // bus riscv_cpu -> REG -> riscv_cpu with delay
   riscv_cpu.io.reg_in.inst_valid <> REG.io.in.inst_valid

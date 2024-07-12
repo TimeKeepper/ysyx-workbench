@@ -44,32 +44,75 @@ class LSU_output extends Bundle{
 
     val Mem_wraddr = Output(UInt(32.W))
     val Mem_wdata  = Output(UInt(32.W))
-    val MemOp    = Output(MemOp_Type)
-    val MemWr    = Output(Bool())
+    val MemOp      = Output(MemOp_Type)
+    val MemWr      = Output(Bool())
 }
 
 class LSU extends Module{
     val io = IO(new Bundle{
-        val in = new LSU_input
-        val out = new LSU_output
+        val in = Flipped(Decoupled(new LSU_input))
+        val out = Decoupled(new LSU_output)
     })
 
-    io.out.Mem_wraddr   <> io.in.Result
-    io.out.Mem_wdata    <> io.in.GPR_Bdata
-    io.out.MemOp        <> io.in.MemOp
-    io.out.MemWr        <> io.in.MemWr
-    io.out.Mem_rdata    <> io.in.Mem_rdata
+    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+    val state = RegInit(s_wait_valid)
 
-    io.out.RegWr        <> io.in.RegWr     
-    io.out.Branch       <> io.in.Branch    
-    io.out.MemtoReg     <> io.in.MemtoReg  
-    io.out.csr_ctr      <> io.in.csr_ctr   
-    io.out.Imm          <> io.in.Imm       
-    io.out.GPR_Adata    <> io.in.GPR_Adata 
-    io.out.GPR_waddr    <> io.in.GPR_waddr 
-    io.out.PC           <> io.in.PC        
-    io.out.CSR          <> io.in.CSR       
-    io.out.Result       <> io.in.Result    
-    io.out.Zero         <> io.in.Zero      
-    io.out.Less         <> io.in.Less      
+    state := MuxLookup(state, s_wait_valid)(
+        Seq(
+            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
+        )
+    )
+
+    io.out.valid := state === s_wait_ready
+    io.in.ready  := state === s_wait_valid
+
+    val RegWr_cache     = RegInit(false.B)
+    val Branch_cache    = RegInit(Bran_NJmp)
+    val MemtoReg_cache  = RegInit(false.B)
+    val csr_ctr_cache   = RegInit(CSR_N)
+    val Imm_cache       = RegInit(0.U(32.W))
+    val GPR_Adata_cache = RegInit(0.U(32.W))
+    val GPR_waddr_cache = RegInit(0.U(5.W))
+    val PC_cache        = RegInit(0.U(32.W))
+    val CSR_cache       = RegInit(0.U(32.W))
+    val Result_cache    = RegInit(0.U(32.W))  
+    val Zero_cache      = RegInit(false.B)  
+    val Less_cache      = RegInit(false.B)  
+    val Mem_rdata_cache = RegInit(0.U(32.W))  
+
+    when(io.in.valid && io.in.ready){
+        RegWr_cache     := io.in.bits.RegWr     
+        Branch_cache    := io.in.bits.Branch    
+        MemtoReg_cache  := io.in.bits.MemtoReg  
+        csr_ctr_cache   := io.in.bits.csr_ctr   
+        Imm_cache       := io.in.bits.Imm       
+        GPR_Adata_cache := io.in.bits.GPR_Adata 
+        GPR_waddr_cache := io.in.bits.GPR_waddr 
+        PC_cache        := io.in.bits.PC        
+        CSR_cache       := io.in.bits.CSR       
+        Result_cache    := io.in.bits.Result    
+        Zero_cache      := io.in.bits.Zero      
+        Less_cache      := io.in.bits.Less   
+        Mem_rdata_cache := io.in.bits.Mem_rdata   
+    }
+
+    io.out.bits.Mem_wraddr   := io.in.bits.Result
+    io.out.bits.Mem_wdata    := io.in.bits.GPR_Bdata
+    io.out.bits.MemOp        := io.in.bits.MemOp
+    io.out.bits.MemWr        := io.in.bits.MemWr & (state === s_wait_ready)
+
+    io.out.bits.RegWr        <> RegWr_cache     
+    io.out.bits.Branch       <> Branch_cache    
+    io.out.bits.MemtoReg     <> MemtoReg_cache  
+    io.out.bits.csr_ctr      <> csr_ctr_cache   
+    io.out.bits.Imm          <> Imm_cache       
+    io.out.bits.GPR_Adata    <> GPR_Adata_cache 
+    io.out.bits.GPR_waddr    <> GPR_waddr_cache 
+    io.out.bits.PC           <> PC_cache        
+    io.out.bits.CSR          <> CSR_cache       
+    io.out.bits.Result       <> Result_cache    
+    io.out.bits.Zero         <> Zero_cache      
+    io.out.bits.Less         <> Less_cache      
+    io.out.bits.Mem_rdata    <> Mem_rdata_cache 
 }

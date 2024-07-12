@@ -24,6 +24,7 @@ class WBU_input extends Bundle{
 }
 
 class WBU_output extends Bundle{
+    val inst_valid= Output(Bool())
     val Next_Pc   = Output(UInt(32.W))
     val GPR_waddr = Output(UInt(5.W))
     val GPR_wdata = Output(UInt(32.W))
@@ -37,52 +38,71 @@ class WBU_output extends Bundle{
 
 class WBU extends Module {
     val io = IO(new Bundle{
-        val in = new WBU_input 
-        val out = new WBU_output
+        val in = Flipped(Decoupled(new WBU_input))
+        val out = Decoupled(new WBU_output)
     })
+
+    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
+    val state = RegInit(s_wait_valid)
+
+    state := MuxLookup(state, s_wait_valid)(
+        Seq(
+            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
+        )
+    )
+
+    io.out.valid := state === s_wait_ready
+    io.in.ready  := state === s_wait_valid
 
     val bcu = Module(new BCU)    
 
-    bcu.io.Branch   <> io.in.Branch
-    bcu.io.Zero     <> io.in.Zero
-    bcu.io.Less     <> io.in.Less
+    bcu.io.Branch   <> io.in.bits.Branch
+    bcu.io.Zero     <> io.in.bits.Zero
+    bcu.io.Less     <> io.in.bits.Less
     
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        PCAsrc_Imm -> io.in.Imm,
+        PCAsrc_Imm -> io.in.bits.Imm,
         PCAsrc_0  -> 0.U,
         PCAsrc_4 -> 4.U,
-        PCAsrc_csr -> io.in.CSR,
+        PCAsrc_csr -> io.in.bits.CSR,
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        PCBsrc_gpr -> io.in.GPR_Adata,
-        PCBsrc_pc  -> io.in.PC,
+        PCBsrc_gpr -> io.in.bits.GPR_Adata,
+        PCBsrc_pc  -> io.in.bits.PC,
         PCBsrc_0   -> 0.U,
     ))
 
-    io.out.Next_Pc := PCAsrc + PCBsrc
+    when(io.in.valid && io.in.ready){
+        io.out.bits.inst_valid := true.B
+    }.otherwise{
+        io.out.bits.inst_valid := false.B
+    }
 
-    io.out.GPR_waddr := io.in.GPR_waddr
-    io.out.GPR_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
-        Y  -> io.in.Mem_rdata,
-        N  -> Mux(io.in.csr_ctr === CSR_N, io.in.Result, io.in.CSR),
+    io.out.bits.Next_Pc := PCAsrc + PCBsrc
+
+    io.out.bits.GPR_waddr := io.in.bits.GPR_waddr
+    io.out.bits.GPR_wdata := MuxLookup(io.in.bits.MemtoReg, io.in.bits.Result)(Seq(
+        Y  -> io.in.bits.Mem_rdata,
+        N  -> Mux(io.in.bits.csr_ctr === CSR_N, io.in.bits.Result, io.in.bits.CSR),
     ))
-    io.out.GPR_wen <> io.in.RegWr
+    io.out.bits.GPR_wen <> io.in.bits.RegWr
 
-    io.out.CSR_ctr <> io.in.csr_ctr
+    io.out.bits.CSR_ctr <> io.in.bits.csr_ctr
 
-    io.out.CSR_waddra := MuxLookup(io.in.csr_ctr, io.in.Imm(11, 0))(Seq(
+    io.out.bits.CSR_waddra := MuxLookup(io.in.bits.csr_ctr, io.in.bits.Imm(11, 0))(Seq(
         CSR_R1W2 -> "h341".U
     ))
 
-    io.out.CSR_waddrb := "h342".U
+    io.out.bits.CSR_waddrb := "h342".U
 
-    io.out.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.Result)(Seq(
-        CSR_R1W2 -> io.in.PC,
+    io.out.bits.CSR_wdataa := MuxLookup(io.in.bits.csr_ctr, io.in.bits.Result)(Seq(
+        CSR_R1W2 -> io.in.bits.PC,
     ))
 
-    io.out.CSR_wdatab := 11.U
+    io.out.bits.CSR_wdatab := 11.U
 }

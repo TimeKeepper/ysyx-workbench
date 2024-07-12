@@ -24,15 +24,15 @@ class npc extends Module {
   val GNU             = Module(new GNU)
   val EXU             = Module(new EXU)
   val LSU             = Module(new LSU)
-  val riscv_cpu       = Module(new CPU)
+  val WBU             = Module(new WBU)
   val REG             = Module(new REG()) 
 
   IFU.io.in.bits.inst <> io.Imem_rdata.bits
-  IFU.io.in.bits.addr <> riscv_cpu.io.Imem_raddr.bits
-  IFU.io.in.valid     <> riscv_cpu.io.Imem_raddr.valid
-  IFU.io.in.ready     <> riscv_cpu.io.Imem_raddr.ready
   IFU.io.in.ready     <> io.Imem_rdata.ready
-  io.Imem_raddr       <> riscv_cpu.io.Imem_raddr.bits
+  IFU.io.in.bits.addr <> REG.io.out.pc
+  io.Imem_raddr       <> REG.io.out.pc
+  IFU.io.in.valid     <> WBU.io.out.valid
+  IFU.io.in.ready     <> WBU.io.out.ready
   
   // bus IFU -> GNU
   IFU.io.out.valid      <> GNU.io.in.valid
@@ -95,34 +95,33 @@ class npc extends Module {
   LSU.io.out.bits.MemWr        <> io.Dmem_wen
 
   // bus LSU -> riscv_cpu
-  LSU.io.out.valid          <> riscv_cpu.io.in.valid
-  LSU.io.out.ready          <> riscv_cpu.io.in.ready
-  LSU.io.out.bits.RegWr     <> riscv_cpu.io.in.bits.RegWr     
-  LSU.io.out.bits.Branch    <> riscv_cpu.io.in.bits.Branch    
-  LSU.io.out.bits.MemtoReg  <> riscv_cpu.io.in.bits.MemtoReg  
-  LSU.io.out.bits.csr_ctr   <> riscv_cpu.io.in.bits.csr_ctr   
-  LSU.io.out.bits.Imm       <> riscv_cpu.io.in.bits.Imm       
-  LSU.io.out.bits.GPR_Adata <> riscv_cpu.io.in.bits.GPR_Adata 
-  LSU.io.out.bits.GPR_waddr <> riscv_cpu.io.in.bits.GPR_waddr 
-  LSU.io.out.bits.PC        <> riscv_cpu.io.in.bits.PC        
-  LSU.io.out.bits.CSR       <> riscv_cpu.io.in.bits.CSR       
-  LSU.io.out.bits.Result    <> riscv_cpu.io.in.bits.Result    
-  LSU.io.out.bits.Zero      <> riscv_cpu.io.in.bits.Zero      
-  LSU.io.out.bits.Less      <> riscv_cpu.io.in.bits.Less      
-  LSU.io.out.bits.Mem_rdata <> riscv_cpu.io.in.bits.Mem_rdata 
+  LSU.io.out.valid          <> WBU.io.in.valid
+  LSU.io.out.ready          <> WBU.io.in.ready
+  LSU.io.out.bits.RegWr     <> WBU.io.in.bits.RegWr     
+  LSU.io.out.bits.Branch    <> WBU.io.in.bits.Branch    
+  LSU.io.out.bits.MemtoReg  <> WBU.io.in.bits.MemtoReg  
+  LSU.io.out.bits.csr_ctr   <> WBU.io.in.bits.csr_ctr   
+  LSU.io.out.bits.Imm       <> WBU.io.in.bits.Imm       
+  LSU.io.out.bits.GPR_Adata <> WBU.io.in.bits.GPR_Adata 
+  LSU.io.out.bits.GPR_waddr <> WBU.io.in.bits.GPR_waddr 
+  LSU.io.out.bits.PC        <> WBU.io.in.bits.PC        
+  LSU.io.out.bits.CSR       <> WBU.io.in.bits.CSR       
+  LSU.io.out.bits.Result    <> WBU.io.in.bits.Result    
+  LSU.io.out.bits.Zero      <> WBU.io.in.bits.Zero      
+  LSU.io.out.bits.Less      <> WBU.io.in.bits.Less      
+  LSU.io.out.bits.Mem_rdata <> WBU.io.in.bits.Mem_rdata 
 
   // bus riscv_cpu -> REG -> riscv_cpu with delay
-  riscv_cpu.io.reg_in.inst_valid <> REG.io.in.inst_valid
-  riscv_cpu.io.reg_in.GPR_wdata  <> REG.io.in.GPR_wdata
-  riscv_cpu.io.reg_in.GPR_waddr  <> REG.io.in.GPR_waddr
-  riscv_cpu.io.reg_in.GPR_wen    <> REG.io.in.GPR_wen
-  riscv_cpu.io.reg_in.pc         <> REG.io.in.pc
-  riscv_cpu.io.reg_in.csr_ctr    <> REG.io.in.csr_ctr   
-  riscv_cpu.io.reg_in.csr_waddra <> REG.io.in.csr_waddra
-  riscv_cpu.io.reg_in.csr_waddrb <> REG.io.in.csr_waddrb
-  riscv_cpu.io.reg_in.csr_wdataa <> REG.io.in.csr_wdataa
-  riscv_cpu.io.reg_in.csr_wdatab <> REG.io.in.csr_wdatab
-  riscv_cpu.io.reg_out.pc        <> REG.io.out.pc
+  WBU.io.out.bits.inst_valid <> REG.io.in.inst_valid
+  WBU.io.out.bits.Next_Pc    <> REG.io.in.pc
+  WBU.io.out.bits.GPR_wdata  <> REG.io.in.GPR_wdata
+  WBU.io.out.bits.GPR_waddr  <> REG.io.in.GPR_waddr
+  WBU.io.out.bits.GPR_wen    <> REG.io.in.GPR_wen
+  WBU.io.out.bits.CSR_ctr    <> REG.io.in.csr_ctr   
+  WBU.io.out.bits.CSR_waddra <> REG.io.in.csr_waddra
+  WBU.io.out.bits.CSR_waddrb <> REG.io.in.csr_waddrb
+  WBU.io.out.bits.CSR_wdataa <> REG.io.in.csr_wdataa
+  WBU.io.out.bits.CSR_wdatab <> REG.io.in.csr_wdatab
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := IFU.io.in.valid

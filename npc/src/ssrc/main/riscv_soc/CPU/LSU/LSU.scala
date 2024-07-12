@@ -40,12 +40,12 @@ class LSU_output extends Bundle{
     val Result      = Output(UInt(32.W))
     val Zero        = Output(Bool())
     val Less        = Output(Bool())
+    val Mem_rdata   = Output(UInt(32.W))
 
     val Mem_wraddr = Output(UInt(32.W))
     val Mem_wdata  = Output(UInt(32.W))
     val MemOp    = Output(MemOp_Type)
     val MemWr    = Output(Bool())
-    val Mem_rdata = Output(UInt(32.W))
 }
 
 class LSU extends Module{

@@ -8,31 +8,22 @@ import signal_value._
 // riscv writeback unit
 
 class WBU_input extends Bundle{
-    val RegWr    = Input(Bool())
-    val Branch   = Input(Bran_Type)
-    val MemtoReg = Input(Bool())
-    val MemWr    = Input(Bool())
-    val MemOp    = Input(MemOp_Type)
-    val csr_ctr  = Input(CSR_Type)
-    val Imm      = Input(UInt(32.W))
-    val GPR_Adata= Input(UInt(32.W))
-    val GPR_Bdata= Input(UInt(32.W))
-    val GPR_waddr= Input(UInt(5.W))
-    val PC       = Input(UInt(32.W))
-    val CSR      = Input(UInt(32.W))
-    val Result   = Input(UInt(32.W))
-    val Zero     = Input(Bool())
-    val Less     = Input(Bool())
-
-    val Mem_rdata  = Input(UInt(32.W))
+    val RegWr       = Input(Bool())
+    val Branch      = Input(Bran_Type)
+    val MemtoReg    = Input(Bool())
+    val csr_ctr     = Input(CSR_Type)
+    val Imm         = Input(UInt(32.W))
+    val GPR_Adata   = Input(UInt(32.W))
+    val GPR_waddr   = Input(UInt(5.W))
+    val PC          = Input(UInt(32.W))
+    val CSR         = Input(UInt(32.W))
+    val Result      = Input(UInt(32.W))
+    val Zero        = Input(Bool())
+    val Less        = Input(Bool())
+    val Mem_rdata   = Input(UInt(32.W))
 }
 
 class WBU_output extends Bundle{
-    val Mem_wraddr = Output(UInt(32.W))
-    val Mem_wdata  = Output(UInt(32.W))
-    val MemOp    = Output(MemOp_Type)
-    val MemWr    = Output(Bool())
-
     val Next_Pc   = Output(UInt(32.W))
     val GPR_waddr = Output(UInt(5.W))
     val GPR_wdata = Output(UInt(32.W))
@@ -50,55 +41,47 @@ class WBU extends Module {
         val out = new WBU_output
     })
 
-    val lsu = Module(new LSU)
-    val bcu = Module(new BCU)
+    val bcu = Module(new BCU)    
 
-    lsu.io.in       <> io.in
-
-    io.out.Mem_wraddr   <> lsu.io.out.Mem_wraddr
-    io.out.Mem_wdata    <> lsu.io.out.Mem_wdata 
-    io.out.MemOp        <> lsu.io.out.MemOp     
-    io.out.MemWr        <> lsu.io.out.MemWr     
-
-    bcu.io.Branch   <> lsu.io.out.Branch
-    bcu.io.Zero     <> lsu.io.out.Zero
-    bcu.io.Less     <> lsu.io.out.Less
+    bcu.io.Branch   <> io.in.Branch
+    bcu.io.Zero     <> io.in.Zero
+    bcu.io.Less     <> io.in.Less
     
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        PCAsrc_Imm -> lsu.io.out.Imm,
+        PCAsrc_Imm -> io.in.Imm,
         PCAsrc_0  -> 0.U,
         PCAsrc_4 -> 4.U,
-        PCAsrc_csr -> lsu.io.out.CSR,
+        PCAsrc_csr -> io.in.CSR,
     ))
 
     PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        PCBsrc_gpr -> lsu.io.out.GPR_Adata,
-        PCBsrc_pc  -> lsu.io.out.PC,
+        PCBsrc_gpr -> io.in.GPR_Adata,
+        PCBsrc_pc  -> io.in.PC,
         PCBsrc_0   -> 0.U,
     ))
 
     io.out.Next_Pc := PCAsrc + PCBsrc
 
-    io.out.GPR_waddr := lsu.io.out.GPR_waddr
-    io.out.GPR_wdata := MuxLookup(lsu.io.out.MemtoReg, lsu.io.out.Result)(Seq(
-        Y  -> lsu.io.out.Mem_rdata,
-        N  -> Mux(lsu.io.out.csr_ctr === CSR_N, lsu.io.out.Result, lsu.io.out.CSR),
+    io.out.GPR_waddr := io.in.GPR_waddr
+    io.out.GPR_wdata := MuxLookup(io.in.MemtoReg, io.in.Result)(Seq(
+        Y  -> io.in.Mem_rdata,
+        N  -> Mux(io.in.csr_ctr === CSR_N, io.in.Result, io.in.CSR),
     ))
-    io.out.GPR_wen <> lsu.io.out.RegWr
+    io.out.GPR_wen <> io.in.RegWr
 
-    io.out.CSR_ctr <> lsu.io.out.csr_ctr
+    io.out.CSR_ctr <> io.in.csr_ctr
 
-    io.out.CSR_waddra := MuxLookup(lsu.io.out.csr_ctr, lsu.io.out.Imm(11, 0))(Seq(
+    io.out.CSR_waddra := MuxLookup(io.in.csr_ctr, io.in.Imm(11, 0))(Seq(
         CSR_R1W2 -> "h341".U
     ))
 
     io.out.CSR_waddrb := "h342".U
 
-    io.out.CSR_wdataa := MuxLookup(lsu.io.out.csr_ctr, lsu.io.out.Result)(Seq(
-        CSR_R1W2 -> lsu.io.out.PC,
+    io.out.CSR_wdataa := MuxLookup(io.in.csr_ctr, io.in.Result)(Seq(
+        CSR_R1W2 -> io.in.PC,
     ))
 
     io.out.CSR_wdatab := 11.U

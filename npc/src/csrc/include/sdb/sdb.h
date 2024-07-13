@@ -42,7 +42,7 @@ static struct {
   
   , "NONE", cmd_c },
   
-  { "t"     , "Print the current cycle times"                               \
+  { "t"     , "Print the current instructions executed and the cycle times"                               \
   
   , "NONE", cmd_t },
 
@@ -52,7 +52,11 @@ static struct {
   
   { "si"    , "Let the program step through N instructions and then pause execution"\
   
-  , "\"si\" run 1 inst on nemu which same as \"si 1\" \n\"si \'N\'\" run N inst", cmd_si},
+  , "\"si\" run 1 inst on npc which same as \"si 1\" \n\"si \'N\'\" run N inst", cmd_si},
+  
+  { "sc"    , "Let the program step through N clk and then pause execution"\
+  
+  , "\"sc\" run 1 clk on npc which same as \"si 1\" \n\"si \'N\'\" run N clk", cmd_sc},
   
   { "info"  , "get some machine info"                                               \
   

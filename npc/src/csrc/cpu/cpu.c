@@ -9,6 +9,7 @@
 
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
+uint32_t inst_cnt = 0;
 
 #define MAX_INST_TO_PRINT 10
 #define INSTR_BUF_SIZE 15
@@ -242,7 +243,7 @@ void check_special_inst(void){
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
 
-void execute_one_clk(void){
+static void execute_one_clk(void){
     static bool ready = false;
         // nvboard_update();
     dut.io_AXI_araddr_ready = ready;
@@ -271,6 +272,7 @@ static void execute(uint64_t n){
 
         if(dut.inst_comp) {
             n--;
+            inst_cnt++;
             itrace_catch(is_itrace);
             difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__REG__DOT__pc);
         }
@@ -289,6 +291,10 @@ int npc_trap (int ra){
     return clk_cnt;
 }
 
+void clk_exec(uint64_t n){
+    for(;n > 0; n--) execute_one_clk();
+}
+
 void cpu_exec(uint64_t n){
     switch (npc_state.state) {
         case NPC_END: case NPC_ABORT:
@@ -296,11 +302,6 @@ void cpu_exec(uint64_t n){
             return;
         default: npc_state.state = NPC_RUNNING;
     }
-
-    // if(is_sim_complete) {
-    //     printf("Simulation has completed, enter r to restart program\n");
-    //     return;
-    // }
 
     execute(n);
 }

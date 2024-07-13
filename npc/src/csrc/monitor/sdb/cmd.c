@@ -34,8 +34,10 @@ int cmd_c(char *args){
 }
 
 extern uint32_t clk_cnt;
+extern uint32_t inst_cnt;
 int cmd_t(char *args){
     printf(ANSI_FMT("Current Clk times:", ANSI_FG_BLUE) ANSI_FMT(" %d\n", ANSI_FG_MAGENTA), clk_cnt);
+    printf(ANSI_FMT("Current inst nums:", ANSI_FG_BLUE) ANSI_FMT(" %d\n", ANSI_FG_MAGENTA), inst_cnt);
     return 0;
 }
 
@@ -68,6 +70,28 @@ int cmd_si(char *args) {
     }
 
     cpu_exec(parameter);
+    return 0;
+}
+
+int cmd_sc(char *args) {
+    char* parameter_str = strtok(args, " ");
+
+    if(parameter_str == NULL){
+        clk_exec(1);
+        return 0;
+    }
+
+    int parameter = atoi(parameter_str);
+    if(parameter < 0){
+        printf(ANSI_FMT("You should input a positive value\n", ANSI_FG_RED));
+        return 0;
+    }
+    else if(parameter == 0){
+        printf(ANSI_FMT("What do you mean, Bro?\n", ANSI_FG_RED));
+        return 0;
+    }
+
+    clk_exec(parameter);
     return 0;
 }
 

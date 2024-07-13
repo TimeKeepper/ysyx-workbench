@@ -179,14 +179,19 @@ void cpu_value_update(void){
 char itrace_buf[256];
 void itrace_catch(bool is_printf){
     #ifdef ITRACE
+    static uint32_t pc_cache = 0x80000000;
+
     char* p = itrace_buf;
 
-    uint8_t* inst = (uint8_t*)&dut.Imem_rdata;
-    p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", cpu.pc);
+    uint8_t* inst = (uint8_t*)&dut.io_AXI_raddr_bits_data;
+    p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", pc_cache);
+    
+    pc_cache = dut.io_AXI_araddr_bits_addr;
+
     for(int i = 3; i >= 0; i--){
         p += snprintf(p, 4, "%02x ", inst[i]);
     }
-    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.Imem_rdata, 4);
+    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.io_AXI_raddr_bits_data, 4);
 
     instr_buf_push(itrace_buf);
 
@@ -236,33 +241,37 @@ void check_special_inst(void){
 }
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
+
+void execute_one_clk(void){
+    static bool ready = false;
+        // nvboard_update();
+    dut.io_AXI_araddr_ready = ready;
+    dut.io_AXI_raddr_valid  = !ready;
+    dut.io_AXI_raddr_bits_data = ram_read(dut.io_AXI_araddr_bits_addr, 4); 
+    if(dut.io_AXI_araddr_valid && (ready == true)) ready = false;
+    else if(dut.io_AXI_raddr_ready && (ready == false)) ready = true;
+
+    single_cycle();           
+
+    cpu_value_update();          //更新寄存器
+    
+    watchpoint_catch();          //检查watchpoint
+
+    check_special_inst();       //检查特殊指令
+    func_called_detect();  
+
+    if(!dut.rootp->Dmem_wen)  memory_read();  
+    else                      memory_write();          //读写内存        
+}
+
 static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
-    static bool ready = false;
     for(;n > 0;){
-        // nvboard_update();
-        dut.io_AXI_araddr_ready = ready;
-        dut.io_AXI_raddr_valid  = !ready;
-        dut.io_AXI_raddr_bits_data = ram_read(dut.io_AXI_araddr_bits_addr, 4); 
-        if(dut.io_AXI_araddr_valid && (ready == true)) ready = false;
-        else if(dut.io_AXI_raddr_ready && (ready == false)) ready = true;
-
-        single_cycle();            
-
-        if(!dut.rootp->Dmem_wen)  memory_read();  
-        else                      memory_write();          //读写内存        
-
-        itrace_catch(is_itrace);
-
-        cpu_value_update();          //更新寄存器
-        
-        watchpoint_catch();          //检查watchpoint
-
-        check_special_inst();       //检查特殊指令
-        func_called_detect(); 
+        execute_one_clk();
 
         if(dut.inst_comp) {
             n--;
+            itrace_catch(is_itrace);
             difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__REG__DOT__pc);
         }
 

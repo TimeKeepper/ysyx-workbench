@@ -27,7 +27,8 @@ class npc extends Module {
   val WBU             = Module(new WBU)
   val REG             = Module(new REG()) 
 
-  IFU.io.in.bits.inst <> io.Imem_rdata.bits
+  IFU.io.in.bits.data <> io.Imem_rdata.bits
+  IFU.io.in.bits.resp <> false.B
   IFU.io.in.ready     <> io.Imem_rdata.ready
   IFU.io.in.bits.addr <> REG.io.out.pc
   io.Imem_raddr       <> REG.io.out.pc
@@ -38,11 +39,11 @@ class npc extends Module {
   IFU.io.out.valid      <> GNU.io.in.valid
   IFU.io.out.ready      <> GNU.io.in.ready
   IFU.io.out.bits.addr  <> GNU.io.in.bits.PC
-  IFU.io.out.bits.inst  <> GNU.io.in.bits.inst
+  IFU.io.out.bits.data  <> GNU.io.in.bits.inst
 
-  // bus GNU -> REG -> GNU without delay
-  IFU.io.out.bits.inst(19, 15) <> REG.io.in.GPR_raddra 
-  IFU.io.out.bits.inst(24, 20) <> REG.io.in.GPR_raddrb 
+  // bus IFU -> REG -> GNU without delay
+  IFU.io.out.bits.data(19, 15) <> REG.io.in.GPR_raddra 
+  IFU.io.out.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
   REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
   REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
 

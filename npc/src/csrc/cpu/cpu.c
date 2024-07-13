@@ -77,16 +77,20 @@ void ram_write(paddr_t addr, int len, word_t data){
     paddr_write(addr, len, data);
 }
 
-uint32_t memory_read(void){
+void memory_read(void){
     uint32_t Dmem_addr = dut.rootp->Dmem_addr;
-    if (!(likely(in_pmem(Dmem_addr)) || (Dmem_addr == RTC_ADDR) || (Dmem_addr == RTC_ADDR + 4))) return 0;
+    uint32_t Dmem_data;
+    if (!(likely(in_pmem(Dmem_addr)) || (Dmem_addr == RTC_ADDR) || (Dmem_addr == RTC_ADDR + 4))) {
+        dut.rootp->Dmem_data = 0;
+        return; 
+    }
     switch(dut.rootp->Dmemop){
-        case 0b000: return ram_read(Dmem_addr,  1);
-        case 0b001: return SEXT(ram_read(Dmem_addr,  1), 8);
-        case 0b010: return ram_read(Dmem_addr,  2);
-        case 0b011: return SEXT(ram_read(Dmem_addr,  2), 16);
-        case 0b100: return ram_read(Dmem_addr,  4);
-        default: return 0;
+        case 0b000: dut.rootp->Dmem_data = ram_read(Dmem_addr,  1);            break;
+        case 0b001: dut.rootp->Dmem_data = SEXT(ram_read(Dmem_addr,  1), 8);   break;
+        case 0b010: dut.rootp->Dmem_data = ram_read(Dmem_addr,  2);            break;
+        case 0b011: dut.rootp->Dmem_data = SEXT(ram_read(Dmem_addr,  2), 16);  break;
+        case 0b100: dut.rootp->Dmem_data = ram_read(Dmem_addr,  4);            break;
+        default: dut.rootp->Dmem_data = 0;                                                       
     }
 }
 
@@ -106,12 +110,8 @@ void memory_write(void){
 
 static void single_cycle() {
     dut.clk = 0; dut.eval();wave_Trace_once();                  
-    
-    if(!dut.rootp->Dmem_wen) dut.rootp->Dmem_data = memory_read();  
 
-    dut.clk = 1; dut.eval();wave_Trace_once();            
-
-    if(dut.rootp->Dmem_wen) memory_write();          //写内存       
+    dut.clk = 1; dut.eval();wave_Trace_once();        
     clk_cnt++;
 }
 
@@ -242,7 +242,10 @@ static void execute(uint64_t n){
         // nvboard_update();
         dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4); 
 
-        single_cycle();         
+        single_cycle();            
+
+        if(!dut.rootp->Dmem_wen)  memory_read();  
+        else                      memory_write();          //读写内存        
 
         itrace_catch(is_itrace);
 
@@ -250,13 +253,13 @@ static void execute(uint64_t n){
         
         watchpoint_catch();          //检查watchpoint
 
+        check_special_inst();       //检查特殊指令
+        func_called_detect(); 
+
         if(dut.inst_comp) {
             n--;
             difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__REG__DOT__pc);
         }
-
-        check_special_inst();       //检查特殊指令
-        func_called_detect();                                            //单周期执行
 
         if (npc_state.state != NPC_RUNNING) break;
     }

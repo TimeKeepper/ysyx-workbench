@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import signal_value._
+import bus_state._
 import Instructions._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
@@ -38,7 +39,6 @@ class GNU extends Module{
         val out      = Decoupled(new GNU_output)
     })
 
-    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
     val state = RegInit(s_wait_valid)
 
     state := MuxLookup(state, s_wait_valid)(

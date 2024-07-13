@@ -152,3 +152,7 @@ object signal_value {
   def CSR_R1W1 = 2.U(2.W) // 读写一
   def CSR_R1W2 = 3.U(2.W) // 读一写二， 目前只有 ecall 符合
 }
+
+object bus_state {
+  val s_wait_valid :: s_wait_ready :: s_busy :: s_pipeline :: Nil = Enum(4)
+}

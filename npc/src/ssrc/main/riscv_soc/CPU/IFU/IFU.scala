@@ -3,6 +3,8 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import bus_state._
+
 class IFU_input extends Bundle{
     val inst = Input(UInt(32.W))
     val addr = Input(UInt(32.W))
@@ -21,7 +23,6 @@ class IFU extends Module {
         val out = Decoupled(new IFU_output)
     })
 
-    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
     val state = RegInit(s_wait_ready)
     
     state := MuxLookup(state, s_wait_ready)(

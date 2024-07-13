@@ -94,7 +94,7 @@ class npc extends Module {
   LSU.io.out.bits.MemOp        <> io.Dmem_wop
   LSU.io.out.bits.MemWr        <> io.Dmem_wen
 
-  // bus LSU -> riscv_cpu
+  // bus LSU -> WBU
   LSU.io.out.valid          <> WBU.io.in.valid
   LSU.io.out.ready          <> WBU.io.in.ready
   LSU.io.out.bits.RegWr     <> WBU.io.in.bits.RegWr     
@@ -111,7 +111,7 @@ class npc extends Module {
   LSU.io.out.bits.Less      <> WBU.io.in.bits.Less      
   LSU.io.out.bits.Mem_rdata <> WBU.io.in.bits.Mem_rdata 
 
-  // bus riscv_cpu -> REG -> riscv_cpu with delay
+  // bus WBU -> REG -> WBU with delay
   WBU.io.out.bits.inst_valid <> REG.io.in.inst_valid
   WBU.io.out.bits.Next_Pc    <> REG.io.in.pc
   WBU.io.out.bits.GPR_wdata  <> REG.io.in.GPR_wdata

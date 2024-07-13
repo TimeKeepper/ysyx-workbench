@@ -244,14 +244,6 @@ void check_special_inst(void){
 void difftest_step(vaddr_t pc, vaddr_t npc);
 
 static void execute_one_clk(void){
-    static bool ready = false;
-        // nvboard_update();
-    dut.io_AXI_araddr_ready = ready;
-    dut.io_AXI_raddr_valid  = !ready;
-    dut.io_AXI_raddr_bits_data = ram_read(dut.io_AXI_araddr_bits_addr, 4); 
-    if(dut.io_AXI_araddr_valid && (ready == true)) ready = false;
-    else if(dut.io_AXI_raddr_ready && (ready == false)) ready = true;
-
     single_cycle();           
 
     cpu_value_update();          //更新寄存器
@@ -265,9 +257,36 @@ static void execute_one_clk(void){
     else                      memory_write();          //读写内存        
 }
 
+enum AXIbus_state {
+    S_waitready,
+    S_waitvalid,
+    S_busy
+};
+
 static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
+    static AXIbus_state state = S_busy;
+    static uint32_t addr_cache = 0x80000000;
+    static uint32_t AXI_delay  = 0;
+
     for(;n > 0;){
+        // nvboard_update();
+        dut.io_AXI_araddr_ready = (state == S_waitvalid);
+        dut.io_AXI_raddr_valid  = false;
+        if(dut.io_AXI_araddr_valid && (state == S_waitvalid)) {
+            state = S_busy;
+            addr_cache = dut.io_AXI_araddr_bits_addr;
+        }
+        else if(dut.io_AXI_raddr_ready && (state == S_busy)) {
+            if(AXI_delay == 0) {
+                state = S_waitvalid;
+                dut.io_AXI_raddr_valid = true;
+                dut.io_AXI_raddr_bits_data = ram_read(addr_cache, 4); 
+                AXI_delay = 0;
+            }
+            else AXI_delay--;
+        }
+        
         execute_one_clk();
 
         if(dut.inst_comp) {

@@ -129,7 +129,7 @@ void cpu_reset(int n, int argc, char **argv){
 }
 
 void cpu_value_update(void){
-    cpu.pc = dut.rootp->Imem_raddr;   
+    cpu.pc = dut.rootp->io_AXI_araddr_bits_addr;   
     cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__npc__DOT__REG__DOT__csr_0;
     cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__npc__DOT__REG__DOT__csr_5;
     cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__npc__DOT__REG__DOT__csr_65;
@@ -137,7 +137,7 @@ void cpu_value_update(void){
     cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__npc__DOT__REG__DOT__csr_64; 
 
     // if(!dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = BITS(dut.rootp->io_Imem_rdata_bits, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    uint32_t rd_iddr = BITS(dut.rootp->io_AXI_raddr_bits_data, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {
         case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__REG__DOT__gpr_0);  break;
@@ -227,7 +227,7 @@ void watchpoint_catch(void){
 }
 
 void check_special_inst(void){
-    switch(dut.io_Imem_rdata_bits){
+    switch(dut.io_AXI_raddr_bits_data){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
@@ -238,9 +238,14 @@ void check_special_inst(void){
 void difftest_step(vaddr_t pc, vaddr_t npc);
 static void execute(uint64_t n){
     bool is_itrace = (n < MAX_INST_TO_PRINT);
+    static bool ready = false;
     for(;n > 0;){
         // nvboard_update();
-        dut.io_Imem_rdata_bits = ram_read(dut.Imem_raddr, 4); 
+        dut.io_AXI_araddr_ready = ready;
+        dut.io_AXI_raddr_valid  = !ready;
+        dut.io_AXI_raddr_bits_data = ram_read(dut.io_AXI_araddr_bits_addr, 4); 
+        if(dut.io_AXI_araddr_valid && (ready == true)) ready = false;
+        else if(dut.io_AXI_raddr_ready && (ready == false)) ready = true;
 
         single_cycle();            
 

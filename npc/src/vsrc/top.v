@@ -3,10 +3,13 @@ import "DPI-C" function int npc_trap (input int ra);
 module top(
     input clk,
     input rst,
-    output [31:0] Imem_raddr,
-    output       io_Imem_rdata_ready,
-    input        io_Imem_rdata_valid,
-    input [31:0] io_Imem_rdata_bits,
+    input         io_AXI_araddr_ready,	
+    output        io_AXI_araddr_valid,
+    output [31:0] io_AXI_araddr_bits_addr,
+    output        io_AXI_raddr_ready,	
+    input         io_AXI_raddr_valid,	
+    input  [31:0] io_AXI_raddr_bits_data,	
+    input         io_AXI_raddr_bits_resp,	
 
     input [31:0] Dmem_data,
 
@@ -18,8 +21,8 @@ module top(
     output inst_comp
 );
 
-always @(io_Imem_rdata_bits) begin
-    if(io_Imem_rdata_bits == 32'h00100073)
+always @(io_AXI_raddr_bits_data) begin
+    if(io_AXI_raddr_bits_data == 32'h00100073)
         $display("sim has been stop at clk_cnt %d", npc_trap(npc.REG.gpr_10));
 end
 
@@ -27,10 +30,13 @@ end
 npc npc (
     .clock(clk),
     .reset(rst),
-    .io_Imem_rdata_ready(io_Imem_rdata_ready),
-    .io_Imem_rdata_valid(io_Imem_rdata_valid),
-    .io_Imem_rdata_bits(io_Imem_rdata_bits),
-    .io_Imem_raddr(Imem_raddr),
+    .io_AXI_araddr_ready(io_AXI_araddr_ready),
+    .io_AXI_araddr_valid(io_AXI_araddr_valid),
+    .io_AXI_araddr_bits_addr(io_AXI_araddr_bits_addr),
+    .io_AXI_raddr_ready(io_AXI_raddr_ready),
+    .io_AXI_raddr_valid(io_AXI_raddr_valid),
+    .io_AXI_raddr_bits_data(io_AXI_raddr_bits_data),
+    .io_AXI_raddr_bits_resp(io_AXI_raddr_bits_resp),
 
     .io_Dmem_rdata(Dmem_data),
     .io_Dmem_wdata(Dmemdata),

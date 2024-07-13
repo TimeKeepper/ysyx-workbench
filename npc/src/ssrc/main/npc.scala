@@ -6,10 +6,19 @@ import ram._
 import chisel3._
 import chisel3.util._
 
+class raddr extends Bundle{
+    val data = Input(UInt(32.W))
+    val resp = Input(Bool())
+}
+
+class araddr extends Bundle{
+    val addr = Output(UInt(32.W))
+}
+
 class npc extends Module {
   val io = IO(new Bundle {
-    val Imem_rdata = Flipped(Decoupled(UInt(32.W)))
-    val Imem_raddr = Output(UInt(32.W))
+    val AXI_araddr = Decoupled(new araddr)
+    val AXI_raddr = Flipped(Decoupled(new raddr))
     val Dmem_rdata = Input(UInt(32.W))
     val Dmem_wraddr = Output(UInt(32.W))
 
@@ -20,30 +29,24 @@ class npc extends Module {
     val inst_comp  = Output(Bool())
   })
   
-  val IFU             = Module(new IFU)
   val GNU             = Module(new GNU)
   val EXU             = Module(new EXU)
   val LSU             = Module(new LSU)
   val WBU             = Module(new WBU)
   val REG             = Module(new REG()) 
 
-  IFU.io.in.bits.data <> io.Imem_rdata.bits
-  IFU.io.in.bits.resp <> false.B
-  IFU.io.in.ready     <> io.Imem_rdata.ready
-  IFU.io.in.bits.addr <> REG.io.out.pc
-  io.Imem_raddr       <> REG.io.out.pc
-  IFU.io.in.valid     <> WBU.io.out.valid
-  IFU.io.in.ready     <> WBU.io.out.ready
+  WBU.io.out.valid        <> io.AXI_araddr.valid     
+  WBU.io.out.ready        <> io.AXI_araddr.ready     
+  REG.io.out.pc           <> io.AXI_araddr.bits.addr 
   
-  // bus IFU -> GNU
-  IFU.io.out.valid      <> GNU.io.in.valid
-  IFU.io.out.ready      <> GNU.io.in.ready
-  IFU.io.out.bits.addr  <> GNU.io.in.bits.PC
-  IFU.io.out.bits.data  <> GNU.io.in.bits.inst
+  io.AXI_raddr.valid      <> GNU.io.in.valid
+  io.AXI_raddr.ready      <> GNU.io.in.ready
+  io.AXI_raddr.bits.data  <> GNU.io.in.bits.inst
+  REG.io.out.pc           <> GNU.io.in.bits.PC
 
   // bus IFU -> REG -> GNU without delay
-  IFU.io.out.bits.data(19, 15) <> REG.io.in.GPR_raddra 
-  IFU.io.out.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
+  io.AXI_raddr.bits.data(19, 15) <> REG.io.in.GPR_raddra 
+  io.AXI_raddr.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
   REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
   REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
 
@@ -125,8 +128,8 @@ class npc extends Module {
   WBU.io.out.bits.CSR_wdatab <> REG.io.in.csr_wdatab
 
   val comp_cache = RegInit(Bool(), false.B)
-  comp_cache := IFU.io.in.valid
-  when((comp_cache === false.B) && (IFU.io.in.valid === true.B)) {
+  comp_cache := io.AXI_araddr.valid
+  when((comp_cache === false.B) && (io.AXI_araddr.valid === true.B)) {
     io.inst_comp := true.B
   }.otherwise {
     io.inst_comp := false.B

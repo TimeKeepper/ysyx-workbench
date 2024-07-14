@@ -243,57 +243,64 @@ void check_special_inst(void){
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
 
-static void execute_one_clk(void){
-    single_cycle();           
-
-    cpu_value_update();          //更新寄存器
-    
-    watchpoint_catch();          //检查watchpoint
-
-    check_special_inst();       //检查特殊指令
-    func_called_detect();  
-
-    if(!dut.rootp->Dmem_wen)  memory_read();  
-    else                      memory_write();          //读写内存        
-}
-
 enum AXIbus_state {
     S_waitready,
     S_waitvalid,
     S_busy
 };
 
-static void execute(uint64_t n){
-    bool is_itrace = (n < MAX_INST_TO_PRINT);
+#define AXI_DELAY (rand() % 3)
+
+static void execute_one_clk(bool is_itrace){
     static AXIbus_state state = S_busy;
     static uint32_t addr_cache = 0x80000000;
-    static uint32_t AXI_delay  = 0;
+    static uint32_t AXI_delay  = AXI_DELAY;
+
+    // nvboard_update();
+    dut.io_AXI_araddr_ready = (state == S_waitvalid);
+    dut.io_AXI_raddr_valid  = false;
+    if(dut.io_AXI_araddr_valid && (state == S_waitvalid)) {
+        state = S_busy;
+        addr_cache = dut.io_AXI_araddr_bits_addr;
+    }
+    else if(dut.io_AXI_raddr_ready && (state == S_busy)) {
+        if(AXI_delay == 0) {
+            state = S_waitvalid;
+            dut.io_AXI_raddr_valid = true;
+            dut.io_AXI_raddr_bits_data = ram_read(addr_cache, 4); 
+            AXI_delay = AXI_DELAY;
+        }
+        else AXI_delay--;
+    }
+
+    single_cycle();           
+
+    cpu_value_update();          //更新寄存器
+    
+    watchpoint_catch();          //检查watchpoint
+
+    func_called_detect();  
+
+    if(!dut.rootp->Dmem_wen)  memory_read();  
+    else                      memory_write();          //读写内存    
+
+    if(dut.inst_comp) {
+        inst_cnt++;
+        check_special_inst();       //检查特殊指令
+        difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__REG__DOT__pc);
+        itrace_catch(is_itrace);
+    }    
+}
+
+static void execute(uint64_t n){
+    bool is_itrace = (n < MAX_INST_TO_PRINT);
 
     for(;n > 0;){
-        // nvboard_update();
-        dut.io_AXI_araddr_ready = (state == S_waitvalid);
-        dut.io_AXI_raddr_valid  = false;
-        if(dut.io_AXI_araddr_valid && (state == S_waitvalid)) {
-            state = S_busy;
-            addr_cache = dut.io_AXI_araddr_bits_addr;
-        }
-        else if(dut.io_AXI_raddr_ready && (state == S_busy)) {
-            if(AXI_delay == 0) {
-                state = S_waitvalid;
-                dut.io_AXI_raddr_valid = true;
-                dut.io_AXI_raddr_bits_data = ram_read(addr_cache, 4); 
-                AXI_delay = 0;
-            }
-            else AXI_delay--;
-        }
         
-        execute_one_clk();
+        execute_one_clk(is_itrace);
 
         if(dut.inst_comp) {
             n--;
-            inst_cnt++;
-            itrace_catch(is_itrace);
-            difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__REG__DOT__pc);
         }
 
         if (npc_state.state != NPC_RUNNING) break;
@@ -311,7 +318,7 @@ int npc_trap (int ra){
 }
 
 void clk_exec(uint64_t n){
-    for(;n > 0; n--) execute_one_clk();
+    for(;n > 0; n--) execute_one_clk(false);
 }
 
 void cpu_exec(uint64_t n){

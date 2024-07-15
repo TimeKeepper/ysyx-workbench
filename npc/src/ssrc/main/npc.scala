@@ -35,38 +35,21 @@ class npc extends Module {
   val WBU             = Module(new WBU)
   val REG             = Module(new REG()) 
 
-  WBU.io.out.valid        <> io.AXI_araddr.valid     
-  WBU.io.out.ready        <> io.AXI_araddr.ready     
-  REG.io.out.pc           <> io.AXI_araddr.bits.addr 
-  
   io.AXI_raddr.valid      <> GNU.io.in.valid
   io.AXI_raddr.ready      <> GNU.io.in.ready
-  io.AXI_raddr.bits.data  <> GNU.io.in.bits.inst
-  REG.io.out.pc           <> GNU.io.in.bits.PC
+  io.AXI_raddr.bits.data  <> GNU.io.in.bits.IFU_io.inst
 
   // bus IFU -> REG -> GNU without delay
   io.AXI_raddr.bits.data(19, 15) <> REG.io.in.GPR_raddra 
   io.AXI_raddr.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
+  REG.io.out.pc         <> GNU.io.in.bits.PC
   REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
   REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
 
   // bus GNU -> EXU
-  GNU.io.out.valid          <> EXU.io.in.valid        
-  GNU.io.out.ready          <> EXU.io.in.ready     
-  GNU.io.out.bits.RegWr     <> EXU.io.in.bits.RegWr    
-  GNU.io.out.bits.Branch    <> EXU.io.in.bits.Branch   
-  GNU.io.out.bits.MemtoReg  <> EXU.io.in.bits.MemtoReg 
-  GNU.io.out.bits.MemWr     <> EXU.io.in.bits.MemWr    
-  GNU.io.out.bits.MemOp     <> EXU.io.in.bits.MemOp    
-  GNU.io.out.bits.ALUAsrc   <> EXU.io.in.bits.ALUAsrc  
-  GNU.io.out.bits.ALUBsrc   <> EXU.io.in.bits.ALUBsrc  
-  GNU.io.out.bits.ALUctr    <> EXU.io.in.bits.ALUctr   
-  GNU.io.out.bits.csr_ctr   <> EXU.io.in.bits.csr_ctr  
-  GNU.io.out.bits.Imm       <> EXU.io.in.bits.Imm      
-  GNU.io.out.bits.GPR_Adata <> EXU.io.in.bits.GPR_Adata
-  GNU.io.out.bits.GPR_Bdata <> EXU.io.in.bits.GPR_Bdata
-  GNU.io.out.bits.GPR_waddr <> EXU.io.in.bits.GPR_waddr
-  GNU.io.out.bits.PC        <> EXU.io.in.bits.PC     
+  GNU.io.out.valid     <> EXU.io.in.valid
+  GNU.io.out.ready     <> EXU.io.in.ready
+  GNU.io.out.bits.GNU_io    <> EXU.io.in.bits.GNU_io     
 
   // bus GNU -> REG -> EXU without delay
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
@@ -75,21 +58,7 @@ class npc extends Module {
   // bus EXU -> LSU
   EXU.io.out.valid          <> LSU.io.in.valid
   EXU.io.out.ready          <> LSU.io.in.ready
-  EXU.io.out.bits.RegWr     <> LSU.io.in.bits.RegWr    
-  EXU.io.out.bits.Branch    <> LSU.io.in.bits.Branch   
-  EXU.io.out.bits.MemtoReg  <> LSU.io.in.bits.MemtoReg 
-  EXU.io.out.bits.MemWr     <> LSU.io.in.bits.MemWr    
-  EXU.io.out.bits.MemOp     <> LSU.io.in.bits.MemOp    
-  EXU.io.out.bits.csr_ctr   <> LSU.io.in.bits.csr_ctr  
-  EXU.io.out.bits.Imm       <> LSU.io.in.bits.Imm      
-  EXU.io.out.bits.GPR_Adata <> LSU.io.in.bits.GPR_Adata
-  EXU.io.out.bits.GPR_Bdata <> LSU.io.in.bits.GPR_Bdata
-  EXU.io.out.bits.GPR_waddr <> LSU.io.in.bits.GPR_waddr
-  EXU.io.out.bits.PC        <> LSU.io.in.bits.PC       
-  EXU.io.out.bits.CSR       <> LSU.io.in.bits.CSR      
-  EXU.io.out.bits.Result    <> LSU.io.in.bits.Result   
-  EXU.io.out.bits.Zero      <> LSU.io.in.bits.Zero     
-  EXU.io.out.bits.Less      <> LSU.io.in.bits.Less     
+  EXU.io.out.bits.EXU_io    <> LSU.io.in.bits.EXU_io    
 
   // bus LSU -> Dmem and Dmem -> LSU without delay
   io.Dmem_rdata                <> LSU.io.in.bits.Mem_rdata
@@ -101,31 +70,14 @@ class npc extends Module {
   // bus LSU -> WBU
   LSU.io.out.valid          <> WBU.io.in.valid
   LSU.io.out.ready          <> WBU.io.in.ready
-  LSU.io.out.bits.RegWr     <> WBU.io.in.bits.RegWr     
-  LSU.io.out.bits.Branch    <> WBU.io.in.bits.Branch    
-  LSU.io.out.bits.MemtoReg  <> WBU.io.in.bits.MemtoReg  
-  LSU.io.out.bits.csr_ctr   <> WBU.io.in.bits.csr_ctr   
-  LSU.io.out.bits.Imm       <> WBU.io.in.bits.Imm       
-  LSU.io.out.bits.GPR_Adata <> WBU.io.in.bits.GPR_Adata 
-  LSU.io.out.bits.GPR_waddr <> WBU.io.in.bits.GPR_waddr 
-  LSU.io.out.bits.PC        <> WBU.io.in.bits.PC        
-  LSU.io.out.bits.CSR       <> WBU.io.in.bits.CSR       
-  LSU.io.out.bits.Result    <> WBU.io.in.bits.Result    
-  LSU.io.out.bits.Zero      <> WBU.io.in.bits.Zero      
-  LSU.io.out.bits.Less      <> WBU.io.in.bits.Less      
-  LSU.io.out.bits.Mem_rdata <> WBU.io.in.bits.Mem_rdata 
+  LSU.io.out.bits.LSU_io    <> WBU.io.in.bits.LSU_io    
 
   // bus WBU -> REG -> WBU with delay
-  WBU.io.out.bits.inst_valid <> REG.io.in.inst_valid
-  WBU.io.out.bits.Next_Pc    <> REG.io.in.pc
-  WBU.io.out.bits.GPR_wdata  <> REG.io.in.GPR_wdata
-  WBU.io.out.bits.GPR_waddr  <> REG.io.in.GPR_waddr
-  WBU.io.out.bits.GPR_wen    <> REG.io.in.GPR_wen
-  WBU.io.out.bits.CSR_ctr    <> REG.io.in.csr_ctr   
-  WBU.io.out.bits.CSR_waddra <> REG.io.in.csr_waddra
-  WBU.io.out.bits.CSR_waddrb <> REG.io.in.csr_waddrb
-  WBU.io.out.bits.CSR_wdataa <> REG.io.in.csr_wdataa
-  WBU.io.out.bits.CSR_wdatab <> REG.io.in.csr_wdatab
+  WBU.io.out.bits.WBU_io <> REG.io.in.WBU_io
+
+  WBU.io.out.valid        <> io.AXI_araddr.valid     
+  WBU.io.out.ready        <> io.AXI_araddr.ready     
+  REG.io.out.pc           <> io.AXI_araddr.bits.addr 
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := io.AXI_araddr.valid

@@ -1,0 +1,74 @@
+package riscv_cpu
+
+import chisel3._
+import chisel3.util._
+
+import signal_value._
+
+class IFU_Output extends Bundle{
+    val inst = Output(UInt(32.W))
+}
+
+class GNU_Output extends Bundle{
+    val RegWr    = Output(Bool())
+    val Branch   = Output(Bran_Type)
+    val MemtoReg = Output(Bool())
+    val MemWr    = Output(Bool())
+    val MemOp    = Output(MemOp_Type)
+    val ALUAsrc  = Output(ALUAsrc_Type)
+    val ALUBsrc  = Output(ALUBSrc_Type)
+    val ALUctr   = Output(ALUctr_Type)
+    val csr_ctr  = Output(CSR_Type)
+    val Imm      = Output(UInt(32.W))
+    val GPR_Adata = Output(UInt(32.W))
+    val GPR_Bdata = Output(UInt(32.W))
+    val GPR_waddr = Output(UInt(5.W))
+    val PC       = Output(UInt(32.W))
+}
+
+class EXU_output extends Bundle{
+    val RegWr       = Output(Bool())
+    val Branch      = Output(Bran_Type)
+    val MemtoReg    = Output(Bool())
+    val MemWr       = Output(Bool())
+    val MemOp       = Output(MemOp_Type)
+    val csr_ctr     = Output(CSR_Type)
+    val Imm         = Output(UInt(32.W))
+    val GPR_Adata   = Output(UInt(32.W))
+    val GPR_Bdata   = Output(UInt(32.W))
+    val GPR_waddr   = Output(UInt(5.W))
+    val PC          = Output(UInt(32.W))
+    val CSR         = Output(UInt(32.W))
+    val Result      = Output(UInt(32.W))
+    val Zero        = Output(Bool())
+    val Less        = Output(Bool())
+}
+
+class LSU_output extends Bundle{
+    val RegWr       = Output(Bool())
+    val Branch      = Output(Bran_Type)
+    val MemtoReg    = Output(Bool())
+    val csr_ctr     = Output(CSR_Type)
+    val Imm         = Output(UInt(32.W))
+    val GPR_Adata   = Output(UInt(32.W))
+    val GPR_waddr   = Output(UInt(5.W))
+    val PC          = Output(UInt(32.W))
+    val CSR         = Output(UInt(32.W))
+    val Result      = Output(UInt(32.W))
+    val Zero        = Output(Bool())
+    val Less        = Output(Bool())
+    val Mem_rdata   = Output(UInt(32.W))
+}
+
+class WBU_output extends Bundle{
+    val inst_valid= Output(Bool())
+    val Next_Pc   = Output(UInt(32.W))
+    val GPR_waddr = Output(UInt(5.W))
+    val GPR_wdata = Output(UInt(32.W))
+    val GPR_wen   = Output(Bool())
+    val CSR_ctr   = Output(CSR_Type)
+    val CSR_waddra= Output(UInt(12.W))
+    val CSR_waddrb= Output(UInt(12.W))
+    val CSR_wdataa= Output(UInt(32.W))
+    val CSR_wdatab= Output(UInt(32.W))
+}

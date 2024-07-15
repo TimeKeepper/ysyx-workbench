@@ -8,23 +8,21 @@ import signal_value._
 // riscv cpu register file
 
 class REG_input extends Bundle{
-  val inst_valid = Input(Bool())
-
-  val GPR_wdata = Input(UInt(32.W))
-  val GPR_waddr = Input(UInt(5.W))
-  val GPR_wen   = Input(Bool())
+  val csr_raddr  = Input(UInt(12.W))
 
   val GPR_raddra = Input(UInt(5.W))
   val GPR_raddrb = Input(UInt(5.W))
 
+  val inst_valid = Input(Bool())
   val pc  = Input(UInt(32.W))
-
+  val GPR_wdata = Input(UInt(32.W))
+  val GPR_waddr = Input(UInt(5.W))
+  val GPR_wen   = Input(Bool())
   val csr_ctr    = Input(CSR_Type)
   val csr_waddra = Input(UInt(12.W))
   val csr_waddrb = Input(UInt(12.W))
   val csr_wdataa = Input(UInt(32.W))
   val csr_wdatab = Input(UInt(32.W))
-  val csr_raddr  = Input(UInt(12.W))
 }
 
 class REG_output extends Bundle{
@@ -38,14 +36,21 @@ class REG_output extends Bundle{
 
 class REG extends Module {
   val io = IO(new Bundle {
-    val in = new REG_input
+    val in = new Bundle{
+      val csr_raddr  = Input(UInt(12.W))
+
+      val GPR_raddra = Input(UInt(5.W))
+      val GPR_raddrb = Input(UInt(5.W))
+
+      val WBU_io     = Input(new WBU_output)
+    }
     val out = new REG_output
   })
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.in.GPR_wen && io.in.GPR_waddr =/= 0.U && io.in.inst_valid === true.B) {
-    gpr(io.in.GPR_waddr) := io.in.GPR_wdata
+  when(io.in.WBU_io.GPR_wen && io.in.WBU_io.GPR_waddr =/= 0.U && io.in.WBU_io.inst_valid === true.B) {
+    gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
   }
 
   io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
@@ -53,8 +58,8 @@ class REG extends Module {
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  when(io.in.inst_valid === true.B){
-    pc        := io.in.pc
+  when(io.in.WBU_io.inst_valid === true.B){
+    pc        := io.in.WBU_io.Next_Pc
   }
   io.out.pc := pc
 
@@ -62,11 +67,11 @@ class REG extends Module {
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
   io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
-  when((io.in.csr_ctr === CSR_R1W1 || io.in.csr_ctr === CSR_R1W2) && io.in.inst_valid === true.B) {
-    csr((io.in.csr_waddra - "h300".U)(6, 0)) := io.in.csr_wdataa
+  when((io.in.WBU_io.CSR_ctr === CSR_R1W1 || io.in.WBU_io.CSR_ctr === CSR_R1W2) && io.in.WBU_io.inst_valid === true.B) {
+    csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
   }
 
-  when(io.in.csr_ctr === CSR_R1W2 && io.in.inst_valid === true.B) {
-    csr((io.in.csr_waddrb - "h300".U)(6, 0)) := io.in.csr_wdatab
+  when(io.in.WBU_io.CSR_ctr === CSR_R1W2 && io.in.WBU_io.inst_valid === true.B) {
+    csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
   }
 }

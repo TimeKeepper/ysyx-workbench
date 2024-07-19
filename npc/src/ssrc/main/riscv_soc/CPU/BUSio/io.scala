@@ -72,3 +72,12 @@ class WBU_output extends Bundle{
     val CSR_wdataa= Output(UInt(32.W))
     val CSR_wdatab= Output(UInt(32.W))
 }
+
+class raddr extends Bundle{
+    val data = Input(UInt(32.W))
+    val resp = Input(Bool())
+}
+
+class araddr extends Bundle{
+    val addr = Output(UInt(32.W))
+}

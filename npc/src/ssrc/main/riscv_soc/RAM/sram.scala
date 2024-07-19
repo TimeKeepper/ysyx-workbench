@@ -1,74 +1,41 @@
 package ram
 
+import riscv_cpu._
+import bus_state._
+
 import chisel3._
 import chisel3.util._
 
-class Icache_input extends Bundle{
-    val inst = Input(UInt(32.W))
-    val addr = Input(UInt(32.W))
-}
-
-class Icache_output extends Bundle{
-    val inst = Output(UInt(32.W))
-    val addr = Output(UInt(32.W))
-}
-
-//此模块将32为数据读取并根据memop处理数据，延迟一个周期后发送给cpu
-
-class Icache extends Module {
+class sram_bridge extends BlackBox{
     val io = IO(new Bundle{
-        val in = Flipped(Decoupled(new Icache_input))
-        val out = Decoupled(new Icache_output)
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+        val addr  = Input(UInt(32.W))
+        val data  = Output(UInt(32.W))
+    })
+}
+
+class SRAM extends Module {
+    val io = IO(new Bundle {
+        val araddr = Flipped(Decoupled(new araddr))
+        val raddr  = Decoupled(new raddr)
     })
 
-    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
     val state = RegInit(s_wait_valid)
-    
+
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.in.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
-        )
-    )
-    
-    val inst_cache = RegInit(UInt(32.W), "h0".U)
-
-    when(io.in.valid && io.in.ready) {
-        inst_cache := io.in.bits.inst
-    }
-    
-    io.out.bits.inst := inst_cache
-    io.out.bits.addr := io.in.bits.addr
-
-    io.out.valid := io.in.valid
-    io.in.ready  := state === s_wait_valid
-}
-
-class Dcache_input extends Bundle{
-    val addr = Input(UInt(32.W))
-    val data = Input(UInt(32.W))
-    val memop = Input(UInt(3.W))
-    val memwen = Input(Bool())
-}
-
-class Dcache_output extends Bundle{
-    val data = Output(UInt(32.W))
-}
-
-class Dcache extends Module {
-    val io = IO(new Bundle{
-        val in = Flipped(Decoupled(new Dcache_input))
-        val out = Decoupled(new Dcache_output)
-    })
-
-    val s_wait_valid :: s_wait_ready :: s_busy :: Nil = Enum(3)
-    val state = RegInit(s_wait_valid)
-    
-    state := MuxLookup(state, s_wait_valid)(
-        Seq(
-            s_wait_valid -> Mux(io.out.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready)
+            s_wait_valid -> Mux(io.araddr.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.raddr.ready, s_wait_valid, s_wait_ready),
         )
     )
 
+    io.raddr.valid := state === s_wait_ready
+    io.araddr.ready := state === s_wait_valid
+
+    val bridge = Module(new sram_bridge)
+    bridge.io.clock := clock
+    bridge.io.valid := io.raddr.ready && state === s_wait_ready
+    bridge.io.addr  := io.araddr.bits.addr
+    io.raddr.bits.data := bridge.io.data
 }

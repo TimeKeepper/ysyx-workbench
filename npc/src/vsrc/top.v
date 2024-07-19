@@ -23,7 +23,7 @@ module top(
 
 always @(io_AXI_raddr_bits_data) begin
     if(io_AXI_raddr_bits_data == 32'h00100073)
-        $display("sim has been stop at clk_cnt %d", npc_trap(npc.REG.gpr_10));
+        $display("sim has been stop at clk_cnt %d", npc_trap(npc.CPU.REG.gpr_10));
 end
 
 

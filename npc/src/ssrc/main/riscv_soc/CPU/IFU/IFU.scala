@@ -3,20 +3,12 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
-class IFU_input extends Bundle{
-    val addr = Input(UInt(32.W))
-}
-
-class IFU_output extends Bundle{
-    val data = Output(UInt(32.W))
-}
-
 //此模块将32为数据读取并根据memop处理数据，延迟不定周期后发送给IDU
 
 class IFU extends Module {
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new IFU_input))
-        val out = Decoupled(new IFU_output)
+        val out = Decoupled(new IFU_Output)
         val araddr = Decoupled(new araddr)
         val raddr = Flipped(Decoupled(new raddr))
     })

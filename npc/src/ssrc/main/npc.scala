@@ -27,12 +27,14 @@ class npc extends Module {
   val WBU             = Module(new WBU)
   val REG             = Module(new REG) 
 
+  // bus IFU AXI
   IFU.io.araddr         <> io.AXI_araddr
   IFU.io.raddr          <> io.AXI_raddr
 
-  IFU.io.out.valid      <> GNU.io.in.valid
-  IFU.io.out.ready      <> GNU.io.in.ready
-  IFU.io.out.bits.data  <> GNU.io.in.bits.IFU_io.inst
+  // bus IFU -> GNU
+  IFU.io.out.ready     <> GNU.io.in.ready
+  IFU.io.out.valid     <> GNU.io.in.valid
+  IFU.io.out.bits.data <> GNU.io.in.bits.IFU_io.data
 
   // bus IFU -> REG -> GNU without delay
   IFU.io.out.bits.data(19, 15) <> REG.io.in.GPR_raddra 

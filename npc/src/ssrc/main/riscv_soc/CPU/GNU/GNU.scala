@@ -70,7 +70,7 @@ class GNU extends Module{
         Imm_cache := igu.io.imm
         GPR_Adata_cache := io.in.bits.GPR_Adata
         GPR_Bdata_cache := io.in.bits.GPR_Bdata
-        GPR_waddr_cache := io.in.bits.IFU_io.inst(11, 7)
+        GPR_waddr_cache := io.in.bits.IFU_io.data(11, 7)
         PC_cache := io.in.bits.PC
         CSR_raddr_cache := MuxLookup(idu.io.csr_ctr, igu.io.imm(11, 0))(Seq(
             CSR_R1W0 -> "h341".U,
@@ -79,7 +79,7 @@ class GNU extends Module{
     }
 
 
-    idu.io.inst     <> io.in.bits.IFU_io.inst
+    idu.io.inst     <> io.in.bits.IFU_io.data
 
     io.out.bits.GNU_io.RegWr    <> RegWr_cache
     io.out.bits.GNU_io.Branch   <> Branch_cache
@@ -97,6 +97,6 @@ class GNU extends Module{
     io.out.bits.GNU_io.PC       <> PC_cache
     io.out.bits.CSR_raddr    <> CSR_raddr_cache
 
-    igu.io.inst     <> io.in.bits.IFU_io.inst
+    igu.io.inst     <> io.in.bits.IFU_io.data
     igu.io.ExtOp    <> idu.io.ExtOp
 }

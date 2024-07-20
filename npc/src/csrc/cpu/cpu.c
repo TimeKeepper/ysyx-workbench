@@ -10,6 +10,7 @@
 TOP_NAME dut;
 uint32_t clk_cnt = 0;
 uint32_t inst_cnt = 0;
+bool     is_itrace_printf = false;
 
 #define MAX_INST_TO_PRINT 10
 #define INSTR_BUF_SIZE 15
@@ -178,25 +179,25 @@ void cpu_value_update(void){
 }
 
 char itrace_buf[256];
-void itrace_catch(bool is_printf){
+void itrace_catch(uint32_t addr, uint32_t inst){
     #ifdef ITRACE
     static uint32_t pc_cache = 0x80000000;
 
     char* p = itrace_buf;
 
-    uint8_t* inst = (uint8_t*)&dut.io_AXI_raddr_bits_data;
+    uint8_t* inst_ptr = (uint8_t*)&inst;
     p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", pc_cache);
     
-    pc_cache = dut.io_AXI_araddr_bits_addr;
+    pc_cache = addr;
 
     for(int i = 3; i >= 0; i--){
-        p += snprintf(p, 4, "%02x ", inst[i]);
+        p += snprintf(p, 4, "%02x ", inst_ptr[i]);
     }
-    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, (uint8_t*)&dut.io_AXI_raddr_bits_data, 4);
+    disassemble(p, itrace_buf + sizeof(itrace_buf) - p, cpu.pc, inst_ptr, 4);
 
     instr_buf_push(itrace_buf);
 
-    if(is_printf) printf("%s\n", itrace_buf);
+    if(is_itrace_printf) printf("%s\n", itrace_buf);
     #endif
 }
 
@@ -251,7 +252,7 @@ enum AXIbus_state {
 
 #define AXI_DELAY (rand() % 3)
 
-static void execute_one_clk(bool is_itrace){
+static void execute_one_clk(){
     // static AXIbus_state state = S_busy;
     // static uint32_t addr_cache = 0x80000000;
     // static uint32_t AXI_delay  = AXI_DELAY;
@@ -287,16 +288,15 @@ static void execute_one_clk(bool is_itrace){
     if(dut.inst_comp) {
         inst_cnt++;
         difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__pc);
-        itrace_catch(is_itrace);
     }    
 }
 
 static void execute(uint64_t n){
-    bool is_itrace = (n < MAX_INST_TO_PRINT);
+    is_itrace_printf = (n < MAX_INST_TO_PRINT);
 
     for(;n > 0;){
         
-        execute_one_clk(is_itrace);
+        execute_one_clk();
 
         if(dut.inst_comp) {
             n--;
@@ -317,7 +317,7 @@ int npc_trap (int ra){
 }
 
 void clk_exec(uint64_t n){
-    for(;n > 0; n--) execute_one_clk(false);
+    for(;n > 0; n--) execute_one_clk();
 }
 
 void cpu_exec(uint64_t n){

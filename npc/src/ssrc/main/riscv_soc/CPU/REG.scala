@@ -5,6 +5,23 @@ import chisel3.util._
 
 import signal_value._
 
+class reg_bridge extends BlackBox{
+  val io = IO(new Bundle{
+    val clock = Input(Clock())
+    val pc_wen = Input(Bool())
+    val csra_wen = Input(Bool())
+    val csrb_wen = Input(Bool())
+    val gpr_wen = Input(Bool())
+    val new_pc = Input(UInt(32.W))
+    val CSR_waddra = Input(UInt(12.W))
+    val CSR_waddrb = Input(UInt(12.W))
+    val new_CSRa = Input(UInt(32.W))
+    val new_CSRb = Input(UInt(32.W))
+    val GPR_waddr = Input(UInt(5.W))
+    val new_GPR = Input(UInt(32.W))
+  })
+}
+
 // riscv cpu register file
 
 class REG_input extends Bundle{
@@ -47,9 +64,14 @@ class REG extends Module {
     val out = new REG_output
   })
 
+  val pc_wen = io.in.WBU_io.inst_valid === true.B
+  val csra_wen = (io.in.WBU_io.CSR_ctr === CSR_R1W1 || io.in.WBU_io.CSR_ctr === CSR_R1W2) && io.in.WBU_io.inst_valid === true.B
+  val csrb_wen = io.in.WBU_io.CSR_ctr === CSR_R1W2 && io.in.WBU_io.inst_valid === true.B
+  val gpr_wen = io.in.WBU_io.GPR_wen && io.in.WBU_io.GPR_waddr =/= 0.U && io.in.WBU_io.inst_valid === true.B
+
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
-  when(io.in.WBU_io.GPR_wen && io.in.WBU_io.GPR_waddr =/= 0.U && io.in.WBU_io.inst_valid === true.B) {
+  when(gpr_wen) {
     gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
   }
 
@@ -58,7 +80,7 @@ class REG extends Module {
 
   val pc = RegInit(UInt(32.W), "h80000000".U)
 
-  when(io.in.WBU_io.inst_valid === true.B){
+  when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc
   }
   io.out.pc := pc
@@ -67,11 +89,27 @@ class REG extends Module {
   val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
   io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
-  when((io.in.WBU_io.CSR_ctr === CSR_R1W1 || io.in.WBU_io.CSR_ctr === CSR_R1W2) && io.in.WBU_io.inst_valid === true.B) {
+  when(csra_wen) {
     csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
   }
 
-  when(io.in.WBU_io.CSR_ctr === CSR_R1W2 && io.in.WBU_io.inst_valid === true.B) {
+  when(csrb_wen) {
     csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
   }
+  
+  // 只是为了仿真环境，可以去除
+  val bridge = Module(new reg_bridge)
+
+  bridge.io.clock := clock
+  bridge.io.pc_wen := pc_wen
+  bridge.io.csra_wen := csra_wen
+  bridge.io.csrb_wen := csrb_wen
+  bridge.io.gpr_wen := gpr_wen
+  bridge.io.new_pc := io.in.WBU_io.Next_Pc
+  bridge.io.CSR_waddra := io.in.WBU_io.CSR_waddra
+  bridge.io.CSR_waddrb := io.in.WBU_io.CSR_waddrb
+  bridge.io.new_CSRa := io.in.WBU_io.CSR_wdataa
+  bridge.io.new_CSRb := io.in.WBU_io.CSR_wdatab
+  bridge.io.GPR_waddr := io.in.WBU_io.GPR_waddr
+  bridge.io.new_GPR := io.in.WBU_io.GPR_wdata
 }

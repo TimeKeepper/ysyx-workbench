@@ -1,7 +1,4 @@
-package npc
-
-import riscv_cpu._
-import ram._
+package riscv_cpu
 
 import chisel3._
 import chisel3.util._
@@ -29,13 +26,7 @@ class CPU extends Module {
   val LSU             = Module(new LSU)
   val WBU             = Module(new WBU)
   val REG             = Module(new REG) 
-
-  // bus IFU AXI
-  IFU.io.araddr         <> io.AXI_araddr
-  IFU.io.raddr          <> io.AXI_raddr
-  IFU.io.awaddr         <> io.AXI_awaddr
-  IFU.io.wdata          <> io.AXI_wdata
-  IFU.io.bresp          <> io.AXI_bresp
+  val AXI_Interconnect = Module(new AXI_Interconnect)
 
   // bus IFU -> GNU
   IFU.io.out.ready     <> GNU.io.in.ready
@@ -81,6 +72,19 @@ class CPU extends Module {
   WBU.io.out.valid        <> IFU.io.in.valid     
   WBU.io.out.ready        <> IFU.io.in.ready     
   REG.io.out.pc           <> IFU.io.in.bits.addr 
+
+  // bus AXI Interconnect
+  AXI_Interconnect.io.IFU.araddr <> IFU.io.araddr
+  AXI_Interconnect.io.IFU.raddr  <> IFU.io.raddr
+  AXI_Interconnect.io.IFU.awaddr <> IFU.io.awaddr
+  AXI_Interconnect.io.IFU.wdata  <> IFU.io.wdata
+  AXI_Interconnect.io.IFU.bresp  <> IFU.io.bresp
+
+  AXI_Interconnect.io.SRAM.araddr         <> io.AXI_araddr
+  AXI_Interconnect.io.SRAM.raddr          <> io.AXI_raddr
+  AXI_Interconnect.io.SRAM.awaddr         <> io.AXI_awaddr
+  AXI_Interconnect.io.SRAM.wdata          <> io.AXI_wdata
+  AXI_Interconnect.io.SRAM.bresp          <> io.AXI_bresp
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := io.AXI_araddr.valid

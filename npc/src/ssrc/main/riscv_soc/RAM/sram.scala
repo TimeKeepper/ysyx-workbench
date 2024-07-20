@@ -9,9 +9,13 @@ import chisel3.util._
 class sram_bridge extends BlackBox{
     val io = IO(new Bundle{
         val clock = Input(Clock())
-        val valid = Input(Bool())
-        val addr  = Input(UInt(32.W))
-        val data  = Output(UInt(32.W))
+        val read  = Input(Bool())
+        val r_addr  = Input(UInt(32.W))
+        val r_data  = Output(UInt(32.W))
+        val write = Input(Bool())
+        val w_addr  = Input(UInt(32.W))
+        val w_data  = Input(UInt(32.W))
+        val w_strb  = Input(UInt(4.W))
     })
 }
 
@@ -66,10 +70,14 @@ class SRAM(val LSFR_delay : UInt) extends Module {
 
     val bridge = Module(new sram_bridge)
     bridge.io.clock := clock
-    bridge.io.valid := state_r === s_busy
-    bridge.io.addr  := io.araddr.bits.addr
-    io.raddr.bits.data := bridge.io.data
+    bridge.io.read := state_r === s_busy && LSFRw === 0.U
+    bridge.io.r_addr  := io.araddr.bits.addr
+    io.raddr.bits.data := bridge.io.r_data
     io.raddr.bits.resp := "b0".U
 
+    bridge.io.write := state_w === s_busy && LSFRw === 0.U
+    bridge.io.w_addr  := io.awaddr.bits.addr
+    bridge.io.w_data  := io.wdata.bits.data
+    bridge.io.w_strb  := io.wdata.bits.strb
     io.bresp.bits.bresp := "b0".U
 }

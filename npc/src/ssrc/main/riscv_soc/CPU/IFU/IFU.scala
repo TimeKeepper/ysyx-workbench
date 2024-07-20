@@ -3,6 +3,15 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+class IFU_trace extends BlackBox{
+    val io = IO(new Bundle {
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+        val addr  = Input(UInt(32.W))
+        val data  = Input(UInt(32.W))
+    })
+}
+
 //此模块将32为数据读取并根据memop处理数据，延迟不定周期后发送给IDU
 
 class IFU extends Module {
@@ -28,7 +37,16 @@ class IFU extends Module {
     io.awaddr.bits.addr := 0.U
     io.wdata.valid := false.B
     io.wdata.bits.data := 0.U
+    io.wdata.bits.strb := 0.U
     io.bresp.ready := false.B
+
+    //此模块仅为调试用，可注释
+    val trace = Module(new IFU_trace)
+
+    trace.io.clock := clock
+    trace.io.valid := io.out.valid && io.out.ready
+    trace.io.addr := io.in.bits.addr
+    trace.io.data := io.out.bits.data
 }
 
 class Dcache_input extends Bundle{

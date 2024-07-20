@@ -93,6 +93,7 @@ class awaddr extends Bundle{
 
 class wdata extends Bundle{
     val data = Output(UInt(32.W))
+    val strb = Output(UInt(4.W))
 }
 
 class bresp extends Bundle{

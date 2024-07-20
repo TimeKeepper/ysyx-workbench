@@ -18,27 +18,23 @@ class IFU extends Module {
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new IFU_input))
         val out = Decoupled(new IFU_Output)
-        val araddr = Decoupled(new araddr)
-        val raddr = Flipped(Decoupled(new raddr))
-        val awaddr = Decoupled(new awaddr)
-        val wdata = Decoupled(new wdata)
-        val bresp  = Flipped(Decoupled(new bresp))
+        val AXI = new AXI_Master
     })
 
-    io.in.ready <> io.araddr.ready
-    io.in.valid <> io.araddr.valid
-    io.in.bits.addr <> io.araddr.bits.addr
+    io.in.ready <> io.AXI.araddr.ready
+    io.in.valid <> io.AXI.araddr.valid
+    io.in.bits.addr <> io.AXI.araddr.bits.addr
 
-    io.out.ready <> io.raddr.ready
-    io.out.valid <> io.raddr.valid
-    io.out.bits.data <> io.raddr.bits.data
+    io.out.ready <> io.AXI.raddr.ready
+    io.out.valid <> io.AXI.raddr.valid
+    io.out.bits.data <> io.AXI.raddr.bits.data
 
-    io.awaddr.valid := false.B
-    io.awaddr.bits.addr := 0.U
-    io.wdata.valid := false.B
-    io.wdata.bits.data := 0.U
-    io.wdata.bits.strb := 0.U
-    io.bresp.ready := false.B
+    io.AXI.awaddr.valid := false.B
+    io.AXI.awaddr.bits.addr := 0.U
+    io.AXI.wdata.valid := false.B
+    io.AXI.wdata.bits.data := 0.U
+    io.AXI.wdata.bits.strb := 0.U
+    io.AXI.bresp.ready := false.B
 
     //此模块仅为调试用，可注释
     val trace = Module(new IFU_trace)

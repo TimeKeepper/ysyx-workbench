@@ -74,11 +74,7 @@ class CPU extends Module {
   REG.io.out.pc           <> IFU.io.in.bits.addr 
 
   // bus AXI Interconnect
-  AXI_Interconnect.io.IFU.araddr <> IFU.io.araddr
-  AXI_Interconnect.io.IFU.raddr  <> IFU.io.raddr
-  AXI_Interconnect.io.IFU.awaddr <> IFU.io.awaddr
-  AXI_Interconnect.io.IFU.wdata  <> IFU.io.wdata
-  AXI_Interconnect.io.IFU.bresp  <> IFU.io.bresp
+  AXI_Interconnect.io.IFU <> IFU.io.AXI
 
   AXI_Interconnect.io.SRAM.araddr         <> io.AXI_araddr
   AXI_Interconnect.io.SRAM.raddr          <> io.AXI_raddr

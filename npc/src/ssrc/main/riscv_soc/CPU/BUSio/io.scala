@@ -99,3 +99,19 @@ class wdata extends Bundle{
 class bresp extends Bundle{
     val bresp = Input(Bool())
 }
+
+class AXI_Master extends Bundle{
+    val araddr = Decoupled(new araddr)
+    val raddr = Flipped(Decoupled(new raddr))
+    val awaddr = Decoupled(new awaddr)
+    val wdata = Decoupled(new wdata)
+    val bresp  = Flipped(Decoupled(new bresp))
+}
+
+class AXI_Slave extends Bundle{
+    val araddr = Flipped(Decoupled(new araddr))
+    val raddr = Decoupled(new raddr)
+    val awaddr = Flipped(Decoupled(new awaddr))
+    val wdata = Flipped(Decoupled(new wdata))
+    val bresp  = Decoupled(new bresp)
+}

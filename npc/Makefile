@@ -13,8 +13,9 @@ HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/npc.sv
-VSRC = $(DESIGN_FILE)
-VSRC += $(abspath $(VSRC_DIR))/top.v
+# VSRC = $(DESIGN_FILE)
+# VSRC += $(abspath $(VSRC_DIR))/top.v
+VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
@@ -93,7 +94,7 @@ $(DESIGN_FILE): $(SSRC)
 print:
 	@echo $(INCFLAGS)
 
-$(BIN): $(CSRC) $(HSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
+$(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \

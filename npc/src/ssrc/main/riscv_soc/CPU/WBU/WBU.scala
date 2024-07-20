@@ -18,7 +18,7 @@ class WBU extends Module {
         })
     })
 
-    val state = RegInit(s_wait_valid)
+    val state = RegInit(s_wait_ready)
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(

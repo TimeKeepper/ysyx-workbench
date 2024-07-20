@@ -130,7 +130,7 @@ void cpu_reset(int n, int argc, char **argv){
 }
 
 void cpu_value_update(void){
-    cpu.pc = dut.rootp->io_AXI_araddr_bits_addr;   
+    cpu.pc = dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__pc;   
     cpu.sr[sregs_iddr[0]] = dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__csr_0;
     cpu.sr[sregs_iddr[1]] = dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__csr_5;
     cpu.sr[sregs_iddr[2]] = dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__csr_65;
@@ -138,7 +138,7 @@ void cpu_value_update(void){
     cpu.sr[sregs_iddr[4]] = dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__csr_64; 
 
     // if(!dut.rootp->top__DOT__npc__DOT__riscv_cpu__DOT__RegWr) return;
-    uint32_t rd_iddr = BITS(dut.rootp->io_AXI_raddr_bits_data, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
+    uint32_t rd_iddr = BITS(dut.rootp->top__DOT__npc__DOT__CPU__DOT__LSU__DOT__GPR_waddr_cache, 11, 7); //(dut.rootp->inst >> 7) & 0x1f;
     
     switch(rd_iddr) {
         case 0: cpu.gpr[rd_iddr] = (dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__gpr_0);  break;
@@ -232,8 +232,8 @@ void watchpoint_catch(void){
     #endif
 }
 
-void check_special_inst(void){
-    switch(dut.io_AXI_raddr_bits_data){
+void check_special_inst(uint32_t inst){
+    switch(inst){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
         case 0x00008067: is_ret = true;     break; // ret
@@ -252,26 +252,26 @@ enum AXIbus_state {
 #define AXI_DELAY (rand() % 3)
 
 static void execute_one_clk(bool is_itrace){
-    static AXIbus_state state = S_busy;
-    static uint32_t addr_cache = 0x80000000;
-    static uint32_t AXI_delay  = AXI_DELAY;
+    // static AXIbus_state state = S_busy;
+    // static uint32_t addr_cache = 0x80000000;
+    // static uint32_t AXI_delay  = AXI_DELAY;
 
-    // nvboard_update();
-    dut.io_AXI_araddr_ready = (state == S_waitvalid);
-    dut.io_AXI_raddr_valid  = false;
-    if(dut.io_AXI_araddr_valid && (state == S_waitvalid)) {
-        state = S_busy;
-        addr_cache = dut.io_AXI_araddr_bits_addr;
-    }
-    else if(dut.io_AXI_raddr_ready && (state == S_busy)) {
-        if(AXI_delay == 0) {
-            state = S_waitvalid;
-            dut.io_AXI_raddr_valid = true;
-            dut.io_AXI_raddr_bits_data = ram_read(addr_cache, 4); 
-            AXI_delay = AXI_DELAY;
-        }
-        else AXI_delay--;
-    }
+    // // nvboard_update();
+    // dut.io_AXI_araddr_ready = (state == S_waitvalid);
+    // dut.io_AXI_raddr_valid  = false;
+    // if(dut.io_AXI_araddr_valid && (state == S_waitvalid)) {
+    //     state = S_busy;
+    //     addr_cache = dut.io_AXI_araddr_bits_addr;
+    // }
+    // else if(dut.io_AXI_raddr_ready && (state == S_busy)) {
+    //     if(AXI_delay == 0) {
+    //         state = S_waitvalid;
+    //         dut.io_AXI_raddr_valid = true;
+    //         dut.io_AXI_raddr_bits_data = ram_read(addr_cache, 4); 
+    //         AXI_delay = AXI_DELAY;
+    //     }
+    //     else AXI_delay--;
+    // }
 
     single_cycle();           
 
@@ -286,7 +286,6 @@ static void execute_one_clk(bool is_itrace){
 
     if(dut.inst_comp) {
         inst_cnt++;
-        check_special_inst();       //检查特殊指令
         difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__pc);
         itrace_catch(is_itrace);
     }    

@@ -38,4 +38,5 @@ class SRAM extends Module {
     bridge.io.valid := io.raddr.ready && state === s_wait_ready
     bridge.io.addr  := io.araddr.bits.addr
     io.raddr.bits.data := bridge.io.data
+    io.raddr.bits.resp := "b0".U
 }

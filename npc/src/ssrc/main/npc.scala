@@ -19,7 +19,7 @@ class npc extends Module {
   })
   
   val CPU = Module(new CPU)
-  val SRAM = Module(new SRAM)
+  val SRAM = Module(new SRAM(4.U))
 
   io.Dmem_rdata  <> CPU.io.Dmem_rdata
   io.Dmem_wraddr <> CPU.io.Dmem_wraddr
@@ -30,4 +30,7 @@ class npc extends Module {
 
   SRAM.io.araddr <> CPU.io.AXI_araddr
   SRAM.io.raddr  <> CPU.io.AXI_raddr
+  SRAM.io.awaddr <> CPU.io.AXI_awaddr
+  SRAM.io.wdata  <> CPU.io.AXI_wdata
+  SRAM.io.bresp  <> CPU.io.AXI_bresp
 }

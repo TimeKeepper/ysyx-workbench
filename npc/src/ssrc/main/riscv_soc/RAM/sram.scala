@@ -1,7 +1,7 @@
 package ram
 
 import riscv_cpu._
-import bus_state._
+import AXI_state._
 
 import chisel3._
 import chisel3.util._
@@ -15,38 +15,61 @@ class sram_bridge extends BlackBox{
     })
 }
 
-class SRAM extends Module {
+class SRAM(val LSFR_delay : UInt) extends Module {
     val io = IO(new Bundle {
         val araddr = Flipped(Decoupled(new araddr))
         val raddr  = Decoupled(new raddr)
+        val awaddr = Flipped(Decoupled(new awaddr))
+        val wdata  = Flipped(Decoupled(new wdata))
+        val bresp  = Decoupled(new bresp)
     })
 
-    val state = RegInit(s_wait_valid)
-    val LSFR  = RegInit(4.U(32.W))
+    val state_r, state_w = RegInit(s_wait_addr)
+    val LSFRr = RegInit(LSFR_delay)
+    val LSFRw = RegInit(LSFR_delay)
 
-    when(LSFR === 0.U) {
-        LSFR := 4.U
-    }.elsewhen(state === s_busy) {
-        LSFR := LSFR - 1.U
+    when(LSFRr === 0.U) {
+        LSFRr := LSFR_delay
+    }.elsewhen(state_r === s_busy) {
+        LSFRr := LSFRr - 1.U
     }
 
-    state := MuxLookup(state, s_wait_valid)(
+    when(LSFRw === 0.U) {
+        LSFRw := LSFR_delay
+    }.elsewhen(state_r === s_busy) {
+        LSFRw := LSFRr - 1.U
+    }
+
+    state_r := MuxLookup(state_r, s_wait_addr)(
         Seq(
-            s_wait_valid -> Mux(io.araddr.valid, s_busy, s_wait_valid),
-            s_busy       -> Mux(LSFR === 0.U,   s_wait_ready, s_busy),
-            s_wait_ready -> Mux(io.raddr.ready, s_wait_valid, s_wait_ready),
+            s_wait_addr -> Mux(io.araddr.valid, s_busy, s_wait_addr),
+            s_busy       -> Mux(LSFRr === 0.U,  s_wait_resp, s_busy),
+            s_wait_resp -> Mux(io.raddr.ready, s_wait_addr, s_wait_resp),
         )
     )
 
-    io.raddr.valid := state === s_wait_ready
-    io.araddr.ready := state === s_wait_valid
+    state_w := MuxLookup(state_w, s_wait_addr)(
+        Seq(
+            s_wait_addr -> Mux(io.awaddr.valid, s_wait_data, s_wait_addr),
+            s_wait_data -> Mux(io.wdata.valid,  s_busy, s_wait_data),
+            s_busy      -> Mux(LSFRw === 0.U,  s_wait_resp, s_busy),
+            s_wait_resp -> Mux(io.bresp.ready, s_wait_addr, s_wait_resp)
+        )
+    )
 
-    val data_cache = RegInit(0.U(32.W))
+    io.raddr.valid := state_r === s_wait_resp
+    io.araddr.ready := state_r === s_wait_addr
+
+    io.awaddr.ready := state_w === s_wait_addr
+    io.wdata.ready  := state_w === s_wait_data
+    io.bresp.valid  := state_w === s_wait_resp
 
     val bridge = Module(new sram_bridge)
     bridge.io.clock := clock
-    bridge.io.valid := state === s_busy
+    bridge.io.valid := state_r === s_busy
     bridge.io.addr  := io.araddr.bits.addr
     io.raddr.bits.data := bridge.io.data
     io.raddr.bits.resp := "b0".U
+
+    io.bresp.bits.bresp := "b0".U
 }

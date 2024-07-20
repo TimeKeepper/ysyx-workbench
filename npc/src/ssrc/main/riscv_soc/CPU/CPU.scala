@@ -10,6 +10,9 @@ class CPU extends Module {
   val io = IO(new Bundle {
     val AXI_araddr = Decoupled(new araddr)
     val AXI_raddr = Flipped(Decoupled(new raddr))
+    val AXI_awaddr = Decoupled(new awaddr)
+    val AXI_wdata = Decoupled(new wdata)
+    val AXI_bresp  = Flipped(Decoupled(new bresp))
     val Dmem_rdata = Input(UInt(32.W))
     val Dmem_wraddr = Output(UInt(32.W))
 
@@ -30,6 +33,9 @@ class CPU extends Module {
   // bus IFU AXI
   IFU.io.araddr         <> io.AXI_araddr
   IFU.io.raddr          <> io.AXI_raddr
+  IFU.io.awaddr         <> io.AXI_awaddr
+  IFU.io.wdata          <> io.AXI_wdata
+  IFU.io.bresp          <> io.AXI_bresp
 
   // bus IFU -> GNU
   IFU.io.out.ready     <> GNU.io.in.ready

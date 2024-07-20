@@ -156,3 +156,7 @@ object signal_value {
 object bus_state {
   val s_wait_valid :: s_wait_ready :: s_busy :: s_pipeline :: Nil = Enum(4)
 }
+
+object AXI_state {
+  val s_wait_addr :: s_wait_data :: s_busy :: s_wait_resp :: Nil = Enum(4)
+}

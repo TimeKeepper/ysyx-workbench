@@ -11,6 +11,9 @@ class IFU extends Module {
         val out = Decoupled(new IFU_Output)
         val araddr = Decoupled(new araddr)
         val raddr = Flipped(Decoupled(new raddr))
+        val awaddr = Decoupled(new awaddr)
+        val wdata = Decoupled(new wdata)
+        val bresp  = Flipped(Decoupled(new bresp))
     })
 
     io.in.ready <> io.araddr.ready
@@ -20,6 +23,12 @@ class IFU extends Module {
     io.out.ready <> io.raddr.ready
     io.out.valid <> io.raddr.valid
     io.out.bits.data <> io.raddr.bits.data
+
+    io.awaddr.valid := false.B
+    io.awaddr.bits.addr := 0.U
+    io.wdata.valid := false.B
+    io.wdata.bits.data := 0.U
+    io.bresp.ready := false.B
 }
 
 class Dcache_input extends Bundle{

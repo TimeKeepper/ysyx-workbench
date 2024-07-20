@@ -22,10 +22,18 @@ class SRAM extends Module {
     })
 
     val state = RegInit(s_wait_valid)
+    val LSFR  = RegInit(4.U(32.W))
+
+    when(LSFR === 0.U) {
+        LSFR := 4.U
+    }.elsewhen(state === s_busy) {
+        LSFR := LSFR - 1.U
+    }
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.araddr.valid, s_wait_ready, s_wait_valid),
+            s_wait_valid -> Mux(io.araddr.valid, s_busy, s_wait_valid),
+            s_busy       -> Mux(LSFR === 0.U,   s_wait_ready, s_busy),
             s_wait_ready -> Mux(io.raddr.ready, s_wait_valid, s_wait_ready),
         )
     )
@@ -33,9 +41,11 @@ class SRAM extends Module {
     io.raddr.valid := state === s_wait_ready
     io.araddr.ready := state === s_wait_valid
 
+    val data_cache = RegInit(0.U(32.W))
+
     val bridge = Module(new sram_bridge)
     bridge.io.clock := clock
-    bridge.io.valid := io.raddr.ready && state === s_wait_ready
+    bridge.io.valid := state === s_busy
     bridge.io.addr  := io.araddr.bits.addr
     io.raddr.bits.data := bridge.io.data
     io.raddr.bits.resp := "b0".U

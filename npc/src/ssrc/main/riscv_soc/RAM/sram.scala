@@ -1,7 +1,6 @@
 package ram
 
 import riscv_cpu._
-import AXI_state._
 
 import chisel3._
 import chisel3.util._
@@ -27,6 +26,8 @@ class SRAM(val LSFR_delay : UInt) extends Module {
         val wdata  = Flipped(Decoupled(new wdata))
         val bresp  = Decoupled(new bresp)
     })
+
+    val s_wait_addr :: s_wait_data :: s_busy :: s_wait_resp :: Nil = Enum(4)
 
     val state_r, state_w = RegInit(s_wait_addr)
     val LSFRr = RegInit(LSFR_delay)

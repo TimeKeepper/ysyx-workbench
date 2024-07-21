@@ -23,7 +23,6 @@ class CPU extends Module {
   val IFU             = Module(new IFU)
   val GNU             = Module(new GNU)
   val EXU             = Module(new EXU)
-  val LSU             = Module(new LSU)
   val WBU             = Module(new WBU)
   val REG             = Module(new REG) 
   val AXI_Interconnect = Module(new AXI_Interconnect)
@@ -49,22 +48,17 @@ class CPU extends Module {
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
   REG.io.out.csr_rdata      <> EXU.io.in.bits.CSR   
  
-  // bus EXU -> LSU
-  EXU.io.out.valid          <> LSU.io.in.valid
-  EXU.io.out.ready          <> LSU.io.in.ready
-  EXU.io.out.bits.EXU_io    <> LSU.io.in.bits.EXU_io    
+  // bus EXU -> Dmem and Dmem -> LSU without delay
+  io.Dmem_rdata                <> EXU.io.in.bits.Mem_rdata
+  EXU.io.out.bits.Mem_wraddr   <> io.Dmem_wraddr
+  EXU.io.out.bits.Mem_wdata    <> io.Dmem_wdata
+  EXU.io.out.bits.MemOp        <> io.Dmem_wop
+  EXU.io.out.bits.MemWr        <> io.Dmem_wen
 
-  // bus LSU -> Dmem and Dmem -> LSU without delay
-  io.Dmem_rdata                <> LSU.io.in.bits.Mem_rdata
-  LSU.io.out.bits.Mem_wraddr   <> io.Dmem_wraddr
-  LSU.io.out.bits.Mem_wdata    <> io.Dmem_wdata
-  LSU.io.out.bits.MemOp        <> io.Dmem_wop
-  LSU.io.out.bits.MemWr        <> io.Dmem_wen
-
-  // bus LSU -> WBU
-  LSU.io.out.valid          <> WBU.io.in.valid
-  LSU.io.out.ready          <> WBU.io.in.ready
-  LSU.io.out.bits.LSU_io    <> WBU.io.in.bits.LSU_io    
+  // bus EXU -> WBU
+  EXU.io.out.valid          <> WBU.io.in.valid
+  EXU.io.out.ready          <> WBU.io.in.ready
+  EXU.io.out.bits.EXU_io    <> WBU.io.in.bits.EXU_io    
 
   // bus WBU -> REG -> WBU with delay
   WBU.io.out.bits.WBU_io <> REG.io.in.WBU_io

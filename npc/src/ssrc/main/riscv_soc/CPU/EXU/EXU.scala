@@ -13,6 +13,8 @@ class EXU extends Module {
         // From CSR
         val in = Flipped(Decoupled(new Bundle{
             val GNU_io    = new GNU_Output
+            
+            val Mem_rdata = Input(UInt(32.W))
 
             // Form Register File
             val CSR       = Input(UInt(32.W))
@@ -20,6 +22,11 @@ class EXU extends Module {
 
         val out = Decoupled(new Bundle{
             val EXU_io    = new EXU_output
+
+            val Mem_wraddr = Output(UInt(32.W))
+            val Mem_wdata  = Output(UInt(32.W))
+            val MemOp      = Output(MemOp_Type)
+            val MemWr      = Output(Bool())
         })
     })
 
@@ -38,31 +45,28 @@ class EXU extends Module {
     val RegWr_cache       = RegInit(false.B)
     val Branch_cache      = RegInit(Bran_NJmp)
     val MemtoReg_cache    = RegInit(false.B)
-    val MemWr_cache       = RegInit(false.B)
-    val MemOp_cache       = RegInit(MemOp_1BS)
     val csr_ctr_cache     = RegInit(CSR_N)
     val Imm_cache         = RegInit(0.U(32.W))
     val GPR_Adata_cache   = RegInit(0.U(32.W))
-    val GPR_Bdata_cache   = RegInit(0.U(32.W))
     val GPR_waddr_cache   = RegInit(0.U(5.W))
     val PC_cache          = RegInit(0.U(32.W))
-    val CSR_cache         = RegInit(0.U(32.W))
     val Result_cache      = RegInit(0.U(32.W))
     val Zero_cache        = RegInit(false.B)
     val Less_cache        = RegInit(false.B)
+    
+    val CSR_cache         = RegInit(0.U(32.W))
+    val Mem_rdata_cache   = RegInit(0.U(32.W))  
 
     val alu = Module(new ALU)
+    val lsu = Module(new LSU)
 
     when(io.in.valid && io.in.ready){
         RegWr_cache       := io.in.bits.GNU_io.RegWr
         Branch_cache      := io.in.bits.GNU_io.Branch
         MemtoReg_cache    := io.in.bits.GNU_io.MemtoReg
-        MemWr_cache       := io.in.bits.GNU_io.MemWr
-        MemOp_cache       := io.in.bits.GNU_io.MemOp
         csr_ctr_cache     := io.in.bits.GNU_io.csr_ctr
         Imm_cache         := io.in.bits.GNU_io.Imm
         GPR_Adata_cache   := io.in.bits.GNU_io.GPR_Adata
-        GPR_Bdata_cache   := io.in.bits.GNU_io.GPR_Bdata
         GPR_waddr_cache   := io.in.bits.GNU_io.GPR_waddr
         PC_cache          := io.in.bits.GNU_io.PC
         Result_cache      := alu.io.ALUout 
@@ -70,17 +74,15 @@ class EXU extends Module {
         Less_cache        := alu.io.Less  
 
         CSR_cache         := io.in.bits.CSR
+        Mem_rdata_cache   := io.in.bits.Mem_rdata   
     }
 
     io.out.bits.EXU_io.RegWr        <> RegWr_cache    
     io.out.bits.EXU_io.Branch       <> Branch_cache   
     io.out.bits.EXU_io.MemtoReg     <> MemtoReg_cache 
-    io.out.bits.EXU_io.MemWr        <> MemWr_cache    
-    io.out.bits.EXU_io.MemOp        <> MemOp_cache    
     io.out.bits.EXU_io.csr_ctr      <> csr_ctr_cache  
     io.out.bits.EXU_io.Imm          <> Imm_cache      
     io.out.bits.EXU_io.GPR_Adata    <> GPR_Adata_cache
-    io.out.bits.EXU_io.GPR_Bdata    <> GPR_Bdata_cache
     io.out.bits.EXU_io.GPR_waddr    <> GPR_waddr_cache
     io.out.bits.EXU_io.PC           <> PC_cache       
     io.out.bits.EXU_io.CSR          <> CSR_cache      
@@ -102,4 +104,13 @@ class EXU extends Module {
         ALUBSrc_IMM -> io.in.bits.GNU_io.Imm,
         ALUBSrc_4   -> 4.U,
     ))
+
+    lsu.io.GPR_Adata  := io.in.bits.GNU_io.GPR_Adata
+    lsu.io.GPR_Bdata  := io.in.bits.GNU_io.GPR_Bdata
+    lsu.io.IMM        := io.in.bits.GNU_io.Imm
+    io.out.bits.Mem_wraddr  := lsu.io.Mem_wraddr
+    io.out.bits.Mem_wdata   := lsu.io.Mem_wdata
+    io.out.bits.MemOp       := io.in.bits.GNU_io.MemOp
+    io.out.bits.MemWr       := io.in.bits.GNU_io.MemWr & (state === s_wait_ready)
+    io.out.bits.EXU_io.Mem_rdata  := Mem_rdata_cache
 }

@@ -30,18 +30,6 @@ class EXU extends Module {
         })
     })
 
-    val state = RegInit(s_wait_valid)
-
-    state := MuxLookup(state, s_wait_valid)(
-        Seq(
-            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
-        )
-    )
-
-    io.out.valid := state === s_wait_ready
-    io.in.ready  := state === s_wait_valid
-
     val RegWr_cache       = RegInit(false.B)
     val Branch_cache      = RegInit(Bran_NJmp)
     val MemtoReg_cache    = RegInit(false.B)
@@ -58,7 +46,27 @@ class EXU extends Module {
     val Mem_rdata_cache   = RegInit(0.U(32.W))  
 
     val alu = Module(new ALU)
+    alu.io.in.valid := true.B
+    alu.io.out.ready := true.B
     val lsu = Module(new LSU)
+    lsu.io.in.valid := true.B
+    lsu.io.out.ready := true.B
+
+    when(io.in.bits.GNU_io.MemWr || io.in.bits.GNU_io.MemtoReg){
+        alu.io.in.valid := false.B
+        io.in.ready <> lsu.io.in.ready
+        io.in.valid <> lsu.io.in.valid
+        io.out.ready <> lsu.io.out.ready
+        io.out.valid <> lsu.io.out.valid
+        io.out.bits.EXU_io <> lsu.io.out.bits.EXU_io
+    }.otherwise{
+        lsu.io.in.valid := false.B
+        io.in.ready <> alu.io.in.ready
+        io.in.valid <> alu.io.in.valid
+        io.out.ready <> alu.io.out.ready
+        io.out.valid <> alu.io.out.valid
+        io.out.bits.EXU_io <> alu.io.out.bits.EXU_io
+    }
 
     when(io.in.valid && io.in.ready){
         RegWr_cache       := io.in.bits.GNU_io.RegWr
@@ -69,48 +77,21 @@ class EXU extends Module {
         GPR_Adata_cache   := io.in.bits.GNU_io.GPR_Adata
         GPR_waddr_cache   := io.in.bits.GNU_io.GPR_waddr
         PC_cache          := io.in.bits.GNU_io.PC
-        Result_cache      := alu.io.ALUout 
-        Zero_cache        := alu.io.Zero   
-        Less_cache        := alu.io.Less  
+        Result_cache      := alu.io.out.bits.EXU_io.Result 
+        Zero_cache        := alu.io.out.bits.EXU_io.Zero   
+        Less_cache        := alu.io.out.bits.EXU_io.Less  
 
         CSR_cache         := io.in.bits.CSR
         Mem_rdata_cache   := io.in.bits.Mem_rdata   
     }
 
-    io.out.bits.EXU_io.RegWr        <> RegWr_cache    
-    io.out.bits.EXU_io.Branch       <> Branch_cache   
-    io.out.bits.EXU_io.MemtoReg     <> MemtoReg_cache 
-    io.out.bits.EXU_io.csr_ctr      <> csr_ctr_cache  
-    io.out.bits.EXU_io.Imm          <> Imm_cache      
-    io.out.bits.EXU_io.GPR_Adata    <> GPR_Adata_cache
-    io.out.bits.EXU_io.GPR_waddr    <> GPR_waddr_cache
-    io.out.bits.EXU_io.PC           <> PC_cache       
-    io.out.bits.EXU_io.CSR          <> CSR_cache      
-    io.out.bits.EXU_io.Result        <> Result_cache 
-    io.out.bits.EXU_io.Zero          <> Zero_cache   
-    io.out.bits.EXU_io.Less          <> Less_cache   
+    alu.io.in.bits.GNU_io := io.in.bits.GNU_io
+    alu.io.in.bits.CSR    := io.in.bits.CSR
 
-    alu.io.ALUctr <> io.in.bits.GNU_io.ALUctr
-
-    alu.io.src_A := MuxLookup(io.in.bits.GNU_io.ALUAsrc, 0.U)(Seq(
-        ALUAsrc_RS1 -> io.in.bits.GNU_io.GPR_Adata,
-        ALUAsrc_PC  -> io.in.bits.GNU_io.PC,
-        ALUAsrc_CSR -> io.in.bits.CSR,
-    ))
-
-    alu.io.src_B := MuxLookup(io.in.bits.GNU_io.ALUBsrc, 0.U)(Seq(
-        ALUBSrc_RS1 -> io.in.bits.GNU_io.GPR_Adata,
-        ALUBSrc_RS2 -> io.in.bits.GNU_io.GPR_Bdata,
-        ALUBSrc_IMM -> io.in.bits.GNU_io.Imm,
-        ALUBSrc_4   -> 4.U,
-    ))
-
-    lsu.io.GPR_Adata  := io.in.bits.GNU_io.GPR_Adata
-    lsu.io.GPR_Bdata  := io.in.bits.GNU_io.GPR_Bdata
-    lsu.io.IMM        := io.in.bits.GNU_io.Imm
-    io.out.bits.Mem_wraddr  := lsu.io.Mem_wraddr
-    io.out.bits.Mem_wdata   := lsu.io.Mem_wdata
-    io.out.bits.MemOp       := io.in.bits.GNU_io.MemOp
-    io.out.bits.MemWr       := io.in.bits.GNU_io.MemWr & (state === s_wait_ready)
-    io.out.bits.EXU_io.Mem_rdata  := Mem_rdata_cache
+    lsu.io.in.bits.GNU_io := io.in.bits.GNU_io
+    lsu.io.in.bits.Mem_rdata := io.in.bits.Mem_rdata
+    io.out.bits.Mem_wraddr  := lsu.io.out.bits.Mem_wraddr
+    io.out.bits.Mem_wdata   := lsu.io.out.bits.Mem_wdata
+    io.out.bits.MemOp       := lsu.io.out.bits.MemOp
+    io.out.bits.MemWr       := lsu.io.out.bits.MemWr
 }

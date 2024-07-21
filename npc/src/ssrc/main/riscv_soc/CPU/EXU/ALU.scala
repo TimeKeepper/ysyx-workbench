@@ -5,6 +5,7 @@ import chisel3.util._
 import chisel3.util.MuxLookup
 
 import signal_value._
+import bus_state._
 
 // riscv cpu analogic and logical unit
 
@@ -95,41 +96,72 @@ class ALU_BarrelShifter extends Module {
 
 class ALU extends Module {
   val io = IO(new Bundle {
-    val ALUctr = Input(ALUctr_Type)
-    val src_A  = Input(UInt(32.W))
-    val src_B  = Input(UInt(32.W))
+    val in = Flipped(Decoupled(new Bundle{
+      val GNU_io    = Input(new GNU_Output)
 
-    val ALUout = Output(UInt(32.W))
-    val Zero   = Output(Bool())
-    val Less   = Output(Bool())
+      // Form Register File
+      val CSR       = Input(UInt(32.W))
+    }))
+
+    val out = Decoupled(new Bundle{
+      val EXU_io    = new EXU_output
+    })
   })
+
+  val state = RegInit(s_wait_valid)
+
+  state := MuxLookup(state, s_wait_valid)(
+      Seq(
+          s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+          s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
+      )
+  )
+
+  io.out.valid := state === s_wait_ready
+  io.in.ready  := state === s_wait_valid
+
+  val RegWr_cache       = RegInit(false.B)
+  val Branch_cache      = RegInit(Bran_NJmp)
+  val MemtoReg_cache    = RegInit(false.B)
+  val csr_ctr_cache     = RegInit(CSR_N)
+  val Imm_cache         = RegInit(0.U(32.W))
+  val GPR_Adata_cache   = RegInit(0.U(32.W))
+  val GPR_waddr_cache   = RegInit(0.U(5.W))
+  val PC_cache          = RegInit(0.U(32.W))
+  val Result_cache      = RegInit(0.U(32.W))
+  val Zero_cache        = RegInit(false.B)
+  val Less_cache        = RegInit(false.B)
+  
+  val CSR_cache         = RegInit(0.U(32.W))
 
   // ALU operation
   val alu_ctrl = Module(new ALU_Ctrl)
-  alu_ctrl.io.ALUctr := io.ALUctr
-
-  val A_L     = Wire(Bool())
-  val L_R     = Wire(Bool())
-  val U_S     = Wire(Bool())
-  val Sub_Add = Wire(Bool())
-  A_L     := alu_ctrl.io.A_L
-  L_R     := alu_ctrl.io.L_R
-  U_S     := alu_ctrl.io.U_S
-  Sub_Add := alu_ctrl.io.Sub_Add
+  alu_ctrl.io.ALUctr := io.in.bits.GNU_io.ALUctr
 
   // ALU Adder
   val Sub_Add_ex = Wire(SInt(32.W))
-  val A1         = Wire(UInt(32.W))
-  val B1         = Wire(UInt(32.W))
+  val src_A      = Wire(UInt(32.W))
+  val src_B      = Wire(UInt(32.W))
 
-  Sub_Add_ex := Sub_Add.asSInt
-  A1         := io.src_A
-  B1         := io.src_B ^ Sub_Add_ex.asUInt
+  src_A := MuxLookup(io.in.bits.GNU_io.ALUAsrc, 0.U)(Seq(
+      ALUAsrc_RS1 -> io.in.bits.GNU_io.GPR_Adata,
+      ALUAsrc_PC  -> io.in.bits.GNU_io.PC,
+      ALUAsrc_CSR -> io.in.bits.CSR,
+  ))
+
+  src_B := MuxLookup(io.in.bits.GNU_io.ALUBsrc, 0.U)(Seq(
+      ALUBSrc_RS1 -> io.in.bits.GNU_io.GPR_Adata,
+      ALUBSrc_RS2 -> io.in.bits.GNU_io.GPR_Bdata,
+      ALUBSrc_IMM -> io.in.bits.GNU_io.Imm,
+      ALUBSrc_4   -> 4.U,
+  ))
+
+  Sub_Add_ex := alu_ctrl.io.Sub_Add.asSInt
 
   val alu_adder = Module(new ALU_Adder)
-  alu_adder.io.A   := A1
-  alu_adder.io.B   := B1
-  alu_adder.io.Cin := Sub_Add
+  alu_adder.io.A   := src_A
+  alu_adder.io.B   := src_B ^ Sub_Add_ex.asUInt
+  alu_adder.io.Cin := alu_ctrl.io.Sub_Add
 
   val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
@@ -140,44 +172,41 @@ class ALU extends Module {
   Overflow := alu_adder.io.Overflow
   Zero     := alu_adder.io.Zero
 
-  io.Zero := Zero
-
   // ALU BarrelShifter
   val alu_barrel_shifter = Module(new ALU_BarrelShifter)
-  alu_barrel_shifter.io.Din   := io.src_A
-  alu_barrel_shifter.io.shamt := io.src_B(4, 0)
-  alu_barrel_shifter.io.L_R   := L_R
-  alu_barrel_shifter.io.A_L   := A_L
+  alu_barrel_shifter.io.Din   := src_A
+  alu_barrel_shifter.io.shamt := src_B(4, 0)
+  alu_barrel_shifter.io.L_R   := alu_ctrl.io.L_R
+  alu_barrel_shifter.io.A_L   := alu_ctrl.io.A_L
 
   val shift = Wire(UInt(32.W))
   shift := alu_barrel_shifter.io.Dout
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(U_S) {
-    Less := Sub_Add ^ Carry
-  }.elsewhen(io.src_B === "h80000000".U && Sub_Add) {
+  when(alu_ctrl.io.U_S) {
+    Less := alu_ctrl.io.Sub_Add ^ Carry
+  }.elsewhen(src_B === "h80000000".U && alu_ctrl.io.Sub_Add) {
     // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
     Less := N
   }.otherwise {
     Less := adder(31) ^ Overflow
   }
-  io.Less := Less
 
   val slt = Cat(0.U(31.W), Less)
 
-  val B = io.src_B
-  val A = io.src_A
+  val B = src_B
+  val A = src_A
 
   val XOR = Wire(UInt(32.W))
   val OR  = Wire(UInt(32.W))
   val AND = Wire(UInt(32.W))
 
-  XOR := io.src_A ^ io.src_B
-  OR  := io.src_A | io.src_B
-  AND := io.src_A & io.src_B
+  XOR := src_A ^ src_B
+  OR  := src_A | src_B
+  AND := src_A & src_B
 
-  val Result = MuxLookup(io.ALUctr, 0.U)(
+  val Result = MuxLookup(io.in.bits.GNU_io.ALUctr, 0.U)(
     Seq(
       ALUctr_ADD -> adder,
       ALUctr_SUB -> adder,
@@ -194,5 +223,33 @@ class ALU extends Module {
     )
   )
 
-  io.ALUout <> Result
+  when(io.in.valid && io.in.ready){
+    RegWr_cache       := io.in.bits.GNU_io.RegWr
+    Branch_cache      := io.in.bits.GNU_io.Branch
+    MemtoReg_cache    := io.in.bits.GNU_io.MemtoReg
+    csr_ctr_cache     := io.in.bits.GNU_io.csr_ctr
+    Imm_cache         := io.in.bits.GNU_io.Imm
+    GPR_Adata_cache   := io.in.bits.GNU_io.GPR_Adata
+    GPR_waddr_cache   := io.in.bits.GNU_io.GPR_waddr
+    PC_cache          := io.in.bits.GNU_io.PC
+    Result_cache      := Result
+    Zero_cache        := alu_adder.io.Zero  
+    Less_cache        := Less
+
+    CSR_cache         := io.in.bits.CSR
+  }
+
+  io.out.bits.EXU_io.RegWr        <> RegWr_cache    
+  io.out.bits.EXU_io.Branch       <> Branch_cache   
+  io.out.bits.EXU_io.MemtoReg     <> MemtoReg_cache 
+  io.out.bits.EXU_io.csr_ctr      <> csr_ctr_cache  
+  io.out.bits.EXU_io.Imm          <> Imm_cache      
+  io.out.bits.EXU_io.GPR_Adata    <> GPR_Adata_cache
+  io.out.bits.EXU_io.GPR_waddr    <> GPR_waddr_cache
+  io.out.bits.EXU_io.PC           <> PC_cache       
+  io.out.bits.EXU_io.CSR          <> CSR_cache      
+  io.out.bits.EXU_io.Result        <> Result_cache 
+  io.out.bits.EXU_io.Zero          <> Zero_cache   
+  io.out.bits.EXU_io.Less          <> Less_cache
+  io.out.bits.EXU_io.Mem_rdata    <> 0.U // not used in ALU
 }

@@ -58,14 +58,12 @@ class EXU extends Module {
         io.in.valid <> lsu.io.in.valid
         io.out.ready <> lsu.io.out.ready
         io.out.valid <> lsu.io.out.valid
-        io.out.bits.EXU_io <> lsu.io.out.bits.EXU_io
     }.otherwise{
         lsu.io.in.valid := false.B
         io.in.ready <> alu.io.in.ready
         io.in.valid <> alu.io.in.valid
         io.out.ready <> alu.io.out.ready
         io.out.valid <> alu.io.out.valid
-        io.out.bits.EXU_io <> alu.io.out.bits.EXU_io
     }
 
     when(io.in.valid && io.in.ready){
@@ -76,13 +74,9 @@ class EXU extends Module {
         Imm_cache         := io.in.bits.GNU_io.Imm
         GPR_Adata_cache   := io.in.bits.GNU_io.GPR_Adata
         GPR_waddr_cache   := io.in.bits.GNU_io.GPR_waddr
-        PC_cache          := io.in.bits.GNU_io.PC
-        Result_cache      := alu.io.out.bits.EXU_io.Result 
-        Zero_cache        := alu.io.out.bits.EXU_io.Zero   
-        Less_cache        := alu.io.out.bits.EXU_io.Less  
+        PC_cache          := io.in.bits.GNU_io.PC 
 
         CSR_cache         := io.in.bits.CSR
-        Mem_rdata_cache   := io.in.bits.Mem_rdata   
     }
 
     alu.io.in.bits.GNU_io := io.in.bits.GNU_io
@@ -94,4 +88,20 @@ class EXU extends Module {
     io.out.bits.Mem_wdata   := lsu.io.out.bits.Mem_wdata
     io.out.bits.MemOp       := lsu.io.out.bits.MemOp
     io.out.bits.MemWr       := lsu.io.out.bits.MemWr
+
+    io.out.bits.EXU_io.RegWr        <> RegWr_cache    
+    io.out.bits.EXU_io.Branch       <> Branch_cache   
+    io.out.bits.EXU_io.MemtoReg     <> MemtoReg_cache 
+    io.out.bits.EXU_io.csr_ctr      <> csr_ctr_cache  
+    io.out.bits.EXU_io.Imm          <> Imm_cache      
+    io.out.bits.EXU_io.GPR_Adata    <> GPR_Adata_cache
+    io.out.bits.EXU_io.GPR_waddr    <> GPR_waddr_cache
+    io.out.bits.EXU_io.PC           <> PC_cache   
+    io.out.bits.EXU_io.CSR          <> CSR_cache    
+
+    io.out.bits.EXU_io.Result       <> alu.io.out.bits.Result
+    io.out.bits.EXU_io.Zero         <> alu.io.out.bits.Zero
+    io.out.bits.EXU_io.Less         <> alu.io.out.bits.Less
+
+    io.out.bits.EXU_io.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
 }

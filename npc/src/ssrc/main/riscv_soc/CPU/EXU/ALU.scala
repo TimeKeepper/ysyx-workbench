@@ -104,7 +104,9 @@ class ALU extends Module {
     }))
 
     val out = Decoupled(new Bundle{
-      val EXU_io    = new EXU_output
+      val Result = Output(UInt(32.W)) 
+      val Zero   = Output(Bool())   
+      val Less   = Output(Bool())
     })
   })
 
@@ -119,20 +121,6 @@ class ALU extends Module {
 
   io.out.valid := state === s_wait_ready
   io.in.ready  := state === s_wait_valid
-
-  val RegWr_cache       = RegInit(false.B)
-  val Branch_cache      = RegInit(Bran_NJmp)
-  val MemtoReg_cache    = RegInit(false.B)
-  val csr_ctr_cache     = RegInit(CSR_N)
-  val Imm_cache         = RegInit(0.U(32.W))
-  val GPR_Adata_cache   = RegInit(0.U(32.W))
-  val GPR_waddr_cache   = RegInit(0.U(5.W))
-  val PC_cache          = RegInit(0.U(32.W))
-  val Result_cache      = RegInit(0.U(32.W))
-  val Zero_cache        = RegInit(false.B)
-  val Less_cache        = RegInit(false.B)
-  
-  val CSR_cache         = RegInit(0.U(32.W))
 
   // ALU operation
   val alu_ctrl = Module(new ALU_Ctrl)
@@ -222,34 +210,18 @@ class ALU extends Module {
       ALUctr_AND -> AND
     )
   )
+  
+  val Result_cache      = RegInit(0.U(32.W))
+  val Zero_cache        = RegInit(false.B)
+  val Less_cache        = RegInit(false.B)
 
   when(io.in.valid && io.in.ready){
-    RegWr_cache       := io.in.bits.GNU_io.RegWr
-    Branch_cache      := io.in.bits.GNU_io.Branch
-    MemtoReg_cache    := io.in.bits.GNU_io.MemtoReg
-    csr_ctr_cache     := io.in.bits.GNU_io.csr_ctr
-    Imm_cache         := io.in.bits.GNU_io.Imm
-    GPR_Adata_cache   := io.in.bits.GNU_io.GPR_Adata
-    GPR_waddr_cache   := io.in.bits.GNU_io.GPR_waddr
-    PC_cache          := io.in.bits.GNU_io.PC
     Result_cache      := Result
     Zero_cache        := alu_adder.io.Zero  
     Less_cache        := Less
-
-    CSR_cache         := io.in.bits.CSR
   }
 
-  io.out.bits.EXU_io.RegWr        <> RegWr_cache    
-  io.out.bits.EXU_io.Branch       <> Branch_cache   
-  io.out.bits.EXU_io.MemtoReg     <> MemtoReg_cache 
-  io.out.bits.EXU_io.csr_ctr      <> csr_ctr_cache  
-  io.out.bits.EXU_io.Imm          <> Imm_cache      
-  io.out.bits.EXU_io.GPR_Adata    <> GPR_Adata_cache
-  io.out.bits.EXU_io.GPR_waddr    <> GPR_waddr_cache
-  io.out.bits.EXU_io.PC           <> PC_cache       
-  io.out.bits.EXU_io.CSR          <> CSR_cache      
-  io.out.bits.EXU_io.Result        <> Result_cache 
-  io.out.bits.EXU_io.Zero          <> Zero_cache   
-  io.out.bits.EXU_io.Less          <> Less_cache
-  io.out.bits.EXU_io.Mem_rdata    <> 0.U // not used in ALU
+  io.out.bits.Result        <> Result_cache 
+  io.out.bits.Zero          <> Zero_cache   
+  io.out.bits.Less          <> Less_cache
 }

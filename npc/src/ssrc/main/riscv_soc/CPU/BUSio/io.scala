@@ -64,7 +64,7 @@ class araddr extends Bundle{
     val addr = Output(UInt(32.W))
 }
 
-class raddr extends Bundle{
+class rdata extends Bundle{
     val data = Input(UInt(32.W))
     val resp = Input(Bool())
 }
@@ -84,7 +84,7 @@ class bresp extends Bundle{
 
 class AXI_Master extends Bundle{
     val araddr = Decoupled(new araddr)
-    val raddr = Flipped(Decoupled(new raddr))
+    val rdata = Flipped(Decoupled(new rdata))
     val awaddr = Decoupled(new awaddr)
     val wdata = Decoupled(new wdata)
     val bresp  = Flipped(Decoupled(new bresp))
@@ -92,7 +92,7 @@ class AXI_Master extends Bundle{
 
 class AXI_Slave extends Bundle{
     val araddr = Flipped(Decoupled(new araddr))
-    val raddr = Decoupled(new raddr)
+    val rdata = Decoupled(new rdata)
     val awaddr = Flipped(Decoupled(new awaddr))
     val wdata = Flipped(Decoupled(new wdata))
     val bresp  = Decoupled(new bresp)

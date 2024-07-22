@@ -5,11 +5,7 @@ import chisel3.util._
  
 class CPU extends Module {
   val io = IO(new Bundle {
-    val AXI_araddr = Decoupled(new araddr)
-    val AXI_raddr = Flipped(Decoupled(new raddr))
-    val AXI_awaddr = Decoupled(new awaddr)
-    val AXI_wdata = Decoupled(new wdata)
-    val AXI_bresp  = Flipped(Decoupled(new bresp))
+    val AXI = new AXI_Master
 
     val inst_comp  = Output(Bool())
   })
@@ -61,11 +57,7 @@ class CPU extends Module {
   AXI_Interconnect.io.ls_resq := IFU.io.out.valid
   AXI_Interconnect.io.if_resq := EXU.io.out.valid
 
-  AXI_Interconnect.io.SRAM.araddr         <> io.AXI_araddr
-  AXI_Interconnect.io.SRAM.raddr          <> io.AXI_raddr
-  AXI_Interconnect.io.SRAM.awaddr         <> io.AXI_awaddr
-  AXI_Interconnect.io.SRAM.wdata          <> io.AXI_wdata
-  AXI_Interconnect.io.SRAM.bresp          <> io.AXI_bresp
+  AXI_Interconnect.io.SRAM         <> io.AXI
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := WBU.io.out.valid

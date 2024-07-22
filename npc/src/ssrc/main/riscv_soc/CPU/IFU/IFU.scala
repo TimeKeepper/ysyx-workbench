@@ -25,9 +25,9 @@ class IFU extends Module {
     io.in.valid <> io.AXI.araddr.valid
     io.in.bits.addr <> io.AXI.araddr.bits.addr
 
-    io.out.ready <> io.AXI.raddr.ready
-    io.out.valid <> io.AXI.raddr.valid
-    io.out.bits.data <> io.AXI.raddr.bits.data
+    io.out.ready <> io.AXI.rdata.ready
+    io.out.valid <> io.AXI.rdata.valid
+    io.out.bits.data <> io.AXI.rdata.bits.data
 
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U

@@ -22,7 +22,7 @@ class LSU extends Module{
     
     when(io.in.bits.GNU_io.MemWr) {
         io.AXI.araddr.valid   := false.B
-        io.AXI.raddr.ready    := false.B
+        io.AXI.rdata.ready    := false.B
         io.AXI.awaddr.ready   <> io.in.ready
         io.AXI.awaddr.valid   <> io.in.valid
         io.AXI.wdata.valid    := true.B
@@ -34,11 +34,11 @@ class LSU extends Module{
         io.AXI.bresp.ready    := false.B
         io.AXI.araddr.ready   <> io.in.ready
         io.AXI.araddr.valid   <> io.in.valid
-        io.AXI.raddr.valid    <> io.out.valid
-        io.AXI.raddr.ready    <> io.out.ready
+        io.AXI.rdata.valid    <> io.out.valid
+        io.AXI.rdata.ready    <> io.out.ready
     }.otherwise {
         io.AXI.araddr.valid   := false.B
-        io.AXI.raddr.ready    := false.B
+        io.AXI.rdata.ready    := false.B
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B
@@ -61,19 +61,19 @@ class LSU extends Module{
     val s_mem_rd = Wire(SInt(32.W))
 
     u_mem_rd := MuxLookup(io.in.bits.GNU_io.MemOp, 0.U)(Seq(
-        MemOp_1BU -> (io.AXI.raddr.bits.data(7,0).asUInt),
-        MemOp_1BS -> (io.AXI.raddr.bits.data(7,0).asUInt),
-        MemOp_2BU -> (io.AXI.raddr.bits.data(15,0).asUInt),
-        MemOp_2BS -> (io.AXI.raddr.bits.data(15,0).asUInt),
-        MemOp_4BU -> (io.AXI.raddr.bits.data(31,0).asUInt),
+        MemOp_1BU -> (io.AXI.rdata.bits.data(7,0).asUInt),
+        MemOp_1BS -> (io.AXI.rdata.bits.data(7,0).asUInt),
+        MemOp_2BU -> (io.AXI.rdata.bits.data(15,0).asUInt),
+        MemOp_2BS -> (io.AXI.rdata.bits.data(15,0).asUInt),
+        MemOp_4BU -> (io.AXI.rdata.bits.data(31,0).asUInt),
     ))
     
     s_mem_rd := MuxLookup(io.in.bits.GNU_io.MemOp, 0.S)(Seq(
-        MemOp_1BU -> (io.AXI.raddr.bits.data(7,0)).asSInt,
-        MemOp_1BS -> (io.AXI.raddr.bits.data(7,0)).asSInt,
-        MemOp_2BU -> (io.AXI.raddr.bits.data(15,0)).asSInt,
-        MemOp_2BS -> (io.AXI.raddr.bits.data(15,0)).asSInt,
-        MemOp_4BU -> (io.AXI.raddr.bits.data(31,0)).asSInt,
+        MemOp_1BU -> (io.AXI.rdata.bits.data(7,0)).asSInt,
+        MemOp_1BS -> (io.AXI.rdata.bits.data(7,0)).asSInt,
+        MemOp_2BU -> (io.AXI.rdata.bits.data(15,0)).asSInt,
+        MemOp_2BS -> (io.AXI.rdata.bits.data(15,0)).asSInt,
+        MemOp_4BU -> (io.AXI.rdata.bits.data(31,0)).asSInt,
     ))
 
     when(io.in.bits.GNU_io.MemOp === MemOp_1BU || io.in.bits.GNU_io.MemOp === MemOp_2BU || io.in.bits.GNU_io.MemOp === MemOp_4BU){

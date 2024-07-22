@@ -25,8 +25,8 @@ class AXI_Interconnect extends Module {
 
     when(state === s_if){
         io.IFU <> io.SRAM
-        io.LSU.raddr.valid := false.B
-        io.LSU.raddr.bits := DontCare
+        io.LSU.rdata.valid := false.B
+        io.LSU.rdata.bits := DontCare
         io.LSU.araddr.ready := false.B
         io.LSU.awaddr.ready := false.B
         io.LSU.wdata.ready := false.B
@@ -34,8 +34,8 @@ class AXI_Interconnect extends Module {
         io.LSU.bresp.bits := DontCare
     }.otherwise{
         io.LSU <> io.SRAM
-        io.IFU.raddr.valid := false.B
-        io.IFU.raddr.bits := DontCare
+        io.IFU.rdata.valid := false.B
+        io.IFU.rdata.bits := DontCare
         io.IFU.araddr.ready := false.B
         io.IFU.awaddr.ready := false.B
         io.IFU.wdata.ready := false.B

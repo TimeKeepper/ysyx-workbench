@@ -26,17 +26,17 @@ class SRAM(val LSFR_delay : UInt) extends Module {
     val s_wait_addr :: s_wait_data :: s_busy :: s_wait_resp :: Nil = Enum(4)
 
     val state_r, state_w = RegInit(s_wait_addr)
-    val LSFRr = RegInit(LSFR_delay)
-    val LSFRw = RegInit(LSFR_delay)
+    val LSFRr = RegInit(LSFR_delay - 1.U)
+    val LSFRw = RegInit(LSFR_delay - 1.U)
 
     when(LSFRr === 0.U) {
-        LSFRr := LSFR_delay
+        LSFRr := LSFR_delay - 1.U
     }.elsewhen(state_r === s_busy) {
         LSFRr := LSFRr - 1.U
     }
 
     when(LSFRw === 0.U) {
-        LSFRw := LSFR_delay
+        LSFRw := LSFR_delay - 1.U
     }.elsewhen(state_w === s_busy) {
         LSFRw := LSFRw - 1.U
     }

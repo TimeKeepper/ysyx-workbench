@@ -85,16 +85,53 @@ class REG extends Module {
   }
   io.out.pc := pc
 
-  // 暂时先实现128个
-  val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
-  io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
+  // CSR
+  def ADDR_MSTATUS = "h300".U
+  def ADDR_MTEVC   = "h305".U
+  def ADDR_MSCRATCH= "h340".U
+  def ADDR_MEPC    = "h341".U
+  def ADDR_MCAUSE  = "h342".U
+
+  val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
+  io.out.csr_rdata := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
+    ADDR_MSTATUS   -> mstatus,
+    ADDR_MTEVC     -> mtevc,
+    ADDR_MSCRATCH  -> mscratch,
+    ADDR_MEPC      -> mepc,
+    ADDR_MCAUSE    -> mcause,
+  ))
+
+  // val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
+  // io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
   when(csra_wen) {
-    csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
+    when(io.in.WBU_io.CSR_waddra === ADDR_MSTATUS){
+      mstatus := io.in.WBU_io.CSR_wdataa
+    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MTEVC){
+      mtevc := io.in.WBU_io.CSR_wdataa
+    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MSCRATCH){
+      mscratch := io.in.WBU_io.CSR_wdataa
+    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MEPC){
+      mepc := io.in.WBU_io.CSR_wdataa
+    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MCAUSE){
+      mcause := io.in.WBU_io.CSR_wdataa
+    }
+    // csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
   }
 
   when(csrb_wen) {
-    csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
+    when(io.in.WBU_io.CSR_waddrb === ADDR_MSTATUS){
+      mstatus := io.in.WBU_io.CSR_wdatab
+    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MTEVC){
+      mtevc := io.in.WBU_io.CSR_wdatab
+    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MSCRATCH){
+      mscratch := io.in.WBU_io.CSR_wdatab
+    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MEPC){
+      mepc := io.in.WBU_io.CSR_wdatab
+    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MCAUSE){
+      mcause := io.in.WBU_io.CSR_wdatab
+    }
+    // csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
   }
   
   // 只是为了仿真环境，可以去除

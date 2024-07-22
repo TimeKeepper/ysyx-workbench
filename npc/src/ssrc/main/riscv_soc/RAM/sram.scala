@@ -26,7 +26,7 @@ class SRAM(val LSFR_delay : UInt) extends Module {
     val s_idle :: s_wait_addr :: s_wait_data :: s_busy :: s_wait_resp :: Nil = Enum(5)
 
     val state_r = RegInit(s_wait_addr)
-    val state_w = RegInit(s_wait_data)
+    val state_w = RegInit(s_idle)
     val LSFRr = RegInit(LSFR_delay - 1.U)
     val LSFRw = RegInit(LSFR_delay - 1.U)
 
@@ -52,11 +52,11 @@ class SRAM(val LSFR_delay : UInt) extends Module {
 
     state_w := MuxLookup(state_w, s_wait_addr)(
         Seq(
-            // s_idle      -> Mux(io.AXI.awaddr.valid && io.AXI.wdata.valid, s_busy, s_idle),
-            s_wait_data -> Mux(io.AXI.wdata.valid,  s_wait_addr, s_wait_data),
+            s_idle      -> Mux(io.AXI.awaddr.valid && io.AXI.wdata.valid, s_busy, s_idle),
             s_wait_addr -> Mux(io.AXI.awaddr.valid, s_busy, s_wait_addr),
+            s_wait_data -> Mux(io.AXI.wdata.valid,  s_busy, s_wait_data),
             s_busy      -> Mux(LSFRw === 0.U,  s_wait_resp, s_busy),
-            s_wait_resp -> Mux(io.AXI.bresp.ready, s_wait_data, s_wait_resp)
+            s_wait_resp -> Mux(io.AXI.bresp.ready, s_idle, s_wait_resp)
         )
     )
 

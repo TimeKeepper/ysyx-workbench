@@ -10,12 +10,6 @@ class CPU extends Module {
     val AXI_awaddr = Decoupled(new awaddr)
     val AXI_wdata = Decoupled(new wdata)
     val AXI_bresp  = Flipped(Decoupled(new bresp))
-    val Dmem_rdata = Input(UInt(32.W))
-    val Dmem_wraddr = Output(UInt(32.W))
-
-    val Dmem_wdata = Output(UInt(32.W))
-    val Dmem_wop   = Output(UInt(3.W))
-    val Dmem_wen   = Output(Bool())
 
     val inst_comp  = Output(Bool())
   })
@@ -47,13 +41,6 @@ class CPU extends Module {
   // bus GNU -> REG -> EXU without delay
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
   REG.io.out.csr_rdata      <> EXU.io.in.bits.CSR   
- 
-  // bus EXU -> Dmem and Dmem -> LSU without delay
-  io.Dmem_rdata                <> EXU.io.in.bits.Mem_rdata
-  EXU.io.out.bits.Mem_wraddr   <> io.Dmem_wraddr
-  EXU.io.out.bits.Mem_wdata    <> io.Dmem_wdata
-  EXU.io.out.bits.MemOp        <> io.Dmem_wop
-  EXU.io.out.bits.MemWr        <> io.Dmem_wen
 
   // bus EXU -> WBU
   EXU.io.out.valid          <> WBU.io.in.valid

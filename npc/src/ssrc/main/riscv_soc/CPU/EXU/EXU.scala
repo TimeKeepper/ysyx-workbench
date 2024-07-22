@@ -13,8 +13,6 @@ class EXU extends Module {
         // From CSR
         val in = Flipped(Decoupled(new Bundle{
             val GNU_io    = new GNU_Output
-            
-            val Mem_rdata = Input(UInt(32.W))
 
             // Form Register File
             val CSR       = Input(UInt(32.W))
@@ -22,19 +20,9 @@ class EXU extends Module {
 
         val out = Decoupled(new Bundle{
             val EXU_io    = new EXU_output
-
-            val Mem_wraddr = Output(UInt(32.W))
-            val Mem_wdata  = Output(UInt(32.W))
-            val MemOp      = Output(MemOp_Type)
-            val MemWr      = Output(Bool())
         })
         val AXI = new AXI_Master
     })
-
-    io.out.bits.Mem_wraddr := 0.U
-    io.out.bits.Mem_wdata  := 0.U
-    io.out.bits.MemOp      := 0.U
-    io.out.bits.MemWr      := false.B
 
     val RegWr_cache       = RegInit(false.B)
     val Branch_cache      = RegInit(Bran_NJmp)
@@ -48,8 +36,7 @@ class EXU extends Module {
     val Zero_cache        = RegInit(false.B)
     val Less_cache        = RegInit(false.B)
     
-    val CSR_cache         = RegInit(0.U(32.W))
-    val Mem_rdata_cache   = RegInit(0.U(32.W))  
+    val CSR_cache         = RegInit(0.U(32.W)) 
 
     val alu = Module(new ALU)
     val lsu = Module(new LSU)

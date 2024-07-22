@@ -4,13 +4,6 @@ module top(
     input clk,
     input rst,
 
-    input [31:0] Dmem_data,
-
-    output [2:0] Dmemop,
-    output [31:0] Dmemdata,
-    output Dmem_wen,
-    output [31:0] Dmem_addr,
-
     output inst_comp
 );
 
@@ -23,13 +16,6 @@ end
 npc npc (
     .clock(clk),
     .reset(rst),
-
-    .io_Dmem_rdata(Dmem_data),
-    .io_Dmem_wdata(Dmemdata),
-    .io_Dmem_wop(Dmemop),
-    .io_Dmem_wen(Dmem_wen),
-
-    .io_Dmem_wraddr(Dmem_addr),
 
     .io_inst_comp(inst_comp)
 );

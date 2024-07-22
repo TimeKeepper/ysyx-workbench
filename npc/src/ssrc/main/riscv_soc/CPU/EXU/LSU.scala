@@ -12,7 +12,6 @@ class LSU extends Module{
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Bundle{
             val GNU_io    = Input(new GNU_Output)
-
         }))
 
         val out = Decoupled(new Bundle{

@@ -13,40 +13,73 @@ class LSU extends Module{
         val in = Flipped(Decoupled(new Bundle{
             val GNU_io    = Input(new GNU_Output)
 
-            val Mem_rdata = Input(UInt(32.W))
         }))
 
         val out = Decoupled(new Bundle{
             val Mem_rdata  = Output(UInt(32.W))
-            val Mem_wraddr = Output(UInt(32.W))
-            val Mem_wdata  = Output(UInt(32.W))
-            val MemOp      = Output(MemOp_Type)
-            val MemWr      = Output(Bool())
         })
+        val AXI = new AXI_Master
     })
-
-    val state = RegInit(s_wait_valid)
-
-    state := MuxLookup(state, s_wait_valid)(
-        Seq(
-            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
-        )
-    )
-
-    io.out.valid := state === s_wait_ready
-    io.in.ready  := state === s_wait_valid
-
-    val Mem_rdata_cache   = RegInit(0.U(32.W))  
-
-    when(io.in.valid && io.in.ready){
-        Mem_rdata_cache   := io.in.bits.Mem_rdata   
+    
+    when(io.in.bits.GNU_io.MemWr) {
+        io.AXI.araddr.valid   := false.B
+        io.AXI.raddr.ready    := false.B
+        io.AXI.awaddr.ready   <> io.in.ready
+        io.AXI.awaddr.valid   <> io.in.valid
+        io.AXI.wdata.valid    := true.B
+        io.AXI.bresp.ready    <> io.out.ready
+        io.AXI.bresp.valid    <> io.out.valid
+    }.elsewhen(io.in.bits.GNU_io.MemtoReg) {
+        io.AXI.awaddr.valid   := false.B
+        io.AXI.wdata.valid    := false.B
+        io.AXI.bresp.ready    := false.B
+        io.AXI.araddr.ready   <> io.in.ready
+        io.AXI.araddr.valid   <> io.in.valid
+        io.AXI.raddr.valid    <> io.out.valid
+        io.AXI.raddr.ready    <> io.out.ready
+    }.otherwise {
+        io.AXI.araddr.valid   := false.B
+        io.AXI.raddr.ready    := false.B
+        io.AXI.awaddr.valid   := false.B
+        io.AXI.wdata.valid    := false.B
+        io.AXI.bresp.ready    := false.B
+        io.in.ready           <> false.B
+        io.out.valid          <> false.B
     }
 
-    io.out.bits.Mem_wraddr := io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
-    io.out.bits.Mem_wdata  := io.in.bits.GNU_io.GPR_Bdata
-    io.out.bits.MemOp      := io.in.bits.GNU_io.MemOp
-    io.out.bits.MemWr      := io.in.bits.GNU_io.MemWr & (state === s_wait_ready)
+    io.AXI.araddr.bits.addr  <> io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
+    io.AXI.awaddr.bits.addr  <> io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
+    io.AXI.wdata.bits.data   <> io.in.bits.GNU_io.GPR_Bdata
+    io.AXI.wdata.bits.strb   := MuxLookup(io.in.bits.GNU_io.MemOp, 0.U)(Seq(
+        MemOp_1BU -> "b0001".U,
+        MemOp_1BS -> "b0001".U,
+        MemOp_2BU -> "b0011".U,
+        MemOp_2BS -> "b0011".U,
+        MemOp_4BU -> "b1111".U,
+    ))
 
-    io.out.bits.Mem_rdata    <> Mem_rdata_cache
+    val u_mem_rd = Wire(UInt(32.W))
+    val s_mem_rd = Wire(SInt(32.W))
+
+    u_mem_rd := MuxLookup(io.in.bits.GNU_io.MemOp, 0.U)(Seq(
+        MemOp_1BU -> (io.AXI.raddr.bits.data(7,0).asUInt),
+        MemOp_1BS -> (io.AXI.raddr.bits.data(7,0).asUInt),
+        MemOp_2BU -> (io.AXI.raddr.bits.data(15,0).asUInt),
+        MemOp_2BS -> (io.AXI.raddr.bits.data(15,0).asUInt),
+        MemOp_4BU -> (io.AXI.raddr.bits.data(31,0).asUInt),
+    ))
+    
+    s_mem_rd := MuxLookup(io.in.bits.GNU_io.MemOp, 0.S)(Seq(
+        MemOp_1BU -> (io.AXI.raddr.bits.data(7,0)).asSInt,
+        MemOp_1BS -> (io.AXI.raddr.bits.data(7,0)).asSInt,
+        MemOp_2BU -> (io.AXI.raddr.bits.data(15,0)).asSInt,
+        MemOp_2BS -> (io.AXI.raddr.bits.data(15,0)).asSInt,
+        MemOp_4BU -> (io.AXI.raddr.bits.data(31,0)).asSInt,
+    ))
+
+    when(io.in.bits.GNU_io.MemOp === MemOp_1BU || io.in.bits.GNU_io.MemOp === MemOp_2BU || io.in.bits.GNU_io.MemOp === MemOp_4BU){
+        io.out.bits.Mem_rdata := u_mem_rd
+    }.otherwise{
+        io.out.bits.Mem_rdata := s_mem_rd.asUInt
+    }
 }

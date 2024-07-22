@@ -141,14 +141,11 @@ void cpu_value_update(uint8_t pc_wen, uint8_t csra_wen, uint8_t csrb_wen, uint8_
 char itrace_buf[256];
 void itrace_catch(uint32_t addr, uint32_t inst){
     #ifdef ITRACE
-    static uint32_t pc_cache = 0x80000000;
 
     char* p = itrace_buf;
 
     uint8_t* inst_ptr = (uint8_t*)&inst;
-    p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", pc_cache);
-    
-    pc_cache = addr;
+    p += snprintf(p, sizeof(itrace_buf),  "0x%08x: ", addr);
 
     for(int i = 3; i >= 0; i--){
         p += snprintf(p, 4, "%02x ", inst_ptr[i]);

@@ -41,8 +41,8 @@ class SRAM(val LSFR_delay : UInt) extends Module {
 
     when(LSFRw === 0.U) {
         LSFRw := LSFR_delay
-    }.elsewhen(state_r === s_busy) {
-        LSFRw := LSFRr - 1.U
+    }.elsewhen(state_w === s_busy) {
+        LSFRw := LSFRw - 1.U
     }
 
     state_r := MuxLookup(state_r, s_wait_addr)(
@@ -55,7 +55,7 @@ class SRAM(val LSFR_delay : UInt) extends Module {
 
     state_w := MuxLookup(state_w, s_wait_addr)(
         Seq(
-            s_wait_addr -> Mux(io.awaddr.valid, s_wait_data, s_wait_addr),
+            s_wait_addr -> Mux(io.awaddr.valid, s_busy, s_wait_addr),
             s_wait_data -> Mux(io.wdata.valid,  s_busy, s_wait_data),
             s_busy      -> Mux(LSFRw === 0.U,  s_wait_resp, s_busy),
             s_wait_resp -> Mux(io.bresp.ready, s_wait_addr, s_wait_resp)
@@ -71,7 +71,7 @@ class SRAM(val LSFR_delay : UInt) extends Module {
 
     val bridge = Module(new sram_bridge)
     bridge.io.clock := clock
-    bridge.io.read := state_r === s_busy && LSFRw === 0.U
+    bridge.io.read := state_r === s_busy && LSFRr === 0.U
     bridge.io.r_addr  := io.araddr.bits.addr
     io.raddr.bits.data := bridge.io.r_data
     io.raddr.bits.resp := "b0".U
@@ -81,4 +81,10 @@ class SRAM(val LSFR_delay : UInt) extends Module {
     bridge.io.w_data  := io.wdata.bits.data
     bridge.io.w_strb  := io.wdata.bits.strb
     io.bresp.bits.bresp := "b0".U
+
+    val state_rcache = RegInit(s_wait_addr)
+    state_rcache := state_r
+    val state_wcache = RegInit(s_wait_addr)
+    state_wcache := state_w
+
 }

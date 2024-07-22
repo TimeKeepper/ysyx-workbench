@@ -69,6 +69,10 @@ class CPU extends Module {
 
   // bus AXI Interconnect
   AXI_Interconnect.io.IFU <> IFU.io.AXI
+  AXI_Interconnect.io.LSU <> EXU.io.AXI
+
+  AXI_Interconnect.io.ls_resq := IFU.io.out.valid
+  AXI_Interconnect.io.if_resq := EXU.io.out.valid
 
   AXI_Interconnect.io.SRAM.araddr         <> io.AXI_araddr
   AXI_Interconnect.io.SRAM.raddr          <> io.AXI_raddr
@@ -77,8 +81,8 @@ class CPU extends Module {
   AXI_Interconnect.io.SRAM.bresp          <> io.AXI_bresp
 
   val comp_cache = RegInit(Bool(), false.B)
-  comp_cache := io.AXI_araddr.valid
-  when((comp_cache === false.B) && (io.AXI_araddr.valid === true.B)) {
+  comp_cache := WBU.io.out.valid
+  when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
     io.inst_comp := true.B
   }.otherwise {
     io.inst_comp := false.B

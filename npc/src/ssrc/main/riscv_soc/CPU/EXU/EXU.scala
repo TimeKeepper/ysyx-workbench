@@ -28,7 +28,13 @@ class EXU extends Module {
             val MemOp      = Output(MemOp_Type)
             val MemWr      = Output(Bool())
         })
+        val AXI = new AXI_Master
     })
+
+    io.out.bits.Mem_wraddr := 0.U
+    io.out.bits.Mem_wdata  := 0.U
+    io.out.bits.MemOp      := 0.U
+    io.out.bits.MemWr      := false.B
 
     val RegWr_cache       = RegInit(false.B)
     val Branch_cache      = RegInit(Bran_NJmp)
@@ -46,20 +52,18 @@ class EXU extends Module {
     val Mem_rdata_cache   = RegInit(0.U(32.W))  
 
     val alu = Module(new ALU)
-    alu.io.in.valid := true.B
-    alu.io.out.ready := true.B
     val lsu = Module(new LSU)
-    lsu.io.in.valid := true.B
-    lsu.io.out.ready := true.B
 
     when(io.in.bits.GNU_io.MemWr || io.in.bits.GNU_io.MemtoReg){
         alu.io.in.valid := false.B
+        alu.io.out.ready := false.B
         io.in.ready <> lsu.io.in.ready
         io.in.valid <> lsu.io.in.valid
         io.out.ready <> lsu.io.out.ready
         io.out.valid <> lsu.io.out.valid
     }.otherwise{
         lsu.io.in.valid := false.B
+        lsu.io.out.ready := false.B
         io.in.ready <> alu.io.in.ready
         io.in.valid <> alu.io.in.valid
         io.out.ready <> alu.io.out.ready
@@ -83,11 +87,8 @@ class EXU extends Module {
     alu.io.in.bits.CSR    := io.in.bits.CSR
 
     lsu.io.in.bits.GNU_io := io.in.bits.GNU_io
-    lsu.io.in.bits.Mem_rdata := io.in.bits.Mem_rdata
-    io.out.bits.Mem_wraddr  := lsu.io.out.bits.Mem_wraddr
-    io.out.bits.Mem_wdata   := lsu.io.out.bits.Mem_wdata
-    io.out.bits.MemOp       := lsu.io.out.bits.MemOp
-    io.out.bits.MemWr       := lsu.io.out.bits.MemWr
+    lsu.io.AXI <> io.AXI
+
 
     io.out.bits.EXU_io.RegWr        <> RegWr_cache    
     io.out.bits.EXU_io.Branch       <> Branch_cache   

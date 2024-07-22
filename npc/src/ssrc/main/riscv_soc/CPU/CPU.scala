@@ -51,13 +51,13 @@ class CPU extends Module {
   REG.io.out.pc           <> IFU.io.in.bits.addr 
 
   // bus AXI Interconnect
-  AXI_Interconnect.io.IFU <> IFU.io.AXI
-  AXI_Interconnect.io.LSU <> EXU.io.AXI
+  AXI_Interconnect.io.AXI <> io.AXI
 
   AXI_Interconnect.io.ls_resq := IFU.io.out.valid
   AXI_Interconnect.io.if_resq := EXU.io.out.valid
 
-  AXI_Interconnect.io.SRAM         <> io.AXI
+  AXI_Interconnect.io.IFU         <> IFU.io.AXI
+  AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := WBU.io.out.valid

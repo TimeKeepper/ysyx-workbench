@@ -6,6 +6,7 @@
 #include <cstring>
 #include <memory/paddr.h>
 #include <memory/host.h>
+#include <stdio.h>
 
 #define PG_ALIGN __attribute((aligned(4096)))
 

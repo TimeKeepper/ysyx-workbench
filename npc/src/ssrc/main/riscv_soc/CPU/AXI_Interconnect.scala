@@ -9,7 +9,7 @@ class AXI_Interconnect extends Module {
         val if_resq = Input(Bool())
         val IFU = new AXI_Slave
         val LSU = new AXI_Slave
-        val SRAM = new AXI_Master
+        val AXI = new AXI_Master
     })
 
     val s_if :: s_ls :: Nil = Enum(2)
@@ -24,7 +24,7 @@ class AXI_Interconnect extends Module {
     )
 
     when(state === s_if){
-        io.IFU <> io.SRAM
+        io.IFU <> io.AXI
         io.LSU.rdata.valid := false.B
         io.LSU.rdata.bits := DontCare
         io.LSU.araddr.ready := false.B
@@ -33,7 +33,7 @@ class AXI_Interconnect extends Module {
         io.LSU.bresp.valid := false.B
         io.LSU.bresp.bits := DontCare
     }.otherwise{
-        io.LSU <> io.SRAM
+        io.LSU <> io.AXI
         io.IFU.rdata.valid := false.B
         io.IFU.rdata.bits := DontCare
         io.IFU.araddr.ready := false.B

@@ -79,37 +79,6 @@ void ram_write(paddr_t addr, int len, word_t data){
     paddr_write(addr, len, data);
 }
 
-void memory_read(void){
-    uint32_t Dmem_addr = dut.rootp->Dmem_addr;
-    uint32_t Dmem_data;
-    if (!(likely(in_pmem(Dmem_addr)) || (Dmem_addr == RTC_ADDR) || (Dmem_addr == RTC_ADDR + 4))) {
-        dut.rootp->Dmem_data = 0;
-        return; 
-    }
-    switch(dut.rootp->Dmemop){
-        case 0b000: dut.rootp->Dmem_data = ram_read(Dmem_addr,  1);            break;
-        case 0b001: dut.rootp->Dmem_data = SEXT(ram_read(Dmem_addr,  1), 8);   break;
-        case 0b010: dut.rootp->Dmem_data = ram_read(Dmem_addr,  2);            break;
-        case 0b011: dut.rootp->Dmem_data = SEXT(ram_read(Dmem_addr,  2), 16);  break;
-        case 0b100: dut.rootp->Dmem_data = ram_read(Dmem_addr,  4);            break;
-        default: dut.rootp->Dmem_data = 0;                                                       
-    }
-}
-
-void memory_write(void){
-    uint32_t Dmem_addr = dut.rootp->Dmem_addr;
-    if (!((likely(in_pmem(Dmem_addr))) || Dmem_addr == SERIAL_PORT)) return;
-    switch(dut.rootp->Dmemop){
-        case 0b000:
-        case 0b001: ram_write(Dmem_addr,  1, dut.rootp->Dmemdata); break;
-        case 0b010:
-        case 0b011: ram_write(Dmem_addr,  2, dut.rootp->Dmemdata); break;
-
-        case 0b100: ram_write(Dmem_addr,  4, dut.rootp->Dmemdata); break;
-        default: break;
-    }
-}
-
 static void single_cycle() {
     dut.clk = 0; dut.eval();wave_Trace_once();                  
 
@@ -208,10 +177,7 @@ static void execute_one_clk(){
     
     watchpoint_catch();          //检查watchpoint
 
-    func_called_detect();  
-
-    if(!dut.rootp->Dmem_wen)  memory_read();  
-    else                      memory_write();          //读写内存    
+    func_called_detect();   
 
     if(dut.inst_comp) {
         inst_cnt++;

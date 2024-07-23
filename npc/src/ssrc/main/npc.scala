@@ -16,10 +16,12 @@ class npc extends Module {
   val Xbar = Module(new Xbar)
   val SRAM = Module(new SRAM(4.U))
   val UART = Module(new UART)
+  val CLINT = Module(new CLINT)
 
   io.inst_comp   <> CPU.io.inst_comp
 
   Xbar.io.AXI <> CPU.io.AXI
   UART.io.AXI <> Xbar.io.UART
   SRAM.io.AXI <> Xbar.io.SRAM
+  CLINT.io.AXI <> Xbar.io.CLINT
 }

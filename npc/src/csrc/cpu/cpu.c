@@ -71,7 +71,10 @@ void wave_Trace_close(){
 
 CPU_State cpu = {.gpr = {0}, .pc = 0x80000000, .sr = {0}};
 
+void difftest_skip_ref();
+
 void my_putc(int c){
+    difftest_skip_ref();
     putc((char)c, stderr);
 }
 

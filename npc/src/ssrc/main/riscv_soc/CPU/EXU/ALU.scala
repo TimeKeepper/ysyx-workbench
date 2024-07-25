@@ -121,6 +121,7 @@ class ALU extends Module {
 
   io.out.valid := state === s_wait_ready
   io.in.ready  := state === s_wait_valid
+  val comunication_succeed = (io.in.valid && io.in.ready)
 
   // ALU operation
   val alu_ctrl = Module(new ALU_Ctrl)
@@ -211,17 +212,7 @@ class ALU extends Module {
     )
   )
   
-  val Result_cache      = RegInit(0.U(32.W))
-  val Zero_cache        = RegInit(false.B)
-  val Less_cache        = RegInit(false.B)
-
-  when(io.in.valid && io.in.ready){
-    Result_cache      := Result
-    Zero_cache        := alu_adder.io.Zero  
-    Less_cache        := Less
-  }
-
-  io.out.bits.Result        <> Result_cache 
-  io.out.bits.Zero          <> Zero_cache   
-  io.out.bits.Less          <> Less_cache
+  io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
+  io.out.bits.Zero          := RegEnable(alu_adder.io.Zero , comunication_succeed) 
+  io.out.bits.Less          := RegEnable(Less, comunication_succeed) 
 }

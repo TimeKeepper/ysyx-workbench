@@ -3,19 +3,19 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
  
-class CPU extends Module {
+class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
     val AXI = new AXI_Master
 
     val inst_comp  = Output(Bool())
   })
   
-  val IFU             = Module(new IFU)
-  val GNU             = Module(new GNU)
-  val EXU             = Module(new EXU)
-  val WBU             = Module(new WBU)
-  val REG             = Module(new REG) 
-  val AXI_Interconnect = Module(new AXI_Interconnect)
+  val IFU             = Module(new ysyx_23060198_IFU)
+  val GNU             = Module(new ysyx_23060198_GNU)
+  val EXU             = Module(new ysyx_23060198_EXU)
+  val WBU             = Module(new ysyx_23060198_WBU)
+  val REG             = Module(new ysyx_23060198_REG) 
+  val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
   // bus IFU -> GNU
   IFU.io.out.ready     <> GNU.io.in.ready

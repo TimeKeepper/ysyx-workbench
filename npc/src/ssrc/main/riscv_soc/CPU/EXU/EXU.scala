@@ -8,7 +8,7 @@ import bus_state._
 
 // riscv excution unit
 
-class EXU extends Module {
+class ysyx_23060198_EXU extends Module {
     val io = IO(new Bundle{
         // From CSR
         val in = Flipped(Decoupled(new Bundle{
@@ -38,8 +38,8 @@ class EXU extends Module {
     
     val CSR_cache         = RegInit(0.U(32.W)) 
 
-    val alu = Module(new ALU)
-    val lsu = Module(new LSU)
+    val alu = Module(new ysyx_23060198_ALU)
+    val lsu = Module(new ysyx_23060198_LSU)
 
     when(io.in.bits.GNU_io.MemWr || io.in.bits.GNU_io.MemtoReg){
         alu.io.in.valid := false.B

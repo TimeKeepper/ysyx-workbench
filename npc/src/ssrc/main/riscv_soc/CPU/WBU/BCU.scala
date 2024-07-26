@@ -8,7 +8,7 @@ import signal_value._
 
 // riscv cpu branch control unit
 
-class BCU extends Module {
+class ysyx_23060198_BCU extends Module {
   val io = IO(new Bundle {
     val Branch = Input(Bran_Type)
     val Zero   = Input(Bool())

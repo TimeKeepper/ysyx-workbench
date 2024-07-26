@@ -8,7 +8,7 @@ import bus_state._
 import Instructions._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
-class GNU extends Module{
+class ysyx_23060198_GNU extends Module{
     val io = IO(new Bundle{
         // Form IFU
         val in          = Flipped(Decoupled(new Bundle{
@@ -35,8 +35,8 @@ class GNU extends Module{
         )
     )
 
-    val idu = Module(new IDU)
-    val igu = Module(new IGU)
+    val idu = Module(new ysyx_23060198_IDU)
+    val igu = Module(new ysyx_23060198_IGU)
 
     io.out.valid := state === s_wait_ready
     io.in.ready  := state === s_wait_valid

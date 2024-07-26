@@ -7,7 +7,7 @@ import signal_value._
 
 // riscv cpu immediate generation unit
 
-class IGU extends Module {
+class ysyx_23060198_IGU extends Module {
   val io = IO(new Bundle {
     val inst  = Input(UInt(32.W))
     val ExtOp = Input(Imm_Type)

@@ -3,7 +3,7 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
-class AXI_Interconnect extends Module {
+class ysyx_23060198_AXI_Interconnect extends Module {
     val io = IO(new Bundle{
         val ls_resq = Input(Bool())
         val if_resq = Input(Bool())

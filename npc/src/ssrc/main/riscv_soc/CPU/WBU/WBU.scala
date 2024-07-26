@@ -8,7 +8,7 @@ import bus_state._
 
 // riscv writeback unit
 
-class WBU extends Module {
+class ysyx_23060198_WBU extends Module {
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Bundle{
             val EXU_io = new EXU_output
@@ -30,7 +30,7 @@ class WBU extends Module {
     io.out.valid := state === s_wait_ready
     io.in.ready  := state === s_wait_valid
 
-    val bcu = Module(new BCU)    
+    val bcu = Module(new ysyx_23060198_BCU)    
 
     bcu.io.Branch   <> io.in.bits.EXU_io.Branch
     bcu.io.Zero     <> io.in.bits.EXU_io.Zero

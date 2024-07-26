@@ -12,7 +12,7 @@ class npc extends Module {
     val inst_comp  = Output(Bool())
   })
   
-  val CPU = Module(new CPU)
+  val CPU = Module(new ysyx_23060198)
   val Xbar = Module(new Xbar)
   val SRAM = Module(new SRAM(4.U))
   val UART = Module(new UART)

@@ -8,7 +8,7 @@ import bus_state._
 
 // riscv load store unit
 
-class LSU extends Module{
+class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Bundle{
             val GNU_io    = Input(new GNU_Output)

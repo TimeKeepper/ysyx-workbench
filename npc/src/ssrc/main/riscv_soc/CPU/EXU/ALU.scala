@@ -9,7 +9,7 @@ import bus_state._
 
 // riscv cpu analogic and logical unit
 
-class ALU_Ctrl extends Module {
+class ysyx_23060198_ALU_Ctrl extends Module {
   val io = IO(new Bundle {
     val ALUctr = Input(ALUctr_Type)
 
@@ -44,7 +44,7 @@ class ALU_Ctrl extends Module {
   }
 }
 
-class ALU_Adder extends Module {
+class ysyx_23060198_ALU_Adder extends Module {
   val io = IO(new Bundle {
     val A   = Input(UInt(32.W))
     val B   = Input(UInt(32.W))
@@ -69,7 +69,7 @@ class ALU_Adder extends Module {
   io.Overflow := (io.A(31) & R_B(31) & !io.Result(31)) | (!io.A(31) & !R_B(31) & io.Result(31))
 }
 
-class ALU_BarrelShifter extends Module {
+class ysyx_23060198_ALU_BarrelShifter extends Module {
   val io = IO(new Bundle {
     val Din   = Input(UInt(32.W))
     val shamt = Input(UInt(5.W))
@@ -94,7 +94,7 @@ class ALU_BarrelShifter extends Module {
   }
 }
 
-class ALU extends Module {
+class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
     val in = Flipped(Decoupled(new Bundle{
       val GNU_io    = Input(new GNU_Output)
@@ -124,7 +124,7 @@ class ALU extends Module {
   val comunication_succeed = (io.in.valid && io.in.ready)
 
   // ALU operation
-  val alu_ctrl = Module(new ALU_Ctrl)
+  val alu_ctrl = Module(new ysyx_23060198_ALU_Ctrl)
   alu_ctrl.io.ALUctr := io.in.bits.GNU_io.ALUctr
 
   // ALU Adder
@@ -147,7 +147,7 @@ class ALU extends Module {
 
   Sub_Add_ex := alu_ctrl.io.Sub_Add.asSInt
 
-  val alu_adder = Module(new ALU_Adder)
+  val alu_adder = Module(new ysyx_23060198_ALU_Adder)
   alu_adder.io.A   := src_A
   alu_adder.io.B   := src_B ^ Sub_Add_ex.asUInt
   alu_adder.io.Cin := alu_ctrl.io.Sub_Add
@@ -162,14 +162,11 @@ class ALU extends Module {
   Zero     := alu_adder.io.Zero
 
   // ALU BarrelShifter
-  val alu_barrel_shifter = Module(new ALU_BarrelShifter)
+  val alu_barrel_shifter = Module(new ysyx_23060198_ALU_BarrelShifter)
   alu_barrel_shifter.io.Din   := src_A
   alu_barrel_shifter.io.shamt := src_B(4, 0)
   alu_barrel_shifter.io.L_R   := alu_ctrl.io.L_R
   alu_barrel_shifter.io.A_L   := alu_ctrl.io.A_L
-
-  val shift = Wire(UInt(32.W))
-  shift := alu_barrel_shifter.io.Dout
 
   // other ALU outputs
   val Less = Wire(Bool())
@@ -182,33 +179,20 @@ class ALU extends Module {
     Less := adder(31) ^ Overflow
   }
 
-  val slt = Cat(0.U(31.W), Less)
-
-  val B = src_B
-  val A = src_A
-
-  val XOR = Wire(UInt(32.W))
-  val OR  = Wire(UInt(32.W))
-  val AND = Wire(UInt(32.W))
-
-  XOR := src_A ^ src_B
-  OR  := src_A | src_B
-  AND := src_A & src_B
-
   val Result = MuxLookup(io.in.bits.GNU_io.ALUctr, 0.U)(
     Seq(
       ALUctr_ADD -> adder,
       ALUctr_SUB -> adder,
-      ALUctr_Less_U -> slt,
-      ALUctr_Less_S -> slt,
-      ALUctr_A -> A,
-      ALUctr_B -> B,
-      ALUctr_SLL -> shift,
-      ALUctr_SRL -> shift,
-      ALUctr_SRA -> shift,
-      ALUctr_XOR -> XOR,
-      ALUctr_OR -> OR,
-      ALUctr_AND -> AND
+      ALUctr_Less_U -> Cat(0.U(31.W), Less),
+      ALUctr_Less_S -> Cat(0.U(31.W), Less),
+      ALUctr_A -> src_A,
+      ALUctr_B -> src_B,
+      ALUctr_SLL -> alu_barrel_shifter.io.Dout,
+      ALUctr_SRL -> alu_barrel_shifter.io.Dout,
+      ALUctr_SRA -> alu_barrel_shifter.io.Dout,
+      ALUctr_XOR -> (src_A ^ src_B),
+      ALUctr_OR -> (src_A | src_B),
+      ALUctr_AND -> (src_A & src_B)
     )
   )
   

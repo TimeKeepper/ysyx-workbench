@@ -49,16 +49,10 @@ class ysyx_23060198 extends BlackBox{
     val reset = Input(Bool())
 
     val io_Master = new FIX_AXI_BUS
-
-    val io_inst_comp  = Output(Bool())
   })
 }
 
 class npc extends Module {
-  val io = IO(new Bundle {
-    val inst_comp  = Output(Bool())
-  })
-  
   val CPU = Module(new ysyx_23060198)
 
   CPU.io.clock := clock
@@ -68,8 +62,6 @@ class npc extends Module {
   val SRAM = Module(new SRAM(4.U))
   val UART = Module(new UART)
   val CLINT = Module(new CLINT)
-
-  io.inst_comp   <> CPU.io.io_inst_comp 
 
   UART.io.AXI <> Xbar.io.UART
   SRAM.io.AXI <> Xbar.io.SRAM

@@ -3,11 +3,16 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
  
+class inst_bridge extends BlackBox{
+  val io = IO(new Bundle{
+    val clock = Input(Clock())
+    val valid = Input(Bool())
+  })
+}
+
 class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
     val Master = new FIX_AXI_BUS
-
-    val inst_comp  = Output(Bool())
   })
   
   val IFU             = Module(new ysyx_23060198_IFU)
@@ -89,11 +94,14 @@ class ysyx_23060198 extends Module {
   AXI_Interconnect.io.IFU         <> IFU.io.AXI
   AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
+  val inst_bridge = Module(new inst_bridge)
+  inst_bridge.io.clock := clock
+
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := WBU.io.out.valid
-  when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
-    io.inst_comp := true.B
+  when((comp_cache === true.B) && (WBU.io.out.valid === false.B)) {
+    inst_bridge.io.valid := true.B
   }.otherwise {
-    io.inst_comp := false.B
+    inst_bridge.io.valid := false.B
   }
 }

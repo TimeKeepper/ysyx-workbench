@@ -5,7 +5,7 @@ import chisel3.util._
  
 class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
-    val AXI = new AXI_Master
+    val Master = new FIX_AXI_BUS
 
     val inst_comp  = Output(Bool())
   })
@@ -51,7 +51,37 @@ class ysyx_23060198 extends Module {
   REG.io.out.pc           <> IFU.io.in.bits.addr 
 
   // bus AXI Interconnect
-  AXI_Interconnect.io.AXI <> io.AXI
+  io.Master.awready <> AXI_Interconnect.io.AXI.awaddr.ready
+  io.Master.awvalid <> AXI_Interconnect.io.AXI.awaddr.valid
+  io.Master.awaddr  <> AXI_Interconnect.io.AXI.awaddr.bits.addr
+  io.Master.awid    := 0.U
+  io.Master.awlen   := 0.U
+  io.Master.awsize  := 0.U
+  io.Master.awburst := 0.U
+
+  io.Master.wready <> AXI_Interconnect.io.AXI.wdata.ready
+  io.Master.wvalid <> AXI_Interconnect.io.AXI.wdata.valid
+  io.Master.wdata  <> AXI_Interconnect.io.AXI.wdata.bits.data
+  io.Master.wstrb   <> AXI_Interconnect.io.AXI.wdata.bits.strb
+  io.Master.wlast         := 0.U
+
+  io.Master.bready <> AXI_Interconnect.io.AXI.bresp.ready
+  io.Master.bvalid <> AXI_Interconnect.io.AXI.bresp.valid
+  io.Master.bresp  <> AXI_Interconnect.io.AXI.bresp.bits.bresp
+  // io.Master.bid    
+
+  io.Master.arready <> AXI_Interconnect.io.AXI.araddr.ready
+  io.Master.arvalid <> AXI_Interconnect.io.AXI.araddr.valid
+  io.Master.araddr  <> AXI_Interconnect.io.AXI.araddr.bits.addr
+  io.Master.arid    := 0.U
+  io.Master.arlen   := 0.U
+  io.Master.arsize  := 0.U
+  io.Master.arburst := 0.U
+
+  io.Master.rready <> AXI_Interconnect.io.AXI.rdata.ready
+  io.Master.rvalid <> AXI_Interconnect.io.AXI.rdata.valid
+  io.Master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
+  io.Master.rdata  <> AXI_Interconnect.io.AXI.rdata.bits.data
 
   AXI_Interconnect.io.ls_resq := IFU.io.out.valid
   AXI_Interconnect.io.if_resq := EXU.io.out.valid

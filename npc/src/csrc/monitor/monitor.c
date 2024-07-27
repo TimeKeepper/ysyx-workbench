@@ -1,7 +1,7 @@
 #include "cpu/cpu.h"
 #include "utils.h"
 #include <common.h>
-#include <csignal>
+// #include <csignal>
 #include <cstdlib>
 #include <sdb/sdb.h>
 #include <fcntl.h>
@@ -161,16 +161,16 @@ static int parse_args(int argc, char *argv[]) {
     return 0;
 }
 
-void SIGINT_handler(int signal){
-    if(signal == SIGINT){
-        printf(ANSI_FMT("\nprogram interrupted\n", ANSI_FG_BLUE));
-        npc_state.state = NPC_STOP;
-    }
-}
+// void SIGINT_handler(int signal){
+//     if(signal == SIGINT){
+//         printf(ANSI_FMT("\nprogram interrupted\n", ANSI_FG_BLUE));
+//         npc_state.state = NPC_STOP;
+//     }
+// }
 
-void init_sig(void){
-    signal(SIGINT, SIGINT_handler);
-}
+// void init_sig(void){
+//     signal(SIGINT, SIGINT_handler);
+// }
 
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
@@ -189,7 +189,7 @@ void init_monitor(int argc, char *argv[]) {
 
     init_disasm("riscv32");
 
-    init_sig();
+    // init_sig();
 
     welcome();
 }

@@ -3,10 +3,10 @@
 
 #include <common.h>
 #include <nvboard.h>
-#include <Vtop.h>
+#include <VysyxSoCFull.h>
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "Vtop__Dpi.h"
+#include "VysyxSoCFull__Dpi.h"
 
 #define ADDR_MSTATUS 0x300
 #define ADDR_MTVEC 0x305

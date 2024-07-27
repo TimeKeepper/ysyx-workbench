@@ -98,7 +98,7 @@ class AXI_Slave extends Bundle{
     val bresp  = Decoupled(new bresp)
 }
  
-class FIX_AXI_BUS extends Bundle{
+class FIX_AXI_BUS_Master extends Bundle{
   val awready = Input(Bool())
   val awvalid = Output(Bool())
   val awaddr  = Output(UInt(32.W))
@@ -132,4 +132,40 @@ class FIX_AXI_BUS extends Bundle{
   val rdata  = Input(UInt(64.W))
   val rlast  = Input(Bool())
   val rid    = Input(UInt(4.W))
+}
+
+class FIX_AXI_BUS_Slave extends Bundle{
+  val awready = Output(Bool())
+  val awvalid = Input(Bool())
+  val awaddr  = Input(UInt(32.W))
+  val awid    = Input(UInt(4.W))
+  val awlen   = Input(UInt(8.W))
+  val awsize  = Input(UInt(3.W))
+  val awburst = Input(UInt(2.W))
+
+  val wready = Output(Bool())
+  val wvalid = Input(Bool())
+  val wdata  = Input(UInt(64.W))
+  val wstrb  = Input(UInt(8.W))
+  val wlast  = Input(Bool())
+
+  val bready = Input(Bool())
+  val bvalid = Output(Bool())
+  val bresp  = Output(UInt(2.W))
+  val bid    = Output(UInt(4.W))
+
+  val arready = Output(Bool())
+  val arvalid = Input(Bool())
+  val araddr  = Input(UInt(32.W))
+  val arid    = Input(UInt(4.W))
+  val arlen   = Input(UInt(8.W))
+  val arsize  = Input(UInt(3.W))
+  val arburst = Input(UInt(2.W))
+
+  val rready = Input(Bool())
+  val rvalid = Output(Bool())
+  val rresp  = Output(UInt(2.W))
+  val rdata  = Output(UInt(64.W))
+  val rlast  = Output(Bool())
+  val rid    = Output(UInt(4.W))
 }

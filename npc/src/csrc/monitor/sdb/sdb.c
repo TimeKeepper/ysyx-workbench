@@ -3,6 +3,8 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+// #include <csignal>
+// #include <cstdlib>
 
 static char* rl_gets() {
     static char *line_read = NULL;
@@ -67,7 +69,7 @@ void sdb_mainloop() {
 
         for (i = 0; i < NR_CMD; i++) {
             if (strcmp(cmd, cmd_table[i].name) != 0) continue;
-            if (cmd_table[i].handler(args) < 0) {wave_Trace_close(); return; }
+            if (cmd_table[i].handler(args) < 0) { wave_Trace_close(); /*signal(SIGINT, SIG_IGN);*/ return;}
             break;
         }
 

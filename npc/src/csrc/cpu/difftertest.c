@@ -1,4 +1,4 @@
-#include "Vtop__Dpi.h"
+#include "VysyxSoCFull__Dpi.h"
 #include "cpu/cpu.h"
 #include "memory/paddr.h"
 #include <assert.h>

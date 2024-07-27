@@ -5,6 +5,10 @@ PRJ = playground
 BUILD_DIR = ./build
 
 SRC_DIR = ./src
+SOC_DIR = /home/wen-jiu/my_ysyx_project/ysyx-workbench/ysyxSoC
+SOC_VSRC_DIR = $(SOC_DIR)/perip
+SOC_UART_DIR = $(SOC_DIR)/perip/uart16550/rtl
+SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl
 
 VSRC_DIR = $(SRC_DIR)/vsrc
 SSRC_DIR = $(SRC_DIR)/ssrc
@@ -16,6 +20,8 @@ DESIGN_FILE ?= $(abspath $(VSRC_DIR))/npc.sv
 # VSRC = $(DESIGN_FILE)
 # VSRC += $(abspath $(VSRC_DIR))/top.v
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
+VSRC += $(shell find $(abspath $(SOC_VSRC_DIR)) -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
+VSRC += $(shell find $(abspath $(SOC_DIR))/build -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
@@ -28,6 +34,7 @@ HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
 # VERILATOR DIFIENITIONS
 
+SOCNAME = ysyxSoCFull
 TOPNAME = top
 NXDC_FILES = $(SRC_DIR)/constr/top.nxdc
 
@@ -96,8 +103,9 @@ print:
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing \
+		-y $(SOC_SPI_DIR) -y $(SOC_UART_DIR) \
+		--top-module $(SOCNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 

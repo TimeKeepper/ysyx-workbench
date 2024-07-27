@@ -1,13 +1,15 @@
-#include "Vtop___024root.h"
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull___024root.h"
 #include "verilated_vcd_c.h"
 #include <cpu/cpu.h>
-#include <csignal>
-#include <cstdint>
 #include <memory/paddr.h>
 #include <utils.h>
 #include <sdb/sdb.h>
 
-TOP_NAME dut;
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
+
+VysyxSoCFull dut;
 uint32_t clk_cnt = 0;
 uint32_t inst_cnt = 0;
 bool     is_itrace_printf = false;
@@ -87,16 +89,16 @@ void ram_write(paddr_t addr, int len, word_t data){
 }
 
 static void single_cycle() {
-    dut.clk = 0; dut.eval();wave_Trace_once();                  
+    dut.clock = 0; dut.eval();wave_Trace_once();                  
 
-    dut.clk = 1; dut.eval();wave_Trace_once();        
+    dut.clock = 1; dut.eval();wave_Trace_once();        
     clk_cnt++;
 }
 
 static void reset(int n) {
-    dut.rst = 1;
+    dut.reset = 1;
     while (n -- > 0) single_cycle();
-    dut.rst = 0;
+    dut.reset = 0;
 }
 
 void cpu_reset(int n, int argc, char **argv){
@@ -188,7 +190,7 @@ void inst_comp_update(){
     }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    difftest_step(cpu.pc, dut.rootp->top__DOT__npc__DOT__CPU__DOT__REG__DOT__pc);
+    difftest_step(cpu.pc, dut.rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc);
 }
 
 static void execute_one_clk(){

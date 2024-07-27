@@ -12,7 +12,9 @@ class inst_bridge extends BlackBox{
 
 class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
-    val Master = new FIX_AXI_BUS
+    val master = new FIX_AXI_BUS_Master
+    val slave  = new FIX_AXI_BUS_Slave
+    val interrupt = Input(Bool())
   })
   
   val IFU             = Module(new ysyx_23060198_IFU)
@@ -56,37 +58,37 @@ class ysyx_23060198 extends Module {
   REG.io.out.pc           <> IFU.io.in.bits.addr 
 
   // bus AXI Interconnect
-  io.Master.awready <> AXI_Interconnect.io.AXI.awaddr.ready
-  io.Master.awvalid <> AXI_Interconnect.io.AXI.awaddr.valid
-  io.Master.awaddr  <> AXI_Interconnect.io.AXI.awaddr.bits.addr
-  io.Master.awid    := 0.U
-  io.Master.awlen   := 0.U
-  io.Master.awsize  := 0.U
-  io.Master.awburst := 0.U
+  io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready
+  io.master.awvalid <> AXI_Interconnect.io.AXI.awaddr.valid
+  io.master.awaddr  <> AXI_Interconnect.io.AXI.awaddr.bits.addr
+  io.master.awid    := 0.U
+  io.master.awlen   := 0.U
+  io.master.awsize  := 0.U
+  io.master.awburst := 0.U
 
-  io.Master.wready <> AXI_Interconnect.io.AXI.wdata.ready
-  io.Master.wvalid <> AXI_Interconnect.io.AXI.wdata.valid
-  io.Master.wdata  <> AXI_Interconnect.io.AXI.wdata.bits.data
-  io.Master.wstrb   <> AXI_Interconnect.io.AXI.wdata.bits.strb
-  io.Master.wlast         := 0.U
+  io.master.wready <> AXI_Interconnect.io.AXI.wdata.ready
+  io.master.wvalid <> AXI_Interconnect.io.AXI.wdata.valid
+  io.master.wdata  <> AXI_Interconnect.io.AXI.wdata.bits.data
+  io.master.wstrb   <> AXI_Interconnect.io.AXI.wdata.bits.strb
+  io.master.wlast         := 0.U
 
-  io.Master.bready <> AXI_Interconnect.io.AXI.bresp.ready
-  io.Master.bvalid <> AXI_Interconnect.io.AXI.bresp.valid
-  io.Master.bresp  <> AXI_Interconnect.io.AXI.bresp.bits.bresp
-  // io.Master.bid    
+  io.master.bready <> AXI_Interconnect.io.AXI.bresp.ready
+  io.master.bvalid <> AXI_Interconnect.io.AXI.bresp.valid
+  io.master.bresp  <> AXI_Interconnect.io.AXI.bresp.bits.bresp
+  // io.master.bid    
 
-  io.Master.arready <> AXI_Interconnect.io.AXI.araddr.ready
-  io.Master.arvalid <> AXI_Interconnect.io.AXI.araddr.valid
-  io.Master.araddr  <> AXI_Interconnect.io.AXI.araddr.bits.addr
-  io.Master.arid    := 0.U
-  io.Master.arlen   := 0.U
-  io.Master.arsize  := 0.U
-  io.Master.arburst := 0.U
+  io.master.arready <> AXI_Interconnect.io.AXI.araddr.ready
+  io.master.arvalid <> AXI_Interconnect.io.AXI.araddr.valid
+  io.master.araddr  <> AXI_Interconnect.io.AXI.araddr.bits.addr
+  io.master.arid    := 0.U
+  io.master.arlen   := 0.U
+  io.master.arsize  := 0.U
+  io.master.arburst := 0.U
 
-  io.Master.rready <> AXI_Interconnect.io.AXI.rdata.ready
-  io.Master.rvalid <> AXI_Interconnect.io.AXI.rdata.valid
-  io.Master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
-  io.Master.rdata  <> AXI_Interconnect.io.AXI.rdata.bits.data
+  io.master.rready <> AXI_Interconnect.io.AXI.rdata.ready
+  io.master.rvalid <> AXI_Interconnect.io.AXI.rdata.valid
+  io.master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
+  io.master.rdata  <> AXI_Interconnect.io.AXI.rdata.bits.data
 
   AXI_Interconnect.io.ls_resq := IFU.io.out.valid
   AXI_Interconnect.io.if_resq := EXU.io.out.valid
@@ -104,4 +106,7 @@ class ysyx_23060198 extends Module {
   }.otherwise {
     inst_bridge.io.valid := false.B
   }
+
+  io.slave <> DontCare
+  io.interrupt <> DontCare
 }

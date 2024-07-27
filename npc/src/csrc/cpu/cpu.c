@@ -7,7 +7,7 @@
 #include <sdb/sdb.h>
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) {*data = paddr_read(addr, 4); }
 
 VysyxSoCFull dut;
 uint32_t clk_cnt = 0;
@@ -172,6 +172,7 @@ void check_special_inst(uint32_t inst){
     switch(inst){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
+        case 0x00100073: npc_trap(0);   break; // ebreak
         case 0x00008067: is_ret = true;     break; // ret
         default: break;
     }

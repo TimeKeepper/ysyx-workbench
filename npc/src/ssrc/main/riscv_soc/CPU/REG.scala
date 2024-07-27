@@ -78,7 +78,7 @@ class ysyx_23060198_REG extends Module {
   io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
   io.out.GPR_rdatab := gpr(io.in.GPR_raddrb)
 
-  val pc = RegInit(UInt(32.W), "h80000000".U)
+  val pc = RegInit(UInt(32.W), "h20000000".U)
 
   when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc

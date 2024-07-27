@@ -1,7 +1,7 @@
 #include <cstdint>
 
 #define DEFAULT_MSIZE 0x8000000
-#define DEFAULT_MBASE 0x80000000
+#define DEFAULT_MBASE 0x20000000
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define BITMASK(bits) ((1ull << (bits)) - 1)

@@ -9,6 +9,7 @@
 #include <libelf.h>
 #include <getopt.h>
 #include <memory/paddr.h>
+#include <signal.h>
 
 void init_rand();
 void init_mem();
@@ -161,16 +162,16 @@ static int parse_args(int argc, char *argv[]) {
     return 0;
 }
 
-// void SIGINT_handler(int signal){
-//     if(signal == SIGINT){
-//         printf(ANSI_FMT("\nprogram interrupted\n", ANSI_FG_BLUE));
-//         npc_state.state = NPC_STOP;
-//     }
-// }
+void SIGINT_handler(int signal){
+    if(signal == SIGINT){
+        printf(ANSI_FMT("\nprogram interrupted\n", ANSI_FG_BLUE));
+        npc_state.state = NPC_STOP;
+    }
+}
 
-// void init_sig(void){
-//     signal(SIGINT, SIGINT_handler);
-// }
+void init_sig(void){
+    signal(SIGINT, SIGINT_handler);
+}
 
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
@@ -189,7 +190,7 @@ void init_monitor(int argc, char *argv[]) {
 
     init_disasm("riscv32");
 
-    // init_sig();
+    init_sig();
 
     welcome();
 }

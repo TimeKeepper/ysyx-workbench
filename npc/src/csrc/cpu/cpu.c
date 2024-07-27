@@ -41,18 +41,13 @@ const char *regs[32] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-struct Helper {
-    Helper() {
-        Verilated::traceEverOn(true);
-    }
-};
-Helper helper;
-const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+VerilatedContext* contextp = new VerilatedContext;
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
 void wave_Trace_init(int argc, char **argv){
-    #ifdef WAVE_TRACE
     contextp->commandArgs(argc, argv);
+    #ifdef WAVE_TRACE
+    Verilated::traceEverOn(true);
     dut.trace(tfp, 99);
     tfp->open("wave.vcd");
     #endif

@@ -103,7 +103,7 @@ print:
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing \
+	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing\
 		-y $(SOC_SPI_DIR) -y $(SOC_UART_DIR) \
 		--top-module $(SOCNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \

@@ -1,12 +1,18 @@
 #ifndef __CPU_CPU_H__
 #define __CPU_CPU_H__
 
+#ifdef DEFINE_NPC
+#include <Vtop.h>
+#include "Vtop__Dpi.h"
+#else
+#include <VysyxSoCFull.h>
+#include "VysyxSoCFull__Dpi.h"
+#endif
+
 #include <common.h>
 #include <nvboard.h>
-#include <VysyxSoCFull.h>
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "VysyxSoCFull__Dpi.h"
 
 #define ADDR_MSTATUS 0x300
 #define ADDR_MTVEC 0x305

@@ -1,8 +1,8 @@
 import "DPI-C" function int npc_trap (input int ra);
 
 module top(
-    input clk,
-    input rst
+    input clock,
+    input reset
 );
 
 always @(npc.SRAM.bridge.r_data) begin
@@ -12,8 +12,8 @@ end
 
 
 npc npc (
-    .clock(clk),
-    .reset(rst)
+    .clock(clock),
+    .reset(reset)
 );
 
 endmodule

@@ -1,10 +1,23 @@
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+#ifdef DEFINE_NPC
+#include "Vtop.h"
+#include "Vtop___024root.h"
+#define DUT_PC top->rootp->top__DOT__npc__DOT__cpu__DOT__REG__DOT__pc
+#else
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull___024root.h"
+#define DUT_PC top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc
+#endif
 #include "verilated_vcd_c.h"
 #include <cpu/cpu.h>
 #include <memory/paddr.h>
 #include <utils.h>
 #include <sdb/sdb.h>
+
+VerilatedContext* contextp = new VerilatedContext;
+TOP_NAME* top = new TOP_NAME{contextp};
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) {*data = paddr_read(addr, 4); }
@@ -39,9 +52,6 @@ const char *regs[32] = {
   "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
-
-VerilatedContext* contextp = new VerilatedContext;
-VysyxSoCFull* top = new VysyxSoCFull{contextp};
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
 void wave_Trace_init(int argc, char **argv){
@@ -186,7 +196,7 @@ void inst_comp_update(){
     }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    difftest_step(cpu.pc, top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc);
+    // difftest_step(cpu.pc, DUT_PC);
 }
 
 static void execute_one_clk(){

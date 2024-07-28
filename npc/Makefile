@@ -34,8 +34,7 @@ HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 
 # VERILATOR DIFIENITIONS
 
-SOCNAME = ysyxSoCFull
-TOPNAME = top
+TOPNAME ?= ysyxSoCFull
 NXDC_FILES = $(SRC_DIR)/constr/top.nxdc
 
 VERILATOR = verilator
@@ -91,7 +90,10 @@ INCFLAGS =  $(addprefix -I, $(INC_PATH))
 INCFLAGS += $(addprefix -I, $(HEAD_DIR))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
-CXXFLAGS += -g
+ifdef EXTRA_DEFILE
+CXXFLAGS += $(EXTRA_DEFILE)
+endif
+CXXFLAGS += -g -DTRACE
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
@@ -99,13 +101,13 @@ $(DESIGN_FILE): $(SSRC)
 	$(MAKE) verilog
 
 print:
-	@echo $(INCFLAGS)
+	@echo $(CXXFLAGS)
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing\
 		-y $(SOC_SPI_DIR) -y $(SOC_UART_DIR) \
-		--top-module $(SOCNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
+		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 

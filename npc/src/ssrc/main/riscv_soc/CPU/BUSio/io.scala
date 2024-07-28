@@ -109,8 +109,8 @@ class FIX_AXI_BUS_Master extends Bundle{
 
   val wready = Input(Bool())
   val wvalid = Output(Bool())
-  val wdata  = Output(UInt(64.W))
-  val wstrb  = Output(UInt(8.W))
+  val wdata  = Output(UInt(32.W))
+  val wstrb  = Output(UInt(4.W))
   val wlast  = Output(Bool())
 
   val bready = Output(Bool())
@@ -129,7 +129,7 @@ class FIX_AXI_BUS_Master extends Bundle{
   val rready = Output(Bool())
   val rvalid = Input(Bool())
   val rresp  = Input(UInt(2.W))
-  val rdata  = Input(UInt(64.W))
+  val rdata  = Input(UInt(32.W))
   val rlast  = Input(Bool())
   val rid    = Input(UInt(4.W))
 }
@@ -145,8 +145,8 @@ class FIX_AXI_BUS_Slave extends Bundle{
 
   val wready = Output(Bool())
   val wvalid = Input(Bool())
-  val wdata  = Input(UInt(64.W))
-  val wstrb  = Input(UInt(8.W))
+  val wdata  = Input(UInt(32.W))
+  val wstrb  = Input(UInt(4.W))
   val wlast  = Input(Bool())
 
   val bready = Input(Bool())
@@ -165,7 +165,7 @@ class FIX_AXI_BUS_Slave extends Bundle{
   val rready = Input(Bool())
   val rvalid = Output(Bool())
   val rresp  = Output(UInt(2.W))
-  val rdata  = Output(UInt(64.W))
+  val rdata  = Output(UInt(32.W))
   val rlast  = Output(Bool())
   val rid    = Output(UInt(4.W))
 }

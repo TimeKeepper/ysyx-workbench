@@ -9,7 +9,6 @@
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) {*data = paddr_read(addr, 4); }
 
-VysyxSoCFull dut;
 uint32_t clk_cnt = 0;
 uint32_t inst_cnt = 0;
 bool     is_itrace_printf = false;
@@ -42,13 +41,14 @@ const char *regs[32] = {
 };
 
 VerilatedContext* contextp = new VerilatedContext;
+VysyxSoCFull* top = new VysyxSoCFull{contextp};
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
 void wave_Trace_init(int argc, char **argv){
     contextp->commandArgs(argc, argv);
     #ifdef WAVE_TRACE
     Verilated::traceEverOn(true);
-    dut.trace(tfp, 99);
+    top->trace(tfp, 99);
     tfp->open("wave.vcd");
     #endif
 }
@@ -84,16 +84,16 @@ void ram_write(paddr_t addr, int len, word_t data){
 }
 
 static void single_cycle() {
-    dut.clock = 0; dut.eval();wave_Trace_once();                  
+    top->clock = 0; top->eval();wave_Trace_once();                  
 
-    dut.clock = 1; dut.eval();wave_Trace_once();        
+    top->clock = 1; top->eval();wave_Trace_once();        
     clk_cnt++;
 }
 
 static void reset(int n) {
-    dut.reset = 1;
+    top->reset = 1;
     while (n -- > 0) single_cycle();
-    dut.reset = 0;
+    top->reset = 0;
 }
 
 void cpu_reset(int n, int argc, char **argv){
@@ -186,7 +186,7 @@ void inst_comp_update(){
     }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    difftest_step(cpu.pc, dut.rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc);
+    difftest_step(cpu.pc, top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc);
 }
 
 static void execute_one_clk(){

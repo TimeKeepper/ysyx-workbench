@@ -1,7 +1,11 @@
 #include <cstdint>
 
 #define DEFAULT_MSIZE 0x8000000
+#ifdef DEFINE_NPC
+#define DEFAULT_MBASE 0x80000000
+#else
 #define DEFAULT_MBASE 0x20000000
+#endif
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define BITMASK(bits) ((1ull << (bits)) - 1)
@@ -14,7 +18,7 @@
 #endif
 
 #define WAVE_TRACE
-// #define ITRACE
+#define ITRACE
 // #define CONFIG_DIFFTEST
 // #define CONFIG_WATCHPOINT
 

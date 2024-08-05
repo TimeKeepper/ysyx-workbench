@@ -72,7 +72,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	# mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
+	mill -j 4 -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
 
 # NVBOARD DIFIENITIONS
 

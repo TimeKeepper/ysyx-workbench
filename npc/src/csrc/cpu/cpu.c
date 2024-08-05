@@ -190,10 +190,6 @@ void difftest_step(vaddr_t pc, vaddr_t npc);
 static bool is_comp_first_time = true; // 由于多周期处理器特性不得不引入的边界条件，或许能够在修改成流水线之后去除
 
 void inst_comp_update(){
-    if(is_comp_first_time){
-        is_comp_first_time = false;
-        return;
-    }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
     // difftest_step(cpu.pc, DUT_PC);

@@ -7,7 +7,6 @@ module IFU_trace(
     input [31:0] addr,
     input [31:0] data
 );
-
     always @(posedge clock) begin
         if(valid) begin
             check_special_inst(data);

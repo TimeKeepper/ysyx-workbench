@@ -40,7 +40,7 @@ class ysyx_23060198_IFU extends Module {
     val trace = Module(new IFU_trace)
 
     trace.io.clock := clock
-    trace.io.valid := io.out.valid && io.out.ready
+    trace.io.valid := io.out.valid && io.out.ready && !reset.asBool
     trace.io.addr := io.in.bits.addr
     trace.io.data := io.out.bits.data
 }

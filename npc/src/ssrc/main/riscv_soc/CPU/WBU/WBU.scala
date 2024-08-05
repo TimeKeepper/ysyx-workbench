@@ -27,7 +27,7 @@ class ysyx_23060198_WBU extends Module {
         )
     )
 
-    io.out.valid := state === s_wait_ready
+    io.out.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
     io.in.ready  := state === s_wait_valid
 
     val bcu = Module(new ysyx_23060198_BCU)    

@@ -1,6 +1,7 @@
 #include <sdb/cmd.h>
 #include <sdb/sdb.h>
 #include <cpu/cpu.h>
+#include <stdexcept>
 #include <utils.h>
 #include <memory/paddr.h>
 
@@ -200,7 +201,7 @@ int cmd_b(char *args){
   }
   bool success = true;
   word_t addr = expr(args, &success);
-  if(addr < 0x80000000){
+  if(!in_pmem(addr)){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
     return 0;
   }

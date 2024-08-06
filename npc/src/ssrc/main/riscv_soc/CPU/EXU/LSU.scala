@@ -28,7 +28,7 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.araddr.valid   := false.B
         io.AXI.rdata.ready    := false.B
         io.AXI.awaddr.valid   <> io.in.valid
-        io.AXI.wdata.valid    := true.B
+        io.AXI.wdata.valid    <> io.in.valid
         io.AXI.bresp.ready    <> io.out.ready
         io.AXI.bresp.valid    <> io.out.valid
 

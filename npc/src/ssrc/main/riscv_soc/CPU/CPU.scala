@@ -10,6 +10,14 @@ class inst_bridge extends BlackBox{
   })
 }
 
+class AXI_bridge extends BlackBox{
+    val io = IO(new Bundle {
+        val clock = Input(Clock())
+        val rresp  = Input(UInt(2.W))
+        val bresp  = Input(UInt(2.W))
+    })
+}
+
 class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
     val master = new FIX_AXI_BUS_Master
@@ -106,6 +114,11 @@ class ysyx_23060198 extends Module {
   }.otherwise {
     inst_bridge.io.valid := false.B
   }
+
+  val axi_bridge = Module(new AXI_bridge)
+  axi_bridge.io.clock := clock
+  axi_bridge.io.rresp := io.master.rresp
+  axi_bridge.io.bresp := io.master.bresp
 
   io.slave <> DontCare
   io.interrupt <> DontCare

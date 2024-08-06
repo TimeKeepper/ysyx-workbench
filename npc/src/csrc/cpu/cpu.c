@@ -1,3 +1,4 @@
+#include "VysyxSoCFull__Dpi.h"
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -216,6 +217,11 @@ static void execute(uint64_t n){
 
         if(npc_state.state != NPC_RUNNING) break;
     }
+}
+
+void error_waddr(){
+    printf(ANSI_FMT("Invalid write address\n", ANSI_FG_RED));
+    npc_trap(-1);
 }
 
 int npc_trap (int ra){

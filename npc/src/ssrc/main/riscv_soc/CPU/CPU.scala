@@ -100,8 +100,8 @@ class ysyx_23060198 extends Module {
   inst_bridge.io.clock := clock
 
   val comp_cache = RegInit(Bool(), false.B)
-  comp_cache := WBU.io.out.valid
-  when((comp_cache === true.B) && (WBU.io.out.valid === false.B)) {
+  comp_cache := IFU.io.out.valid
+  when((comp_cache === true.B) && (IFU.io.out.valid === false.B)) {
     inst_bridge.io.valid := true.B
   }.otherwise {
     inst_bridge.io.valid := false.B

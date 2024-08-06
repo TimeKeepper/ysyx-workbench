@@ -1,5 +1,6 @@
 #include <am.h>
 #include <klib-macros.h>
+#include <klib.h>
 #include "../riscv.h"
 
 // # define DEVICE_BASE 0xa0000000
@@ -29,7 +30,15 @@ void halt(int code) {
   while(1);
 }
 
+extern char _data, edata, data_load_start;
+int boot_loader(void) {
+  memcpy(&_data, &data_load_start, (&edata - &_data));
+  return 0;
+}
+
 void _trm_init() {
-  int ret = main(mainargs);
+  int ret;
+  ret = boot_loader();
+  ret = main(mainargs);
   halt(ret);
 }

@@ -9,6 +9,5 @@ int main(int argc, char **argv) {
   engine_start(argc, argv);
   
   // nvboard_quit();
-  int a = is_exit_status_bad();
-  return a;
+  return is_exit_status_bad();
 }

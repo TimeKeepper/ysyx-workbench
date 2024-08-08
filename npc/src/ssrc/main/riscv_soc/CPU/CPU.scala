@@ -71,7 +71,7 @@ class ysyx_23060198 extends Module {
   io.master.awaddr  <> AXI_Interconnect.io.AXI.awaddr.bits.addr
   io.master.awid    := 0.U
   io.master.awlen   := 0.U
-  io.master.awsize  := 0.U
+  io.master.awsize  <> AXI_Interconnect.io.AXI.awaddr.bits.size
   io.master.awburst := 0.U
 
   io.master.wready <> AXI_Interconnect.io.AXI.wdata.ready
@@ -90,7 +90,7 @@ class ysyx_23060198 extends Module {
   io.master.araddr  <> AXI_Interconnect.io.AXI.araddr.bits.addr
   io.master.arid    := 0.U
   io.master.arlen   := 0.U
-  io.master.arsize  := 0.U
+  io.master.arsize  := AXI_Interconnect.io.AXI.araddr.bits.size
   io.master.arburst := 0.U
 
   io.master.rready <> AXI_Interconnect.io.AXI.rdata.ready
@@ -108,8 +108,8 @@ class ysyx_23060198 extends Module {
   inst_bridge.io.clock := clock
 
   val comp_cache = RegInit(Bool(), false.B)
-  comp_cache := IFU.io.out.valid
-  when((comp_cache === true.B) && (IFU.io.out.valid === false.B)) {
+  comp_cache := WBU.io.out.valid
+  when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
     inst_bridge.io.valid := true.B
   }.otherwise {
     inst_bridge.io.valid := false.B

@@ -109,6 +109,7 @@ class npc extends Module {
   Xbar.io.AXI.araddr.ready <> CPU.io.io_master.arready
   Xbar.io.AXI.araddr.valid <> CPU.io.io_master.arvalid
   Xbar.io.AXI.araddr.bits.addr <> CPU.io.io_master.araddr
+  Xbar.io.AXI.araddr.bits.size <> CPU.io.io_master.arsize
 
   Xbar.io.AXI.rdata.ready  <> CPU.io.io_master.rready
   Xbar.io.AXI.rdata.valid  <> CPU.io.io_master.rvalid
@@ -118,6 +119,7 @@ class npc extends Module {
   Xbar.io.AXI.awaddr.ready <> CPU.io.io_master.awready
   Xbar.io.AXI.awaddr.valid <> CPU.io.io_master.awvalid
   Xbar.io.AXI.awaddr.bits.addr <> CPU.io.io_master.awaddr
+  Xbar.io.AXI.awaddr.bits.size <> CPU.io.io_master.awsize
 
   Xbar.io.AXI.wdata.ready  <> CPU.io.io_master.wready
   Xbar.io.AXI.wdata.valid  <> CPU.io.io_master.wvalid

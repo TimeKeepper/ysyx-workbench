@@ -62,6 +62,7 @@ class WBU_output extends Bundle{
 
 class araddr extends Bundle{
     val addr = Output(UInt(32.W))
+    val size = Output(UInt(3.W))
 }
 
 class rdata extends Bundle{
@@ -71,6 +72,7 @@ class rdata extends Bundle{
 
 class awaddr extends Bundle{
     val addr = Output(UInt(32.W))
+    val size = Output(UInt(3.W))
 }
 
 class wdata extends Bundle{

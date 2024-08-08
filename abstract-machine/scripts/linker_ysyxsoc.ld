@@ -35,10 +35,11 @@ SECTIONS {
     erodata = .;
   } > mrom AT> mrom
   
+
   .data : {
     _data = .;
 
-    *(.data)
+    *(.data);
 
     edata = .;
   } > sram AT> mrom : data
@@ -59,7 +60,7 @@ SECTIONS {
   _heap_start = _data + data_size;
 
   _stack_top = _data + data_size;
-  . = 0x0f001fff;
+  . = 0x0f002000;
   _stack_pointer = .;
   
   _end = .;

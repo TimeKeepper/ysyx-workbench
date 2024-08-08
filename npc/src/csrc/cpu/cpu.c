@@ -21,7 +21,7 @@ VerilatedContext* contextp = new VerilatedContext;
 TOP_NAME* top = new TOP_NAME{contextp};
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) {*data = paddr_read(addr, 4); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }
 
 uint32_t clk_cnt = 0;
 uint32_t inst_cnt = 0;
@@ -161,6 +161,8 @@ static void func_called_detect(){
     #endif
 }
 
+static uint32_t num_of_inst_to_end = 0;
+
 void watchpoint_catch(void){
     #ifdef CONFIG_WATCHPOINT
     wp_Value_Update();
@@ -169,7 +171,8 @@ void watchpoint_catch(void){
         printf("Watchpoint %d: " ANSI_FMT("%s\n", ANSI_FG_BLUE), wp->NO, wp->expr);
         printf(ANSI_FMT("Old value" , ANSI_FG_YELLOW)  " = 0x%08x\n", wp->last_time_Value);
         printf(ANSI_FMT("New value" , ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
-        if(npc_state.state != NPC_END) npc_state.state = NPC_STOP;//如果在npc停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NPC_END的判断
+        num_of_inst_to_end = 1;
+        // if(npc_state.state != NPC_END) npc_state.state = NPC_STOP;//如果在npc停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NPC_END的判断
     }
     #endif
 }
@@ -178,19 +181,21 @@ void check_special_inst(uint32_t inst){
     switch(inst){
         case 0x00000000: npc_trap(1);   break; // ecall
         case 0xffffffff: npc_trap(1);   break; // bad trap
-        case 0x00100073: npc_trap(0);   break; // ebreak
+        case 0x00100073: npc_trap(cpu.gpr[10]);   break; // ebreak
         case 0x00008067: is_ret = true;     break; // ret
         default: break;
     }
 }
-
-static uint32_t num_of_inst_to_end = 0;
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
 
 static bool is_comp_first_time = true; // 由于多周期处理器特性不得不引入的边界条件，或许能够在修改成流水线之后去除
 
 void inst_comp_update(){
+    if(is_comp_first_time){
+        is_comp_first_time = false;
+        return;
+    }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
     // difftest_step(cpu.pc, DUT_PC);
@@ -224,10 +229,11 @@ void error_waddr(){
     npc_trap(-1);
 }
 
-int npc_trap (int ra){
+int npc_trap (int a0){
     npc_state.state = NPC_END;
-    printf("ra: %d\n", ra);
-    if(ra == 0) printf("\033[1;32mHit good trap\033[0m\n");
+    npc_state.halt_ret = a0;
+    printf("a0: %d\n", a0);
+    if(a0 == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
     wave_Trace_once();
     wave_Trace_close(); 

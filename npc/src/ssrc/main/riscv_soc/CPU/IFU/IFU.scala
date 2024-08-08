@@ -24,6 +24,7 @@ class ysyx_23060198_IFU extends Module {
     io.in.ready <> io.AXI.araddr.ready
     io.in.valid <> io.AXI.araddr.valid
     io.in.bits.addr <> io.AXI.araddr.bits.addr
+    io.AXI.araddr.bits.size <> 2.U
 
     io.out.ready <> io.AXI.rdata.ready
     io.out.valid <> io.AXI.rdata.valid
@@ -31,6 +32,7 @@ class ysyx_23060198_IFU extends Module {
 
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U
+    io.AXI.awaddr.bits.size := 0.U
     io.AXI.wdata.valid := false.B
     io.AXI.wdata.bits.data := 0.U
     io.AXI.wdata.bits.strb := 0.U

@@ -34,7 +34,6 @@ SECTIONS {
 
     erodata = .;
   } > mrom AT> mrom
-  
 
   .data : {
     _data = .;

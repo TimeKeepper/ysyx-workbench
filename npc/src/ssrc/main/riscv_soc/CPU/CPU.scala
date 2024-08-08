@@ -96,7 +96,7 @@ class ysyx_23060198 extends Module {
   io.master.rready <> AXI_Interconnect.io.AXI.rdata.ready
   io.master.rvalid <> AXI_Interconnect.io.AXI.rdata.valid
   io.master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
-  io.master.rdata  <> AXI_Interconnect.io.AXI.rdata.bits.data
+  AXI_Interconnect.io.AXI.rdata.bits.data := ((io.master.rdata >> (io.master.araddr(1,0) << 3.U))(31, 0))
 
   AXI_Interconnect.io.ls_resq := IFU.io.out.valid
   AXI_Interconnect.io.if_resq := EXU.io.out.valid

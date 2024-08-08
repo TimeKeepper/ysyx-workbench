@@ -21,7 +21,7 @@ VerilatedContext* contextp = new VerilatedContext;
 TOP_NAME* top = new TOP_NAME{contextp};
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr & ~0x3u, 4); }
 
 uint32_t clk_cnt = 0;
 uint32_t inst_cnt = 0;

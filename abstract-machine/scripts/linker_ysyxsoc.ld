@@ -1,16 +1,10 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+PHDRS { text PT_LOAD; data PT_LOAD; bss PT_LOAD; sdata PT_LOAD; }
 
 MEMORY {
   mrom : ORIGIN = 0x20000000, LENGTH = 4K
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
 }
-/* 
-REGION_ALIAS("REGION_TEXT", mrom);    
-REGION_ALIAS("REGION_RODATA", mrom);
-REGION_ALIAS("REGION_DATA", sram);
-REGION_ALIAS("REGION_BSS", mrom); 
-*/
 
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
@@ -19,47 +13,74 @@ SECTIONS {
   _begin = .;
 
   .text : {
-    _text = .;
+    _stext = .;
   
     *(entry)
+    *(.text)
     *(.text*)
   
-    etext = .;
+    _etext = .;
   } > mrom AT> mrom : text
 
   .rodata : {
-    _rodata = .;
+    _srodata = .;
 
+    *(.rodata)
     *(.rodata*)
 
-    erodata = .;
+    _erodata = .;
   } > mrom AT> mrom
 
+  data_load_start = LOADADDR(.data);
+
   .data : {
-    _data = .;
+    _sdata = .;
 
-    *(.data);
+    *(.data)
+    *(.data*)
 
-    edata = .;
+    _edata = .;
   } > sram AT> mrom : data
 
-  data_size =  SIZEOF(.data);
-  data_load_start = LOADADDR(.data);
+  .sdata : {
+    _ssdata = .;
+
+    *(.sdata)
+    *(.sdata*)
+
+    _esdata = .;
+  } > sram AT> mrom : sdata
   
   .bss : {
-	  _bss = .;
+	  _sbss = .;
 
+    *(.bss)
     *(.bss*)
+    *(.sbss)
     *(.sbss*)
     *(.scommon)
 
-    ebss = .;
-  } > mrom AT> mrom
+    _ebss = .;
+  } > sram AT> mrom : bss
 
-  _heap_start = _data + data_size;
+  data_load_end = ADDR(.heap);
 
-  _stack_top = _data + data_size;
-  . = 0x0f002000;
+  data_load_size = _sheap - _sdata;
+
+  .heap (NOLOAD) : {
+    _sheap = .;
+
+    *(.heap)
+    *(.heap*)
+
+    . = . + 0x1000; /* align to 4K */
+
+    _eheap = .;
+  } > sram AT> sram
+
+  _stack_top  = .;
+
+  . = 0x0f001ffc;
   _stack_pointer = .;
   
   _end = .;

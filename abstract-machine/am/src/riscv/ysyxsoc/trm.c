@@ -18,17 +18,16 @@
 #define SERIAL_DLL      (SERIAL_PORT + 0) // divisor latch low
 #define SERIAL_DLM      (SERIAL_PORT + 1) // divisor latch high
 
-extern char _heap_start;
-extern char _data, edata, data_load_start, data_size;
+extern char _sheap, _eheap;
+extern char _sdata, data_load_start, data_load_size, _esdata;
 int main(const char *args);
 
 extern char _pmem_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
 #define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
 
-Area heap = RANGE(&_heap_start, &_heap_start + 0x00000fff);
+Area heap = RANGE(&_sheap, &_eheap);
 
-// Area data = RANGE(&_data, &_data + (int)&data_size);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
@@ -43,7 +42,13 @@ void uart_init(void){
   *((volatile uint8_t  *)SERIAL_LCR) = (*((volatile uint8_t  *)SERIAL_LCR)) & 0x7f;
 }
 
+static uint8_t putch_counter = 0;
+
 void putch(char ch) {
+  if(putch_counter++ == 16){
+    while(!(*((volatile uint8_t  *)SERIAL_LS) & 0x20)); //检查第5位是否为1，表示空闲
+    putch_counter = 0;
+  }
   outb(SERIAL_RB, ch);
 }
 
@@ -55,8 +60,8 @@ void halt(int code) {
 
 
 int boot_loader(void) {
-  memcpy(&_data, &data_load_start, (uint32_t)((uintptr_t)(&heap.start) - (uintptr_t)(&_data)));
-  // memcpy(&_data, &data_load_start, (uint32_t)&data_size);
+  memcpy(&_sdata, &data_load_start, (uintptr_t)(&data_load_size));
+  // memcpy(&_sdata, &data_load_start, ((uintptr_t)(&_esdata) - (uintptr_t)(&_sdata)));
   uart_init();
   return 0;
 }

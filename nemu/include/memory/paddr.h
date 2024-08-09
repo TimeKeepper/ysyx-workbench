@@ -18,17 +18,25 @@
 
 #include <common.h>
 
-#define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
-#define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
+#define CODE_MEMORY_BASE MROM_BASE
+#define CODE_MEMORY_SIZE MROM_SIZE
+
+#define PMEM_LEFT  ((paddr_t)CODE_MEMORY_BASE)
+#define PMEM_RIGHT ((paddr_t)CODE_MEMORY_BASE + CODE_MEMORY_SIZE - 1)
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 
-/* convert the guest physical address in the guest program to host virtual address in NEMU */
-uint8_t* guest_to_host(paddr_t paddr);
-/* convert the host virtual address in NEMU to guest physical address in the guest program */
-paddr_t host_to_guest(uint8_t *haddr);
+uint8_t* guest_to_host_pmem(paddr_t paddr);
+paddr_t host_to_guest_pmem(uint8_t *haddr);
+
+uint8_t* guest_to_host_mrom(paddr_t paddr);
+paddr_t host_to_guest_mrom(uint8_t *haddr);
 
 static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
+}
+
+static inline bool in_mrom(paddr_t addr) {
+  return addr - MROM_BASE < MROM_SIZE;
 }
 
 word_t paddr_read(paddr_t addr, int len);

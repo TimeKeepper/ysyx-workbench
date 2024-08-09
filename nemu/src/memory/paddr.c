@@ -17,24 +17,41 @@
 #include <memory/paddr.h>
 #include <device/mmio.h>
 #include <isa.h>
+#include "common.h"
 #include "utils.h"
 
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
+static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
 #endif
 
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
-paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
+#define CODE_MEMORY mrom
+#define CODE_MEMORY_SIZE MROM_SIZE
+
+uint8_t* guest_to_host_pmem(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
+paddr_t host_to_guest_pmem(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
+
+uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - MROM_BASE; }
+paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + MROM_SIZE; }
+
+uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - FLASH_BASE; }
+paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + FLASH_SIZE; }
 
 static word_t pmem_read(paddr_t addr, int len) {
-  word_t ret = host_read(guest_to_host(addr), len);
+  word_t ret = host_read(guest_to_host_pmem(addr), len);
   return ret;
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
-  host_write(guest_to_host(addr), len, data);
+  host_write(guest_to_host_pmem(addr), len, data);
+}
+
+static word_t mrom_read(paddr_t addr) {
+    word_t ret = host_read(guest_to_host_mrom(addr & ~0x3u), 4);
+    return ret;
 }
 
 void instr_buf_printf(void);
@@ -52,7 +69,7 @@ void init_mem() {
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
+  IFDEF(CONFIG_MEM_RANDOM, memset(CODE_MEMORY, rand(), CODE_MEMORY_SIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
@@ -61,6 +78,7 @@ word_t paddr_read(paddr_t addr, int len) {
   printf(ANSI_FMT("paddr read", ANSI_FG_BLUE) " addr = " FMT_PADDR ", len = %d\n", addr, len);
   #endif
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
+  else if(likely(in_mrom(addr))) return mrom_read(addr);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
   return 0;

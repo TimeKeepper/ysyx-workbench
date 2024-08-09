@@ -12,8 +12,20 @@
 
 static uint8_t pmem[DEFAULT_MSIZE] PG_ALIGN = {};
 
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - DEFAULT_MBASE; }
-paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + DEFAULT_MBASE; }
+static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
+
+static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
+
+uint8_t* guest_to_host_pmem(paddr_t paddr) { return pmem + paddr - DEFAULT_MBASE; }
+paddr_t host_to_guest_pmem(uint8_t *haddr) { return haddr - pmem + DEFAULT_MBASE; }
+
+uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - MROM_BASE; }
+paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + MROM_SIZE; }
+
+uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - FLASH_BASE; }
+paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + FLASH_SIZE; }
+
+#define CODE_MEMORY mrom
 
 static const uint32_t img [] = {
   0x00000513,  // li a0 0
@@ -23,16 +35,29 @@ static const uint32_t img [] = {
 };
 
 void init_mem() {
-    memcpy(pmem, img, sizeof(img));
+    for(uint32_t i = 0; i < FLASH_SIZE; i++){
+        flash[i] = i & 0xff;
+    }
+    memcpy(CODE_MEMORY, img, sizeof(img));
 }
 
 static word_t pmem_read(paddr_t addr, int len) {
-    word_t ret = host_read(guest_to_host(addr), len);
+    word_t ret = host_read(guest_to_host_pmem(addr), len);
     return ret;
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
-    host_write(guest_to_host(addr), len, data);
+    host_write(guest_to_host_pmem(addr), len, data);
+}
+
+static word_t mrom_read(paddr_t addr) {
+    word_t ret = host_read(guest_to_host_mrom(addr & ~0x3u), 4);
+    return ret;
+}
+
+static word_t flash_read(paddr_t addr) {
+    word_t ret = host_read(guest_to_host_flash(addr & ~0x3u), 4);
+    return ret;
 }
 
 static void out_of_bound(paddr_t addr) {
@@ -46,6 +71,8 @@ void difftest_skip_ref();
 
 word_t paddr_read(paddr_t addr, int len) {
     if (likely(in_pmem(addr))) return pmem_read(addr, len);
+    else if(likely(in_mrom(addr))) return mrom_read(addr);
+    else if(likely(in_flash(addr))) return flash_read(addr);
     else if(addr == RTC_ADDR ) {difftest_skip_ref(); return get_time();}
     else if(addr == RTC_ADDR + 4) { difftest_skip_ref(); return get_time() >> 32;}
     out_of_bound(addr);
@@ -57,6 +84,9 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     out_of_bound(addr);
 }
 
-uint8_t* get_pmem(void) {
-    return pmem;
+uint8_t* get_pmem(void) { //获取存放程序的内存节
+    return CODE_MEMORY;
 }
+
+extern "C" void flash_read(int32_t addr, int32_t *data) { *data = host_read((flash + addr), 4); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }

@@ -37,9 +37,11 @@ static void restart() {
   cpu.gpr[0] = 0;
 }
 
+#define Guest_2_host_CODE(x) guest_to_host_mrom(x)
+
 void init_isa() {
   /* Load built-in image. */
-  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
+  memcpy(Guest_2_host_CODE(RESET_VECTOR), img, sizeof(img));
 
   /* Initialize this virtual computer system. */
   restart();

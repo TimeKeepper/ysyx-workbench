@@ -1,11 +1,16 @@
 #include <cstdint>
 
-#define DEFAULT_MSIZE 0x8000000
-#ifdef DEFINE_NPC
-#define DEFAULT_MBASE 0x80000000
-#else
-#define DEFAULT_MBASE 0x20000000
-#endif
+#define DEFAULT_MSIZE   0x8000000
+#define DEFAULT_MBASE   0x80000000
+
+#define MROM_SIZE       0x1000
+#define MROM_BASE       0x20000000
+
+#define FLASH_SIZE      0x10000000
+#define FLASH_BASE      0x30000000
+
+#define CODE_MEMORY_BASE MROM_BASE
+#define CODE_MEMORY_SIZE MROM_SIZE
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define BITMASK(bits) ((1ull << (bits)) - 1)

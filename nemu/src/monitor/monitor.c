@@ -131,6 +131,8 @@ static long load_elf() {
   return symcount;
 }
 
+#define Guest_2_host_CODE(x) guest_to_host_mrom(x)
+
 static long load_img() {
   if (img_file == NULL) {
     Log("No image is given. Use the default build-in image.");
@@ -146,7 +148,7 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+  int ret = fread(Guest_2_host_CODE(RESET_VECTOR), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);

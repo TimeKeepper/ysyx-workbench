@@ -46,4 +46,10 @@ typedef uint16_t ioaddr_t;
 
 #include <debug.h>
 
+#define MROM_SIZE       0x1000
+#define MROM_BASE       0x20000000
+
+#define FLASH_SIZE      0x10000000
+#define FLASH_BASE      0x30000000
+
 #endif

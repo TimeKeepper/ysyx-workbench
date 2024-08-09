@@ -45,6 +45,8 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
   }
 }
 
+#define Guest_2_host_CODE(x) guest_to_host_mrom(x)
+
 void init_difftest(char *ref_so_file, long img_size, int port) {
   #ifdef CONFIG_DIFFTEST
     assert(ref_so_file != NULL);
@@ -74,7 +76,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
         "If it is not necessary, you can turn it off in menuconfig.\n", ref_so_file);
 
     ref_difftest_init(port);
-    ref_difftest_memcpy(DEFAULT_MBASE, guest_to_host(DEFAULT_MBASE), img_size, DIFFTEST_TO_REF);
+    ref_difftest_memcpy(CODE_MEMORY_BASE, Guest_2_host_CODE(CODE_MEMORY_BASE), img_size, DIFFTEST_TO_REF);
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
   #endif
 }

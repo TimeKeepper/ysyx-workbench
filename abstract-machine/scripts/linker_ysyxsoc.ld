@@ -78,10 +78,16 @@ SECTIONS {
     _eheap = .;
   } > sram AT> sram
 
-  _stack_top  = .;
+  .stack (NOLOAD) : {
 
-  . = 0x0f001ffc;
-  _stack_pointer = .;
+    _stack_top  = _eheap;
+
+    *(.stack)
+
+    . = ORIGIN(sram) + LENGTH(sram);
+    _stack_pointer = .;
+
+  } > sram AT> sram
   
   _end = .;
 }

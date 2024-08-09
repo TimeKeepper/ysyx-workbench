@@ -10,7 +10,7 @@ AM_SRCS := riscv/ysyxsoc/start.c \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker_ysyxsoc.ld 
-LDFLAGS   += --gc-sections -e _start # --print-map
+LDFLAGS   += --gc-sections -e _start #--print-map
 NPCFLAGS += -e $(IMAGE).elf
 NPCFLAGS += -d /home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so
 NPC_BATCH_FLAG = $(NPCFLAGS)
@@ -27,7 +27,7 @@ run: image
 	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
 
 batch: image
-	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
 
 trace: image
 	$(MAKE) -C $(NPC_HOME) trace IMG=$(IMAGE).bin

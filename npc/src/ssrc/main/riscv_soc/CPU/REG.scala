@@ -78,7 +78,7 @@ class ysyx_23060198_REG extends Module {
   io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
   io.out.GPR_rdatab := gpr(io.in.GPR_raddrb)
 
-  val pc = RegInit("h20000000".U(32.W))
+  val pc = RegInit("h30000000".U(32.W))
 
   when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc
@@ -92,13 +92,17 @@ class ysyx_23060198_REG extends Module {
   def ADDR_MEPC    = "h341".U
   def ADDR_MCAUSE  = "h342".U
 
+  def ADDR_MVENDORID = "hF11".U
+
   val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
+  val mvendorid = RegInit("h79737978".U)
   io.out.csr_rdata := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,
     ADDR_MEPC      -> mepc,
     ADDR_MCAUSE    -> mcause,
+    ADDR_MVENDORID -> mvendorid
   ))
 
   // val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
@@ -115,6 +119,8 @@ class ysyx_23060198_REG extends Module {
       mepc := io.in.WBU_io.CSR_wdataa
     }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MCAUSE){
       mcause := io.in.WBU_io.CSR_wdataa
+    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MVENDORID){
+      mvendorid := io.in.WBU_io.CSR_wdataa
     }
     // csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
   }
@@ -130,6 +136,8 @@ class ysyx_23060198_REG extends Module {
       mepc := io.in.WBU_io.CSR_wdatab
     }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MCAUSE){
       mcause := io.in.WBU_io.CSR_wdatab
+    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MVENDORID){
+      mvendorid := io.in.WBU_io.CSR_wdatab
     }
     // csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
   }

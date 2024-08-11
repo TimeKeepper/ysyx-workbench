@@ -35,5 +35,6 @@ static inline bool in_flash(paddr_t addr) {
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
 uint8_t* get_pmem(void);
+uint8_t* get_flash(void);
 
 #endif

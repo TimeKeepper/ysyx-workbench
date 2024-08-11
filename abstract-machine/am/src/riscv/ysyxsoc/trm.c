@@ -19,7 +19,7 @@
 #define SERIAL_DLM      (SERIAL_PORT + 1) // divisor latch high
 
 extern char _sheap, _eheap;
-extern char _sdata, data_load_start, data_load_size, _esdata;
+extern char _stext, data_load_start, data_load_size, _esdata;
 int main(const char *args);
 
 extern char _pmem_start;
@@ -60,15 +60,34 @@ void halt(int code) {
 
 
 int boot_loader(void) {
-  memcpy(&_sdata, &data_load_start, (uintptr_t)(&data_load_size));
+  uint32_t *dst = (uint32_t *)&_stext;
+  const uint32_t *src = (uint32_t *)&data_load_start;
+  size_t n = (size_t)(&data_load_size) / 4 + 1;// 确保全部加载
+  while(n--){
+    *dst++ = *src++;
+  }
+
   // memcpy(&_sdata, &data_load_start, ((uintptr_t)(&_esdata) - (uintptr_t)(&_sdata)));
   uart_init();
   return 0;
 }
 
+#define READ_CSR(csr, var)                                   \
+    do {                                                     \
+        unsigned long __v;                                   \
+        __asm__ __volatile__ ("csrr %0, " #csr ""      \
+                             : "=r" (__v)                    \
+                             :                               \
+                             : "memory");                     \
+        var = (typeof(var)) __v;                              \
+    } while (0)
+
 void _trm_init() {
   int ret;
   ret = boot_loader();
+  uint32_t mvendorid;
+  READ_CSR(mvendorid, mvendorid);
+  printf("%d\n", mvendorid);
   ret = main(mainargs);
   halt(ret);
 }

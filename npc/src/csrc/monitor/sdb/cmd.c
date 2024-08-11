@@ -201,7 +201,7 @@ int cmd_b(char *args){
   }
   bool success = true;
   word_t addr = expr(args, &success);
-  if(!in_pmem(addr)){
+  if(!in_flash(addr)){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
     return 0;
   }

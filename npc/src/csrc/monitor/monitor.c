@@ -124,6 +124,14 @@ long load_img(char* img_file) {
 
     fseek(fp, 0, SEEK_SET);
     int ret = fread(get_pmem(), 4, size, fp);
+    uint8_t* flash = get_flash();
+    uint8_t* mrom = get_pmem();
+    for(uint32_t i = 0; i < size; i+=4){
+        *(flash + i + 0) = (*(mrom + i + 3));
+        *(flash + i + 1) = (*(mrom + i + 2));
+        *(flash + i + 2) = (*(mrom + i + 1));
+        *(flash + i + 3) = (*(mrom + i + 0));
+    }
     assert(ret == size/4);
 
     fclose(fp);

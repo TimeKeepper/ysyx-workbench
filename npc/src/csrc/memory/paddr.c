@@ -35,9 +35,6 @@ static const uint32_t img [] = {
 };
 
 void init_mem() {
-    for(uint32_t i = 0; i < FLASH_SIZE; i++){
-        flash[i] = i & 0xff;
-    }
     memcpy(CODE_MEMORY, img, sizeof(img));
 }
 
@@ -88,5 +85,10 @@ uint8_t* get_pmem(void) { //获取存放程序的内存节
     return CODE_MEMORY;
 }
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { *data = host_read((flash + addr), 4); }
+uint8_t* get_flash(void) { //获取存放flash的内存节
+    return flash;
+}
+
+extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((flash + addr), 4);}// printf("addr: 0x%8x data: 0x%8x", addr, *data);
+// extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((mrom + addr), 4); printf("flash_read: addr = 0x%08x, data = 0x%08x\n", addr, *data);}
 extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }

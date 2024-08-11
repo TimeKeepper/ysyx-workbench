@@ -1,26 +1,39 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; bss PT_LOAD; sdata PT_LOAD; }
+PHDRS {boot PT_LOAD; text PT_LOAD; test PT_LOAD; rodata PT_LOAD; srodata PT_LOAD; data PT_LOAD; bss PT_LOAD; sdata PT_LOAD; }
 
 MEMORY {
-  mrom : ORIGIN = 0x20000000, LENGTH = 4K
   sram : ORIGIN = 0x0f000000, LENGTH = 8K
+  mrom : ORIGIN = 0x20000000, LENGTH = 4K
+  flash : ORIGIN = 0x30000000, LENGTH = 16M
 }
 
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
-  . = ORIGIN(mrom);
+  . = ORIGIN(flash);
 
   _begin = .;
 
-  .text : {
-    _stext = .;
+  .boot : {
+    _sboot = .;
   
     *(entry)
+
+    *(.text.boot_loader)
+    *(.text._trm_init)
+  
+    _eboot = .;
+  } > flash AT> flash : boot
+
+  data_load_start = LOADADDR(.text);
+
+  .text : {
+    _stext = .;
+
     *(.text)
     *(.text*)
-  
+
     _etext = .;
-  } > mrom AT> mrom : text
+  } > sram AT> flash : text
 
   .rodata : {
     _srodata = .;
@@ -29,9 +42,16 @@ SECTIONS {
     *(.rodata*)
 
     _erodata = .;
-  } > mrom AT> mrom
+  } > sram AT> flash : rodata
 
-  data_load_start = LOADADDR(.data);
+  .srodata : {
+    _ssrodata = .;
+
+    *(.srodata)
+    *(.srodata*)
+
+    _esrodata = .;
+  } > sram AT> flash : srodata
 
   .data : {
     _sdata = .;
@@ -40,7 +60,7 @@ SECTIONS {
     *(.data*)
 
     _edata = .;
-  } > sram AT> mrom : data
+  } > sram AT> flash : data
 
   .sdata : {
     _ssdata = .;
@@ -49,7 +69,7 @@ SECTIONS {
     *(.sdata*)
 
     _esdata = .;
-  } > sram AT> mrom : sdata
+  } > sram AT> flash : sdata
   
   .bss : {
 	  _sbss = .;
@@ -61,11 +81,11 @@ SECTIONS {
     *(.scommon)
 
     _ebss = .;
-  } > sram AT> mrom : bss
+  } > sram AT> flash : bss
 
   data_load_end = ADDR(.heap);
 
-  data_load_size = _sheap - _sdata;
+  data_load_size = _sheap - _stext;
 
   .heap (NOLOAD) : {
     _sheap = .;

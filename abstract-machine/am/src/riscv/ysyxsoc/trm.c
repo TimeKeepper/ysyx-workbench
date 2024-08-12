@@ -82,12 +82,29 @@ int boot_loader(void) {
         var = (typeof(var)) __v;                              \
     } while (0)
 
+void _print_creater_info(void){
+  uint32_t mvendorid;
+  READ_CSR(mvendorid, mvendorid);
+
+  char ysyx[5];
+  ysyx[0] = (mvendorid >> 24) & 0xff;
+  ysyx[1] = (mvendorid >> 16) & 0xff;
+  ysyx[2] = (mvendorid >> 8 ) & 0xff;
+  ysyx[3] = (mvendorid >> 0 ) & 0xff;
+  ysyx[4] = '\0';
+
+  uint32_t creater_id;
+  READ_CSR(marchid, creater_id);
+
+  printf("This processor is created by %s_%d\n", ysyx, creater_id);
+}
+
 void _trm_init() {
   int ret;
   ret = boot_loader();
-  uint32_t mvendorid;
-  READ_CSR(mvendorid, mvendorid);
-  printf("%d\n", mvendorid);
+
+  _print_creater_info();
+
   ret = main(mainargs);
   halt(ret);
 }

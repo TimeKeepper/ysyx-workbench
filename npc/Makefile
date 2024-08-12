@@ -84,6 +84,9 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
+# rules for ysyxSoC
+# include $(NPC_HOME)/../ysyxSoC/Makefile
+
 # VERILATOR DIFINITIONS
 
 INCFLAGS =  $(addprefix -I, $(INC_PATH))

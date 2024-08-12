@@ -93,16 +93,22 @@ class ysyx_23060198_REG extends Module {
   def ADDR_MCAUSE  = "h342".U
 
   def ADDR_MVENDORID = "hF11".U
+  def ADDR_MARCHID   = "hF12".U
 
   val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
-  val mvendorid = RegInit("h79737978".U)
+
+  // read only csr
+  val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
+  val marchid   = RegInit("d23060198".U(32.W)) // my id 
+
   io.out.csr_rdata := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,
     ADDR_MEPC      -> mepc,
     ADDR_MCAUSE    -> mcause,
-    ADDR_MVENDORID -> mvendorid
+    ADDR_MVENDORID -> mvendorid,
+    ADDR_MARCHID   -> marchid
   ))
 
   // val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
@@ -119,8 +125,6 @@ class ysyx_23060198_REG extends Module {
       mepc := io.in.WBU_io.CSR_wdataa
     }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MCAUSE){
       mcause := io.in.WBU_io.CSR_wdataa
-    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MVENDORID){
-      mvendorid := io.in.WBU_io.CSR_wdataa
     }
     // csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
   }
@@ -136,8 +140,6 @@ class ysyx_23060198_REG extends Module {
       mepc := io.in.WBU_io.CSR_wdatab
     }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MCAUSE){
       mcause := io.in.WBU_io.CSR_wdatab
-    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MVENDORID){
-      mvendorid := io.in.WBU_io.CSR_wdatab
     }
     // csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
   }

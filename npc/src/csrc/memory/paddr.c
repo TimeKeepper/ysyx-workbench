@@ -92,3 +92,6 @@ uint8_t* get_flash(void) { //获取存放flash的内存节
 extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((flash + addr), 4);}// printf("addr: 0x%8x data: 0x%8x", addr, *data);
 // extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((mrom + addr), 4); printf("flash_read: addr = 0x%08x, data = 0x%08x\n", addr, *data);}
 extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }
+
+extern "C" void psram_read(int32_t raddr, int32_t rdata) {assert(0);}
+extern "C" void psram_write(int32_t waddr, int32_t wdata) {assert(0);}

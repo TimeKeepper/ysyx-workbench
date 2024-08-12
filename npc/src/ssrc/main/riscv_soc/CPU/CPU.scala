@@ -61,9 +61,9 @@ class ysyx_23060198 extends Module {
   // bus WBU -> REG -> WBU with delay
   WBU.io.out.bits.WBU_io <> REG.io.in.WBU_io
 
-  WBU.io.out.valid        <> IFU.io.in.valid     
-  WBU.io.out.ready        <> IFU.io.in.ready     
-  REG.io.out.pc           <> IFU.io.in.bits.addr 
+  WBU.io.out.valid        <> IFU.io.in.valid
+  WBU.io.out.ready        <> IFU.io.in.ready
+  REG.io.out.pc           <> IFU.io.in.bits.addr
 
   // bus AXI Interconnect
   io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready

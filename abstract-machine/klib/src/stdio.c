@@ -39,6 +39,26 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           out[count++] = buf[--i];
         }
       } 
+      else if (next == 'x'){
+        int num = va_arg(ap, int);
+        char buf[32];
+        int i = 0;
+        if (num == 0) {
+          buf[i++] = '0';
+        } 
+        else {
+          while (num != 0) {
+            char digit = num % 16;
+            if(digit < 10) digit += '0';
+            else digit += 'a' - 10;
+            buf[i++] = digit;
+            num /= 16;
+          }
+        }
+        while (i > 0) {
+          out[count++] = buf[--i];
+        }
+      }
       else if (next == 's') {
         char *str = va_arg(ap, char*);;
         while (*str != '\0') {

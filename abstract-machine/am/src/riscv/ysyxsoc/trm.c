@@ -19,7 +19,10 @@
 #define SERIAL_DLM      (SERIAL_PORT + 1) // divisor latch high
 
 extern char _sheap, _eheap;
-extern char _stext, data_load_start, data_load_size, _esdata;
+extern char _stext, _etext, _stext_load;
+extern char _srodata, _erodata, _srodata_load;
+extern char _sdata, _edata, _sdata_load;
+extern char _sbss, _ebss, _sbss_load;
 int main(const char *args);
 
 extern char _pmem_start;
@@ -58,16 +61,37 @@ void halt(int code) {
   while(1);
 }
 
+void boot_memcpy(void *dst, const void *src, size_t n){ // 在bootloader运行的时候,memcpy还没有正常加载
+  while(n--){
+    *(uint8_t *)dst++ = *(uint8_t *)src++;
+  }
+}
 
 int boot_loader(void) {
   uint32_t *dst = (uint32_t *)&_stext;
-  const uint32_t *src = (uint32_t *)&data_load_start;
-  size_t n = (size_t)(&data_load_size) / 4 + 1;// 确保全部加载
-  while(n--){
-    *dst++ = *src++;
-  }
+  const uint32_t *src = (uint32_t *)&_stext_load;
+  size_t n = (size_t)(&_etext - &_stext);// 确保全部加载
 
-  // memcpy(&_sdata, &data_load_start, ((uintptr_t)(&_esdata) - (uintptr_t)(&_sdata)));
+  boot_memcpy(dst, src, n); // 程序加载
+
+  dst = (uint32_t *)&_srodata;
+  src = (uint32_t *)&_srodata_load;
+  n = (size_t)(&_erodata - &_srodata);
+
+  boot_memcpy(dst, src, n); 
+
+  dst = (uint32_t *)&_sdata;
+  src = (uint32_t *)&_sdata_load;
+  n = (size_t)(&_edata - &_sdata);
+
+  boot_memcpy(dst, src, n); // 数据加载
+
+  dst = (uint32_t *)&_sbss;
+  src = (uint32_t *)&_sbss_load;
+  n = (size_t)(&_ebss - &_sbss);
+
+  boot_memcpy(dst, src, n); // bss加载
+
   uart_init();
   return 0;
 }
@@ -102,6 +126,8 @@ void _print_creater_info(void){
 void _trm_init() {
   int ret;
   ret = boot_loader();
+
+  // printf("Bootloader [%x, %x] load finished\n", (uint32_t)&_stext, (uint32_t)&_stext + (uint32_t)&data_load_size);
 
   _print_creater_info();
 

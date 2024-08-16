@@ -34,11 +34,11 @@ int cmd_c(char *args){
     return 0;
 }
 
-extern uint32_t clk_cnt;
-extern uint32_t inst_cnt;
+extern uint64_t clk_cnt;
+extern uint64_t inst_cnt;
 int cmd_t(char *args){
-    printf(ANSI_FMT("Current Clk times:", ANSI_FG_BLUE) ANSI_FMT(" %d\n", ANSI_FG_MAGENTA), clk_cnt);
-    printf(ANSI_FMT("Current inst nums:", ANSI_FG_BLUE) ANSI_FMT(" %d\n", ANSI_FG_MAGENTA), inst_cnt);
+    printf(ANSI_FMT("Current Clk times:", ANSI_FG_BLUE) ANSI_FMT(" %lu\n", ANSI_FG_MAGENTA), clk_cnt);
+    printf(ANSI_FMT("Current inst nums:", ANSI_FG_BLUE) ANSI_FMT(" %lu\n", ANSI_FG_MAGENTA), inst_cnt);
     return 0;
 }
 
@@ -137,7 +137,7 @@ int cmd_x(char *args){
     bool success = true;
     uint32_t base_Addr = expr(strtok(NULL, " "), &success);
 
-    if(!likely(in_pmem(base_Addr))){
+    if(!likely(in_psram(base_Addr))){
         printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);
         return 0;
     }
@@ -201,10 +201,10 @@ int cmd_b(char *args){
   }
   bool success = true;
   word_t addr = expr(args, &success);
-  if(!in_flash(addr)){
-    printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
-    return 0;
-  }
+//   if(!in_flash(addr)){
+//     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), addr);
+//     return 0;
+//   }
   char expr_str[20] = "$pc == ";
   strcat(expr_str, args);
   new_wp(expr_str);

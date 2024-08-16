@@ -1,12 +1,12 @@
 #include <cstdint>
 
-#define DEFAULT_MSIZE   0x8000000
+#define DEFAULT_MSIZE   0x01000000
 #define DEFAULT_MBASE   0x80000000
 
 #define MROM_SIZE       0x1000
 #define MROM_BASE       0x20000000
 
-#define FLASH_SIZE      0x10000000
+#define FLASH_SIZE      0x01000000
 #define FLASH_BASE      0x30000000
 
 #define CODE_MEMORY_BASE MROM_BASE
@@ -22,7 +22,7 @@
 #define unlikely(cond) __builtin_expect(cond, 0)
 #endif
 
-#define WAVE_TRACE
+// #define WAVE_TRACE
 #define ITRACE
 // #define CONFIG_DIFFTEST
 #define CONFIG_WATCHPOINT

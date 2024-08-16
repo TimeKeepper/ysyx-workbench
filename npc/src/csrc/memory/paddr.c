@@ -10,14 +10,14 @@
 
 #define PG_ALIGN __attribute((aligned(4096)))
 
-static uint8_t pmem[DEFAULT_MSIZE] PG_ALIGN = {};
+static uint8_t psram[DEFAULT_MSIZE] PG_ALIGN = {};
 
 static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
 
 static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
 
-uint8_t* guest_to_host_pmem(paddr_t paddr) { return pmem + paddr - DEFAULT_MBASE; }
-paddr_t host_to_guest_pmem(uint8_t *haddr) { return haddr - pmem + DEFAULT_MBASE; }
+uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - DEFAULT_MBASE; }
+paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + DEFAULT_MBASE; }
 
 uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - MROM_BASE; }
 paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + MROM_SIZE; }
@@ -38,13 +38,13 @@ void init_mem() {
     memcpy(CODE_MEMORY, img, sizeof(img));
 }
 
-static word_t pmem_read(paddr_t addr, int len) {
-    word_t ret = host_read(guest_to_host_pmem(addr), len);
+static word_t psram_read(paddr_t addr, int len) {
+    word_t ret = host_read(guest_to_host_psram(addr), len);
     return ret;
 }
 
-static void pmem_write(paddr_t addr, int len, word_t data) {
-    host_write(guest_to_host_pmem(addr), len, data);
+static void psram_write(paddr_t addr, int len, word_t data) {
+    host_write(guest_to_host_psram(addr), len, data);
 }
 
 static word_t mrom_read(paddr_t addr) {
@@ -58,7 +58,7 @@ static word_t flash_read(paddr_t addr) {
 }
 
 static void out_of_bound(paddr_t addr) {
-    printf("address =  0x%08x  is out of bound of pmem [ 0x%08x ,  0x%08x ]\n", 
+    printf("address =  0x%08x  is out of bound of psram [ 0x%08x ,  0x%08x ]\n", 
     addr, PMEM_LEFT, PMEM_RIGHT);
     cmd_t(NULL);
     npc_state.state = NPC_ABORT;
@@ -67,7 +67,7 @@ static void out_of_bound(paddr_t addr) {
 void difftest_skip_ref();
 
 word_t paddr_read(paddr_t addr, int len) {
-    if (likely(in_pmem(addr))) return pmem_read(addr, len);
+    if (likely(in_psram(addr))) return psram_read(addr, len);
     else if(likely(in_mrom(addr))) return mrom_read(addr);
     else if(likely(in_flash(addr))) return flash_read(addr);
     else if(addr == RTC_ADDR ) {difftest_skip_ref(); return get_time();}
@@ -77,7 +77,7 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-    if (likely(in_pmem(addr))) {pmem_write(addr, len, data); return; }
+    if (likely(in_psram(addr))) {psram_write(addr, len, data); return; }
     out_of_bound(addr);
 }
 
@@ -89,9 +89,22 @@ uint8_t* get_flash(void) { //获取存放flash的内存节
     return flash;
 }
 
-extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((flash + addr), 4);}// printf("addr: 0x%8x data: 0x%8x", addr, *data);
+extern "C" void flash_read(int32_t addr, int32_t *data) {
+    *data = host_read((flash + (addr & ~0x3u)), 4);
+    // printf("addr: 0x%8x data: 0x%8x", addr, *data);
+    }
 // extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((mrom + addr), 4); printf("flash_read: addr = 0x%08x, data = 0x%08x\n", addr, *data);}
 extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }
 
-extern "C" void psram_read(int32_t raddr, int32_t rdata) {assert(0);}
-extern "C" void psram_write(int32_t waddr, int32_t wdata) {assert(0);}
+extern "C" void psram_write(int32_t waddr, int32_t wdata, int32_t wlen) { 
+    uint32_t wdata_tmp;
+    switch(wlen){
+        case 2: wdata_tmp = (wdata) >> 24; break;
+        case 4: wdata_tmp = (wdata) >> 16; break;
+        case 8: wdata_tmp = (wdata); break;
+        default: wdata_tmp = (wdata); break;
+    }
+    host_write(psram + waddr, 4, wdata_tmp); 
+    // printf("host_write: waddr = 0x%08x, wdata = 0x%08x, wlen = %d\n", waddr, wdata_tmp, wlen); 
+} 
+extern "C" void psram_read(int32_t raddr, int32_t *rdata) { *rdata = host_read(psram + raddr, 4); }//printf("host_read: raddr = 0x%08x, rdata = 0x%08x\n", raddr, *rdata);

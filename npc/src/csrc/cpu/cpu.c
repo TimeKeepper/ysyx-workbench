@@ -20,8 +20,8 @@
 VerilatedContext* contextp = new VerilatedContext;
 TOP_NAME* top = new TOP_NAME{contextp};
 
-uint32_t clk_cnt = 0;
-uint32_t inst_cnt = 0;
+uint64_t clk_cnt = 0;
+uint64_t inst_cnt = 0;
 bool     is_itrace_printf = false;
 
 #define MAX_INST_TO_PRINT 10
@@ -63,6 +63,11 @@ void wave_Trace_init(int argc, char **argv){
 
 void wave_Trace_once(){
     #ifdef WAVE_TRACE
+    static bool wave_trace_begin = false;
+    if(wave_trace_begin == false){
+        if(((cpu.pc & 0xff000000) == 0x0f000000)) {wave_trace_begin = true;}
+        else return;
+    }
     contextp->timeInc(1);
     tfp->dump(contextp->time());
     #endif
@@ -229,7 +234,7 @@ void error_waddr(){
 int npc_trap (int a0){
     npc_state.state = NPC_END;
     npc_state.halt_ret = a0;
-    printf(ANSI_FMT("a0: %d inst: %d\n", ANSI_FG_BLUE), a0, inst_cnt);
+    printf(ANSI_FMT("a0: %d inst: %lu\n", ANSI_FG_BLUE), a0, inst_cnt);
     if(a0 == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
     wave_Trace_once();

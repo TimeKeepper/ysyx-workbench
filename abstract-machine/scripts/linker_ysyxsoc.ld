@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS {boot PT_LOAD; text PT_LOAD; test PT_LOAD; rodata PT_LOAD; data PT_LOAD; bss PT_LOAD; }
+PHDRS {fsbl PT_LOAD; ssbl PT_LOAD; text PT_LOAD; test PT_LOAD; rodata PT_LOAD; data PT_LOAD; bss PT_LOAD; }
 
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
@@ -7,16 +7,26 @@ SECTIONS {
 
   _begin = .;
 
-  .boot : {
-    _sboot = .;
+  .fsbl : {
+    _sfsbl = .;
   
     *(entry)
 
-    *(.text.boot_loader)
+    *(.text.FSBL)
     *(.text._trm_init)
   
-    _eboot = .;
-  } > flash AT> flash : boot
+    _efsbl = .;
+  } > flash AT> flash : fsbl
+
+  _sssbl_load = LOADADDR(.ssbl);
+
+  .ssbl : {
+    _sssbl = .;
+  
+    *(.text.SSBL)
+  
+    _essbl = .;
+  } > sram AT> flash : ssbl
 
   _stext_load = LOADADDR(.text);
 

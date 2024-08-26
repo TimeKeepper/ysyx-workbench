@@ -4,7 +4,7 @@
 extern char _heap_start;
 int main(const char *args);
 
-Area heap = RANGE(&_heap_start, PMEM_END);
+Area heap = RANGE((&_heap_start), PMEM_END);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif

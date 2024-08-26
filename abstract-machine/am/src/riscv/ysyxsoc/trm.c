@@ -27,10 +27,6 @@ extern char _sdata, _edata, _sdata_load;
 extern char _sbss, _ebss, _sbss_load;
 int main(const char *args);
 
-extern char _pmem_start;
-#define PMEM_SIZE (128 * 1024 * 1024)
-#define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
-
 Area heap = RANGE(&_sheap, &_eheap);
 
 #ifndef MAINARGS
@@ -92,9 +88,9 @@ int SSBL(void) {
 
   boot_memcpy(dst, src, n); 
 
-  dst = (uint32_t *)&_sdata_extra;
-  src = (uint32_t *)&_sdata_extra_load;
-  n = (size_t)(&_edata_extra - &_sdata_extra);
+  // dst = (uint32_t *)&_sdata_extra;
+  // src = (uint32_t *)&_sdata_extra_load;
+  // n = (size_t)(&_edata_extra - &_sdata_extra);
 
   boot_memcpy(dst, src, n);
 

@@ -52,4 +52,7 @@ typedef uint16_t ioaddr_t;
 #define FLASH_SIZE      0x10000000
 #define FLASH_BASE      0x30000000
 
+#define PMEM_BASE       0x80000000
+#define PMEM_SIZE       0x8000000
+
 #endif

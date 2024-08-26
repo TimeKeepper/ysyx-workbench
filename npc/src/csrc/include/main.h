@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <stdio.h>
+#include <stdlib.h>
 #include <nvboard.h>
 
 #ifdef DEFINE_NPC

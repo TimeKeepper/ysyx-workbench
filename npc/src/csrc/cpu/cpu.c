@@ -79,7 +79,7 @@ void wave_Trace_close(){
     #endif
 }
 
-CPU_State cpu = {.gpr = {0}, .pc = 0x80000000, .sr = {0}};
+CPU_State cpu = {.gpr = {0}, .pc = 0x30000000, .sr = {0}};
 
 void difftest_skip_ref();
 
@@ -151,15 +151,17 @@ static void func_called_detect(){
     static uint32_t stack_num = 0;
 
     static char* last_func_name = NULL;
-    char* func_name = get_func_name(cpu.pc);
+    struct get_func msg = get_func_name(cpu.pc);
+    char* func_name = msg.name;
     if(func_name != NULL && last_func_name != func_name){
-        if(is_ret) {printf("ret  "); is_ret = false; stack_num--;}
+        if(!msg.is_call) {printf("ret  "); stack_num--;}
         else {printf("call "); stack_num++;}
 
         for(int i = 0; i < stack_num; i++) printf(" ");
         printf("[%s]\n", func_name);
+
+        last_func_name = func_name;
     }
-    last_func_name = func_name;
     #endif
 }
 
@@ -201,16 +203,16 @@ void inst_comp_update(){
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
     // difftest_step(cpu.pc, DUT_PC);
+    
+    watchpoint_catch();          //检查watchpoint
+
+    func_called_detect();   
 }
 
 static void execute_one_clk(){
     // // nvboard_update();
 
     single_cycle();           
-    
-    watchpoint_catch();          //检查watchpoint
-
-    func_called_detect();   
 }
 
 static void execute(uint64_t n){

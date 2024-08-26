@@ -26,7 +26,13 @@ void sdb_mainloop();
 void init_regex();
 word_t expr(char *e, bool *success);
 void init_sdb();
-char* get_func_name(long addr);
+
+struct get_func{
+    char* name;
+    bool is_call;
+};
+
+struct get_func get_func_name(long addr);
 
 static struct {
   const char *name;

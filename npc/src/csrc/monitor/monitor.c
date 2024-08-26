@@ -27,7 +27,7 @@ static struct funtion_info {
     char *name;
     long addr;
     long size;
-}   funtion_info_table[100];
+}   funtion_info_table[1000];
 
 static int funtion_index = 0;
 
@@ -40,21 +40,21 @@ static void funtion_push(char *name, long addr, long size) {
 }
 #endif
 
-static int get_funt_index(long addr){
+struct get_func func{NULL, false};
+
+struct get_func get_func_name(long addr){
     for(int i = 0; i < funtion_index; i++){
-        if(funtion_info_table[i].addr <= addr && addr < funtion_info_table[i].addr + funtion_info_table[i].size){
-            return i;
+        if(funtion_info_table[i].addr == addr){
+            func.name = funtion_info_table[i].name;
+            func.is_call = true;
+            return func;
+        } else if(funtion_info_table[i].addr < addr && funtion_info_table[i].addr + funtion_info_table[i].size > addr){
+            func.name = funtion_info_table[i].name;
+            func.is_call = false;
+            return func;
         }
     }
-    return -1;
-}
-
-char* get_func_name(long addr){
-    int index = get_funt_index(addr);
-    if(index == -1){
-        return NULL;
-    }
-    return funtion_info_table[index].name;
+    return func;
 }
 
 static long load_elf() {

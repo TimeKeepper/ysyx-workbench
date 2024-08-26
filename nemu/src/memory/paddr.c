@@ -28,8 +28,10 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
 #endif
 
-#define CODE_MEMORY mrom
-#define CODE_MEMORY_SIZE MROM_SIZE
+#define CODE_MEMORY pmem
+
+// #define CODE_MEMORY mrom
+// #define CODE_MEMORY_SIZE MROM_SIZE
 
 uint8_t* guest_to_host_pmem(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest_pmem(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }

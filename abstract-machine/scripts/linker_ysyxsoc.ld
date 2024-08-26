@@ -48,6 +48,7 @@ SECTIONS {
     *(.rodata*)
     *(.srodata)
     *(.srodata*)
+    /* *(.srodata.mainargs) */
 
     _erodata = .;
   } > psram AT> flash : rodata
@@ -59,8 +60,10 @@ SECTIONS {
 
     *(.data)
     *(.data*)
+    *(.data+)
     *(.sdata)
     *(.sdata*)
+    *(.sdata+)
 
     _edata = .;
   } > psram AT> flash : data
@@ -77,24 +80,26 @@ SECTIONS {
     *(.scommon)
 
     _ebss = .;
+
+    . = ALIGN(0x1000);
+
   } > psram AT> flash : bss
 
-  . = ALIGN(0x1000);
-
   .heap (NOLOAD) : {
+
     _sheap = .;
 
     *(.heap)
     *(.heap*)
 
-    . = . + 0x200000;
+    . = ORIGIN(psram) + LENGTH(psram);
 
     _eheap = .;
   } > psram AT> psram
 
   .stack (NOLOAD) : {
 
-    _stack_top  = _eheap;
+    _stack_top  = _essbl;
 
     *(.stack)
 

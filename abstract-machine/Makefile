@@ -80,6 +80,7 @@ INC_PATH += $(WORK_DIR)/include $(addsuffix /include/, $(addprefix $(AM_HOME)/, 
 INCFLAGS += $(addprefix -I, $(INC_PATH))
 
 ARCH_H := arch/$(ARCH).h
+
 CFLAGS   += -O2 -MMD -Wall -Werror $(INCFLAGS) \
             -D__ISA__=\"$(ISA)\" -D__ISA_$(shell echo $(ISA) | tr a-z A-Z)__ \
             -D__ARCH__=$(ARCH) -D__ARCH_$(shell echo $(ARCH) | tr a-z A-Z | tr - _) \
@@ -99,7 +100,7 @@ LDFLAGS  += -z noexecstack
 ### Fall back to native gcc/binutils if there is no cross compiler
 ifeq ($(wildcard $(shell which $(CC))),)
   $(info #  $(CC) not found; fall back to default gcc and binutils)
-  CROSS_COMPILE :=
+  CROSS_COMPILE := 
 endif
 
 ## 5. Compilation Rules

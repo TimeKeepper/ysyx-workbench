@@ -18,6 +18,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <memory/paddr.h>
+#include <stdint.h>
 #include "sdb.h"
 #include "common.h"
 #include "debug.h"
@@ -61,6 +62,7 @@ static char* rl_gets() {
 static int cmd_help(char *args);
 static int cmd_c(char *args);
 static int cmd_q(char *args);
+static int cmd_t(char *args);
 static int cmd_si(char *args);
 static int cmd_info(char *args);
 static int cmd_x(char *args);
@@ -89,6 +91,10 @@ static struct {
   { "q"     , "Exit NEMU"                                                           \
   
   , "NONE", cmd_q },
+  
+  { "t"     , "Show inst counter"                                                           \
+  
+  , "NONE", cmd_t },
   
   { "si"    , "Let the program step through N instructions and then pause execution"\
   
@@ -172,6 +178,13 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+extern uint64_t inst_counter;
+
+static int cmd_t(char *args) {
+  printf("inst_num: %lu\n", inst_counter);
+  return 0;
+} 
+
 static int cmd_si(char *args) {
   char* parameter_str = strtok(args, " ");
 
@@ -235,7 +248,7 @@ static int cmd_x(char *args){
   bool success = true;
   uint32_t base_Addr = expr(strtok(NULL, " "), &success);
 
-  if(!likely(in_pmem(base_Addr))){
+  if(!likely(in_psram(base_Addr))){
     printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);
     return 0;
   }

@@ -19,6 +19,8 @@
 #include <locale.h>
 #include <string.h>
 #include "isa.h"
+#include "memory/host.h"
+#include "memory/paddr.h"
 #include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -125,9 +127,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
   #endif
 }
 
+uint64_t inst_counter = 0;
+
 static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
+    inst_counter++;
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);

@@ -26,20 +26,34 @@
 
 #define PMEM_LEFT  ((paddr_t)CODE_MEMORY_BASE)
 #define PMEM_RIGHT ((paddr_t)CODE_MEMORY_BASE + CODE_MEMORY_SIZE - 1)
-#define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
+#define RESET_VECTOR (FLASH_BASE + CONFIG_PC_RESET_OFFSET)
 
-uint8_t* guest_to_host_pmem(paddr_t paddr);
-paddr_t host_to_guest_pmem(uint8_t *haddr);
+uint8_t* guest_to_host_sram(paddr_t paddr);
+paddr_t host_to_guest_sram(uint8_t *haddr);
+
+uint8_t* guest_to_host_psram(paddr_t paddr);
+paddr_t host_to_guest_psram(uint8_t *haddr);
+
+uint8_t* guest_to_host_flash(paddr_t paddr);
+paddr_t host_to_guest_flash(uint8_t *haddr);
 
 uint8_t* guest_to_host_mrom(paddr_t paddr);
 paddr_t host_to_guest_mrom(uint8_t *haddr);
 
-static inline bool in_pmem(paddr_t addr) {
-  return addr - CONFIG_MBASE < CONFIG_MSIZE;
+static inline bool in_sram(paddr_t addr) {
+  return addr - SRAM_BASE < SRAM_SIZE;
 }
 
 static inline bool in_mrom(paddr_t addr) {
   return addr - MROM_BASE < MROM_SIZE;
+}
+
+static inline bool in_flash(paddr_t addr) {
+  return addr - FLASH_BASE < FLASH_SIZE;
+}
+
+static inline bool in_psram(paddr_t addr) {
+  return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
 word_t paddr_read(paddr_t addr, int len);

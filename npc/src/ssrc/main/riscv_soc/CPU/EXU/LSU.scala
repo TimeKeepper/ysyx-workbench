@@ -8,6 +8,25 @@ import bus_state._
 
 // riscv load store unit
 
+class LSU_DPIC extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val LS_begin = Input(Bool())
+        val addr = Input(UInt(32.W))
+    })
+    setInline("LSU_DPIC.v",
+    """module LSU_DPIC(
+      | input  LS_begin,
+      | input  [31:0] addr
+      |);
+      |import "DPI-C" function void LS_differtest_catch(input int addr);
+      |
+      |  always @ (posedge LS_begin) begin
+      |     LS_differtest_catch(addr);
+      |  end
+      |endmodule
+    """.stripMargin)
+}
+
 class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Bundle{
@@ -143,4 +162,8 @@ class ysyx_23060198_LSU extends Module{
     }.otherwise{
         io.out.bits.Mem_rdata := s_mem_rd.asUInt
     }
+
+    val LS_DPIC = Module(new LSU_DPIC)
+    LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
+    LS_DPIC.io.addr      := io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
 }

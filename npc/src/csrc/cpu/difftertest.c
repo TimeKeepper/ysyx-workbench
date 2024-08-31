@@ -45,7 +45,7 @@ void difftest_skip_dut(int nr_ref, int nr_dut) {
   }
 }
 
-#define Guest_2_host_CODE(x) guest_to_host_mrom(x)
+#define Guest_2_host_CODE(x) guest_to_host_flash(x)
 
 void init_difftest(char *ref_so_file, long img_size, int port) {
   #ifdef CONFIG_DIFFTEST
@@ -145,4 +145,14 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
   checkregs(&ref_r, pc);
   #endif
+}
+// word_t paddr_read(paddr_t addr, int len);
+extern "C" void LS_differtest_catch(int32_t addr){
+  // if(addr == 0x800005f0) {
+  //   printf("mem catch!\n");
+  //   npc_state.state = NPC_STOP;
+  // }
+  if(!in_flash(addr) && !in_psram(addr) && !in_mrom(addr) && !in_sram(addr)){
+    difftest_skip_ref();
+  }
 }

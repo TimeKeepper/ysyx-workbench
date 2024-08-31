@@ -131,7 +131,7 @@ static long load_elf() {
   return symcount;
 }
 
-#define Guest_2_host_CODE(x) guest_to_host_mrom(x)
+// #define Guest_2_host_CODE(x) guest_to_host_flash(x)
 
 static long load_img() {
   if (img_file == NULL) {
@@ -148,7 +148,7 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(Guest_2_host_CODE(RESET_VECTOR), size, 1, fp);
+  int ret = fread(guest_to_host_flash(RESET_VECTOR), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);

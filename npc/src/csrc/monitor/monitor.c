@@ -123,15 +123,7 @@ long load_img(char* img_file) {
     printf("The image is %s, size = %ld\n", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    int ret = fread(get_pmem(), 4, size, fp);
-    uint8_t* flash = get_flash();
-    uint8_t* mrom = get_pmem();
-    for(uint32_t i = 0; i < size; i+=4){
-        *(flash + i + 0) = (*(mrom + i + 3));
-        *(flash + i + 1) = (*(mrom + i + 2));
-        *(flash + i + 2) = (*(mrom + i + 1));
-        *(flash + i + 3) = (*(mrom + i + 0));
-    }
+    int ret = fread(get_flash(), 4, size, fp);
     assert(ret == size/4);
 
     fclose(fp);
@@ -181,12 +173,19 @@ void init_sig(void){
     signal(SIGINT, SIGINT_handler);
 }
 
+void init_isa() {
+    cpu.sr[ADDR_MVENDORID] = 0x79737978;
+    cpu.sr[ADDR_MARCHID] = 23060198;
+}
+
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
     init_rand();
 
     init_mem();
+
+    init_isa();
 
     long img_size = load_img(img_file);
 

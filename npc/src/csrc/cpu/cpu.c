@@ -202,11 +202,16 @@ void inst_comp_update(){
     }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    // difftest_step(cpu.pc, DUT_PC);
+    difftest_step(cpu.pc, DUT_PC);
     
     watchpoint_catch();          //检查watchpoint
 
     func_called_detect();   
+
+    if(paddr_read(0x800005f0, 1) == 0xff){
+        printf("debug!!\n");
+        npc_state.state = NPC_STOP;
+    }
 }
 
 static void execute_one_clk(){

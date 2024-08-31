@@ -22,6 +22,8 @@
 #define ADDR_MSCRATCH 0x340
 #define ADDR_MEPC 0x341
 #define ADDR_MCAUSE 0x342
+#define ADDR_MVENDORID 0xF11
+#define ADDR_MARCHID 0xF12
 
 // Located at src/isa/$(GUEST_ISA)/include/isa-def.h
 #include <isa-def.h>

@@ -20,6 +20,13 @@ paddr_t host_to_guest_psram(uint8_t *haddr);
 uint8_t* guest_to_host_mrom(paddr_t paddr);
 paddr_t host_to_guest_mrom(uint8_t *haddr);
 
+uint8_t* guest_to_host_flash(paddr_t paddr);
+paddr_t host_to_guest_flash(uint8_t *haddr);
+
+static inline bool in_sram(paddr_t addr) {
+  return addr - SRAM_BASE < SRAM_SIZE;
+}
+
 static inline bool in_psram(paddr_t addr) {
   return addr - DEFAULT_MBASE < DEFAULT_MSIZE;
 }

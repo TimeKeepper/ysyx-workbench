@@ -52,8 +52,6 @@ void sdb_mainloop() {
         return;
     }
 
-    static uint32_t loop_time = 0;
-
     for(char *str; (str = rl_gets()) != NULL; ) {
         char *str_end = str + strlen(str);
 
@@ -76,9 +74,6 @@ void sdb_mainloop() {
         }
 
         if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
-
-        loop_time++;
-        if(loop_time > 10) exit(0);
     }
 
     // while(1) {

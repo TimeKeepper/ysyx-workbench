@@ -32,9 +32,10 @@ uint8_t* new_space(int size) {
   return p;
 }
 
+extern uint64_t inst_counter;
 static void check_bound(IOMap *map, paddr_t addr) {
   if (map == NULL) {
-    Assert(map != NULL, "address (" FMT_PADDR ") is out of bound at pc = " FMT_WORD, addr, cpu.pc);
+    Assert(map != NULL, "address (" FMT_PADDR ") is out of bound at pc = " FMT_WORD ", current inst num = %lu" , addr, cpu.pc, inst_counter);
   } else {
     Assert(addr <= map->high && addr >= map->low,
         "address (" FMT_PADDR ") is out of bound {%s} [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,

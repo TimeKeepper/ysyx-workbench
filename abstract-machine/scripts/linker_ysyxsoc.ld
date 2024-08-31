@@ -3,6 +3,9 @@ PHDRS {fsbl PT_LOAD; ssbl PT_LOAD; text PT_LOAD; test PT_LOAD; rodata PT_LOAD; d
 
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
+
+  _spsram = ORIGIN(psram);
+
   . = ORIGIN(flash);
 
   _begin = .;
@@ -50,6 +53,8 @@ SECTIONS {
     *(.srodata*)
     /* *(.srodata.mainargs) */
 
+    . = ALIGN(4);
+
     _erodata = .;
   } > psram AT> flash : rodata
 
@@ -80,8 +85,6 @@ SECTIONS {
     *(.scommon)
 
     _ebss = .;
-
-    . = ALIGN(0x1000);
 
   } > psram AT> flash : bss
 

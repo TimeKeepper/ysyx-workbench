@@ -8,12 +8,13 @@ AM_SRCS := platform/nemu/trm.c \
            platform/nemu/mpe.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
-LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
-             --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
+LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld
+LDFLAGS   := -T $(AM_HOME)/scripts/linker_mem.ld $(LDFLAGS) 
 LDFLAGS   += --gc-sections -e _start
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 NEMUFLAGS += -e $(IMAGE).elf
-# NEMUFLAGS += -b
+NEMU_BATCH_FLAG = $(NPCFLAGS)
+NEMU_BATCH_FLAG += -b
 
 CFLAGS += -DMAINARGS=\"$(mainargs)\"#通过这个宏传递主函数参数
 CFLAGS += -I$(AM_HOME)/am/src/platform/nemu/include
@@ -26,6 +27,9 @@ image: $(IMAGE).elf
 
 run: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+
+batch: image
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMU_BATCH_FLAG)" IMG=$(IMAGE).bin
 
 gdb: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin

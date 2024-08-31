@@ -88,9 +88,9 @@ int SSBL(void) {
 
   boot_memcpy(dst, src, n); 
 
-  // dst = (uint32_t *)&_sdata_extra;
-  // src = (uint32_t *)&_sdata_extra_load;
-  // n = (size_t)(&_edata_extra - &_sdata_extra);
+  dst = (uint32_t *)&_erodata;
+  src = (uint32_t *)((uint32_t)&_srodata_load + n);
+  n = (size_t)(&_sdata - &_erodata);
 
   boot_memcpy(dst, src, n);
 

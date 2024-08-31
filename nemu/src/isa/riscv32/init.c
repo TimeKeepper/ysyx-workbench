@@ -37,11 +37,14 @@ static void restart() {
   cpu.gpr[0] = 0;
 }
 
-#define Guest_2_host_CODE(x) guest_to_host_pmem(x)
+#define Guest_2_host_CODE(x) guest_to_host_flash(x)
 
 void init_isa() {
   /* Load built-in image. */
   memcpy(Guest_2_host_CODE(RESET_VECTOR), img, sizeof(img));
+
+  cpu.sr[ADDR_MVENDORID] = 0x79737978;
+  cpu.sr[ADDR_MARCHID] = 23060198;
 
   /* Initialize this virtual computer system. */
   restart();

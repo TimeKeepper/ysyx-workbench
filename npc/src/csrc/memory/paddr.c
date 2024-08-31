@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <cassert>
 #include <common.h>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <memory/paddr.h>
@@ -25,7 +26,7 @@ paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + MROM_SIZE; }
 uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - FLASH_BASE; }
 paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + FLASH_SIZE; }
 
-#define CODE_MEMORY mrom
+#define CODE_MEMORY flash
 
 static const uint32_t img [] = {
   0x00000513,  // li a0 0
@@ -82,7 +83,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 }
 
 uint8_t* get_pmem(void) { //获取存放程序的内存节
-    return CODE_MEMORY;
+    return psram;
 }
 
 uint8_t* get_flash(void) { //获取存放flash的内存节
@@ -90,7 +91,13 @@ uint8_t* get_flash(void) { //获取存放flash的内存节
 }
 
 extern "C" void flash_read(int32_t addr, int32_t *data) {
-    *data = host_read((flash + (addr & ~0x3u)), 4);
+    int32_t data_tmp;
+    uint32_t addr_tmp = (addr & ~0x3u);
+    data_tmp = (host_read(flash + addr_tmp + 0, 1) << 24) | \
+               (host_read(flash + addr_tmp + 1, 1) << 16) | \
+               (host_read(flash + addr_tmp + 2, 1) << 8) | \
+               (host_read(flash + addr_tmp + 3, 1) << 0);
+    *data = data_tmp;
     // printf("addr: 0x%8x data: 0x%8x", addr, *data);
     }
 // extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((mrom + addr), 4); printf("flash_read: addr = 0x%08x, data = 0x%08x\n", addr, *data);}
@@ -104,7 +111,9 @@ extern "C" void psram_write(int32_t waddr, int32_t wdata, int32_t wlen) {
         case 8: wdata_tmp = (wdata); break;
         default: wdata_tmp = (wdata); break;
     }
-    host_write(psram + waddr, 4, wdata_tmp); 
+    host_write(psram + waddr, wlen / 2, wdata_tmp); 
     // printf("host_write: waddr = 0x%08x, wdata = 0x%08x, wlen = %d\n", waddr, wdata_tmp, wlen); 
 } 
-extern "C" void psram_read(int32_t raddr, int32_t *rdata) { *rdata = host_read(psram + raddr, 4); }//printf("host_read: raddr = 0x%08x, rdata = 0x%08x\n", raddr, *rdata);
+extern "C" void psram_read(int32_t raddr, int32_t *rdata) { 
+    *rdata = host_read(psram + raddr, 4); 
+}//printf("host_read: raddr = 0x%08x, rdata = 0x%08x\n", raddr, *rdata);

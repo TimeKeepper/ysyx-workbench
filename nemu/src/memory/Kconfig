@@ -2,17 +2,49 @@ menu "Memory Configuration"
 
 config MBASE
   hex "Memory base address"
-  default 0x0        if ISA_x86
-  default 0x80000000
+  default PSRAM_BASE
 
 config MSIZE
   hex "Memory size"
-  default 0x8000000
+  default PSRAM_SIZE
 
 config PC_RESET_OFFSET
   hex "Offset of reset vector from the base of memory"
   default 0x100000 if ISA_x86
   default 0
+
+config SRAM_BASE
+  hex "SRAM base address"
+  default 0x0f000000
+
+config SRAM_SIZE
+  hex "SRAM size"
+  default 0x2000
+
+config MROM_BASE
+  hex "MROM base address"
+  default 0x20000000
+
+config MROM_SIZE
+  hex "MROM size"
+  default 0x1000
+
+config FLASH_BASE
+  hex "FLASH base address"
+  default 0x30000000
+
+config FLASH_SIZE
+  hex "FLASH size"
+  default 0x10000000
+
+config PSRAM_BASE
+  hex "PSRAM base address"
+  default 0x0        if ISA_x86
+  default 0x80000000
+
+config PSRAM_SIZE
+  hex "PSRAM size"
+  default 0x8000000
 
 choice
   prompt "Physical memory definition"

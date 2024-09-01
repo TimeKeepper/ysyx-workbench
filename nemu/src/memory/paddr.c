@@ -23,28 +23,26 @@
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *psram = NULL;
 #else // CONFIG_PMEM_GARRAY
-static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
-static uint8_t psram[CONFIG_MSIZE] PG_ALIGN = {};
-static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
-static uint8_t sram[SRAM_SIZE] PG_ALIGN = {};
+static uint8_t mrom [CONFIG_MROM_SIZE]  PG_ALIGN = {};
+static uint8_t psram[CONFIG_PSRAM_SIZE] PG_ALIGN = {};
+static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
+static uint8_t sram [CONFIG_SRAM_SIZE]  PG_ALIGN = {};
 #endif
-
-#define CODE_MEMORY psram
 
 // #define CODE_MEMORY mrom
 // #define CODE_MEMORY_SIZE MROM_SIZE
 
-uint8_t* guest_to_host_sram(paddr_t paddr) { return sram + paddr - SRAM_BASE; }
-paddr_t host_to_guest_sram(uint8_t *haddr) { return haddr - sram + SRAM_SIZE; }
+uint8_t* guest_to_host_sram(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
+paddr_t host_to_guest_sram(uint8_t *haddr) { return haddr - sram + CONFIG_SRAM_SIZE; }
 
-uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - MROM_BASE; }
-paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + MROM_SIZE; }
+uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
+paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_SIZE; }
 
-uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - FLASH_BASE; }
-paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + FLASH_SIZE; }
+uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
+paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + CONFIG_FLASH_SIZE; }
 
-uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - CONFIG_MBASE; }
-paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_MBASE; }
+uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
+paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRAM_BASE; }
 
 static word_t sram_read(paddr_t addr, int len) {
     word_t ret = host_read(guest_to_host_sram(addr), len);
@@ -84,13 +82,24 @@ static void out_of_bound(paddr_t addr) {
   nemu_state.state = NEMU_ABORT;
 }
 
+void mem_random_set(void){
+  memset(psram, rand(), CONFIG_PSRAM_SIZE);
+  memset(flash, rand(), CONFIG_FLASH_SIZE);
+  memset(sram,  rand(), CONFIG_SRAM_SIZE);
+  memset(mrom,  rand(), CONFIG_MROM_SIZE);
+}
+
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
-  psram = malloc(CONFIG_MSIZE);
+  psram = malloc(CONFIG_PSRAM_SIZE);
   assert(psram);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(CODE_MEMORY, rand(), CODE_MEMORY_SIZE));
-  Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  IFDEF(CONFIG_MEM_RANDOM, mem_random_set());
+  Log("Config memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  Log("SRAM memory area [" FMT_PADDR ", " FMT_PADDR "]", SRAM_LEFT, SRAM_RIGHT);
+  Log("MROM memory area [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
+  Log("FLASH memory area [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
+  Log("PSRAM memory area [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
 }
 
 word_t paddr_read(paddr_t addr, int len) {

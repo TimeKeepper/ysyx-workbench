@@ -18,15 +18,21 @@
 
 #include <common.h>
 
-#define CODE_MEMORY_BASE PMEM_BASE
-#define CODE_MEMORY_SIZE PMEM_SIZE
+#define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
+#define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
+#define RESET_VECTOR (CONFIG_FLASH_BASE + CONFIG_PC_RESET_OFFSET)
 
-// #define CODE_MEMORY_BASE MROM_BASE
-// #define CODE_MEMORY_SIZE MROM_SIZE
+#define SRAM_LEFT  ((paddr_t)CONFIG_SRAM_BASE)
+#define SRAM_RIGHT ((paddr_t)CONFIG_SRAM_BASE + CONFIG_SRAM_SIZE - 1)
 
-#define PMEM_LEFT  ((paddr_t)CODE_MEMORY_BASE)
-#define PMEM_RIGHT ((paddr_t)CODE_MEMORY_BASE + CODE_MEMORY_SIZE - 1)
-#define RESET_VECTOR (FLASH_BASE + CONFIG_PC_RESET_OFFSET)
+#define MROM_LEFT  ((paddr_t)CONFIG_MROM_BASE)
+#define MROM_RIGHT ((paddr_t)CONFIG_MROM_BASE + CONFIG_MROM_SIZE - 1)
+
+#define FLASH_LEFT  ((paddr_t)CONFIG_FLASH_BASE)
+#define FLASH_RIGHT ((paddr_t)CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE - 1)
+
+#define PSRAM_LEFT  ((paddr_t)CONFIG_PSRAM_BASE)
+#define PSRAM_RIGHT ((paddr_t)CONFIG_PSRAM_BASE + CONFIG_PSRAM_SIZE - 1)
 
 uint8_t* guest_to_host_sram(paddr_t paddr);
 paddr_t host_to_guest_sram(uint8_t *haddr);
@@ -41,19 +47,19 @@ uint8_t* guest_to_host_mrom(paddr_t paddr);
 paddr_t host_to_guest_mrom(uint8_t *haddr);
 
 static inline bool in_sram(paddr_t addr) {
-  return addr - SRAM_BASE < SRAM_SIZE;
+  return addr - CONFIG_SRAM_BASE < CONFIG_SRAM_SIZE;
 }
 
 static inline bool in_mrom(paddr_t addr) {
-  return addr - MROM_BASE < MROM_SIZE;
+  return addr - CONFIG_MROM_BASE < CONFIG_MROM_SIZE;
 }
 
 static inline bool in_flash(paddr_t addr) {
-  return addr - FLASH_BASE < FLASH_SIZE;
+  return addr - CONFIG_FLASH_BASE < CONFIG_FLASH_SIZE;
 }
 
 static inline bool in_psram(paddr_t addr) {
-  return addr - CONFIG_MBASE < CONFIG_MSIZE;
+  return addr - CONFIG_PSRAM_BASE < CONFIG_PSRAM_SIZE;
 }
 
 word_t paddr_read(paddr_t addr, int len);

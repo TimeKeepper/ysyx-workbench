@@ -32,6 +32,8 @@
 #define INSTR_BUF_SIZE 15
 #define INST_SIZE 128
 
+uint64_t inst_counter = 0;
+
 void instr_printf(char* s){
   char buf[32];
   strncpy(buf, s, 10);
@@ -78,22 +80,20 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 void instr_buf_push(char *instr){
+  strcpy(INST_BUF[instr_buf_index], instr);
   if(++instr_buf_index >= INSTR_BUF_SIZE){
     instr_buf_index = 0;
   }
-  strcpy(INST_BUF[instr_buf_index], instr);
 }
 
 void instr_buf_printf(void){
-  #ifndef CONFIG_ITRACE
-  printf(ANSI_FMT("function ITRACE have not enabled\n", ANSI_FG_RED));
-  return;
-  #endif
-  for(int i = 0; i < INSTR_BUF_SIZE; i++){
-    i == instr_buf_index ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
+  IFNDEF(CONFIG_ITRACE, printf(ANSI_FMT("function ITRACE is not enabled\n", ANSI_FG_RED)); return;)
+  for(int i = 0; i < (INSTR_BUF_SIZE < inst_counter ? INSTR_BUF_SIZE : inst_counter); i++){
+    i == instr_buf_index - 1 ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
     instr_printf(INST_BUF[i]);
   }
 }
+
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
@@ -126,8 +126,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
   instr_buf_push(s->logbuf);
   #endif
 }
-
-uint64_t inst_counter = 0;
 
 static void execute(uint64_t n) {
   Decode s;

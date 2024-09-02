@@ -45,5 +45,7 @@ uint64_t get_time() {
 }
 
 void init_rand() {
-  srand(get_time_internal());
+  uint64_t rand_seed = get_time_internal();
+  srand(rand_seed);
+  Log("Random seed: %lu", rand_seed);
 }

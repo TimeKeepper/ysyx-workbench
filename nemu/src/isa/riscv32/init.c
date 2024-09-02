@@ -32,6 +32,8 @@ static void restart() {
 
   /* Set the initial status register. */
   cpu.sr[ADDR_MSTATUS] = 0x1800;
+  cpu.sr[ADDR_MVENDORID] = 0x79737978;
+  cpu.sr[ADDR_MARCHID] = 23060198;
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
@@ -42,9 +44,6 @@ static void restart() {
 void init_isa() {
   /* Load built-in image. */
   memcpy(Guest_2_host_CODE(RESET_VECTOR), img, sizeof(img));
-
-  cpu.sr[ADDR_MVENDORID] = 0x79737978;
-  cpu.sr[ADDR_MARCHID] = 23060198;
 
   /* Initialize this virtual computer system. */
   restart();

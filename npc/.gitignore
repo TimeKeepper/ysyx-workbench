@@ -14,6 +14,8 @@
 !build.sc
 !README.md
 build/
+include/config
+include/generated
 
 # mill
 out/

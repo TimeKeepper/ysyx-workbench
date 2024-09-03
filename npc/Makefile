@@ -107,9 +107,6 @@ LDFLAGS += -lreadline -ldl -pie -lelf
 $(DESIGN_FILE): $(SSRC)
 	$(MAKE) verilog
 
-print:
-	@echo $(CXXFLAGS)
-
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing\
@@ -131,4 +128,7 @@ trace:$(BIN) $(IMG)
 	$(eval CXXFLAGS += -DTRACE)
 	$(NPC_EXEC)
 	
+# Include rules for menuconfig
+include $(NPC_HOME)/scripts/config.mk
+
 -include ../Makefile

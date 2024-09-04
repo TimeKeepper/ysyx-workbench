@@ -20,5 +20,9 @@ uint64_t get_time() {
 }
 
 void init_rand() {
-  srand(get_time_internal());
+  uint64_t seed = get_time_internal();
+
+  Log("Random Seed: %lx", seed);
+
+  srand(seed);
 }

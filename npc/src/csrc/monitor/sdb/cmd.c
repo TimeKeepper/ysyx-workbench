@@ -48,7 +48,7 @@ int cmd_q(char *args){
 }
 
 int cmd_r(char *args){
-    cpu_reset(10, 0, NULL);
+    cpu_reset(10);
     return 0;
 }
 

@@ -1,19 +1,6 @@
-#include <cstdint>
-
-#define DEFAULT_MSIZE   0x01000000
-#define DEFAULT_MBASE   0x80000000
-
-#define SRAM_BASE       0x0f000000
-#define SRAM_SIZE       0x2000
-
-#define MROM_SIZE       0x1000
-#define MROM_BASE       0x20000000
-
-#define FLASH_SIZE      0x01000000
-#define FLASH_BASE      0x30000000
-
-#define CODE_MEMORY_BASE FLASH_BASE
-#define CODE_MEMORY_SIZE FLASH_SIZE
+#include <stdint.h>
+#include <stdio.h>
+#include <autoconf.h>
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define BITMASK(bits) ((1ull << (bits)) - 1)
@@ -25,11 +12,8 @@
 #define unlikely(cond) __builtin_expect(cond, 0)
 #endif
 
-// #define WAVE_TRACE
 // #define ITRACE
-// #define CONFIG_DIFFTEST
 // #define CONFIG_WATCHPOINT
-// #define FTRACE
 
 typedef uint32_t paddr_t;
 typedef uint32_t word_t;
@@ -37,3 +21,5 @@ typedef uint32_t word_t;
 typedef word_t vaddr_t;
 
 void engine_start(int argc, char **argv);
+
+#include <debug.h>

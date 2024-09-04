@@ -14,6 +14,7 @@ VSRC_DIR = $(SRC_DIR)/vsrc
 SSRC_DIR = $(SRC_DIR)/ssrc
 CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
+AUTOCONFIG = $(abspath ./include/generated)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/npc.sv
@@ -24,6 +25,7 @@ VSRC += $(shell find $(abspath $(SOC_VSRC_DIR)) -name "*.v") # 将ysyxSOC/perip�
 VSRC += $(shell find $(abspath $(SOC_DIR))/build -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
+HSRC += $(shell find $(abspath $(AUTOCONFIG)) -name "*.h" -or -name "*.hpp")
 
 # yosys-sta DEFINITIONS
 
@@ -95,6 +97,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 INCFLAGS =  $(addprefix -I, $(INC_PATH))
 INCFLAGS += $(addprefix -I, $(HEAD_DIR))
+INCFLAGS += $(addprefix -I, $(AUTOCONFIG))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
 ifdef EXTRA_DEFILE

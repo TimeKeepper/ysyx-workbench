@@ -11,20 +11,27 @@
 
 #define PG_ALIGN __attribute((aligned(4096)))
 
-static uint8_t psram[DEFAULT_MSIZE] PG_ALIGN = {};
+static uint8_t psram[CONFIG_PSRAM_SIZE] PG_ALIGN = {};
 
-static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
+static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
 
-static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
+static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
 
-uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - DEFAULT_MBASE; }
-paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + DEFAULT_MBASE; }
+uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
+paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRAM_BASE; }
 
-uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - MROM_BASE; }
-paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + MROM_SIZE; }
+uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
+paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_SIZE; }
 
-uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - FLASH_BASE; }
-paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + FLASH_SIZE; }
+uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
+paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + CONFIG_FLASH_SIZE; }
+
+uint8_t* guest_to_host(paddr_t paddr) { 
+    if(in_psram(paddr)) return guest_to_host_psram(paddr);
+    else if(in_mrom(paddr)) return guest_to_host_mrom(paddr);
+    else if(in_flash(paddr)) return guest_to_host_flash(paddr);
+    else return nullptr;
+}
 
 #define CODE_MEMORY flash
 
@@ -37,6 +44,10 @@ static const uint32_t img [] = {
 
 void init_mem() {
     memcpy(CODE_MEMORY, img, sizeof(img));
+    Log("SRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SRAM_LEFT, SRAM_RIGHT);
+    Log("MROM memory area \t [" "0x%08x" ", " "0x%08x" "]", MROM_LEFT, MROM_RIGHT);
+    Log("FLASH memory area \t [" "0x%08x" ", " "0x%08x" "]", FLASH_LEFT, FLASH_RIGHT);
+    Log("PSRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", PSRAM_LEFT, PSRAM_RIGHT);
 }
 
 static word_t psram_read(paddr_t addr, int len) {
@@ -59,9 +70,7 @@ static word_t flash_read(paddr_t addr) {
 }
 
 static void out_of_bound(paddr_t addr) {
-    printf("address =  0x%08x  is out of bound of psram [ 0x%08x ,  0x%08x ]\n", 
-    addr, PMEM_LEFT, PMEM_RIGHT);
-    cmd_t(NULL);
+    printf("address =  0x%08x  is out of bound", addr);
     npc_state.state = NPC_ABORT;
 }
 

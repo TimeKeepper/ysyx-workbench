@@ -95,11 +95,12 @@ void init_mem() {
   assert(psram);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, mem_random_set());
-  Log("Config memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
-  Log("SRAM memory area [" FMT_PADDR ", " FMT_PADDR "]", SRAM_LEFT, SRAM_RIGHT);
-  Log("MROM memory area [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
-  Log("FLASH memory area [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
-  Log("PSRAM memory area [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
+  IFDEF(CONFIG_TARGET_SHARE, return;)
+  Log("Config memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  Log("SRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", SRAM_LEFT, SRAM_RIGHT);
+  Log("MROM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", MROM_LEFT, MROM_RIGHT);
+  Log("FLASH memory area \t [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
+  Log("PSRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
 }
 
 word_t paddr_read(paddr_t addr, int len) {

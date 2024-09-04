@@ -34,8 +34,8 @@ typedef struct {
 
 void clk_exec(uint64_t n);
 void cpu_exec(uint64_t n);
-void cpu_reset(int n, int argc, char **argv);
-void wave_Trace_init(int argc, char **argv);
+void cpu_reset(int n);
+void Init_wavetrace(int argc, char **argv);
 void wave_Trace_once();
 void wave_Trace_close();
 char* reg_id2name(int id);

@@ -31,14 +31,12 @@ static struct funtion_info {
 
 static int funtion_index = 0;
 
-#ifdef FTRACE
 static void funtion_push(char *name, long addr, long size) {
     funtion_info_table[funtion_index].name = name;
     funtion_info_table[funtion_index].addr = addr;
     funtion_info_table[funtion_index].size = size;
     funtion_index++;
 }
-#endif
 
 struct get_func func{NULL, false};
 
@@ -57,28 +55,29 @@ struct get_func get_func_name(long addr){
     return func;
 }
 
+vaddr_t __main_addr__ = 0;
+
 static long load_elf() {
-    #ifdef FTRACE
     Elf *elf;
     Elf_Scn *scn = NULL;
     GElf_Shdr shdr;
 
     if (elf_file == NULL) {
-        printf("No ELF is given. There will no function message.\n");
+        Log("No ELF is given. There will no function message.");
         return 0;
     }
 
     int fd;
     if((fd = open(elf_file, O_RDONLY, 0)) < 0){
-        printf("Can not open '%s'\n", elf_file);
+        Log("Can not open '%s'\n", elf_file);
         return 0;
     }
     if(elf_version(EV_CURRENT) == EV_NONE){
-        printf("ELF library initialization failed: %s\n", elf_errmsg(-1));
+        Log("ELF library initialization failed: %s", elf_errmsg(-1));
         return 0;
     }
     if ((elf = elf_begin(fd, ELF_C_READ, NULL)) == NULL){
-        printf("elf_begin() failed: %s.\n", elf_errmsg(-1));
+        Log("elf_begin() failed: %s.", elf_errmsg(-1));
         return 0;
     }
 
@@ -95,6 +94,7 @@ static long load_elf() {
                 gelf_getsym(data, i, &sym);
                 if(GELF_ST_TYPE(sym.st_info) == STT_FUNC) {
                     char *name = elf_strptr(elf, shdr.sh_link, sym.st_name);
+                    if(strcmp(name, "main") == 0) {__main_addr__ = sym.st_value; }
                     if (name != NULL) {
                         funtion_push(name, sym.st_value, sym.st_size);
                     }
@@ -103,16 +103,19 @@ static long load_elf() {
         }
     }
     elf_end(elf);
+    #ifdef CONFIG_FTRACE
+    Log("Function Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
     return symcount;
     #else
+    Log("Function Trace " ANSI_FMT("OFF", ANSI_FG_RED));
     return 0;
     #endif
 }
 
 long load_img(char* img_file) {
     if (img_file == NULL) {
-        printf("No image is given. Use the default build-in image.\n");
-        return DEFAULT_MSIZE; // built-in image size
+        Log("No image is given. Use the default build-in image.");
+        return 4096; // built-in image size
     }
 
     FILE *fp = fopen(img_file, "rb");
@@ -120,7 +123,7 @@ long load_img(char* img_file) {
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
 
-    printf("The image is %s, size = %ld\n", img_file, size);
+    Log("The image is %s, size = %ld", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
     int ret = fread(get_flash(), 4, size, fp);
@@ -179,6 +182,9 @@ void init_isa() {
 }
 
 void init_monitor(int argc, char *argv[]) {
+    void init_log(void);
+    init_log();
+
     parse_args(argc, argv);
 
     init_rand();
@@ -189,9 +195,11 @@ void init_monitor(int argc, char *argv[]) {
 
     long img_size = load_img(img_file);
 
+    init_difftest(diff_so_file, img_size, difftest_port);
+
     load_elf();
 
-    init_difftest(diff_so_file, img_size, difftest_port);
+    Init_wavetrace(argc, argv);
 
     init_sdb();
 

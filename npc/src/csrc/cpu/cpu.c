@@ -52,20 +52,28 @@ const char *regs[32] = {
 };
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
-void wave_Trace_init(int argc, char **argv){
+void Init_wavetrace(int argc, char **argv){
     contextp->commandArgs(argc, argv);
-    #ifdef WAVE_TRACE
+    #ifdef CONFIG_WTRACE
     Verilated::traceEverOn(true);
     top->trace(tfp, 99);
     tfp->open("wave.vcd");
+    Log("Wave Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
+    #else
+    Log("Wave Trace " ANSI_FMT("OFF", ANSI_FG_RED));
     #endif
 }
 
+extern vaddr_t __main_addr__;
+
 void wave_Trace_once(){
-    #ifdef WAVE_TRACE
+    #ifdef CONFIG_WTRACE
     static bool wave_trace_begin = false;
     if(wave_trace_begin == false){
-        if(((cpu.pc & 0xff000000) == 0x0f000000)) {wave_trace_begin = true;}
+        if(cpu.pc == __main_addr__) {
+            wave_trace_begin = true;
+            Log("Booting completed, start wave tracing...");
+        }
         else return;
     }
     contextp->timeInc(1);
@@ -74,12 +82,12 @@ void wave_Trace_once(){
 }
 
 void wave_Trace_close(){
-    #ifdef WAVE_TRACE
+    #ifdef CONFIG_WTRACE
     tfp->close();
     #endif
 }
 
-CPU_State cpu = {.gpr = {0}, .pc = 0x30000000, .sr = {0}};
+CPU_State cpu = {.gpr = {0}, .pc = RESET_VECTOR, .sr = {0}};
 
 void difftest_skip_ref();
 
@@ -109,9 +117,7 @@ static void reset(int n) {
     top->reset = 0;
 }
 
-void cpu_reset(int n, int argc, char **argv){
-    if(argv != NULL) wave_Trace_init(argc, argv);
-    
+void cpu_reset(int n){
     reset(n); 
     clk_cnt = 0;
 }
@@ -147,7 +153,7 @@ void itrace_catch(uint32_t addr, uint32_t inst){
 static bool is_ret = false;
 
 static void func_called_detect(){
-    #ifdef FTRACE
+    #ifdef CONFIG_FTRACE
     static uint32_t stack_num = 0;
 
     static char* last_func_name = NULL;
@@ -241,7 +247,7 @@ void error_waddr(){
 int npc_trap (int a0){
     npc_state.state = NPC_END;
     npc_state.halt_ret = a0;
-    printf(ANSI_FMT("a0: %d inst: %lu\n", ANSI_FG_BLUE), a0, inst_cnt);
+    Log("a0: %d inst: %lu", a0, inst_cnt);
     if(a0 == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
     wave_Trace_once();

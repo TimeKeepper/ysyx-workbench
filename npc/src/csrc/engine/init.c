@@ -4,7 +4,7 @@
 #include <sdb/sdb.h>
 
 void engine_start(int argc, char **argv) {
-    cpu_reset(10, argc, argv); 
+    cpu_reset(10); 
 
     sdb_mainloop();
 }

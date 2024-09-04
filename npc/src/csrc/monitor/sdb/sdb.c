@@ -75,10 +75,6 @@ void sdb_mainloop() {
 
         if (i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
     }
-
-    // while(1) {
-    //     if(!cpu_exec(1)) break;
-    // }
 }
 
 void init_wp_pool();

@@ -197,13 +197,13 @@ void init_monitor(int argc, char *argv[]) {
 
     init_difftest(diff_so_file, img_size, difftest_port);
 
-    load_elf();
-
-    Init_wavetrace(argc, argv);
-
     init_sdb();
 
     init_disasm("riscv32");
+
+    load_elf();
+
+    Init_wavetrace(argc, argv);
 
     init_sig();
 

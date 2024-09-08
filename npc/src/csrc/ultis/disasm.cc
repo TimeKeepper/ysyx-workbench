@@ -38,6 +38,7 @@ static llvm::MCSubtargetInfo *gSTI = nullptr;
 static llvm::MCInstPrinter *gIP = nullptr;
 
 extern "C" void init_disasm(const char *triple) {
+  #ifdef CONFIG_ITRACE
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmParsers();
@@ -81,8 +82,14 @@ extern "C" void init_disasm(const char *triple) {
   gIP->setPrintBranchImmAsAddress(true);
   if (isa == "riscv32" || isa == "riscv64")
     gIP->applyTargetSpecificCLOption("no-aliases");
+  
+  Log("Instruction Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
+  #else
+  Log("Instruction Trace " ANSI_FMT("OFF", ANSI_FG_RED));
+  #endif
 }
 
+#ifdef CONFIG_ITRACE
 extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
   MCInst inst;
   llvm::ArrayRef<uint8_t> arr(code, nbyte);
@@ -98,3 +105,4 @@ extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int
   assert((int)s.length() - skip < size);
   strcpy(str, p);
 }
+#endif

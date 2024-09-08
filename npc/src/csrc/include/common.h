@@ -12,9 +12,6 @@
 #define unlikely(cond) __builtin_expect(cond, 0)
 #endif
 
-// #define ITRACE
-// #define CONFIG_WATCHPOINT
-
 typedef uint32_t paddr_t;
 typedef uint32_t word_t;
 

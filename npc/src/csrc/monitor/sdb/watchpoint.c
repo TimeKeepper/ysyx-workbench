@@ -83,6 +83,12 @@ void init_wp_pool() {
 
   head = NULL;
   free_ = wp_pool;
+
+  #ifdef CONFIG_WATCHPOINT
+  Log("Watchpoint " ANSI_FMT("ON", ANSI_FG_GREEN));
+  #else
+  Log("Watchpoint " ANSI_FMT("OFF", ANSI_FG_RED));
+  #endif
 }
 
 void wp_Value_Update(){

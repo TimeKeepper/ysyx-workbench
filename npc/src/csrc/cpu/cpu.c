@@ -132,7 +132,7 @@ void cpu_value_update(uint8_t pc_wen, uint8_t csra_wen, uint8_t csrb_wen, uint8_
 
 char itrace_buf[256];
 void itrace_catch(uint32_t addr, uint32_t inst){
-    #ifdef ITRACE
+    #ifdef CONFIG_ITRACE
 
     char* p = itrace_buf;
 

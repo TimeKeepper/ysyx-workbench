@@ -34,6 +34,9 @@
 #define PSRAM_LEFT  ((paddr_t)CONFIG_PSRAM_BASE)
 #define PSRAM_RIGHT ((paddr_t)CONFIG_PSRAM_BASE + CONFIG_PSRAM_SIZE - 1)
 
+#define SDRAM_LEFT  ((paddr_t)CONFIG_SDRAM_BASE)
+#define SDRAM_RIGHT ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
+
 uint8_t* guest_to_host_sram(paddr_t paddr);
 paddr_t host_to_guest_sram(uint8_t *haddr);
 
@@ -45,6 +48,9 @@ paddr_t host_to_guest_flash(uint8_t *haddr);
 
 uint8_t* guest_to_host_mrom(paddr_t paddr);
 paddr_t host_to_guest_mrom(uint8_t *haddr);
+
+uint8_t* guest_to_host_sdram(paddr_t paddr);
+paddr_t host_to_guest_sdram(uint8_t *haddr);
 
 static inline bool in_sram(paddr_t addr) {
   return addr - CONFIG_SRAM_BASE < CONFIG_SRAM_SIZE;
@@ -62,8 +68,12 @@ static inline bool in_psram(paddr_t addr) {
   return addr - CONFIG_PSRAM_BASE < CONFIG_PSRAM_SIZE;
 }
 
+static inline bool in_sdram(paddr_t addr) {
+  return addr - CONFIG_SDRAM_BASE < CONFIG_SDRAM_SIZE;
+}
+
 static inline bool in_pmem(paddr_t addr){
-  return (in_sram(addr) || in_mrom(addr) || in_flash(addr) || in_psram(addr));
+  return (in_sram(addr) || in_mrom(addr) || in_flash(addr) || in_psram(addr) || in_sdram(addr));
 }
 
 word_t paddr_read(paddr_t addr, int len);

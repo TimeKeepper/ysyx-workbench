@@ -2,11 +2,11 @@ menu "Memory Configuration"
 
 config MBASE
   hex "Memory base address"
-  default PSRAM_BASE
+  default SDRAM_BASE
 
 config MSIZE
   hex "Memory size"
-  default PSRAM_SIZE
+  default SDRAM_SIZE
 
 config PC_RESET_OFFSET
   hex "Offset of reset vector from the base of memory"
@@ -45,6 +45,14 @@ config PSRAM_BASE
 config PSRAM_SIZE
   hex "PSRAM size"
   default 0x8000000
+
+config SDRAM_BASE
+  hex "SDRAM base address"
+  default 0xa0000000
+
+config SDRAM_SIZE
+  hex "SDRAM size"
+  default 0x20000000
 
 choice
   prompt "Physical memory definition"

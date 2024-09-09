@@ -367,6 +367,7 @@ static int cmd_mm(char *args){
   printf(ANSI_FMT("MROM\t", ANSI_FG_BLUE) "[" ANSI_FMT("0x%08x - 0x%08x", ANSI_FG_CYAN) "]\n", MROM_LEFT, MROM_RIGHT);
   printf(ANSI_FMT("FLASH\t", ANSI_FG_BLUE) "[" ANSI_FMT("0x%08x - 0x%08x", ANSI_FG_CYAN) "]\n", FLASH_LEFT, FLASH_RIGHT);
   printf(ANSI_FMT("PSRAM\t", ANSI_FG_BLUE) "[" ANSI_FMT("0x%08x - 0x%08x", ANSI_FG_CYAN) "]\n", PSRAM_LEFT, PSRAM_RIGHT);
+  printf(ANSI_FMT("SDRAM\t", ANSI_FG_BLUE) "[" ANSI_FMT("0x%08x - 0x%08x", ANSI_FG_CYAN) "]\n", SDRAM_LEFT, SDRAM_RIGHT);
   return 0;
 }
 

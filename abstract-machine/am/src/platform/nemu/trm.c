@@ -29,8 +29,10 @@ void halt(int code) {
 }
 
 static void inline boot_memcpy(void *dst, const void *src, size_t n){ // 在bootloader运行的时候,memcpy还没有正常加载
+  uint32_t *d = (uint32_t *)dst;
+  const uint32_t *s = (uint32_t *)src;
   while(n--){
-    *(uint8_t *)dst++ = *(uint8_t *)src++;
+    *d++ = *s++;
   }
 }
 

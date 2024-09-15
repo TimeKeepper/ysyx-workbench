@@ -60,15 +60,17 @@ void halt(int code) {
 }
 
 static void inline boot_memcpy(void *dst, const void *src, size_t n){ // 在bootloader运行的时候,memcpy还没有正常加载
+  uint32_t *d = (uint32_t *)dst;
+  const uint32_t *s = (uint32_t *)src;
   while(n--){
-    *(uint8_t *)dst++ = *(uint8_t *)src++;
+    *d++ = *s++;
   }
 }
 
 int FSBL(void){
   uint32_t *dst = (uint32_t *)&_sssbl;
   const uint32_t *src = (uint32_t *)&_sssbl_load;
-  size_t n = (size_t)(&_essbl - &_sssbl);// 确保全部加载
+  size_t n = (size_t)(&_essbl - &_sssbl) / 4;// 确保全部加载
 
   boot_memcpy(dst, src, n); // 程序加载
 

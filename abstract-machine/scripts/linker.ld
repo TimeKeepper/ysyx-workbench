@@ -17,6 +17,8 @@ SECTIONS {
 
     *(.text.FSBL)
     *(.text._trm_init)
+    
+    . = ALIGN(4);
   
     _efsbl = .;
   } > flash AT> flash : fsbl
@@ -28,6 +30,8 @@ SECTIONS {
   
     *(.text.SSBL)
   
+    . = ALIGN(4);
+
     _essbl = .;
   } > sram AT> flash : ssbl
 
@@ -38,6 +42,8 @@ SECTIONS {
 
     *(.text)
     *(.text*)
+    
+    . = ALIGN(4);
 
     _etext = .;
   } > sdram AT> flash : text
@@ -70,6 +76,8 @@ SECTIONS {
     *(.sdata*)
     *(.sdata+)
 
+    . = ALIGN(4);
+
     _edata = .;
   } > sdram AT> flash : data
   
@@ -83,6 +91,8 @@ SECTIONS {
     *(.sbss)
     *(.sbss*)
     *(.scommon)
+
+    . = ALIGN(4);
 
     _ebss = .;
 

@@ -62,6 +62,7 @@ void init_mem() {
     Log("MROM memory area \t [" "0x%08x" ", " "0x%08x" "]", MROM_LEFT, MROM_RIGHT);
     Log("FLASH memory area \t [" "0x%08x" ", " "0x%08x" "]", FLASH_LEFT, FLASH_RIGHT);
     Log("PSRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", PSRAM_LEFT, PSRAM_RIGHT);
+    Log("SDRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SDRAM_LEFT, SDRAM_RIGHT);
 }
 
 static word_t psram_read(paddr_t addr, int len) {

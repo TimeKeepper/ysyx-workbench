@@ -62,7 +62,7 @@ static inline bool in_flash(paddr_t addr) {
 }
 
 static inline bool in_pmem(paddr_t addr){
-  return (in_sram(addr) || in_mrom(addr) || in_flash(addr) || in_psram(addr));
+  return (in_sram(addr) || in_mrom(addr) || in_flash(addr) || in_psram(addr) || in_sdram(addr));
 }
 
 word_t paddr_read(paddr_t addr, int len);

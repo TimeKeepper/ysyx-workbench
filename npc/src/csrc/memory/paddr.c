@@ -157,11 +157,9 @@ extern "C" void sdram_read(int32_t raddr, uint16_t *rdata) {
     uint32_t rdata_tmp = host_read(sdram + (raddr & ~0x3u), 4);
     *rdata = host_read(sdram + raddr, 2);
     extern uint64_t clk_cnt;
-    // Log("sdram_read: raddr = 0x%08x, rdata_tmp = 0x%08x, rdata = 0x%04x, clk counter = %ld", raddr, rdata_tmp, *rdata, clk_cnt);
 }
 
 extern "C" void sdram_write(int32_t waddr, uint16_t wdata, int32_t wlen) {
     host_write(sdram + waddr, wlen, wdata);
     extern uint64_t clk_cnt;
-    Log("sdram_write: waddr = 0x%08x, wdata = 0x%04x, wlen = %d, clk counter = %ld", waddr, wdata, wlen, clk_cnt);
 }

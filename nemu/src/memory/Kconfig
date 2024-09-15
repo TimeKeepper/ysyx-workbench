@@ -52,7 +52,7 @@ config SDRAM_BASE
 
 config SDRAM_SIZE
   hex "SDRAM size"
-  default 0x20000000
+  default 0x2000000
 
 choice
   prompt "Physical memory definition"

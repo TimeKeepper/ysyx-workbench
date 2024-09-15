@@ -137,7 +137,7 @@ int cmd_x(char *args){
     bool success = true;
     uint32_t base_Addr = expr(strtok(NULL, " "), &success);
 
-    if(!likely(in_psram(base_Addr) || in_mrom(base_Addr) || in_flash(base_Addr))){
+    if(!likely(in_psram(base_Addr) || in_mrom(base_Addr) || in_flash(base_Addr) || in_sdram(base_Addr))){
         printf(ANSI_FMT("The 0x%08x address is out of range!\n", ANSI_FG_RED), base_Addr);
         return 0;
     }

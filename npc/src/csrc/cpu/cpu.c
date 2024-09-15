@@ -181,7 +181,7 @@ void watchpoint_catch(void){
         printf("Watchpoint %d: " ANSI_FMT("%s\n", ANSI_FG_BLUE), wp->NO, wp->expr);
         printf(ANSI_FMT("Old value" , ANSI_FG_YELLOW)  " = 0x%08x\n", wp->last_time_Value);
         printf(ANSI_FMT("New value" , ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
-        num_of_inst_to_end = 1;
+        num_of_inst_to_end = 0;
         // if(npc_state.state != NPC_END) npc_state.state = NPC_STOP;//如果在npc停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NPC_END的判断
     }
     #endif

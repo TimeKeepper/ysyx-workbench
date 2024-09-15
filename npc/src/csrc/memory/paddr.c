@@ -22,8 +22,8 @@ static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
 uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
 paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRAM_BASE; }
 
-uint8_t* guest_to_host_sdram(paddr_t paddr) { return sdram + paddr - CONFIG_FLASH_BASE; }
-paddr_t host_to_guest_sdram(uint8_t *haddr) { return haddr - sdram + CONFIG_FLASH_SIZE; }
+uint8_t* guest_to_host_sdram(paddr_t paddr) { return sdram + paddr - CONFIG_SDRAM_BASE; }
+paddr_t host_to_guest_sdram(uint8_t *haddr) { return haddr - sdram + CONFIG_SDRAM_SIZE; }
 
 uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
 paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_SIZE; }
@@ -157,7 +157,7 @@ extern "C" void sdram_read(int32_t raddr, uint16_t *rdata) {
     uint32_t rdata_tmp = host_read(sdram + (raddr & ~0x3u), 4);
     *rdata = host_read(sdram + raddr, 2);
     extern uint64_t clk_cnt;
-    Log("sdram_read: raddr = 0x%08x, rdata_tmp = 0x%08x, rdata = 0x%04x, clk counter = %ld", raddr, rdata_tmp, *rdata, clk_cnt);
+    // Log("sdram_read: raddr = 0x%08x, rdata_tmp = 0x%08x, rdata = 0x%04x, clk counter = %ld", raddr, rdata_tmp, *rdata, clk_cnt);
 }
 
 extern "C" void sdram_write(int32_t waddr, uint16_t wdata, int32_t wlen) {

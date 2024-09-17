@@ -37,7 +37,7 @@ HSRC += $(shell find $(abspath $(AUTOCONFIG)) -name "*.h" -or -name "*.hpp")
 # VERILATOR DIFIENITIONS
 
 TOPNAME ?= ysyxSoCFull
-NXDC_FILES = $(SRC_DIR)/constr/top.nxdc
+NXDC_FILES = $(abspath $(SRC_DIR)/constr/top.nxdc)
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
@@ -66,7 +66,7 @@ checkformat:
 clean:
 	-rm -rf $(BUILD_DIR)
 
-.PHONY: test verilog help reformat checkformat clean
+.PHONY: test verilog help reformat checkformat clean $(NXDC_FILES)
 
 test:
 	mill -i $(PRJ).test
@@ -86,6 +86,8 @@ verilog:
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+
+CSRC += $(SRC_AUTO_BIND)
 	
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk

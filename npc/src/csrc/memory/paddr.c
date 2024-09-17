@@ -164,3 +164,12 @@ extern "C" void sdram_write(int32_t waddr, uint16_t wdata, int32_t wlen) {
     host_write(sdram + waddr, wlen, wdata);
     extern uint64_t clk_cnt;
 }
+
+extern "C" void clint_read(int32_t addr, int32_t *data) {
+    if(addr == 0x02000000){
+        *data = get_time();
+    }else if(addr == 0x02000004){
+        *data = get_time() >> 32;
+    }
+    return;
+}

@@ -5,6 +5,13 @@
 
 // # define DEVICE_BASE 0xa0000000
 
+#define GPIO_BASE (0x10002000)
+#define GPIO_LED  (GPIO_BASE + 0x00)
+#define GPIO_KEY  (GPIO_BASE + 0x04)
+#define GPIO_SEG  (GPIO_BASE + 0x08)
+
+#define CLINT_BASE (0x2000000)
+
 #define SERIAL_PORT     (0x10000000)
 #define SERIAL_RB       (SERIAL_PORT + 0) // receive buffer
 #define SERIAL_THR      (SERIAL_PORT + 0) // transmit holding register
@@ -107,6 +114,10 @@ int SSBL(void) {
   n = (size_t)(&_ebss - &_sbss);
 
   boot_memcpy(dst, src, n); // bss加载
+
+  *(volatile uint32_t*)GPIO_SEG = 0x23a6a198;//在nvboard的数码管上显示学号
+  uint32_t time = *(volatile uint32_t*)CLINT_BASE; //进行一次读取,初始化clint
+  (void)time; //该数据并用不到
 
   return 0;
 }

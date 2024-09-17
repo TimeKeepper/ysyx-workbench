@@ -17,8 +17,9 @@
 #include <utils.h>
 #include <sdb/sdb.h>
 
-VerilatedContext* contextp = new VerilatedContext;
-TOP_NAME* top = new TOP_NAME{contextp};
+const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+TOP_NAME* top = new TOP_NAME;
+VerilatedVcdC* tfp = new VerilatedVcdC;
 
 uint64_t clk_cnt = 0;
 uint64_t inst_cnt = 0;
@@ -50,7 +51,6 @@ const char *regs[32] = {
   "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
-VerilatedVcdC* tfp = new VerilatedVcdC;
 
 void Init_wavetrace(int argc, char **argv){
     contextp->commandArgs(argc, argv);
@@ -82,9 +82,7 @@ void wave_Trace_once(){
 }
 
 void wave_Trace_close(){
-    #ifdef CONFIG_WTRACE
     tfp->close();
-    #endif
 }
 
 CPU_State cpu = {.gpr = {0}, .pc = RESET_VECTOR, .sr = {0}};
@@ -221,7 +219,9 @@ void inst_comp_update(){
 }
 
 static void execute_one_clk(){
-    // // nvboard_update();
+    #ifdef CONFIG_NVBOARD
+    nvboard_update();
+    #endif
 
     single_cycle();           
 }

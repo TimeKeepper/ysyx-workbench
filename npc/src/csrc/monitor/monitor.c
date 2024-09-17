@@ -172,13 +172,28 @@ void SIGINT_handler(int signal){
     }
 }
 
+void init_isa() {
+    cpu.sr[ADDR_MVENDORID] = 0x79737978;
+    cpu.sr[ADDR_MARCHID] = 23060198;
+}
+
 void init_sig(void){
     signal(SIGINT, SIGINT_handler);
 }
 
-void init_isa() {
-    cpu.sr[ADDR_MVENDORID] = 0x79737978;
-    cpu.sr[ADDR_MARCHID] = 23060198;
+
+void init_nvboard(void) {
+    #ifdef CONFIG_NVBOARD
+    extern TOP_NAME* top;
+    void nvboard_bind_all_pins(TOP_NAME* top);  
+
+    nvboard_bind_all_pins(top);
+    nvboard_init();
+    
+    Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));
+    #else
+    Log("NVBoard " ANSI_FMT("OFF", ANSI_FG_RED));
+    #endif
 }
 
 void init_monitor(int argc, char *argv[]) {
@@ -206,6 +221,8 @@ void init_monitor(int argc, char *argv[]) {
     Init_wavetrace(argc, argv);
 
     init_sig();
+
+    init_nvboard();
 
     welcome();
 }

@@ -46,6 +46,16 @@ void sdb_set_batch_mode() {
 
 void wave_Trace_close(void);
 
+void sdb_exit() {
+    #ifdef CONFIG_WTRACE
+    wave_Trace_close();
+    #endif
+
+    #ifdef CONFIG_NVBOARD
+    nvboard_quit();
+    #endif
+}
+
 void sdb_mainloop() {
     if (is_batch_mode) {
         cmd_c(NULL);
@@ -69,7 +79,7 @@ void sdb_mainloop() {
 
         for (i = 0; i < NR_CMD; i++) {
             if (strcmp(cmd, cmd_table[i].name) != 0) continue;
-            if (cmd_table[i].handler(args) < 0) { wave_Trace_close(); /*signal(SIGINT, SIG_IGN);*/ return;}
+            if (cmd_table[i].handler(args) < 0) { sdb_exit(); return;}
             break;
         }
 

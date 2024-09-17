@@ -14,6 +14,4 @@
 #include <sdb/sdb.h>
 #include <utils.h>
 
-void nvboard_bind_all_pins(TOP_NAME* top);
-
 #endif

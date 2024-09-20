@@ -60,6 +60,11 @@ void putch(char ch) {
   outb(SERIAL_RB, ch);
 }
 
+char getch(void){
+  if((inb(SERIAL_LS) & 0x1) == 0) return 0xff;
+  return inb(SERIAL_RB);
+}
+
 void halt(int code) {
   asm volatile("mv a0, %0; ebreak" : :"r"(code));
 

@@ -41,6 +41,7 @@ static char* rl_gets() {
 static int is_batch_mode = false;
 
 void sdb_set_batch_mode() {
+    Log("Entering batch mode\n");
   is_batch_mode = true;
 }
 

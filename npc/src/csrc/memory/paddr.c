@@ -19,6 +19,8 @@ static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
 
 static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
 
+static uint8_t vga[CONFIG_VGA_FRAME_BUFFER_SIZE] PG_ALIGN = {};
+
 uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
 paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRAM_BASE; }
 
@@ -30,6 +32,9 @@ paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_S
 
 uint8_t* guest_to_host_flash(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
 paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + CONFIG_FLASH_SIZE; }
+
+uint8_t* guest_to_host_vga(paddr_t paddr) { return vga + paddr - CONFIG_VGA_FRAME_BUFFER_BASE; }
+paddr_t host_to_guest_vga(uint8_t *haddr) { return haddr - vga + CONFIG_VGA_FRAME_BUFFER_SIZE; }
 
 uint8_t* guest_to_host(paddr_t paddr) { 
     if(in_psram(paddr)) return guest_to_host_psram(paddr);
@@ -53,6 +58,7 @@ void mem_random_set(void){
   memset(flash, rand(), CONFIG_FLASH_SIZE);
   memset(mrom,  rand(), CONFIG_MROM_SIZE);
   memset(sdram, rand(), CONFIG_SDRAM_SIZE);
+  memset(vga,   rand(), CONFIG_VGA_FRAME_BUFFER_SIZE);
 }
 
 void init_mem() {
@@ -60,6 +66,7 @@ void init_mem() {
     memcpy(CODE_MEMORY, img, sizeof(img));
     Log("SRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SRAM_LEFT, SRAM_RIGHT);
     Log("MROM memory area \t [" "0x%08x" ", " "0x%08x" "]", MROM_LEFT, MROM_RIGHT);
+    Log("VGA memory area \t [" "0x%08x" ", " "0x%08x" "]", VGA_LEFT, VGA_RIGHT);
     Log("FLASH memory area \t [" "0x%08x" ", " "0x%08x" "]", FLASH_LEFT, FLASH_RIGHT);
     Log("PSRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", PSRAM_LEFT, PSRAM_RIGHT);
     Log("SDRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SDRAM_LEFT, SDRAM_RIGHT);
@@ -172,4 +179,14 @@ extern "C" void clint_read(int32_t addr, int32_t *data) {
         *data = get_time() >> 32;
     }
     return;
+}
+
+extern "C" void vga_read(int32_t x_addr, int32_t y_addr, uint32_t *rdata) {
+    uint32_t raddr = (y_addr * 640 + x_addr) * 4;
+    *rdata = host_read(vga + (raddr & ~0x3u), 4);
+    // Log("vga_read: x_addr = 0x%08x, y_addr = 0x%08x, data = 0x%08x", x_addr, y_addr, *rdata);
+}
+
+extern "C" void vga_write(int32_t waddr, uint32_t wdata) {
+    host_write(vga + waddr - CONFIG_VGA_FRAME_BUFFER_BASE, 4, wdata);
 }

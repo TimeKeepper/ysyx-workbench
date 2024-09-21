@@ -188,6 +188,7 @@ void init_nvboard(void) {
     void nvboard_bind_all_pins(TOP_NAME* top);  
 
     nvboard_bind_all_pins(top);
+
     nvboard_init();
     
     Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));

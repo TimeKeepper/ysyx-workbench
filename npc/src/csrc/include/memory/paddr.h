@@ -27,6 +27,9 @@
 #define SDRAM_LEFT  ((paddr_t)CONFIG_SDRAM_BASE)
 #define SDRAM_RIGHT ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
 
+#define VGA_LEFT  ((paddr_t)CONFIG_VGA_FRAME_BUFFER_BASE)
+#define VGA_RIGHT ((paddr_t)CONFIG_VGA_FRAME_BUFFER_BASE + CONFIG_VGA_FRAME_BUFFER_SIZE - 1)
+
 uint8_t* guest_to_host_psram(paddr_t paddr);
 paddr_t host_to_guest_psram(uint8_t *haddr);
 
@@ -59,6 +62,10 @@ static inline bool in_mrom(paddr_t addr) {
 
 static inline bool in_flash(paddr_t addr) {
   return addr - CONFIG_FLASH_BASE < CONFIG_FLASH_SIZE;
+}
+
+static inline bool in_vga(paddr_t addr) {
+  return addr - CONFIG_VGA_FRAME_BUFFER_BASE < CONFIG_VGA_FRAME_BUFFER_SIZE;
 }
 
 static inline bool in_pmem(paddr_t addr){

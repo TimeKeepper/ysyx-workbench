@@ -31,12 +31,14 @@ static struct funtion_info {
 
 static int funtion_index = 0;
 
+#ifdef CONFIG_FTRACE
 static void funtion_push(char *name, long addr, long size) {
     funtion_info_table[funtion_index].name = name;
     funtion_info_table[funtion_index].addr = addr;
     funtion_info_table[funtion_index].size = size;
     funtion_index++;
 }
+#endif
 
 struct get_func func{NULL, false};
 
@@ -61,6 +63,7 @@ static long load_elf() {
     Elf *elf;
     Elf_Scn *scn = NULL;
     GElf_Shdr shdr;
+    #ifdef CONFIG_FTRACE
 
     if (elf_file == NULL) {
         Log("No ELF is given. There will no function message.");
@@ -103,7 +106,6 @@ static long load_elf() {
         }
     }
     elf_end(elf);
-    #ifdef CONFIG_FTRACE
     Log("Function Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
     return symcount;
     #else
@@ -126,8 +128,8 @@ long load_img(char* img_file) {
     Log("The image is %s, size = %ld", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    int ret = fread(get_flash(), 4, size, fp);
-    assert(ret == size/4);
+    int ret = fread(get_flash(), size, 1, fp);
+    assert(ret == 1);
 
     fclose(fp);
     return size;

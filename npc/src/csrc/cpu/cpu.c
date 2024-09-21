@@ -68,7 +68,7 @@ extern vaddr_t __main_addr__;
 
 void wave_Trace_once(){
     #ifdef CONFIG_WTRACE
-    static bool wave_trace_begin = false;
+    static bool wave_trace_begin = true;
     if(wave_trace_begin == false){
         if(cpu.pc == __main_addr__) {
             wave_trace_begin = true;
@@ -248,6 +248,7 @@ int npc_trap (int a0){
     npc_state.state = NPC_END;
     npc_state.halt_ret = a0;
     Log("a0: %d inst: %lu clk: %lu", a0, inst_cnt, clk_cnt);
+    Log("ipc: %lf", (double)inst_cnt / (double)clk_cnt);
     if(a0 == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
     wave_Trace_once();

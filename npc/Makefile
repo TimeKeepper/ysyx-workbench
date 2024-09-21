@@ -128,10 +128,8 @@ sim: $(BIN) $(IMG)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC)
 
-trace:$(BIN) $(IMG)
-	$(eval VERILATOR_CFLAGS += --trace)
-	$(eval CXXFLAGS += -DTRACE)
-	$(NPC_EXEC)
+gdb: $(BIN) $(IMG)
+	gdb $(NPC_EXEC)
 	
 # Include rules for menuconfig
 include $(NPC_HOME)/scripts/config.mk

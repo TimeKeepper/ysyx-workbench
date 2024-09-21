@@ -11,15 +11,25 @@
 
 #define PG_ALIGN __attribute((aligned(4096)))
 
-static uint8_t psram[CONFIG_PSRAM_SIZE] PG_ALIGN = {};
+// static uint8_t psram;
 
-static uint8_t sdram[CONFIG_SDRAM_SIZE] PG_ALIGN = {};
+// static uint8_t sdram[CONFIG_SDRAM_SIZE] PG_ALIGN = {};
 
-static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
+// static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
 
-static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
+// static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
 
-static uint8_t vga[CONFIG_VGA_FRAME_BUFFER_SIZE] PG_ALIGN = {};
+// static uint8_t vga[CONFIG_VGA_FRAME_BUFFER_SIZE] PG_ALIGN = {};
+
+static uint8_t* psram;
+
+static uint8_t* sdram;
+
+static uint8_t* mrom;
+
+static uint8_t* flash;
+
+static uint8_t* vga;
 
 uint8_t* guest_to_host_psram(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
 paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRAM_BASE; }
@@ -53,16 +63,16 @@ static const uint32_t img [] = {
   0xff9fffef,  // jmp 0x80000004
 };
 
-void mem_random_set(void){
-  memset(psram, rand(), CONFIG_PSRAM_SIZE);
-  memset(flash, rand(), CONFIG_FLASH_SIZE);
-  memset(mrom,  rand(), CONFIG_MROM_SIZE);
-  memset(sdram, rand(), CONFIG_SDRAM_SIZE);
-  memset(vga,   rand(), CONFIG_VGA_FRAME_BUFFER_SIZE);
+void mem_malloc(){
+    psram = (uint8_t*)malloc(CONFIG_PSRAM_SIZE);
+    sdram = (uint8_t*)malloc(CONFIG_SDRAM_SIZE);
+    mrom = (uint8_t*)malloc(CONFIG_MROM_SIZE);
+    flash = (uint8_t*)malloc(CONFIG_FLASH_SIZE);
+    vga = (uint8_t*)malloc(CONFIG_VGA_FRAME_BUFFER_SIZE);
 }
 
 void init_mem() {
-    mem_random_set();
+    mem_malloc();
     memcpy(CODE_MEMORY, img, sizeof(img));
     Log("SRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SRAM_LEFT, SRAM_RIGHT);
     Log("MROM memory area \t [" "0x%08x" ", " "0x%08x" "]", MROM_LEFT, MROM_RIGHT);

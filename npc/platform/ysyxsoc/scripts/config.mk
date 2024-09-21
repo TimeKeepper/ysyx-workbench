@@ -24,7 +24,7 @@ endif
 Q            := @
 KCONFIG_PATH := $(NPC_HOME)/tools/kconfig
 FIXDEP_PATH  := $(NPC_HOME)/tools/fixdep
-Kconfig      := $(NPC_HOME)/Kconfig
+Kconfig      := ./Kconfig
 rm-distclean += src/csrc/include/generated src/csrc/include/config .config .config.old
 silent := -s
 

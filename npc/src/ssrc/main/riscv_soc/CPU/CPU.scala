@@ -3,19 +3,47 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
  
-class inst_bridge extends BlackBox{
+class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock = Input(Clock())
     val valid = Input(Bool())
   })
+  setInline("INST_BRIDGE.v",
+  """module INST_BRIDGE(
+  |  input clock,
+  |  input valid
+  |);
+  | import "DPI-C" function void inst_comp_update();
+  | always @(posedge clock) begin
+  |     if(valid) begin
+  |         inst_comp_update();
+  |     end
+  | end
+  |
+  |endmodule
+  """.stripMargin)
 }
 
-class AXI_bridge extends BlackBox{
-    val io = IO(new Bundle {
-        val clock = Input(Clock())
-        val rresp  = Input(UInt(2.W))
-        val bresp  = Input(UInt(2.W))
-    })
+class AXI_BRIDGE extends BlackBox with HasBlackBoxInline{
+  val io = IO(new Bundle {
+      val clock = Input(Clock())
+      val rresp  = Input(UInt(2.W))
+      val bresp  = Input(UInt(2.W))
+  })
+  setInline("AXI_BRIDGE.v",
+  """module AXI_BRIDGE(
+  |  input clock,
+  |  input [1:0] rresp,
+  |  input [1:0] bresp
+  |);
+  |import "DPI-C" function void error_waddr();
+  |always @(posedge clock) begin
+  |    if((rresp == 2'b11) || (bresp == 2'b11)) begin
+  |        error_waddr();
+  |    end
+  |end
+  |endmodule
+  """.stripMargin)
 }
 
 class ysyx_23060198 extends Module {
@@ -104,18 +132,18 @@ class ysyx_23060198 extends Module {
   AXI_Interconnect.io.IFU         <> IFU.io.AXI
   AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
-  val inst_bridge = Module(new inst_bridge)
-  inst_bridge.io.clock := clock
+  val INST_BRIDGE = Module(new INST_BRIDGE)
+  INST_BRIDGE.io.clock := clock
 
   val comp_cache = RegInit(Bool(), false.B)
   comp_cache := WBU.io.out.valid
   when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
-    inst_bridge.io.valid := true.B
+    INST_BRIDGE.io.valid := true.B
   }.otherwise {
-    inst_bridge.io.valid := false.B
+    INST_BRIDGE.io.valid := false.B
   }
 
-  val axi_bridge = Module(new AXI_bridge)
+  val axi_bridge = Module(new AXI_BRIDGE)
   axi_bridge.io.clock := clock
   axi_bridge.io.rresp := io.master.rresp
   axi_bridge.io.bresp := io.master.bresp

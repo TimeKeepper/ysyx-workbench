@@ -3,13 +3,32 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
-class IFU_trace extends BlackBox{
+class IFU_TRACE extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
         val clock = Input(Clock())
         val valid = Input(Bool())
         val addr  = Input(UInt(32.W))
         val data  = Input(UInt(32.W))
     })
+    setInline("IFU_TRACE.v",
+    """module IFU_TRACE(
+    |    input clock,
+    |    input valid,
+    |    input [31:0] addr,
+    |    input [31:0] data
+    |);
+    | import "DPI-C" function void check_special_inst(input int unsigned inst);
+    | import "DPI-C" function void itrace_catch(input int unsigned addr, input int unsigned inst);
+    | 
+    | always @(posedge clock) begin
+    |     if(valid) begin
+    |         check_special_inst(data);
+    |         itrace_catch(addr, data);
+    |     end
+    | end
+    |
+    |endmodule
+    """.stripMargin)
 }
 
 //此模块将32为数据读取并根据memop处理数据，延迟不定周期后发送给IDU
@@ -39,7 +58,7 @@ class ysyx_23060198_IFU extends Module {
     io.AXI.bresp.ready := false.B
 
     //此模块仅为调试用，可注释
-    val trace = Module(new IFU_trace)
+    val trace = Module(new IFU_TRACE)
 
     trace.io.clock := clock
     trace.io.valid := io.out.valid && io.out.ready && !reset.asBool

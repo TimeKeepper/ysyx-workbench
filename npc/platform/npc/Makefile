@@ -17,7 +17,6 @@ HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 AUTOCONFIG = $(abspath ./include/generated)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
-SSRC += (./config.scala)
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/npc.sv
 # VSRC = $(DESIGN_FILE)
 # VSRC += $(abspath $(VSRC_DIR))/top.v

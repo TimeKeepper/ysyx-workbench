@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import signal_value._
+import org.chipsalliance.cde.config.Parameters
 
 class REG_BRIDGE extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle{
@@ -99,7 +100,7 @@ class ysyx_23060198_REG extends Module {
   io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
   io.out.GPR_rdatab := gpr(io.in.GPR_raddrb)
 
-  val pc = RegInit("h30000000".U(32.W))
+  val pc = if(Config.target == "ysyxsoc") RegInit("h30000000".U(32.W)) else RegInit("h80000000".U(32.W))
 
   when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc

@@ -10,6 +10,7 @@ import mill.bsp._
 
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false
+  def dependencyPath = os.pwd
   override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc"
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(
@@ -19,7 +20,7 @@ object playground extends SbtModule with ScalafmtModule { m =>
     "-Xcheckinit"
   )
   override def sources = T.sources {
-    super.sources() ++ Seq(PathRef(millSourcePath / "main"))
+    super.sources() ++ Seq(PathRef(millSourcePath / "main"), PathRef(dependencyPath))
   }
   override def ivyDeps = Agg(
     if (useChisel3) ivy"edu.berkeley.cs::chisel3:3.6.0" else
@@ -31,7 +32,7 @@ object playground extends SbtModule with ScalafmtModule { m =>
   )
   object test extends SbtModuleTests with TestModule.ScalaTest with ScalafmtModule {
     override def sources = T.sources {
-      super.sources() ++ Seq(PathRef(millSourcePath / "test"))
+    super.sources() ++ Seq(PathRef(millSourcePath / "main"), PathRef(dependencyPath))
     }
     override def ivyDeps = super.ivyDeps() ++ Agg(
       if (useChisel3) ivy"edu.berkeley.cs::chiseltest:0.6.0" else

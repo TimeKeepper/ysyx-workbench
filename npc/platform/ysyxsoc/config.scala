@@ -1,7 +1,8 @@
-package riscv_cpu
+package config
 
-import org.chipsalliance.cde.config.{Parameters, Config}
+import chisel3._
+import chisel3.util._
 
-object Config {
-    def target: String = "ysyxsoc"
+object main_val {
+    def PC_value = "h30000000".U(32.W)
 }

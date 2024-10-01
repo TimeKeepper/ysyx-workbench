@@ -4,8 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import signal_value._
-
-import config.main_val._
+import config._
 
 class REG_BRIDGE extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle{
@@ -101,7 +100,7 @@ class ysyx_23060198_REG extends Module {
   io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
   io.out.GPR_rdatab := gpr(io.in.GPR_raddrb)
 
-  val pc = RegInit(PC_value)
+  val pc = RegInit(main_val.Reset_Vector)
 
   when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc
@@ -167,19 +166,20 @@ class ysyx_23060198_REG extends Module {
     // csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
   }
   
-  // 只是为了仿真环境，可以去除
-  val bridge = Module(new REG_BRIDGE)
+  if (Config.DPIC_on){
+    val bridge = Module(new REG_BRIDGE)
 
-  bridge.io.clock := clock
-  bridge.io.pc_wen := pc_wen
-  bridge.io.csra_wen := csra_wen
-  bridge.io.csrb_wen := csrb_wen
-  bridge.io.gpr_wen := gpr_wen
-  bridge.io.new_pc := io.in.WBU_io.Next_Pc
-  bridge.io.CSR_waddra := io.in.WBU_io.CSR_waddra
-  bridge.io.CSR_waddrb := io.in.WBU_io.CSR_waddrb
-  bridge.io.new_CSRa := io.in.WBU_io.CSR_wdataa
-  bridge.io.new_CSRb := io.in.WBU_io.CSR_wdatab
-  bridge.io.GPR_waddr := io.in.WBU_io.GPR_waddr
-  bridge.io.new_GPR := io.in.WBU_io.GPR_wdata
+    bridge.io.clock := clock
+    bridge.io.pc_wen := pc_wen
+    bridge.io.csra_wen := csra_wen
+    bridge.io.csrb_wen := csrb_wen
+    bridge.io.gpr_wen := gpr_wen
+    bridge.io.new_pc := io.in.WBU_io.Next_Pc
+    bridge.io.CSR_waddra := io.in.WBU_io.CSR_waddra
+    bridge.io.CSR_waddrb := io.in.WBU_io.CSR_waddrb
+    bridge.io.new_CSRa := io.in.WBU_io.CSR_wdataa
+    bridge.io.new_CSRb := io.in.WBU_io.CSR_wdatab
+    bridge.io.GPR_waddr := io.in.WBU_io.GPR_waddr
+    bridge.io.new_GPR := io.in.WBU_io.GPR_wdata
+  }
 }

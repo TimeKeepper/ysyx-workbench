@@ -29,10 +29,10 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(PLATFORM_PATH) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
+	$(MAKE) -C $(PLATFORM_PATH) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin PLATFORM=ysyxsoc
 
 batch: image
-	$(MAKE) -C $(PLATFORM_PATH) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
+	$(MAKE) -C $(PLATFORM_PATH) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin PLATFORM=ysyxsoc
 
 gdb: image
-	$(MAKE) -C $(PLATFORM_PATH) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
+	$(MAKE) -C $(PLATFORM_PATH) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin PLATFORM=ysyxsoc

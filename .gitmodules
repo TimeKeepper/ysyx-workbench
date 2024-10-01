@@ -10,3 +10,6 @@
 [submodule "fceux-am"]
 	path = fceux-am
 	url = git@github.com:NJU-ProjectN/fceux-am.git
+[submodule "rtthread_for_ysyx"]
+	path = rtthread_for_ysyx
+	url = git@github.com:TimeKeepper/rtthread_for_ysyx.git

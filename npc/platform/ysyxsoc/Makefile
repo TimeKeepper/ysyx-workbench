@@ -18,6 +18,7 @@ AUTOCONFIG = $(abspath ./include/generated)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 SSRC += $(shell find $(abspath $(YSYXSOC_HOME)) -name "*.scala")
+SSRC += $(shell find $(abspath ./) -name "*.scala")
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/ysyx_23060198.sv
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 VSRC += $(shell find $(abspath $(SOC_VSRC_DIR)) -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径

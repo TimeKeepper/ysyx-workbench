@@ -5,6 +5,7 @@ import chisel3.util._
 
 import signal_value._
 import bus_state._
+import config._
 
 // riscv load store unit
 
@@ -163,7 +164,9 @@ class ysyx_23060198_LSU extends Module{
         io.out.bits.Mem_rdata := s_mem_rd.asUInt
     }
 
-    val LS_DPIC = Module(new LSU_DPIC)
-    LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
-    LS_DPIC.io.addr      := io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
+    if(Config.DPIC_on){
+        val LS_DPIC = Module(new LSU_DPIC)
+        LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
+        LS_DPIC.io.addr      := io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
+    }
 }

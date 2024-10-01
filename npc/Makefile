@@ -16,4 +16,7 @@ gdb:
 menuconfig:
 	$(MAKE) -C $(PLATFORM_PATH) menuconfig
 
-.PHONY: default sim gdb menuconfig
+clean:
+	$(MAKE) -C $(PLATFORM_PATH) clean
+
+.PHONY: default sim gdb menuconfig clean

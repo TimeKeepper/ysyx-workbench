@@ -29,10 +29,13 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(PLATFORM_PATH) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin PLATFORM=ysyxsoc
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 batch: image
-	$(MAKE) -C $(PLATFORM_PATH) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin PLATFORM=ysyxsoc
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin
 
 gdb: image
-	$(MAKE) -C $(PLATFORM_PATH) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin PLATFORM=ysyxsoc
+	$(MAKE) -C $(NPC_HOME) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+
+menuconfig:
+	$(MAKE) -C $(NPC_HOME) menuconfig

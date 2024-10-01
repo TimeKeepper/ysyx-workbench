@@ -36,12 +36,16 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 				--trace 
 
 OBJ_DIR = $(BUILD_DIR)/obj_dir
+BCSRC_DIR = $(BUILD_DIR)/csrc
+BVSRC_DIR = $(BUILD_DIR)/vsrc
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
 all: default
 default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
+$(shell mkdir -p $(BCSRC_DIR))
+$(shell mkdir -p $(BVSRC_DIR))
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help

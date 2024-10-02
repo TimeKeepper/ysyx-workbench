@@ -1,7 +1,6 @@
 #include "cpu/cpu.h"
 #include "utils.h"
 #include <common.h>
-// #include <csignal>
 #include <cstdlib>
 #include <sdb/sdb.h>
 #include <fcntl.h>
@@ -13,8 +12,15 @@
 
 void init_rand();
 void init_mem();
+
+#ifdef PLATFORM_YSYXSOC
+#define MSG "YSYXSOC"
+#elif defined (PLATFORM_NPC)
+#define MSG "NPC"
+#endif
+
 static void welcome() {
-  printf("Welcome to %s-NPC!\n", ANSI_FMT("riscv32e", ANSI_FG_YELLOW));
+  printf("Welcome to %s-" MSG "!\n", ANSI_FMT("riscv32e", ANSI_FG_YELLOW));
   printf("For help, type \"help\"\n");
 }
 
@@ -128,7 +134,7 @@ long load_img(char* img_file) {
     Log("The image is %s, size = %ld", img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    int ret = fread(get_flash(), size, 1, fp);
+    int ret = fread(get_loadmem(), size, 1, fp);
     assert(ret == 1);
 
     fclose(fp);

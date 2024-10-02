@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <nvboard.h>
 
-#ifdef DEFINE_NPC
+#ifdef PLATFORM_NPC
 #include <Vtop.h>
-#else
+#elif defined (PLATFORM_YSYXSOC)
 #include <VysyxSoCFull.h>
 #endif
 #include <sdb/sdb.h>

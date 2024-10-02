@@ -5,7 +5,7 @@ import riscv_cpu._
 import chisel3._
 import chisel3.util._
 
-class sram_bridge extends BlackBox{
+class sram_bridge extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
         val read  = Input(Bool())
@@ -16,6 +16,38 @@ class sram_bridge extends BlackBox{
         val w_data  = Input(UInt(32.W))
         val w_strb  = Input(UInt(4.W))
     })
+    setInline("SRAM_BRIDGE.v",
+    """module sram_bridge(
+      |    input  clock,
+      |    input  read,
+      |    input  [31:0] r_addr,
+      |    output reg [31:0] r_data,
+      |    input  write,
+      |    input  [31:0] w_addr,
+      |    input  [31:0] w_data,
+      |    input  [3:0]  w_strb
+      |);
+      |
+      |import "DPI-C" function int unsigned paddr_read (input int unsigned addr, input int len);
+      |import "DPI-C" function void paddr_write (input int unsigned addr, input int len, input int unsigned data);
+      |
+      |    always @(posedge clock) begin
+      |        if (read) begin
+      |            r_data <= paddr_read(r_addr, 32'd4);
+      |        end
+      |        if (write) begin
+      |            if(w_strb == 4'b0001) begin
+      |                paddr_write(w_addr, 32'd1, w_data);
+      |            end else if(w_strb == 4'b0011) begin
+      |                paddr_write(w_addr, 32'd2, w_data);
+      |            end else if(w_strb == 4'b1111) begin
+      |                paddr_write(w_addr, 32'd4, w_data);
+      |            end
+      |        end
+      |    end
+      |
+      |endmodule
+    """.stripMargin)
 }
 
 class SRAM(val LSFR_delay : UInt) extends Module {

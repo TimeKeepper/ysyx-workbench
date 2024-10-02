@@ -12,6 +12,7 @@
 
 #define RESET_VECTOR    CONFIG_LOAD_MEMORY_BASE
 
+#ifdef PLATFORM_YSYXSOC
 #define SRAM_LEFT  ((paddr_t)CONFIG_SRAM_BASE)
 #define SRAM_RIGHT ((paddr_t)CONFIG_SRAM_BASE + CONFIG_SRAM_SIZE - 1)
 
@@ -71,10 +72,18 @@ static inline bool in_vga(paddr_t addr) {
 static inline bool in_pmem(paddr_t addr){
   return (in_sram(addr) || in_mrom(addr) || in_flash(addr) || in_psram(addr) || in_sdram(addr));
 }
+#elif defined(PLATFORM_NPC)
+#define PMEM_LEFT (CONFIG_LOAD_MEMORY_BASE)
+#define PMEM_RIGHT (CONFIG_LOAD_MEMORY_BASE + CONFIG_LOAD_MEMORY_SIZE - 1)
+
+static inline bool in_pmem(paddr_t addr){
+  return addr - CONFIG_LOAD_MEMORY_BASE < CONFIG_LOAD_MEMORY_SIZE;
+}
+
+#endif
 
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
-uint8_t* get_pmem(void);
-uint8_t* get_flash(void);
+uint8_t* get_loadmem(void);
 
 #endif

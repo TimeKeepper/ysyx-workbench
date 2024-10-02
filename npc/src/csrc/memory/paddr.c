@@ -11,15 +11,7 @@
 
 #define PG_ALIGN __attribute((aligned(4096)))
 
-// static uint8_t psram;
-
-// static uint8_t sdram[CONFIG_SDRAM_SIZE] PG_ALIGN = {};
-
-// static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
-
-// static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
-
-// static uint8_t vga[CONFIG_VGA_FRAME_BUFFER_SIZE] PG_ALIGN = {};
+#ifdef PLATFORM_YSYXSOC
 
 static uint8_t* psram;
 
@@ -46,15 +38,31 @@ paddr_t host_to_guest_flash(uint8_t *haddr) { return haddr - flash + CONFIG_FLAS
 uint8_t* guest_to_host_vga(paddr_t paddr) { return vga + paddr - CONFIG_VGA_FRAME_BUFFER_BASE; }
 paddr_t host_to_guest_vga(uint8_t *haddr) { return haddr - vga + CONFIG_VGA_FRAME_BUFFER_SIZE; }
 
+#elif defined (PLATFORM_NPC)
+
+static uint8_t* pmem;
+
+uint8_t* guest_to_host_pmem(paddr_t paddr) { return pmem + paddr - CONFIG_LOAD_MEMORY_BASE; }
+
+#endif
+
 uint8_t* guest_to_host(paddr_t paddr) { 
+    #ifdef PLATFORM_YSYXSOC
     if(in_psram(paddr)) return guest_to_host_psram(paddr);
     else if(in_sdram(paddr)) return guest_to_host_sdram(paddr);
     else if(in_mrom(paddr)) return guest_to_host_mrom(paddr);
     else if(in_flash(paddr)) return guest_to_host_flash(paddr);
+    #elif defined (PLATFORM_NPC)
+    if(in_pmem(paddr)) return guest_to_host_pmem(paddr);
+    #endif
     else return nullptr;
 }
 
-#define CODE_MEMORY flash
+#ifdef PLATFORM_YSYXSOC
+#define LOAD_MEMORY flash
+#elif defined (PLATFORM_NPC)
+#define LOAD_MEMORY pmem
+#endif
 
 static const uint32_t img [] = {
   0x00000513,  // li a0 0
@@ -64,84 +72,33 @@ static const uint32_t img [] = {
 };
 
 void mem_malloc(){
+    #ifdef PLATFORM_YSYXSOC
     psram = (uint8_t*)malloc(CONFIG_PSRAM_SIZE);
     sdram = (uint8_t*)malloc(CONFIG_SDRAM_SIZE);
     mrom = (uint8_t*)malloc(CONFIG_MROM_SIZE);
     flash = (uint8_t*)malloc(CONFIG_FLASH_SIZE);
     vga = (uint8_t*)malloc(CONFIG_VGA_FRAME_BUFFER_SIZE);
+    #elif defined (PLATFORM_NPC)
+    pmem = (uint8_t*)malloc(CONFIG_LOAD_MEMORY_SIZE);
+    #endif
 }
 
 void init_mem() {
     mem_malloc();
-    memcpy(CODE_MEMORY, img, sizeof(img));
+    memcpy(LOAD_MEMORY, img, sizeof(img));
+    #ifdef PLATFORM_YSYXSOC
     Log("SRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SRAM_LEFT, SRAM_RIGHT);
     Log("MROM memory area \t [" "0x%08x" ", " "0x%08x" "]", MROM_LEFT, MROM_RIGHT);
     Log("VGA memory area \t [" "0x%08x" ", " "0x%08x" "]", VGA_LEFT, VGA_RIGHT);
     Log("FLASH memory area \t [" "0x%08x" ", " "0x%08x" "]", FLASH_LEFT, FLASH_RIGHT);
     Log("PSRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", PSRAM_LEFT, PSRAM_RIGHT);
     Log("SDRAM memory area \t [" "0x%08x" ", " "0x%08x" "]", SDRAM_LEFT, SDRAM_RIGHT);
+    #elif defined (PLATFORM_NPC)
+    Log("PMEM memory area \t [" "0x%08x" ", " "0x%08x" "]", PMEM_LEFT, PMEM_RIGHT);
+    #endif
 }
 
-static word_t psram_read(paddr_t addr, int len) {
-    word_t ret = host_read(guest_to_host_psram(addr), len);
-    return ret;
-}
-
-static void psram_write(paddr_t addr, int len, word_t data) {
-    host_write(guest_to_host_psram(addr), len, data);
-}
-
-static word_t sdram_read(paddr_t addr, int len) {
-    word_t ret = host_read(guest_to_host_sdram(addr), len);
-    return ret;
-}
-
-static void sdram_write(paddr_t addr, int len, word_t data) {
-    host_write(guest_to_host_sdram(addr), len, data);
-}
-
-static word_t mrom_read(paddr_t addr) {
-    word_t ret = host_read(guest_to_host_mrom(addr & ~0x3u), 4);
-    return ret;
-}
-
-static word_t flash_read(paddr_t addr) {
-    word_t ret = host_read(guest_to_host_flash(addr & ~0x3u), 4);
-    return ret;
-}
-
-static void out_of_bound(paddr_t addr) {
-    printf("address =  0x%08x  is out of bound", addr);
-    npc_state.state = NPC_ABORT;
-}
-
-void difftest_skip_ref();
-
-word_t paddr_read(paddr_t addr, int len) {
-    if (likely(in_psram(addr))) return psram_read(addr, len);
-    else if (likely(in_sdram(addr))) return sdram_read(addr, len);
-    else if(likely(in_mrom(addr))) return mrom_read(addr);
-    else if(likely(in_flash(addr))) return flash_read(addr);
-    else if(addr == RTC_ADDR ) {difftest_skip_ref(); return get_time();}
-    else if(addr == RTC_ADDR + 4) { difftest_skip_ref(); return get_time() >> 32;}
-    out_of_bound(addr);
-    return 0;
-}
-
-void paddr_write(paddr_t addr, int len, word_t data) {
-    if (likely(in_psram(addr))) {psram_write(addr, len, data); return; }
-    else if(in_sdram(addr)) {sdram_write(addr, len, data); return; }
-    out_of_bound(addr);
-}
-
-uint8_t* get_pmem(void) { //获取存放程序的内存节
-    return psram;
-}
-
-uint8_t* get_flash(void) { //获取存放flash的内存节
-    return flash;
-}
-
+#ifdef PLATFORM_YSYXSOC
 extern "C" void flash_read(int32_t addr, int32_t *data) {
     int32_t data_tmp;
     uint32_t addr_tmp = (addr & ~0x3u);
@@ -150,9 +107,8 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
                (host_read(flash + addr_tmp + 2, 1) << 8) | \
                (host_read(flash + addr_tmp + 3, 1) << 0);
     *data = data_tmp;
-    // printf("addr: 0x%8x data: 0x%8x", addr, *data);
-    }
-// extern "C" void flash_read(int32_t addr, int32_t *data) {*data = host_read((mrom + addr), 4); printf("flash_read: addr = 0x%08x, data = 0x%08x\n", addr, *data);}
+}
+
 extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = paddr_read(addr, 4); }
 
 extern "C" void psram_write(int32_t waddr, int32_t wdata, int32_t wlen) { 
@@ -199,4 +155,82 @@ extern "C" void vga_read(int32_t x_addr, int32_t y_addr, uint32_t *rdata) {
 
 extern "C" void vga_write(int32_t waddr, uint32_t wdata) {
     host_write(vga + waddr - CONFIG_VGA_FRAME_BUFFER_BASE, 4, wdata);
+}
+
+static word_t psram_read(paddr_t addr, int len) {
+    word_t ret = host_read(guest_to_host_psram(addr), len);
+    return ret;
+}
+
+static void psram_write(paddr_t addr, int len, word_t data) {
+    host_write(guest_to_host_psram(addr), len, data);
+}
+
+static word_t sdram_read(paddr_t addr, int len) {
+    word_t ret = host_read(guest_to_host_sdram(addr), len);
+    return ret;
+}
+
+static void sdram_write(paddr_t addr, int len, word_t data) {
+    host_write(guest_to_host_sdram(addr), len, data);
+}
+
+static word_t mrom_read(paddr_t addr) {
+    word_t ret = host_read(guest_to_host_mrom(addr & ~0x3u), 4);
+    return ret;
+}
+
+static word_t flash_read(paddr_t addr) {
+    word_t ret = host_read(guest_to_host_flash(addr & ~0x3u), 4);
+    return ret;
+}
+#elif defined (PLATFORM_NPC)
+
+static word_t pmem_read(paddr_t addr, int len) {
+    word_t ret = host_read(guest_to_host_pmem(addr), len);
+    return ret;
+}
+
+static void pmem_write(paddr_t addr, int len, word_t data) {
+    host_write(guest_to_host_pmem(addr), len, data);
+}
+
+#endif
+
+static void out_of_bound(paddr_t addr) {
+    printf("address =  0x%08x  is out of bound", addr);
+    npc_state.state = NPC_ABORT;
+}
+
+void difftest_skip_ref();
+
+extern word_t paddr_read(paddr_t addr, int len) {
+    #ifdef PLATFORM_YSYXSOC
+    if (likely(in_psram(addr))) return psram_read(addr, len);
+    else if (likely(in_sdram(addr))) return sdram_read(addr, len);
+    else if(likely(in_mrom(addr))) return mrom_read(addr);
+    else if(likely(in_flash(addr))) return flash_read(addr);
+    #elif defined (PLATFORM_NPC)
+    if (in_pmem(addr)) return pmem_read(addr, len);
+    #endif
+    out_of_bound(addr);
+    return 0;
+}
+
+extern void paddr_write(paddr_t addr, int len, word_t data) {
+    #ifdef PLATFORM_YSYXSOC
+    if (likely(in_psram(addr))) {psram_write(addr, len, data); return; }
+    else if(in_sdram(addr)) {sdram_write(addr, len, data); return; }
+    #elif defined (PLATFORM_NPC)
+    if (in_pmem(addr)) {pmem_write(addr, len, data); return; }
+    #endif
+    out_of_bound(addr);
+}
+
+uint8_t* get_loadmem(void) {
+    #ifdef PLATFORM_YSYXSOC
+    return flash;
+    #elif defined (PLATFORM_NPC)
+    return pmem;
+    #endif
 }

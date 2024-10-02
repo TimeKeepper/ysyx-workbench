@@ -1,10 +1,10 @@
 #ifndef __CPU_CPU_H__
 #define __CPU_CPU_H__
 
-#ifdef DEFINE_NPC
+#ifdef PLATFORM_NPC
 #include <Vtop.h>
 #include "Vtop__Dpi.h"
-#else
+#elif defined (PLATFORM_YSYXSOC)
 #include <VysyxSoCFull.h>
 #include "VysyxSoCFull__Dpi.h"
 #endif

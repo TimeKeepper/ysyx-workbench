@@ -1,13 +1,14 @@
-#include "VysyxSoCFull__Dpi.h"
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-#ifdef DEFINE_NPC
+#ifdef PLATFORM_NPC
 #include "Vtop.h"
 #include "Vtop___024root.h"
-#define DUT_PC top->rootp->top__DOT__npc__DOT__cpu__DOT__REG__DOT__pc
-#else
+#define DUT_PC top->rootp->top__DOT__CPU__DOT__REG__DOT__pc
+#endif
+#ifdef PLATFORM_YSYXSOC
 #include "VysyxSoCFull.h"
+#include "VysyxSoCFull__Dpi.h"
 #include "VysyxSoCFull___024root.h"
 #define DUT_PC top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc
 #endif

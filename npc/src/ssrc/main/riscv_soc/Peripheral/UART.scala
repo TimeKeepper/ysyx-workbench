@@ -5,12 +5,28 @@ import riscv_cpu._
 import chisel3._
 import chisel3.util._
 
-class UART_bridge extends BlackBox {
+class UART_bridge extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
         val valid = Input(Bool())
         val data = Input(UInt(8.W))
     })
+    setInline("UART_bridge.v",
+    """module UART_bridge(
+      |  input  clock,
+      |  input valid,
+      |  input [7:0] data
+      |);
+      |  import "DPI-C" function void my_putc(input int c);
+      |  
+      |  always @(posedge clock) begin
+      |    if(valid) begin
+      |      my_putc({24'h0, data});
+      |    end
+      |  end
+      |
+      |endmodule
+    """.stripMargin)
 }
 
 class UART extends Module{

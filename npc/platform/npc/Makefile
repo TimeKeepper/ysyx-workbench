@@ -1,14 +1,11 @@
 # PROJECT DIRECTORIES AND FILES DEFIENITIONS
+CXXFLAGS += -DPLATFORM_NPC
 
 PRJ = playground
 
 BUILD_DIR = ./build
 
 SRC_DIR = ${NPC_HOME}/src
-SOC_DIR = /home/wen-jiu/my_ysyx_project/ysyx-workbench/ysyxSoC
-SOC_VSRC_DIR = $(SOC_DIR)/perip
-SOC_UART_DIR = $(SOC_DIR)/perip/uart16550/rtl
-SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl
 
 VSRC_DIR = $(BUILD_DIR)/vsrc
 SSRC_DIR = $(SRC_DIR)/ssrc
@@ -17,42 +14,29 @@ HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 AUTOCONFIG = $(abspath ./include/generated)
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
-DESIGN_FILE ?= $(abspath $(VSRC_DIR))/npc.sv
-# VSRC = $(DESIGN_FILE)
-# VSRC += $(abspath $(VSRC_DIR))/top.v
+SSRC += $(shell find $(abspath ./) -name "*.scala")
+DESIGN_FILE ?= $(abspath $(VSRC_DIR))/top.sv
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
-VSRC += $(shell find $(abspath $(SOC_VSRC_DIR)) -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
-VSRC += $(shell find $(abspath $(SOC_DIR))/build -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 HSRC += $(shell find $(abspath $(AUTOCONFIG)) -name "*.h" -or -name "*.hpp")
 
-# yosys-sta DEFINITIONS
-
-# DESIGN = top
-# SDC_FILE = $(abspath $(VSRC_DIR))/$(DESIGN).sdc
-# RTL_FILES = $(VSRC)
-# export CLK_FREQ_MHZ = 500
-
-# VERILATOR DIFIENITIONS
-
-TOPNAME ?= ysyxSoCFull
-NXDC_FILES = $(abspath $(SRC_DIR)/constr/top.nxdc)
+TOPNAME ?= top
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
 				--trace 
 
-# FINAL TARGET DIFINITIONS
-
 OBJ_DIR = $(BUILD_DIR)/obj_dir
+BVSRC_DIR = $(BUILD_DIR)/vsrc
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
 all: default
 default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
+$(shell mkdir -p $(BVSRC_DIR))
 
 help:
 	mill -i $(PRJ).runMain Elaborate --help
@@ -66,34 +50,14 @@ checkformat:
 clean:
 	-rm -rf $(BUILD_DIR)
 
-.PHONY: test verilog help reformat checkformat clean $(NXDC_FILES)
-
-test:
-	mill -i $(PRJ).test
-
-V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
+.PHONY: test verilog help reformat checkformat clean
 
 verilog:
 	$(call git_commit, "generate verilog")
 	# mkdir -p $(BUILD_DIR)
 	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
-	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(V_FILE_GEN)
-	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
-
-# NVBOARD DIFIENITIONS
-
-# constraint file
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-
-CSRC += $(SRC_AUTO_BIND)
-	
-# rules for NVBoard
-include $(NVBOARD_HOME)/scripts/nvboard.mk
-
-# rules for ysyxSoC
-# include $(NPC_HOME)/../ysyxSoC/Makefile
+	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(DESIGN_FILE)
+	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(DESIGN_FILE)
 
 # VERILATOR DIFINITIONS
 
@@ -109,16 +73,20 @@ CXXFLAGS += -g -DTRACE
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
 $(DESIGN_FILE): $(SSRC)
 	$(MAKE) verilog
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing\
-		-y $(SOC_SPI_DIR) -y $(SOC_UART_DIR) \
 		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
+
+print:
+	@echo $(CSRC)
 
 override ARGS ?= 
 override IMG ?=

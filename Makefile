@@ -38,6 +38,9 @@ endef
 .clean_index:
 	rm -f $(WORK_INDEX)
 
+init:
+	git submodule update --init --recursive
+
 _default:
 	@echo "Please run 'make' under subprojects."
 

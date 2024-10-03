@@ -6,7 +6,7 @@ PRJ = playground
 BUILD_DIR = ./build
 
 SRC_DIR = ${NPC_HOME}/src
-SOC_DIR = /home/wen-jiu/my_ysyx_project/ysyx-workbench/ysyxSoC
+SOC_DIR = $(YSYXSOC_HOME)
 SOC_VSRC_DIR = $(SOC_DIR)/perip
 SOC_UART_DIR = $(SOC_DIR)/perip/uart16550/rtl
 SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl

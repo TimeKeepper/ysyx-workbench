@@ -1,30 +1,20 @@
-# "一生一芯"工程项目
-
-这是"一生一芯"的工程项目. 通过运行
-```bash
-bash init.sh subproject-name
+进行submodule初始化
 ```
-进行初始化, 具体请参考[实验讲义][lecture note].
+git submodule init
+git submodule update
+```
 
 安装依赖
 ```
-apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libelf-dev bison flex llvm llvm-14 llvm-14-dev
+sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libelf-dev bison flex llvm llvm-14 llvm-14-dev
 ```
 
-安装交叉编译环境和rtt编译环境
-```
-apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
-
-拉取submodule
-git submodule update --init --recursive
-
-在rtt的am目录下运行make init
-```
-
-安装mill
+安装mill,注意必须安装至少0.11以上的版本
 ```
 sudo apt-get install default-jre
-sed -i '0,/-cp "\$0"/{s/-cp "\$0"/-cp `cygpath -w "\$0"`/}; 0,/-cp "\$0"/{s/-cp "\$0"/-cp `cygpath -w "\$0"`/}' /usr/local/bin/mill
+sed -i '0,/-cp "\$0"/{s/-cp "\$0"/-cp `cygpath -w "\$0"`/}; 0,/-cp "\$0"/{s/-cp "\$0"/-cp `cygpath -w "\$0"`/}' /usr/local/bin/mill (for wsl)
+curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.12/0.11.12 > mill && chmod +x mill
+echo 0.11.12 > .mill-version (for linux)
 ```
 
 安装verilator
@@ -40,12 +30,36 @@ cd verilator
 git checkout v5.008
 autoconf
 ./configure
-make -j 'nproc'
+make -j 'nproc' (如果报错，直接make -j)
 sudo make install
 verilator --version
 ```
 
-需要定义环境变量：NPC_HOME, AM_HOME, NEMU_HOME, YSYXSOC_HOME
-需要在ysyxsoc目录下运行make dev-init make verilog
+定义环境变
+量
+```
+NEMU_HOME, NPC_HOME, AM_HOME, YSYXSOC_HOME, NVBOARD_HOME
+```
+初始化YSYXSOC
+```
+ysyxsoc目录下运行make dev-init make verilog
+```
+初始化NEMU
+```
+在nemu目录下运行make menuconfig
+然后make
+```
+初始化NPC
+```
+在npc各个platform中执行menuconfig初始化配置，然后编译
+```
+安装交叉编译环境和rtt编译环境
+```
+sudo apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
+
+在rtt的am目录下运行make init
+```
+
+如果你遇到了找不到gnu/stubs-ilp32.h文件的错误，需要手动在/usr/riscv64-linux-gnu/include/gnu/stubs.h中将该include注释掉
 
 [lecture note]: https://ysyx.oscc.cc/docs/

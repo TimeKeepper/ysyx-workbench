@@ -1,7 +1,7 @@
 /*
  *
  * Automatically generated file; DO NOT EDIT.
- * YSYXSOC Configuration Menu
+ * NPC Configuration Menu
  *
  */
 #define CONFIG_LOAD_MEMORY_SIZE 0x8000000

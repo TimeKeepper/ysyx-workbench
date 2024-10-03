@@ -1,0 +1,99 @@
+mainmenu "YSYXSOC Configuration Menu"
+
+menu "Memory Configuration"
+
+config LOAD_MEMORY_BASE
+  hex "Load memory(The memory store program) base address"
+  default FLASH_BASE
+
+config LOAD_MEMORY_SIZE
+  hex "Load memory(The memory store program) size"
+  default FLASH_SIZE
+
+config SRAM_BASE
+  hex "SRAM base address"
+  default 0x0f000000
+
+config SRAM_SIZE
+  hex "SRAM size"
+  default 0x00002000
+
+config MROM_BASE
+  hex "MROM base address"
+  default 0x20000000
+
+config MROM_SIZE
+  hex "MROM size"
+  default 0x00001000
+
+config VGA_FRAME_BUFFER_BASE
+  hex "VGA frame buffer base address"
+  default 0x21000000
+
+config VGA_FRAME_BUFFER_SIZE
+  hex "VGA frame buffer size"
+  default 0x00200000
+
+config FLASH_BASE
+  hex "FLASH base address"
+  default 0x30000000
+
+config FLASH_SIZE
+  hex "FLASH size"
+  default 0x10000000
+
+config PSRAM_BASE
+  hex "PSRAM base address"
+  default 0x80000000
+
+config PSRAM_SIZE
+  hex "PSRAM size"
+  default 0x400000
+
+config SDRAM_BASE
+  hex "SDRAM base address"
+  default 0xa0000000
+
+config SDRAM_SIZE
+  hex "SDRAM size"
+  default 0x2000000
+
+endmenu #MEMORY
+
+menu "Testing and Debugging"
+
+config DIFFTEST
+  bool "Enable differential testing"
+  default n
+  help
+    Enable differential testing with a reference design.
+    Note that this will significantly reduce the performance of NPC.
+
+config WATCHPOINT
+  bool "Enable watch point and break point"
+  default n
+
+config TRACE
+  bool "Enable tracer"
+  default y
+
+config ITRACE
+depends on TRACE
+bool "Enable instruction tracer"
+default n
+
+config FTRACE
+depends on TRACE
+bool "Enable function tracer"
+default n
+
+config WTRACE
+depends on TRACE
+bool "Enable wave tracer"
+default n
+
+endmenu
+
+config NVBOARD
+  bool "Enable Virtual FPGA NVBOARD"
+  default n

@@ -204,7 +204,7 @@ static void out_of_bound(paddr_t addr) {
 
 void difftest_skip_ref();
 
-extern word_t paddr_read(paddr_t addr, int len) {
+extern "C" word_t paddr_read(paddr_t addr, int len) {
     #ifdef PLATFORM_YSYXSOC
     if (likely(in_psram(addr))) return psram_read(addr, len);
     else if (likely(in_sdram(addr))) return sdram_read(addr, len);
@@ -217,7 +217,7 @@ extern word_t paddr_read(paddr_t addr, int len) {
     return 0;
 }
 
-extern void paddr_write(paddr_t addr, int len, word_t data) {
+extern "C" void paddr_write(paddr_t addr, int len, word_t data) {
     #ifdef PLATFORM_YSYXSOC
     if (likely(in_psram(addr))) {psram_write(addr, len, data); return; }
     else if(in_sdram(addr)) {sdram_write(addr, len, data); return; }

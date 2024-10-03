@@ -8,5 +8,5 @@ object main_val {
 }
 
 object Config {
-    def DPIC_on: Boolean = false
+    def DPIC_on: Boolean = true
 }

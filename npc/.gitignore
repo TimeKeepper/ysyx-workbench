@@ -12,10 +12,13 @@
 !.gitignore
 !.scalafmt.conf
 !build.sc
+!Kconfig
 !README.md
 build/
 include/config
 include/generated
+platform/npc/include
+platform/ysyxsoc/include
 
 # mill
 out/

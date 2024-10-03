@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-# define DEVICE_BASE    0xa0000000
+#define DEVICE_BASE    0xa0000000
 #define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)
 #define RTC_ADDR        (DEVICE_BASE + 0x0000048)
 
@@ -82,8 +82,8 @@ static inline bool in_pmem(paddr_t addr){
 
 #endif
 
-word_t paddr_read(paddr_t addr, int len);
-void paddr_write(paddr_t addr, int len, word_t data);
+extern "C" word_t paddr_read(paddr_t addr, int len);
+extern "C" void paddr_write(paddr_t addr, int len, word_t data);
 uint8_t* get_loadmem(void);
 
 #endif

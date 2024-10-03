@@ -35,8 +35,7 @@ sudo make install
 verilator --version
 ```
 
-定义环境变
-量
+定义环境变量
 ```
 NEMU_HOME, NPC_HOME, AM_HOME, YSYXSOC_HOME, NVBOARD_HOME
 ```

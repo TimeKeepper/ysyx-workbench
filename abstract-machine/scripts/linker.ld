@@ -4,7 +4,7 @@ PHDRS {fsbl PT_LOAD; ssbl PT_LOAD; text PT_LOAD; test PT_LOAD; rodata PT_LOAD; d
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
 
-  _ssdram = ORIGIN(sdram);
+  _spsram = ORIGIN(psram);
 
   . = ORIGIN(flash);
 
@@ -17,8 +17,6 @@ SECTIONS {
 
     *(.text.FSBL)
     *(.text._trm_init)
-    
-    . = ALIGN(4);
   
     _efsbl = .;
   } > flash AT> flash : fsbl
@@ -30,8 +28,6 @@ SECTIONS {
   
     *(.text.SSBL)
   
-    . = ALIGN(4);
-
     _essbl = .;
   } > sram AT> flash : ssbl
 
@@ -42,11 +38,9 @@ SECTIONS {
 
     *(.text)
     *(.text*)
-    
-    . = ALIGN(4);
 
     _etext = .;
-  } > sdram AT> flash : text
+  } > psram AT> flash : text
 
   _srodata_load = LOADADDR(.rodata);
 
@@ -62,7 +56,7 @@ SECTIONS {
     . = ALIGN(4);
 
     _erodata = .;
-  } > sdram AT> flash : rodata
+  } > psram AT> flash : rodata
 
   _sdata_load = LOADADDR(.data);
 
@@ -76,10 +70,8 @@ SECTIONS {
     *(.sdata*)
     *(.sdata+)
 
-    . = ALIGN(4);
-
     _edata = .;
-  } > sdram AT> flash : data
+  } > psram AT> flash : data
   
   _sbss_load = LOADADDR(.bss);
 
@@ -92,11 +84,9 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
 
-    . = ALIGN(4);
-
     _ebss = .;
 
-  } > sdram AT> flash : bss
+  } > psram AT> flash : bss
 
   .heap (NOLOAD) : {
 
@@ -105,10 +95,10 @@ SECTIONS {
     *(.heap)
     *(.heap*)
 
-    . = ORIGIN(sdram) + LENGTH(sdram);
+    . = ORIGIN(psram) + LENGTH(psram);
 
     _eheap = .;
-  } > sdram AT> sdram
+  } > psram AT> psram
 
   .stack (NOLOAD) : {
 

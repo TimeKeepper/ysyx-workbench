@@ -213,11 +213,6 @@ void inst_comp_update(){
     watchpoint_catch();          //检查watchpoint
 
     func_called_detect();   
-
-    if(paddr_read(0x800005f0, 1) == 0xff){
-        printf("debug!!\n");
-        npc_state.state = NPC_STOP;
-    }
 }
 
 static void execute_one_clk(){

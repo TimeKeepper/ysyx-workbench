@@ -52,6 +52,8 @@ paddr_t host_to_guest_mrom(uint8_t *haddr);
 uint8_t* guest_to_host_sdram(paddr_t paddr);
 paddr_t host_to_guest_sdram(uint8_t *haddr);
 
+uint8_t* guest_to_host(paddr_t paddr);
+
 static inline bool in_sram(paddr_t addr) {
   return addr - CONFIG_SRAM_BASE < CONFIG_SRAM_SIZE;
 }

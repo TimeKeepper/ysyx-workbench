@@ -70,9 +70,9 @@ extern vaddr_t __main_addr__;
 
 void wave_Trace_once(){
     #ifdef CONFIG_WTRACE
-    static bool wave_trace_begin = true;
+    static bool wave_trace_begin = false;
     if(wave_trace_begin == false){
-        if(cpu.pc == __main_addr__) {
+        if(cpu.pc == 0xa00000cc) {
             wave_trace_begin = true;
             Log("Booting completed, start wave tracing...");
         }
@@ -199,7 +199,11 @@ void check_special_inst(uint32_t inst){
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
 
+#ifdef PLATFORM_YSYXSOC
 static bool is_comp_first_time = true; // 由于多周期处理器特性不得不引入的边界条件，或许能够在修改成流水线之后去除
+#elif defined(PLATFORM_NPC)
+static bool is_comp_first_time = true;
+#endif
 
 void inst_comp_update(){
     if(is_comp_first_time){
@@ -213,11 +217,6 @@ void inst_comp_update(){
     watchpoint_catch();          //检查watchpoint
 
     func_called_detect();   
-
-    if(paddr_read(0x800005f0, 1) == 0xff){
-        printf("debug!!\n");
-        npc_state.state = NPC_STOP;
-    }
 }
 
 static void execute_one_clk(){

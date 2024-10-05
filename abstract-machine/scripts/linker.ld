@@ -1,115 +1,33 @@
 ENTRY(_start)
-PHDRS {fsbl PT_LOAD; ssbl PT_LOAD; text PT_LOAD; test PT_LOAD; rodata PT_LOAD; data PT_LOAD; bss PT_LOAD; }
+PHDRS { text PT_LOAD; data PT_LOAD; }
 
 SECTIONS {
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
-
-  _spsram = ORIGIN(psram);
-
-  . = ORIGIN(flash);
-
-  _begin = .;
-
-  .fsbl : {
-    _sfsbl = .;
-  
-    *(entry)
-
-    *(.text.FSBL)
-    *(.text._trm_init)
-  
-    _efsbl = .;
-  } > flash AT> flash : fsbl
-
-  _sssbl_load = LOADADDR(.ssbl);
-
-  .ssbl : {
-    _sssbl = .;
-  
-    *(.text.SSBL)
-  
-    _essbl = .;
-  } > sram AT> flash : ssbl
-
-  _stext_load = LOADADDR(.text);
-
+  . = _pmem_start + _entry_offset;
   .text : {
-    _stext = .;
-
-    *(.text)
+    *(entry)
     *(.text*)
-
-    _etext = .;
-  } > psram AT> flash : text
-
-  _srodata_load = LOADADDR(.rodata);
-
+  } : text
+  etext = .;
+  _etext = .;
   .rodata : {
-    _srodata = .;
-
-    *(.rodata)
     *(.rodata*)
-    *(.srodata)
-    *(.srodata*)
-    /* *(.srodata.mainargs) */
-
-    . = ALIGN(4);
-
-    _erodata = .;
-  } > psram AT> flash : rodata
-
-  _sdata_load = LOADADDR(.data);
-
+  }
   .data : {
-    _sdata = .;
-
     *(.data)
-    *(.data*)
-    *(.data+)
-    *(.sdata)
-    *(.sdata*)
-    *(.sdata+)
-
-    _edata = .;
-  } > psram AT> flash : data
-  
-  _sbss_load = LOADADDR(.bss);
-
+  } : data
+  edata = .;
+  _data = .;
   .bss : {
-	  _sbss = .;
-
-    *(.bss)
+	_bss_start = .;
     *(.bss*)
-    *(.sbss)
     *(.sbss*)
     *(.scommon)
-
-    _ebss = .;
-
-  } > psram AT> flash : bss
-
-  .heap (NOLOAD) : {
-
-    _sheap = .;
-
-    *(.heap)
-    *(.heap*)
-
-    . = ORIGIN(psram) + LENGTH(psram);
-
-    _eheap = .;
-  } > psram AT> psram
-
-  .stack (NOLOAD) : {
-
-    _stack_top  = _essbl;
-
-    *(.stack)
-
-    . = ORIGIN(sram) + LENGTH(sram);
-    _stack_pointer = .;
-
-  } > sram AT> sram
-  
+  }
+  _stack_top = ALIGN(0x1000);
+  . = _stack_top + 0x8000;
+  _stack_pointer = .;
+  end = .;
   _end = .;
+  _heap_start = ALIGN(0x1000);
 }

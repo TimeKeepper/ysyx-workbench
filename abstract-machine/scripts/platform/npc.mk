@@ -25,10 +25,11 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=top EXTRA_DEFILE="-DDEFINE_NPC"
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
 
 batch: image
-	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
 
-trace: image
-	$(MAKE) -C $(NPC_HOME) trace IMG=$(IMAGE).bin
+gdb: image
+	$(MAKE) -C $(NPC_HOME) gdb ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
+

@@ -11,9 +11,9 @@ AM_SRCS := riscv/ysyxsoc/start.c \
 CFLAGS    += -fdata-sections -ffunction-sections 
 LDFLAGS   += -T $(AM_HOME)/scripts/linker_ysyxsoc.ld 
 LDFLAGS   := -T $(AM_HOME)/scripts/linker_mem.ld $(LDFLAGS) #多个linker script符号声明必须在之前的链接脚本完成,所以需要添加到最前面
-LDFLAGS   += --gc-sections -e _start --print-map
+LDFLAGS   += --gc-sections -e _start #--print-map
 NPCFLAGS += -e $(IMAGE).elf
-NPCFLAGS += -d /home/wen-jiu/my_ysyx_project/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so
+NPCFLAGS += -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 NPC_BATCH_FLAG = $(NPCFLAGS)
 NPC_BATCH_FLAG += -b
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
@@ -25,10 +25,10 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc
 
 batch: image
-	$(MAKE) -C $(NPC_HOME) trace ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc
 
-trace: image
-	$(MAKE) -C $(NPC_HOME) trace IMG=$(IMAGE).bin
+gdb: image
+	$(MAKE) -C $(NPC_HOME) gdb ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc

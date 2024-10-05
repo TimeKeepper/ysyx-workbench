@@ -48,6 +48,15 @@ paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRA
 uint8_t* guest_to_host_sdram(paddr_t paddr) { return sdram + paddr - CONFIG_SDRAM_BASE; }
 paddr_t host_to_guest_sdram(uint8_t *haddr) { return haddr - sdram + CONFIG_SDRAM_BASE; }
 
+uint8_t* guest_to_host(paddr_t paddr) {
+  if (in_psram(paddr)) return guest_to_host_psram(paddr);
+  else if(in_sram(paddr)) return guest_to_host_sram(paddr);
+  else if(in_mrom(paddr)) return guest_to_host_mrom(paddr);
+  else if(in_flash(paddr)) return guest_to_host_flash(paddr);
+  else if(in_sdram(paddr)) return guest_to_host_sdram(paddr);
+  return NULL;
+}
+
 static word_t sram_read(paddr_t addr, int len) {
     word_t ret = host_read(guest_to_host_sram(addr), len);
     return ret;

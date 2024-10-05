@@ -187,7 +187,7 @@ static word_t flash_read(paddr_t addr) {
 #elif defined (PLATFORM_NPC)
 
 static word_t pmem_read(paddr_t addr, int len) {
-    word_t ret = host_read(guest_to_host_pmem(addr), len);
+    word_t ret = host_read(guest_to_host_pmem(addr & ~0x3u), len);
     return ret;
 }
 
@@ -225,6 +225,19 @@ extern "C" void paddr_write(paddr_t addr, int len, word_t data) {
     if (in_pmem(addr)) {pmem_write(addr, len, data); return; }
     #endif
     out_of_bound(addr);
+}
+
+extern "C" void paddr_write_strb(paddr_t addr, word_t data, int mask){
+    switch(mask){
+        case 0b0001: 
+        case 0b0010: 
+        case 0b0100: 
+        case 0b1000: paddr_write(addr, 1, (data >> ((addr % 4) << 3)) & 0x000000ff); break;
+        case 0b0011: 
+        case 0b0110: 
+        case 0b1100: paddr_write(addr, 2, (data >> ((addr % 4) << 3)) & 0x0000ffff); break;
+        case 0b1111: paddr_write(addr, 4, data); break;
+    }
 }
 
 uint8_t* get_loadmem(void) {

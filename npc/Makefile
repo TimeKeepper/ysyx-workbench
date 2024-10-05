@@ -1,5 +1,6 @@
 PLATFORM ?= ysyxsoc
 PLATFORM_PATH = $(NPC_HOME)/platform/$(PLATFORM)
+CORE_PATH = $(NPC_HOME)/platform/core
 
 AGRS ?=
 IMG ?=
@@ -15,6 +16,9 @@ gdb:
 
 menuconfig:
 	$(MAKE) -C $(PLATFORM_PATH) menuconfig
+
+syn:
+	$(MAKE) -C $(CORE_PATH) syn
 
 clean:
 	$(MAKE) -C $(PLATFORM_PATH) clean

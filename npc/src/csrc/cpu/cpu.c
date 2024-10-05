@@ -70,7 +70,7 @@ extern vaddr_t __main_addr__;
 
 void wave_Trace_once(){
     #ifdef CONFIG_WTRACE
-    static bool wave_trace_begin = false;
+    static bool wave_trace_begin = true;
     if(wave_trace_begin == false){
         if(cpu.pc == 0xa00000cc) {
             wave_trace_begin = true;

@@ -252,7 +252,7 @@ int npc_trap (int a0){
     Log("a0: %d inst: %lu clk: %lu", a0, inst_cnt, clk_cnt);
     Log("ipc: %lf", ipc);
 
-    #if NAME==rtthread
+    #if NAME==microbench
     Log("Generated report...");
 
     const char* npc_path = getenv("NPC_HOME");

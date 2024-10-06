@@ -26,6 +26,7 @@ clean:
 	-rm -rf $(BUILD_DIR)
 
 $(V_FILE_GEN): $(SSRC)
+	-rm -rf $(BUILD_DIR)
 	$(MAKE) verilog
 
 $(PERFOMENSE_FILE): $(SSRC)

@@ -52,6 +52,6 @@ def get_Chip_area():
     return stat.group(1)
 
 if __name__ == '__main__':
-    print("Commit: ", get_commit_id())
+    print("Commit: ", get_latest_commit_id())
     print("Freq: ", get_Freq())
     print("Chip area: ", get_Chip_area())

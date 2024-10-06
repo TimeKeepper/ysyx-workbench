@@ -2,7 +2,7 @@
 #include <main.h>
 
 int main(int argc, char **argv) {
-  #ifdef MARCO_TEST
+  #if NAME==rtthread
   Log("This is a marco test");
   #endif
   init_monitor(argc, argv);

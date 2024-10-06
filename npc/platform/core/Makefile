@@ -13,6 +13,7 @@ DESIGN_FILE ?= $(abspath $(BUILD_DIR))/ysyx_23060198.sv
 SDC_FILE ?= $(abspath ./ysyx_23060198.sdc)
 
 V_FILE_GEN = $(BUILD_DIR)/ysyx_23060198.sv
+PERFOMENSE_FILE = $(BUILD_DIR)/report.txt
 RPT_FILE = $(BUILD_DIR)/result/ysyx_23060198.rpt
 STAT_FILE = $(BUILD_DIR)/result/synth_stat.txt
 
@@ -26,6 +27,9 @@ clean:
 
 $(V_FILE_GEN): $(SSRC)
 	$(MAKE) verilog
+
+$(PERFOMENSE_FILE): $(SSRC)
+	$(MAKE) -C $(NEMU_HOME)/../am-kernels/benchmark/microbench ARCH=riscv32e-ysyxsoc mainargs=test batch
 
 $(RPT_FILE) $(STAT_FILE): $(V_FILE_GEN)
 	$(MAKE) syn

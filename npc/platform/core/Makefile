@@ -41,7 +41,7 @@ syn: $(V_FILE_GEN)
 
 perf: $(RPT_FILE) $(STAT_FILE)
 	$(call git_commit, "performance test")
-	@performance=$(shell python ./get_parameter.py) && echo "Python script output: $$performance"
+	@performance=$(shell python ./get_parameter.py) && echo "$$performance"
 	@python ./perf.py
 
 .PHONY: clean verilog syn perf SSRC

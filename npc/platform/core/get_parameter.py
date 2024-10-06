@@ -53,5 +53,3 @@ def get_Chip_area():
 
 if __name__ == '__main__':
     print("Commit: ", get_latest_commit_id())
-    print("Freq: ", get_Freq())
-    print("Chip area: ", get_Chip_area())

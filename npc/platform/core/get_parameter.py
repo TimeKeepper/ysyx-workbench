@@ -35,7 +35,7 @@ def get_lastest_commit_id():
     return add_newlines(str(get_latest_commit_id()), 15)
 
 def get_lastest_message():
-    add_newlines(str(get_latest_commit_message()), 15)
+    return add_newlines(str(get_latest_commit_message()), 15)
 
 def get_Freq():
     rpt = pd.read_csv("./build/result/ysyx_23060198.rpt", sep='|', skiprows=2, header=0)

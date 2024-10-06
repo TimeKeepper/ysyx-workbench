@@ -1,7 +1,7 @@
 package homework
 
 import timer._
-import decoder._
+import BASYS._
 
 import chisel3._
 import chisel3.util._
@@ -45,10 +45,10 @@ class Homework extends Module {
     total_seconds := total_10m_seconds/100.U
     total_minutes := total_seconds/60.U
 
-    val decoder1 = Module(new decoder.BCDDecoder)
-    val decoder2 = Module(new decoder.BCDDecoder)
-    val decoder3 = Module(new decoder.BCDDecoder)
-    val decoder4 = Module(new decoder.BCDDecoder)
+    val decoder1 = Module(new BCDDecoder)
+    val decoder2 = Module(new BCDDecoder)
+    val decoder3 = Module(new BCDDecoder)
+    val decoder4 = Module(new BCDDecoder)
 
     val time_type_Choice = MuxLookup(state, total_seconds) (Seq(
         s_second -> total_seconds%60.U,

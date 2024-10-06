@@ -5,10 +5,9 @@ object Elaborate extends App {
     "--lowering-options=" + List(
       // make yosys happy
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
-      "disallowLocalVariables",
-      "disallowPackedArrays",
+      "mitigateVivadoArrayIndexConstPropBug",
       "locationInfoStyle=wrapInAtSquareBracket"
     ).reduce(_ + "," + _)
   )
-  circt.stage.ChiselStage.emitSystemVerilogFile(new homework.Homework(), args, firtoolOptions)
+  circt.stage.ChiselStage.emitSystemVerilogFile(new homework.II_2(), args, firtoolOptions)
 }

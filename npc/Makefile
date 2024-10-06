@@ -5,11 +5,13 @@ CORE_PATH = $(NPC_HOME)/platform/core
 AGRS ?=
 IMG ?=
 
+EXTRA_DEFILE ?= 
+
 default:
 	$(MAKE) -C $(PLATFORM_PATH)
 
 sim:
-	$(MAKE) -C $(PLATFORM_PATH) sim AGGS=$(AGRS) IMG=$(IMG)
+	$(MAKE) -C $(PLATFORM_PATH) sim AGGS=$(AGRS) IMG=$(IMG) EXTRA_DEFILE=$(EXTRA_DEFILE)
 
 gdb:
 	$(MAKE) -C $(PLATFORM_PATH) gdb AGGS=$(AGRS) IMG=$(IMG)

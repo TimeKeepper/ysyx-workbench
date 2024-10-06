@@ -1,3 +1,4 @@
+-include $(NPC_HOME)/../Makefile
 # PROJECT DIRECTORIES AND FILES DEFIENITIONS
 CXXFLAGS += -DPLATFORM_YSYXSOC
 
@@ -114,10 +115,11 @@ override IMG ?=
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 sim: $(BIN) $(IMG)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(call git_commit, "sim YSYXSOC") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC)
 
 gdb: $(BIN) $(IMG)
+	$(call git_commit, "gdb YSYXSOC")
 	gdb $(NPC_EXEC)
 	
 # Include rules for menuconfig

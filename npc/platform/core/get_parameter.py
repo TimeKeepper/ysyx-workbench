@@ -50,3 +50,6 @@ def get_Chip_area():
 
     stat = re.search(r"Chip area for top module '\\ysyx_23060198': ([\d\.]+)", content)
     return stat.group(1)
+
+if __name__ == '__main__':
+    print(get_Freq())

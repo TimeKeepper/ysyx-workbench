@@ -31,10 +31,10 @@ def add_newlines(text, length):
     return '\n'.join([text[i:i+length] for i in range(0, len(text), length)])
 
 
-def get_lastest_commit_id():
+def get_commit_id():
     return add_newlines(str(get_latest_commit_id()), 15)
 
-def get_lastest_message():
+def get_commit_message():
     return add_newlines(str(get_latest_commit_message()), 15)
 
 def get_Freq():
@@ -52,6 +52,6 @@ def get_Chip_area():
     return stat.group(1)
 
 if __name__ == '__main__':
-    print(get_latest_commit_id())
-    print(get_Freq())
-    print(get_Chip_area())
+    print("Commit: ", get_commit_id())
+    print("Freq: ", get_Freq())
+    print("Chip area: ", get_Chip_area())

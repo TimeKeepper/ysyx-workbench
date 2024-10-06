@@ -7,6 +7,7 @@ import peripheral._
 import chisel3._
 import chisel3.util._
 
+
 class FIX_AXI_BUS_Master extends Bundle{
   val awready = Input(Bool())
   val awvalid = Output(Bool())

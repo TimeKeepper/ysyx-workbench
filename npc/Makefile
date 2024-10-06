@@ -17,10 +17,10 @@ gdb:
 menuconfig:
 	$(MAKE) -C $(PLATFORM_PATH) menuconfig
 
-syn:
-	$(MAKE) -C $(CORE_PATH) syn
-
 clean:
 	$(MAKE) -C $(PLATFORM_PATH) clean
 
-.PHONY: default sim gdb menuconfig clean
+perf:
+	$(MAKE) -C $(CORE_PATH) perf
+
+.PHONY: default sim gdb menuconfig clean perf

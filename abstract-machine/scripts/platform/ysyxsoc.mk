@@ -17,7 +17,7 @@ NPCFLAGS += -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 NPC_BATCH_FLAG = $(NPCFLAGS)
 NPC_BATCH_FLAG += -b
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
-.PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
+.PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c
 
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt

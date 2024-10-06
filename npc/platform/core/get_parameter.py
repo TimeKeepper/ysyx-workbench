@@ -40,7 +40,7 @@ def get_lastest_message():
 def get_Freq():
     rpt = pd.read_csv("./build/result/ysyx_23060198.rpt", sep='|', skiprows=2, header=0)
     Freq = rpt[' Freq(MHz) ']
-    return Freq[1]
+    return str(Freq[1]).strip()
 
 def get_Chip_area():
     stat_path = './build/result/synth_stat.txt'
@@ -52,4 +52,6 @@ def get_Chip_area():
     return stat.group(1)
 
 if __name__ == '__main__':
+    print(get_latest_commit_id())
     print(get_Freq())
+    print(get_Chip_area())

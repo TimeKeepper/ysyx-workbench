@@ -251,6 +251,38 @@ int npc_trap (int a0){
     double ipc = (double)inst_cnt / (double)clk_cnt;
     Log("a0: %d inst: %lu clk: %lu", a0, inst_cnt, clk_cnt);
     Log("ipc: %lf", ipc);
+
+    #if NAME==rtthread
+    Log("Generated report...");
+
+    const char* npc_path = getenv("NPC_HOME");
+    char report_path[512];
+    FILE* report_file;
+
+    if(npc_path == NULL){
+        Log("NPC_HOME not set");
+        goto report_end;
+    }
+
+    snprintf(report_path, sizeof(report_path), "%s/platform/core/build/report.txt", npc_path);
+    report_file = fopen(report_path, "w");
+    
+    if(report_file == NULL){
+        Log("Failed to open report file");
+        goto report_end;
+    }
+
+    fprintf(report_file, "%lu\n", inst_cnt);
+    fprintf(report_file, "%lu\n", clk_cnt);
+    fprintf(report_file, "%lf\n", ipc);
+
+    fclose(report_file);
+
+    report_end: 
+    Log("Generated end");
+
+    #endif
+
     if(a0 == 0) printf("\033[1;32mHit good trap\033[0m\n");
     else printf("\033[1;31mHit bad trap\033[0m\n");
     wave_Trace_once();

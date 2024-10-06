@@ -15,6 +15,7 @@
 !Kconfig
 !README.md
 !*.nxdc
+!*.py
 build/
 include/config
 include/generated

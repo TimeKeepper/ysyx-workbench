@@ -85,9 +85,6 @@ $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-print:
-	@echo $(CSRC)
-
 override ARGS ?= 
 override IMG ?=
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)

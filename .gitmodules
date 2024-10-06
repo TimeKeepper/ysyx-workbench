@@ -13,3 +13,6 @@
 [submodule "rtthread_for_ysyx"]
 	path = rtthread_for_ysyx
 	url = git@github.com:TimeKeepper/rtthread_for_ysyx.git
+[submodule "yosys-sta"]
+	path = yosys-sta
+	url = git@github.com:OSCPU/yosys-sta.git

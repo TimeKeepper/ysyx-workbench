@@ -83,7 +83,7 @@ class top extends Module {
   val CPU = Module(new ysyx_23060198)
 
   val Xbar = Module(new Xbar)
-  val SRAM = Module(new SRAM(4.U))
+  val SRAM = Module(new SRAM(1.U))
   val UART = Module(new UART)
   val CLINT = Module(new CLINT)
 

@@ -3,6 +3,8 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import config._
+
 class IFU_TRACE extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
         val clock = Input(Clock())
@@ -57,11 +59,12 @@ class ysyx_23060198_IFU extends Module {
     io.AXI.wdata.bits.strb := 0.U
     io.AXI.bresp.ready := false.B
 
-    //此模块仅为调试用，可注释
-    val trace = Module(new IFU_TRACE)
+    if(Config.DPIC_on){
+        val trace = Module(new IFU_TRACE)
 
-    trace.io.clock := clock
-    trace.io.valid := io.out.valid && io.out.ready && !reset.asBool
-    trace.io.addr := io.in.bits.addr
-    trace.io.data := io.out.bits.data
+        trace.io.clock := clock
+        trace.io.valid := io.out.valid && io.out.ready && !reset.asBool
+        trace.io.addr := io.in.bits.addr
+        trace.io.data := io.out.bits.data
+    }
 }

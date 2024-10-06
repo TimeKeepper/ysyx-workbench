@@ -43,8 +43,6 @@ paddr_t host_to_guest_mrom(uint8_t *haddr);
 uint8_t* guest_to_host_flash(paddr_t paddr);
 paddr_t host_to_guest_flash(uint8_t *haddr);
 
-uint8_t* guest_to_host(paddr_t paddr);
-
 static inline bool in_sram(paddr_t addr) {
   return addr - CONFIG_SRAM_BASE < CONFIG_SRAM_SIZE;
 }
@@ -85,5 +83,6 @@ static inline bool in_pmem(paddr_t addr){
 extern "C" word_t paddr_read(paddr_t addr, int len);
 extern "C" void paddr_write(paddr_t addr, int len, word_t data);
 uint8_t* get_loadmem(void);
+uint8_t* guest_to_host(paddr_t paddr);
 
 #endif

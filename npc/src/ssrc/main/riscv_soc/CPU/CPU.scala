@@ -2,6 +2,8 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
+
+import config._
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
@@ -132,22 +134,24 @@ class ysyx_23060198 extends Module {
   AXI_Interconnect.io.IFU         <> IFU.io.AXI
   AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
-  val INST_BRIDGE = Module(new INST_BRIDGE)
-  INST_BRIDGE.io.clock := clock
-
-  val comp_cache = RegInit(Bool(), false.B)
-  comp_cache := WBU.io.out.valid
-  when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
-    INST_BRIDGE.io.valid := true.B
-  }.otherwise {
-    INST_BRIDGE.io.valid := false.B
-  }
-
-  val axi_bridge = Module(new AXI_BRIDGE)
-  axi_bridge.io.clock := clock
-  axi_bridge.io.rresp := io.master.rresp
-  axi_bridge.io.bresp := io.master.bresp
-
   io.slave <> DontCare
   io.interrupt <> DontCare
+
+  if(Config.DPIC_on){
+    val INST_BRIDGE = Module(new INST_BRIDGE)
+    INST_BRIDGE.io.clock := clock
+
+    val comp_cache = RegInit(Bool(), false.B)
+    comp_cache := WBU.io.out.valid
+    when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
+      INST_BRIDGE.io.valid := true.B
+    }.otherwise {
+      INST_BRIDGE.io.valid := false.B
+    }
+
+    val axi_bridge = Module(new AXI_BRIDGE)
+    axi_bridge.io.clock := clock
+    axi_bridge.io.rresp := io.master.rresp
+    axi_bridge.io.bresp := io.master.bresp
+  }
 }

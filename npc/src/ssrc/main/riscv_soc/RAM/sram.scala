@@ -29,20 +29,14 @@ class sram_bridge extends BlackBox with HasBlackBoxInline {
       |);
       |
       |import "DPI-C" function int unsigned paddr_read (input int unsigned addr, input int len);
-      |import "DPI-C" function void paddr_write (input int unsigned addr, input int len, input int unsigned data);
+      |import "DPI-C" function void paddr_write_strb (input int unsigned addr, input int unsigned data, input int mask);
       |
       |    always @(posedge clock) begin
       |        if (read) begin
       |            r_data <= paddr_read(r_addr, 32'd4);
       |        end
       |        if (write) begin
-      |            if(w_strb == 4'b0001) begin
-      |                paddr_write(w_addr, 32'd1, w_data);
-      |            end else if(w_strb == 4'b0011) begin
-      |                paddr_write(w_addr, 32'd2, w_data);
-      |            end else if(w_strb == 4'b1111) begin
-      |                paddr_write(w_addr, 32'd4, w_data);
-      |            end
+      |            paddr_write_strb(w_addr, w_data, {28'h0, w_strb});
       |        end
       |    end
       |

@@ -1,5 +1,6 @@
 PLATFORM ?= ysyxsoc
 PLATFORM_PATH = $(NPC_HOME)/platform/$(PLATFORM)
+CORE_PATH = $(NPC_HOME)/platform/core
 
 AGRS ?=
 IMG ?=
@@ -19,4 +20,7 @@ menuconfig:
 clean:
 	$(MAKE) -C $(PLATFORM_PATH) clean
 
-.PHONY: default sim gdb menuconfig clean
+perf:
+	$(MAKE) -C $(CORE_PATH) perf
+
+.PHONY: default sim gdb menuconfig clean perf

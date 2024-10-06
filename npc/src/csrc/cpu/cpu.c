@@ -253,7 +253,7 @@ int npc_trap (int a0){
     Log("ipc: %lf", ipc);
 
     #if NAME==microbench
-    Log("Generated report...");
+    Log("Generating report...");
 
     const char* npc_path = getenv("NPC_HOME");
     char report_path[512];

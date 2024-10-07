@@ -17,8 +17,8 @@ clean:
 
 .PHONY: clean
 
-V_FILE_GEN = $(BUILD_DIR)/II_3.sv
-V_FILE_OVERWRITE = $(BUILD_DIR)/II_3_ov.sv
+V_FILE_GEN = $(BUILD_DIR)/II_4.sv
+V_FILE_OVERWRITE = $(BUILD_DIR)/II_4_ov.sv
 
 verilog: $(SSRC)
 	$(call git_commit, "generate verilog")

@@ -36,7 +36,7 @@ class II_2 extends Module {
     val num_write = RegInit(0.U(4.W))
     val num_read = RegInit(0.U(4.W))
 
-    val FIFO = Module(new FIFO)
+    val FIFO = Module(new FIFO(4))
     FIFO.io.clk := clock
     FIFO.io.srst := reset.asBool
     FIFO.io.din := num_write

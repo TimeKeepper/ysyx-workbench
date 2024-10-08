@@ -1,12 +1,13 @@
-AM_SRCS := riscv/ysyxsoc/start.c \
+AM_SRCS := riscv/ysyxsoc/start.S \
            riscv/ysyxsoc/trm.c \
            riscv/ysyxsoc/ioe.c \
            riscv/ysyxsoc/timer.c \
            riscv/ysyxsoc/input.c \
            riscv/ysyxsoc/cte.c \
+           riscv/ysyxsoc/gpu.c \
            riscv/ysyxsoc/trap.S \
            platform/dummy/vme.c \
-           platform/dummy/mpe.c
+           platform/dummy/mpe.c 
 
 CFLAGS    += -fdata-sections -ffunction-sections 
 LDFLAGS   += -T $(AM_HOME)/scripts/linker_ysyxsoc.ld 

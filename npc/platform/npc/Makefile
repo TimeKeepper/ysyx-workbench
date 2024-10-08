@@ -1,5 +1,3 @@
--include $(NPC_HOME)/../Makefile
-# PROJECT DIRECTORIES AND FILES DEFIENITIONS
 CXXFLAGS += -DPLATFORM_NPC
 
 PRJ = playground
@@ -52,6 +50,8 @@ clean:
 	-rm -rf $(BUILD_DIR)
 
 .PHONY: test verilog help reformat checkformat clean
+
+-include $(NPC_HOME)/../Makefile
 
 verilog:
 	$(call git_commit, "generate verilog")

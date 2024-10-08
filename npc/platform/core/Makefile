@@ -48,4 +48,7 @@ perf: $(RPT_FILE) $(STAT_FILE) $(PERFOMENSE_FILE)
 	$(call git_commit, "$(shell python ./get_parameter.py)")
 	@python ./perf.py
 
+test: 
+	$(MAKE) -C $(NEMU_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-npc mainargs=test batch
+
 .PHONY: clean verilog syn perf SSRC

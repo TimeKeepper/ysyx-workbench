@@ -12,9 +12,9 @@ sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2
 安装mill,注意必须安装至少0.11以上的版本
 ```
 sudo apt-get install default-jre
-sed -i '0,/-cp "\$0"/{s/-cp "\$0"/-cp `cygpath -w "\$0"`/}; 0,/-cp "\$0"/{s/-cp "\$0"/-cp `cygpath -w "\$0"`/}' /usr/local/bin/mill (for wsl)
 curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.12/0.11.12 > mill && chmod +x mill
-echo 0.11.12 > .mill-version (for linux)
+sudo mv ./mill /usr/local/bin/
+mill --version
 ```
 
 安装verilator
@@ -30,7 +30,7 @@ cd verilator
 git checkout v5.008
 autoconf
 ./configure
-make -j 'nproc' (如果报错，直接make -j)
+make -j 'nproc' (如果报错，直接make)
 sudo make install
 verilator --version
 ```

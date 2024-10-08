@@ -1,5 +1,3 @@
--include $(NPC_HOME)/../Makefile
-# PROJECT DIRECTORIES AND FILES DEFIENITIONS
 CXXFLAGS += -DPLATFORM_YSYXSOC
 
 PRJ = playground
@@ -67,6 +65,8 @@ test:
 	mill -i $(PRJ).test
 
 V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
+
+-include $(NPC_HOME)/../Makefile
 
 verilog:
 	$(call git_commit, "generate verilog")

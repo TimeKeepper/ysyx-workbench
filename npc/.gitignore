@@ -16,6 +16,7 @@
 !README.md
 !*.nxdc
 !*.py
+!*.sdc
 build/
 include/config
 include/generated

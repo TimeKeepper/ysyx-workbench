@@ -34,7 +34,7 @@ class IFU_TRACE extends BlackBox with HasBlackBoxInline {
 }
 
 class IFU_PC extends BlackBox with HasBlackBoxInline {
-    val valid = IO(new Bundle{
+    val io = IO(new Bundle{
         val valid = Input(Bool())
     })
     setInline("IFU_PC.v",

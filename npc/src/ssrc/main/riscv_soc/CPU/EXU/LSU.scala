@@ -38,10 +38,10 @@ class LSU_PC extends BlackBox with HasBlackBoxInline {
     |    input clock,
     |    input valid
     |);
-    |  import "DPI-C" function void IFU_finished();
+    |  import "DPI-C" function void LSU_finished();
     |  always @(posedge clock) begin
     |    if(valid) begin
-    |      IFU_finished();
+    |      LSU_finished();
     |    end
     |  end
     |endmodule
@@ -191,6 +191,6 @@ class ysyx_23060198_LSU extends Module{
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock
-        LSU_PC.io.valid := io.AXI.rdata.valid && io.AXI.rdata.ready && !reset.asBool
+        LSU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
     }
 }

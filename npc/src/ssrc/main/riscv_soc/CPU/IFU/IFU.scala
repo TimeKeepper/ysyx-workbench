@@ -35,14 +35,16 @@ class IFU_TRACE extends BlackBox with HasBlackBoxInline {
 
 class IFU_PC extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
+        val clock = Input(Clock())
         val valid = Input(Bool())
     })
     setInline("IFU_PC.v",
     """module IFU_PC(
+    |    input clock,
     |    input valid
     |);
     |  import "DPI-C" function void IFU_finished();
-    |  always @* begin
+    |  always @(posedge clock) begin
     |    if(valid) begin
     |      IFU_finished();
     |    end
@@ -86,6 +88,7 @@ class ysyx_23060198_IFU extends Module {
         trace.io.data := io.out.bits.data
 
         val IFU_PC = Module(new IFU_PC)
+        IFU_PC.io.clock := clock
         IFU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
     }
 }

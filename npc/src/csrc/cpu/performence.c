@@ -8,10 +8,10 @@ extern "C" void IFU_finished() {
 }
 
 extern "C" void LSU_finished() {
-    Log("LSU finished");
     LSU_pc++;
 }
 
 extern "C" void ALU_finished() {
+    Log("ALU finished");
     ALU_pc++;
 }

@@ -23,9 +23,12 @@ def read_report():
 
     inst_cnt    = int(lines[0].strip()) 
     clk_cnt     = int(lines[1].strip())       
-    ipc         = float(lines[2].strip())             
+    ipc         = float(lines[2].strip())           
+    ifu_pc      = float(lines[3].strip())           
+    lsu_pc      = float(lines[4].strip())           
+    alu_pc      = float(lines[5].strip())           
 
-    return inst_cnt, clk_cnt, ipc
+    return inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc
 
 def truncate_string(input_str, max_length):
     # 检查字符串是否超过最大长度
@@ -64,11 +67,14 @@ def get_Chip_area():
 if __name__ == '__main__':
     print("Commit: ", get_latest_commit_id())
 
-    inst_cnt, clk_cnt, ipc = read_report()
+    inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc = read_report()
 
     print("Instruction count: ", inst_cnt)
     print("Clock count: ", clk_cnt)
     print("IPC: ", ipc)
+    print("IFU performence counter: ", ifu_pc)
+    print("LSU performence counter: ", lsu_pc)
+    print("ALU performence counter: ", alu_pc)
 
     print("Freq: ", get_Freq())
     print("Chip area: ", get_Chip_area())

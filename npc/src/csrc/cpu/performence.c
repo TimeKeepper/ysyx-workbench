@@ -12,6 +12,5 @@ extern "C" void LSU_finished() {
 }
 
 extern "C" void ALU_finished() {
-    Log("ALU finished");
     ALU_pc++;
 }

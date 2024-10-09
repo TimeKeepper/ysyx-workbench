@@ -28,6 +28,26 @@ class LSU_DPIC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class LSU_PC extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+    })
+    setInline("LSU_PC.v",
+    """module LSU_PC(
+    |    input clock,
+    |    input valid
+    |);
+    |  import "DPI-C" function void LSU_finished();
+    |  always @(posedge clock) begin
+    |    if(valid) begin
+    |      LSU_finished();
+    |    end
+    |  end
+    |endmodule
+    """.stripMargin)
+}
+
 class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Bundle{
@@ -168,5 +188,9 @@ class ysyx_23060198_LSU extends Module{
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
         LS_DPIC.io.addr      := io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
+
+        val LSU_PC = Module(new LSU_PC)
+        LSU_PC.io.clock := clock
+        LSU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
     }
 }

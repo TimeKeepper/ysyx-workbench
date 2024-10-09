@@ -275,6 +275,9 @@ int npc_trap (int a0){
     fprintf(report_file, "%lu\n", inst_cnt);
     fprintf(report_file, "%lu\n", clk_cnt);
     fprintf(report_file, "%lf\n", ipc);
+    fprintf(report_file, "%lu\n", IFU_pc);
+    fprintf(report_file, "%lu\n", LSU_pc);
+    fprintf(report_file, "%lu\n", ALU_pc);
 
     fclose(report_file);
 

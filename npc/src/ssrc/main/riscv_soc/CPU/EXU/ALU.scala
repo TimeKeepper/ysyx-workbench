@@ -6,8 +6,29 @@ import chisel3.util.MuxLookup
 
 import signal_value._
 import bus_state._
+import config._
 
 // riscv cpu analogic and logical unit
+
+class ALU_PC extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+    })
+    setInline("ALU_PC.v",
+    """module ALU_PC(
+    |    input clock,
+    |    input valid
+    |);
+    |  import "DPI-C" function void ALU_finished();
+    |  always @(posedge clock) begin
+    |    if(valid) begin
+    |      ALU_finished();
+    |    end
+    |  end
+    |endmodule
+    """.stripMargin)
+}
 
 class ysyx_23060198_ALU_Ctrl extends Module {
   val io = IO(new Bundle {
@@ -199,4 +220,10 @@ class ysyx_23060198_ALU extends Module {
   io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
   io.out.bits.Zero          := RegEnable(alu_adder.io.Zero , comunication_succeed) 
   io.out.bits.Less          := RegEnable(Less, comunication_succeed) 
+
+  if(Config.DPIC_on){
+      val ALU_PC = Module(new ALU_PC)
+      ALU_PC.io.clock := clock
+      ALU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
+  }
 }

@@ -41,7 +41,7 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     """module IFU_PC(
     |    input valid
     |);
-    |  import "DPI-C" function void IFU_finished(void);
+    |  import "DPI-C" function void IFU_finished();
     |  always @* begin
     |    if(valid) begin
     |      IFU_finished();

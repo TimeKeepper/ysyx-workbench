@@ -84,5 +84,8 @@ class ysyx_23060198_IFU extends Module {
         trace.io.valid := io.out.valid && io.out.ready && !reset.asBool
         trace.io.addr := io.in.bits.addr
         trace.io.data := io.out.bits.data
+
+        val IFU_PC = Module(new IFU_PC)
+        IFU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
     }
 }

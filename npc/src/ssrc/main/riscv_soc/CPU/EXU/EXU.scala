@@ -40,11 +40,11 @@ class ysyx_23060198_EXU extends Module {
         alu.io.out.ready := false.B
         io.GNU_2_EXU.ready <> lsu.io.GNU_2_EXU.ready
         io.GNU_2_EXU.valid <> lsu.io.GNU_2_EXU.valid
-        io.EXU_2_WBU.ready <> lsu.io.EXU_2_WBU.ready
-        io.EXU_2_WBU.valid <> lsu.io.EXU_2_WBU.valid
+        io.EXU_2_WBU.ready <> lsu.io.out.ready
+        io.EXU_2_WBU.valid <> lsu.io.out.valid
     }.otherwise{
         lsu.io.GNU_2_EXU.valid := false.B
-        lsu.io.EXU_2_WBU.ready := false.B
+        lsu.io.out.ready := false.B
         io.GNU_2_EXU.ready <> alu.io.GNU_2_EXU.ready
         io.GNU_2_EXU.valid <> alu.io.GNU_2_EXU.valid
         io.EXU_2_WBU.ready <> alu.io.out.ready

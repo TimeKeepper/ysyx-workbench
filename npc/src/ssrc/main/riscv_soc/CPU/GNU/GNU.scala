@@ -30,7 +30,7 @@ class ysyx_23060198_GNU extends Module{
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.IFU_io.in.valid,  s_wait_ready, s_wait_valid),
+            s_wait_valid -> Mux(io.in.IFU_io.in.valid,  s_wait_ready, s_wait_valid),
             s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
         )
     )
@@ -39,8 +39,8 @@ class ysyx_23060198_GNU extends Module{
     val igu = Module(new ysyx_23060198_IGU)
 
     io.out.valid := state === s_wait_ready
-    io.in.ready  := state === s_wait_valid
-    val comunication_succeed = (io.IFU_io.in.valid && io.in.ready)
+    io.in.IFU_io.ready  := state === s_wait_valid
+    val comunication_succeed = (io.in.IFU_io.in.valid && io.in.ready)
 
     igu.io.inst     <> io.in.bits.IFU_io.data
     igu.io.ExtOp    <> idu.io.ExtOp

@@ -51,7 +51,7 @@ class LSU_PC extends BlackBox with HasBlackBoxInline {
 class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(new Bundle{
-            val GNU_io    = Input(new GNU_Output)
+            val GNU_io    = Input(new BUS_GNU_2_EXU)
         }))
 
         val out = Decoupled(new Bundle{

@@ -12,7 +12,7 @@ class ysyx_23060198_EXU extends Module {
     val io = IO(new Bundle{
         // From CSR
         val GNU_2_EXU = Flipped(Decoupled(Input(new BUS_GNU_2_EXU)))
-        val REG_2_EXU = Input(BUS_REG_2_EXU)
+        val REG_2_EXU = Input(new BUS_REG_2_EXU)
 
         val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
         val AXI = new AXI_Master

@@ -79,11 +79,12 @@ class ysyx_23060198 extends Module {
   // bus EXU -> WBU
   EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
 
-  // bus WBU -> REG -> WBU with delay
-  WBU.io.WBU_2_IFU <> IFU.io.WBU_2_IFU
+  // bus WBU -> IFU
+  WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
 
-  WBU.io.WBU_2_REG <> REG.io.WBU_2_REG
-  REG.io.REG_2_IFU <> IFU.io.REG_2_IFU
+  // bus WBU -> REG -> IFU without delay
+  WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+  REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
   // bus AXI Interconnect
   io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready

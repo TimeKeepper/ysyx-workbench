@@ -101,8 +101,8 @@ class awaddr extends Bundle{
 }
 
 class wdata extends Bundle{
-    val data = Output(UInt(32.W))
-    val strb = Output(UInt(4.W))
+    val data = UInt(32.W)
+    val strb = UInt(4.W)
 }
 
 class bresp extends Bundle{
@@ -113,7 +113,7 @@ class AXI_Master extends Bundle{
     val araddr = Decoupled(new araddr)
     val rdata = Flipped(Decoupled(new rdata))
     val awaddr = Decoupled(new awaddr)
-    val wdata = Decoupled(new wdata)
+    val wdata = Decoupled(Output(new wdata))
     val bresp  = Flipped(Decoupled(new bresp))
 }
 

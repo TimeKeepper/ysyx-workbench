@@ -13,9 +13,9 @@ class ysyx_23060198_GNU extends Module{
         // Form IFU
         val in          = new Bundle{
             val IFU_io     = Flipped(Decoupled(new IFU_Output))
-            val PC         = UInt(32.W)
-            val GPR_Adata  = UInt(32.W)
-            val GPR_Bdata  = UInt(32.W)
+            val PC         = Input(32.W)
+            val GPR_Adata  = Input(32.W)
+            val GPR_Bdata  = Input(32.W)
         }
 
         val out         = Decoupled(new Bundle{

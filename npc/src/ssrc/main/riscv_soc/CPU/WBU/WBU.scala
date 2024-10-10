@@ -50,31 +50,31 @@ class ysyx_23060198_WBU extends Module {
     ))
 
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
-        io.WBU_2_REG.WBU_io.inst_valid := true.B
+        io.WBU_2_REG.inst_valid := true.B
     }.otherwise{
-        io.WBU_2_REG.WBU_io.inst_valid := false.B
+        io.WBU_2_REG.inst_valid := false.B
     }
 
-    io.WBU_2_REG.WBU_io.Next_Pc := PCAsrc + PCBsrc
+    io.WBU_2_REG.Next_Pc := PCAsrc + PCBsrc
 
-    io.WBU_2_REG.WBU_io.GPR_waddr := io.EXU_2_WBU.bits.GPR_waddr
-    io.WBU_2_REG.WBU_io.GPR_wdata := MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
+    io.WBU_2_REG.GPR_waddr := io.EXU_2_WBU.bits.GPR_waddr
+    io.WBU_2_REG.GPR_wdata := MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
         Y  -> io.EXU_2_WBU.bits.Mem_rdata,
         N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR),
     ))
-    io.WBU_2_REG.WBU_io.GPR_wen <> io.EXU_2_WBU.bits.RegWr
+    io.WBU_2_REG.GPR_wen <> io.EXU_2_WBU.bits.RegWr
 
-    io.WBU_2_REG.WBU_io.CSR_ctr <> io.EXU_2_WBU.bits.csr_ctr
+    io.WBU_2_REG.CSR_ctr <> io.EXU_2_WBU.bits.csr_ctr
 
-    io.WBU_2_REG.WBU_io.CSR_waddra := MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Imm(11, 0))(Seq(
+    io.WBU_2_REG.CSR_waddra := MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Imm(11, 0))(Seq(
         CSR_R1W2 -> "h341".U
     ))
 
-    io.WBU_2_REG.WBU_io.CSR_waddrb := "h342".U
+    io.WBU_2_REG.CSR_waddrb := "h342".U
 
-    io.WBU_2_REG.WBU_io.CSR_wdataa := MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
+    io.WBU_2_REG.CSR_wdataa := MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
         CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
 
-    io.WBU_2_REG.WBU_io.CSR_wdatab := 11.U
+    io.WBU_2_REG.CSR_wdatab := 11.U
 }

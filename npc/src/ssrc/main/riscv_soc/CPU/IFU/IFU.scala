@@ -64,8 +64,8 @@ class ysyx_23060198_IFU extends Module {
         val AXI = new AXI_Master
     })
 
-    io.in.ready <> io.AXI.araddr.ready
-    io.in.valid <> io.AXI.araddr.valid
+    io.WBU_2_IFU.ready <> io.AXI.araddr.ready
+    io.WBU_2_IFU.valid <> io.AXI.araddr.valid
     io.REG_2_IFU.Next_PC <> io.AXI.araddr.bits.addr
     io.AXI.araddr.bits.size <> 2.U
 

@@ -65,7 +65,7 @@ class ysyx_23060198_IFU extends Module {
 
     io.WBU_2_IFU.ready <> io.AXI.araddr.ready
     io.WBU_2_IFU.valid <> io.AXI.araddr.valid
-    io.WBU_2_IFU.bits.addr <> io.AXI.araddr.bits.addr
+    io.WBU_2_IFU.bits.Next_PC <> io.AXI.araddr.bits.addr
     io.AXI.araddr.bits.size <> 2.U
 
     io.IFU_2_GNU.ready <> io.AXI.rdata.ready
@@ -88,7 +88,7 @@ class ysyx_23060198_IFU extends Module {
 
         trace.io.clock := clock
         trace.io.valid := io.IFU_2_GNU.valid && io.IFU_2_GNU.ready && !reset.asBool
-        trace.io.addr := io.WBU_2_IFU.bits.addr
+        trace.io.addr := io.WBU_2_IFU.bits.Next_PC
         trace.io.data := io.IFU_2_GNU.bits.data
 
         val IFU_PC = Module(new IFU_PC)

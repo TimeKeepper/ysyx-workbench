@@ -46,20 +46,20 @@ class BUS_GNU_2_REG extends Bundle{
     val CSR_raddr   = UInt(12.W)
 }
 
-class EXU_output extends Bundle{
-    val RegWr       = Output(Bool())
-    val Branch      = Output(Bran_Type)
-    val MemtoReg    = Output(Bool())
-    val csr_ctr     = Output(CSR_Type)
-    val Imm         = Output(UInt(32.W))
-    val GPR_Adata   = Output(UInt(32.W))
-    val GPR_waddr   = Output(UInt(5.W))
-    val PC          = Output(UInt(32.W))
-    val CSR         = Output(UInt(32.W))
-    val Result      = Output(UInt(32.W))
-    val Zero        = Output(Bool())
-    val Less        = Output(Bool())
-    val Mem_rdata   = Output(UInt(32.W))
+class BUS_EXU_2_WBU extends Bundle{
+    val RegWr       = Bool()
+    val Branch      = Bran_Type
+    val MemtoReg    = Bool()
+    val csr_ctr     = CSR_Type
+    val Imm         = UInt(32.W)
+    val GPR_Adata   = UInt(32.W)
+    val GPR_waddr   = UInt(5.W)
+    val PC          = UInt(32.W)
+    val CSR         = UInt(32.W)
+    val Result      = UInt(32.W)
+    val Zero        = Bool()
+    val Less        = Bool()
+    val Mem_rdata   = UInt(32.W)
 }
 
 class WBU_output_ extends Bundle{

@@ -77,9 +77,7 @@ class ysyx_23060198 extends Module {
   REG.io.out.CSR_data  <> EXU.io.CSR   
 
   // bus EXU -> WBU
-  EXU.io.out.valid          <> WBU.io.in.valid
-  EXU.io.out.ready          <> WBU.io.in.ready
-  EXU.io.out.bits.EXU_io    <> WBU.io.in.bits.EXU_io    
+  EXU.io.EXU_2_WBU         <> WBU.io.EXU_2_WBU   
 
   // bus WBU -> REG -> WBU with delay
   WBU.io.out.bits.WBU_io <> REG.io.in.WBU_io

@@ -58,7 +58,7 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
 class ysyx_23060198_IFU extends Module {
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(Flipped(new WBU_output)))
-        val IFU_2_GNU = Decoupled(IFU_2_GNUput(new BUS_IFU_2_GNU))
+        val IFU_2_GNU = Decoupled(Output(new BUS_IFU_2_GNU))
         val AXI = new AXI_Master
     })
 

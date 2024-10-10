@@ -68,7 +68,7 @@ class ysyx_23060198 extends Module {
   // bus IFU -> REG -> GNU without delay
   IFU.io.out.bits.data(19, 15) <> REG.io.in.GPR_raddra 
   IFU.io.out.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
-  REG.io.out.GNU_io         <> GNU.io.in.REG_io
+  REG.io.out.GNU_io         <> GNU.io.REG_io
 
   // bus GNU -> EXU
   GNU.io.out.valid     <> EXU.io.in.valid

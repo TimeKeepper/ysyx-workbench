@@ -57,24 +57,22 @@ class REG_output extends Bundle{
 
 class ysyx_23060198_REG extends Module {
   val io = IO(new Bundle {
-    val in = new Bundle{
-      val WBU_io     = Input(new WBU_output_)
-    }
     val IFU_2_REG = Input(new BUS_IFU_2_REG)
     val REG_2_GNU = Output(new BUS_REG_2_GNU)
     val GNU_2_REG = Input(new BUS_GNU_2_REG)
     val REG_2_EXU = Output(new BUS_REG_2_EXU)
+    val WBU_2_REG = Input(new BUS_WBU_2_REG)
   })
 
-  val pc_wen = io.in.WBU_io.inst_valid === true.B
-  val csra_wen = (io.in.WBU_io.CSR_ctr === CSR_R1W1 || io.in.WBU_io.CSR_ctr === CSR_R1W2) && io.in.WBU_io.inst_valid === true.B
-  val csrb_wen = io.in.WBU_io.CSR_ctr === CSR_R1W2 && io.in.WBU_io.inst_valid === true.B
-  val gpr_wen = io.in.WBU_io.GPR_wen && io.in.WBU_io.GPR_waddr =/= 0.U && io.in.WBU_io.inst_valid === true.B
+  val pc_wen = io.WBU_2_REG.WBU_io.inst_valid === true.B
+  val csra_wen = (io.WBU_2_REG.WBU_io.CSR_ctr === CSR_R1W1 || io.WBU_2_REG.WBU_io.CSR_ctr === CSR_R1W2) && io.WBU_2_REG.WBU_io.inst_valid === true.B
+  val csrb_wen = io.WBU_2_REG.WBU_io.CSR_ctr === CSR_R1W2 && io.WBU_2_REG.WBU_io.inst_valid === true.B
+  val gpr_wen = io.WBU_2_REG.WBU_io.GPR_wen && io.WBU_2_REG.WBU_io.GPR_waddr =/= 0.U && io.WBU_2_REG.WBU_io.inst_valid === true.B
 
   val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
   when(gpr_wen) {
-    gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
+    gpr(io.WBU_2_REG.WBU_io.GPR_waddr) := io.WBU_2_REG.WBU_io.GPR_wdata
   }
 
   io.REG_2_GNU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
@@ -83,7 +81,7 @@ class ysyx_23060198_REG extends Module {
   val pc = RegInit(main_val.Reset_Vector)
 
   when(pc_wen){
-    pc        := io.in.WBU_io.Next_Pc
+    pc        := io.WBU_2_REG.WBU_io.Next_Pc
   }
   io.REG_2_GNU.PC := pc
 
@@ -114,33 +112,33 @@ class ysyx_23060198_REG extends Module {
   ))
 
   when(csra_wen) {
-    when(io.in.WBU_io.CSR_waddra === ADDR_MSTATUS){
-      mstatus := io.in.WBU_io.CSR_wdataa
-    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MTEVC){
-      mtevc := io.in.WBU_io.CSR_wdataa
-    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MSCRATCH){
-      mscratch := io.in.WBU_io.CSR_wdataa
-    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MEPC){
-      mepc := io.in.WBU_io.CSR_wdataa
-    }.elsewhen(io.in.WBU_io.CSR_waddra === ADDR_MCAUSE){
-      mcause := io.in.WBU_io.CSR_wdataa
+    when(io.WBU_2_REG.WBU_io.CSR_waddra === ADDR_MSTATUS){
+      mstatus := io.WBU_2_REG.WBU_io.CSR_wdataa
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddra === ADDR_MTEVC){
+      mtevc := io.WBU_2_REG.WBU_io.CSR_wdataa
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddra === ADDR_MSCRATCH){
+      mscratch := io.WBU_2_REG.WBU_io.CSR_wdataa
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddra === ADDR_MEPC){
+      mepc := io.WBU_2_REG.WBU_io.CSR_wdataa
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddra === ADDR_MCAUSE){
+      mcause := io.WBU_2_REG.WBU_io.CSR_wdataa
     }
-    // csr((io.in.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdataa
+    // csr((io.WBU_2_REG.WBU_io.CSR_waddra - "h300".U)(6, 0)) := io.WBU_2_REG.WBU_io.CSR_wdataa
   }
 
   when(csrb_wen) {
-    when(io.in.WBU_io.CSR_waddrb === ADDR_MSTATUS){
-      mstatus := io.in.WBU_io.CSR_wdatab
-    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MTEVC){
-      mtevc := io.in.WBU_io.CSR_wdatab
-    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MSCRATCH){
-      mscratch := io.in.WBU_io.CSR_wdatab
-    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MEPC){
-      mepc := io.in.WBU_io.CSR_wdatab
-    }.elsewhen(io.in.WBU_io.CSR_waddrb === ADDR_MCAUSE){
-      mcause := io.in.WBU_io.CSR_wdatab
+    when(io.WBU_2_REG.WBU_io.CSR_waddrb === ADDR_MSTATUS){
+      mstatus := io.WBU_2_REG.WBU_io.CSR_wdatab
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddrb === ADDR_MTEVC){
+      mtevc := io.WBU_2_REG.WBU_io.CSR_wdatab
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddrb === ADDR_MSCRATCH){
+      mscratch := io.WBU_2_REG.WBU_io.CSR_wdatab
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddrb === ADDR_MEPC){
+      mepc := io.WBU_2_REG.WBU_io.CSR_wdatab
+    }.elsewhen(io.WBU_2_REG.WBU_io.CSR_waddrb === ADDR_MCAUSE){
+      mcause := io.WBU_2_REG.WBU_io.CSR_wdatab
     }
-    // csr((io.in.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.in.WBU_io.CSR_wdatab
+    // csr((io.WBU_2_REG.WBU_io.CSR_waddrb - "h300".U)(6, 0)) := io.WBU_2_REG.WBU_io.CSR_wdatab
   }
   
   if (Config.DPIC_on){
@@ -151,12 +149,12 @@ class ysyx_23060198_REG extends Module {
     bridge.io.csra_wen := csra_wen
     bridge.io.csrb_wen := csrb_wen
     bridge.io.gpr_wen := gpr_wen
-    bridge.io.new_pc := io.in.WBU_io.Next_Pc
-    bridge.io.CSR_waddra := io.in.WBU_io.CSR_waddra
-    bridge.io.CSR_waddrb := io.in.WBU_io.CSR_waddrb
-    bridge.io.new_CSRa := io.in.WBU_io.CSR_wdataa
-    bridge.io.new_CSRb := io.in.WBU_io.CSR_wdatab
-    bridge.io.GPR_waddr := io.in.WBU_io.GPR_waddr
-    bridge.io.new_GPR := io.in.WBU_io.GPR_wdata
+    bridge.io.new_pc := io.WBU_2_REG.WBU_io.Next_Pc
+    bridge.io.CSR_waddra := io.WBU_2_REG.WBU_io.CSR_waddra
+    bridge.io.CSR_waddrb := io.WBU_2_REG.WBU_io.CSR_waddrb
+    bridge.io.new_CSRa := io.WBU_2_REG.WBU_io.CSR_wdataa
+    bridge.io.new_CSRb := io.WBU_2_REG.WBU_io.CSR_wdatab
+    bridge.io.GPR_waddr := io.WBU_2_REG.WBU_io.GPR_waddr
+    bridge.io.new_GPR := io.WBU_2_REG.WBU_io.GPR_wdata
   }
 }

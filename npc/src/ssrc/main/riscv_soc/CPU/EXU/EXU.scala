@@ -37,7 +37,7 @@ class ysyx_23060198_EXU extends Module {
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)
 
-    when(io.GNU_2_EXU.bits.GNU_2_EXU.MemWr || io.GNU_2_EXU.bits.GNU_2_EXU.MemtoReg){
+    when(io.GNU_2_EXU.bits.MemWr || io.GNU_2_EXU.bits.MemtoReg){
         alu.io.GNU_2_EXU.valid := false.B
         alu.io.out.ready := false.B
         io.GNU_2_EXU.ready <> lsu.io.GNU_2_EXU.ready
@@ -54,22 +54,22 @@ class ysyx_23060198_EXU extends Module {
     }
 
     when(io.GNU_2_EXU.valid && io.GNU_2_EXU.ready){
-        RegWr_cache       := io.GNU_2_EXU.bits.GNU_2_EXU.RegWr
-        Branch_cache      := io.GNU_2_EXU.bits.GNU_2_EXU.Branch
-        MemtoReg_cache    := io.GNU_2_EXU.bits.GNU_2_EXU.MemtoReg
-        csr_ctr_cache     := io.GNU_2_EXU.bits.GNU_2_EXU.csr_ctr
-        Imm_cache         := io.GNU_2_EXU.bits.GNU_2_EXU.Imm
-        GPR_Adata_cache   := io.GNU_2_EXU.bits.GNU_2_EXU.GPR_Adata
-        GPR_waddr_cache   := io.GNU_2_EXU.bits.GNU_2_EXU.GPR_waddr
-        PC_cache          := io.GNU_2_EXU.bits.GNU_2_EXU.PC 
+        RegWr_cache       := io.GNU_2_EXU.bits.RegWr
+        Branch_cache      := io.GNU_2_EXU.bits.Branch
+        MemtoReg_cache    := io.GNU_2_EXU.bits.MemtoReg
+        csr_ctr_cache     := io.GNU_2_EXU.bits.csr_ctr
+        Imm_cache         := io.GNU_2_EXU.bits.Imm
+        GPR_Adata_cache   := io.GNU_2_EXU.bits.GPR_Adata
+        GPR_waddr_cache   := io.GNU_2_EXU.bits.GPR_waddr
+        PC_cache          := io.GNU_2_EXU.bits.PC 
 
         CSR_cache         := io.GNU_2_EXU.CSR
     }
 
-    alu.io.GNU_2_EXU.bits.GNU_2_EXU := io.GNU_2_EXU.bits.GNU_2_EXU
+    alu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
     alu.io.GNU_2_EXU.CSR         := io.GNU_2_EXU.CSR
 
-    lsu.io.GNU_2_EXU.bits.GNU_2_EXU := io.GNU_2_EXU.bits.GNU_2_EXU
+    lsu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
     lsu.io.AXI <> io.AXI
 
 

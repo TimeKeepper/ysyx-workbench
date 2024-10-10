@@ -117,12 +117,8 @@ class ysyx_23060198_ALU_BarrelShifter extends Module {
 
 class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new Bundle{
-      val GNU_io    = Input(new BUS_GNU_2_EXU)
-
-      // Form Register File
-      val CSR       = Input(UInt(32.W))
-    }))
+    val GNU_2_EXU = Flipped(Decoupled(Input(new BUS_GNU_2_EXU)))
+    val CSR       = Input(UInt(32.W))
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 

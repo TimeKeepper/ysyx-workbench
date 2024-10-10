@@ -66,7 +66,7 @@ class BUS_EXU_2_WBU extends Bundle{
     val Mem_rdata   = UInt(32.W)
 }
 
-class WBU_output_ extends Bundle{
+class BUS_WBU_2_REG extends Bundle{
     val inst_valid= Output(Bool())
     val Next_Pc   = Output(UInt(32.W))
     val GPR_waddr = Output(UInt(5.W))
@@ -77,6 +77,12 @@ class WBU_output_ extends Bundle{
     val CSR_waddrb= Output(UInt(12.W))
     val CSR_wdataa= Output(UInt(32.W))
     val CSR_wdatab= Output(UInt(32.W))
+}
+
+class BUS_WBU_2_IFU extends Bundle
+
+class BUS_REG_2_IFU extends Bundle{
+    val Next_PC = UInt(32.W)
 }
 
 class araddr extends Bundle{

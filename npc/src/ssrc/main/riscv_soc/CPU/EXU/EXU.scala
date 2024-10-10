@@ -63,7 +63,7 @@ class ysyx_23060198_EXU extends Module {
         GPR_waddr_cache   := io.GNU_2_EXU.bits.GPR_waddr
         PC_cache          := io.GNU_2_EXU.bits.PC 
 
-        CSR_cache         := io.GNU_2_EXU.CSR
+        CSR_cache         := io.CSR
     }
 
     alu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits

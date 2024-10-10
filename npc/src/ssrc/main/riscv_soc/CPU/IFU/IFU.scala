@@ -57,15 +57,15 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
 
 class ysyx_23060198_IFU extends Module {
     val io = IO(new Bundle{
-        val WBU_2_IFU = Flipped(Decoupled(Input(new BUS_WBU_2_IFU)))
+        val in = Flipped(Decoupled(Flipped(new WBU_output)))
         val IFU_2_GNU = Decoupled(Output(new BUS_IFU_2_GNU))
         val IFU_2_REG = Output(new BUS_IFU_2_REG)
-        val AXI       = new AXI_Master
+        val AXI = new AXI_Master
     })
 
-    io.WBU_2_IFU.ready <> io.AXI.araddr.ready
-    io.WBU_2_IFU.valid <> io.AXI.araddr.valid
-    io.WBU_2_IFU.bits.Next_PC <> io.AXI.araddr.bits.addr
+    io.in.ready <> io.AXI.araddr.ready
+    io.in.valid <> io.AXI.araddr.valid
+    io.in.bits.addr <> io.AXI.araddr.bits.addr
     io.AXI.araddr.bits.size <> 2.U
 
     io.IFU_2_GNU.ready <> io.AXI.rdata.ready
@@ -88,7 +88,7 @@ class ysyx_23060198_IFU extends Module {
 
         trace.io.clock := clock
         trace.io.valid := io.IFU_2_GNU.valid && io.IFU_2_GNU.ready && !reset.asBool
-        trace.io.addr := io.WBU_2_IFU.bits.Next_PC
+        trace.io.addr := io.in.bits.addr
         trace.io.data := io.IFU_2_GNU.bits.data
 
         val IFU_PC = Module(new IFU_PC)

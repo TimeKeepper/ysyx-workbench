@@ -149,7 +149,7 @@ class ysyx_23060198_REG extends Module {
     bridge.io.csra_wen := csra_wen
     bridge.io.csrb_wen := csrb_wen
     bridge.io.gpr_wen := gpr_wen
-    bridge.io.new_pc := io.WBU_2_REG.Next_Pc
+    bridge.io.new_pc := io.WBU_2_REG.Next_PC
     bridge.io.CSR_waddra := io.WBU_2_REG.CSR_waddra
     bridge.io.CSR_waddrb := io.WBU_2_REG.CSR_waddrb
     bridge.io.new_CSRa := io.WBU_2_REG.CSR_wdataa

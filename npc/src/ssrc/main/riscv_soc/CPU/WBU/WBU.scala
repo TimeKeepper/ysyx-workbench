@@ -54,7 +54,7 @@ class ysyx_23060198_WBU extends Module {
         io.WBU_2_REG.bits.inst_valid := false.B
     }
 
-    io.WBU_2_REG.bits.Next_Pc := PCAsrc + PCBsrc
+    io.WBU_2_REG.bits.Next_PC := PCAsrc + PCBsrc
 
     io.WBU_2_REG.bits.GPR_waddr := io.EXU_2_WBU.bits.GPR_waddr
     io.WBU_2_REG.bits.GPR_wdata := MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(

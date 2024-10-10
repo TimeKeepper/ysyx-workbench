@@ -10,8 +10,8 @@ class WBU_output extends Bundle{
     val addr = Output(UInt(32.W))
 }
 
-class IFU_Output extends Bundle{
-    val data = Output(UInt(32.W))
+class BUS_IFU_2_GNU extends Bundle{
+    val data = UInt(32.W)
 }
 
 class REG_2_GNU extends Bundle{

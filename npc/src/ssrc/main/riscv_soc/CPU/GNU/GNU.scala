@@ -12,7 +12,7 @@ class ysyx_23060198_GNU extends Module{
     val io = IO(new Bundle{
         // Form IFU
         val in          = new Bundle{
-            val IFU_io     = Flipped(Decoupled(new IFU_Output))
+            val IFU_io     = Flipped(Decoupled(Input(new REG_2_GNU)))
             val REG_io     = Flipped(new REG_2_GNU)
         }
 

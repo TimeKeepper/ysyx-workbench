@@ -15,9 +15,9 @@ class BUS_IFU_2_GNU extends Bundle{
 }
 
 class BUS_REG_2_GNU extends Bundle{
-    val PC         = UInt(UInt(32.W))
-    val GPR_Adata  = UInt(UInt(32.W))
-    val GPR_Bdata  = UInt(UInt(32.W))
+    val PC         = UInt(32.W)
+    val GPR_Adata  = UInt(32.W)
+    val GPR_Bdata  = UInt(32.W)
 }
 
 class GNU_Output extends Bundle{

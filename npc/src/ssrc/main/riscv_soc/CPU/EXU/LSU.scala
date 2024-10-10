@@ -65,15 +65,15 @@ class ysyx_23060198_LSU extends Module{
     when(io.GNU_2_EXU.bits.MemWr) {
         io.AXI.araddr.valid   := false.B
         io.AXI.rdata.ready    := false.B
-        io.AXI.awaddr.valid   <> io.in.valid
-        io.AXI.wdata.valid    := io.in.valid
+        io.AXI.awaddr.valid   <> io.GNU_2_EXU.valid
+        io.AXI.wdata.valid    := io.GNU_2_EXU.valid
         io.AXI.bresp.ready    <> io.out.ready
         io.AXI.bresp.valid    <> io.out.valid
 
         when(state_write === s_idle) {
-            io.in.ready := io.AXI.awaddr.ready && io.AXI.wdata.ready
+            io.GNU_2_EXU.ready := io.AXI.awaddr.ready && io.AXI.wdata.ready
 
-            when(io.in.valid){
+            when(io.GNU_2_EXU.valid){
                 when(io.AXI.awaddr.ready && io.AXI.wdata.ready){
                     state_write := s_idle
                 }.elsewhen(io.AXI.awaddr.ready && !io.AXI.wdata.ready){
@@ -85,24 +85,24 @@ class ysyx_23060198_LSU extends Module{
                 }
             }
         }.elsewhen(state_write === s_wait_addr){
-            io.in.ready := io.AXI.awaddr.ready
-            when(io.in.valid && io.AXI.awaddr.ready){
+            io.GNU_2_EXU.ready := io.AXI.awaddr.ready
+            when(io.GNU_2_EXU.valid && io.AXI.awaddr.ready){
                 state_write := s_idle
             }
         }.elsewhen(state_write === s_wait_data){
-            io.in.ready := io.AXI.wdata.ready
-            when(io.in.valid && io.AXI.wdata.ready){
+            io.GNU_2_EXU.ready := io.AXI.wdata.ready
+            when(io.GNU_2_EXU.valid && io.AXI.wdata.ready){
                 state_write := s_idle
             }
         }.otherwise{
-            io.in.ready := false.B
+            io.GNU_2_EXU.ready := false.B
         }
     }.elsewhen(io.GNU_2_EXU.bits.MemtoReg) {
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B
-        io.AXI.araddr.ready   <> io.in.ready
-        io.AXI.araddr.valid   <> io.in.valid
+        io.AXI.araddr.ready   <> io.GNU_2_EXU.ready
+        io.AXI.araddr.valid   <> io.GNU_2_EXU.valid
         io.AXI.rdata.valid    <> io.out.valid
         io.AXI.rdata.ready    <> io.out.ready
     }.otherwise {
@@ -111,7 +111,7 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B
-        io.in.ready           <> false.B
+        io.GNU_2_EXU.ready           <> false.B
         io.out.valid          <> false.B
     }
 

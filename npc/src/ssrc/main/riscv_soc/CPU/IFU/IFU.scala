@@ -59,6 +59,7 @@ class ysyx_23060198_IFU extends Module {
     val io = IO(new Bundle{
         val in = Flipped(Decoupled(Flipped(new WBU_output)))
         val IFU_2_GNU = Decoupled(Output(new BUS_IFU_2_GNU))
+        val IFU_2_REG = Output(new BUS_IFU_2_REG)
         val AXI = new AXI_Master
     })
 

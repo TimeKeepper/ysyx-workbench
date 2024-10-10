@@ -108,7 +108,7 @@ class ysyx_23060198_REG extends Module {
   val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
   val marchid   = RegInit("d23060198".U(32.W)) // my id 
 
-  io.out.csr_rdata := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
+  io.out.CSR_data := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,

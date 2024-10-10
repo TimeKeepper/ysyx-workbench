@@ -42,10 +42,10 @@ class ysyx_23060198_GNU extends Module{
     io.in.IFU_io.ready  := state === s_wait_valid
     val comunication_succeed = (io.in.IFU_io.valid && io.in.IFU_io.ready)
 
-    igu.io.inst     <> io.in.IFU_io.bits.IFU_io.data
+    igu.io.inst     <> io.in.IFU_io.bits.data
     igu.io.ExtOp    <> idu.io.ExtOp
 
-    idu.io.inst     <> io.in.IFU_io.bits.IFU_io.data
+    idu.io.inst     <> io.in.IFU_io.bits.data
 
     io.out.bits.GNU_io.RegWr        <> RegEnable(idu.io.RegWr,          comunication_succeed) 
     io.out.bits.GNU_io.Branch       <> RegEnable(idu.io.Branch,         comunication_succeed) 

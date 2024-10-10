@@ -81,7 +81,7 @@ class ysyx_23060198_REG extends Module {
   val pc = RegInit(main_val.Reset_Vector)
 
   when(pc_wen){
-    pc        := io.WBU_2_REG.bits.Next_Pc
+    pc        := io.WBU_2_REG.Next_PC
   }
   io.REG_2_GNU.PC := pc
 

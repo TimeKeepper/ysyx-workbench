@@ -12,7 +12,7 @@ class ysyx_23060198_EXU extends Module {
     val io = IO(new Bundle{
         // From CSR
         val GNU_2_EXU = Flipped(Decoupled(Input(new BUS_GNU_2_EXU)))
-        val CSR       = Input(UInt(32.W))
+        val REG_2_EXU = Input(BUS_REG_2_EXU)
 
         val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
         val AXI = new AXI_Master
@@ -61,11 +61,11 @@ class ysyx_23060198_EXU extends Module {
         GPR_waddr_cache   := io.GNU_2_EXU.bits.GPR_waddr
         PC_cache          := io.GNU_2_EXU.bits.PC 
 
-        CSR_cache         := io.CSR
+        CSR_cache         := io.REG_2_EXU.CSR_rdata
     }
 
     alu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
-    alu.io.CSR         := io.CSR
+    alu.io.CSR         := io.REG_2_EXU.CSR_rdata
 
     lsu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
     lsu.io.AXI <> io.AXI

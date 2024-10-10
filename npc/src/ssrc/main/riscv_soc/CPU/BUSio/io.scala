@@ -46,6 +46,10 @@ class BUS_GNU_2_REG extends Bundle{
     val CSR_raddr   = UInt(12.W)
 }
 
+class BUS_REG_2_EXU extends Bundle{
+    val CSR_rdata   = UInt(32.W)
+}
+
 class BUS_EXU_2_WBU extends Bundle{
     val RegWr       = Bool()
     val Branch      = Bran_Type

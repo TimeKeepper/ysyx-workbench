@@ -11,12 +11,12 @@ import Instructions._
 class ysyx_23060198_GNU extends Module{
     val io = IO(new Bundle{
         // Form IFU
-        val in          = Flipped(Decoupled(new Bundle{
-            val IFU_io     = new IFU_Output
+        val in          = new Bundle{
+            val IFU_io     = Flipped(Decoupled(new IFU_Output))
             val PC         = UInt(32.W)
             val GPR_Adata  = UInt(32.W)
             val GPR_Bdata  = UInt(32.W)
-        }))
+        }
 
         val out         = Decoupled(new Bundle{
             val GNU_io     = new GNU_Output
@@ -30,7 +30,7 @@ class ysyx_23060198_GNU extends Module{
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+            s_wait_valid -> Mux(io.IFU_io.in.valid,  s_wait_ready, s_wait_valid),
             s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
         )
     )
@@ -40,7 +40,7 @@ class ysyx_23060198_GNU extends Module{
 
     io.out.valid := state === s_wait_ready
     io.in.ready  := state === s_wait_valid
-    val comunication_succeed = (io.in.valid && io.in.ready)
+    val comunication_succeed = (io.IFU_io.in.valid && io.in.ready)
 
     igu.io.inst     <> io.in.bits.IFU_io.data
     igu.io.ExtOp    <> idu.io.ExtOp

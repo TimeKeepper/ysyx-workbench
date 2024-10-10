@@ -80,9 +80,11 @@ class ysyx_23060198 extends Module {
   EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
 
   // bus WBU -> REG -> WBU with delay
-  WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+  WBU.io.out.bits.WBU_io <> REG.io.in.WBU_io
 
-  WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
+  WBU.io.out.valid        <> IFU.io.in.valid
+  WBU.io.out.ready        <> IFU.io.in.ready
+  REG.io.REG_2_GNU.PC           <> IFU.io.in.bits.addr
 
   // bus AXI Interconnect
   io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready
@@ -131,8 +133,8 @@ class ysyx_23060198 extends Module {
     INST_BRIDGE.io.clock := clock
 
     val comp_cache = RegInit(Bool(), false.B)
-    comp_cache := WBU.io.WBU_2_IFU.valid
-    when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
+    comp_cache := WBU.io.out.valid
+    when((comp_cache === false.B) && (WBU.io.out.valid === true.B)) {
       INST_BRIDGE.io.valid := true.B
     }.otherwise {
       INST_BRIDGE.io.valid := false.B

@@ -80,8 +80,8 @@ class ysyx_23060198_REG extends Module {
     gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
   }
 
-  io.REG_2_GNU.GPR_Adata := gpr(io.IFU_2_REG.GPR_raddra)
-  io.REG_2_GNU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_raddrb)
+  io.REG_2_GNU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
+  io.REG_2_GNU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
 
   val pc = RegInit(main_val.Reset_Vector)
 

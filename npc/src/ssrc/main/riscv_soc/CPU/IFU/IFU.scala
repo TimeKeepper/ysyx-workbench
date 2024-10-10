@@ -77,7 +77,7 @@ class ysyx_23060198_IFU extends Module {
     io.IFU_2_REG.GPR_Baddr <> io.AXI.rdata.bits.data(24, 20)
 
     class awaddr_noreqs extends Bundle{
-        val wdata = Decoupled(Output(new wdata))
+        val wdata = Decoupled(Wire(new wdata))
         wdata.valid := false.B
         wdata.bits.data := 0.U
         wdata.bits.strb := 0.U

@@ -86,7 +86,7 @@ class ysyx_23060198_IFU extends Module {
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U
     io.AXI.awaddr.bits.size := 0.U
-    io.AXI.wdata <> new awaddr_noreqs
+    io.AXI.wdata <> Wire(new awaddr_noreqs)
     io.AXI.bresp.ready := false.B
 
     if(Config.DPIC_on){

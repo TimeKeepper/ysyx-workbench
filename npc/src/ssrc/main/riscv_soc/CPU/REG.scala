@@ -81,7 +81,7 @@ class ysyx_23060198_REG extends Module {
       val GPR_raddra = Input(UInt(5.W))
       val GPR_raddrb = Input(UInt(5.W))
 
-      val WBU_io     = Input(new WBU_output)
+      val WBU_io     = Input(new WBU_output_)
     }
     val out = new REG_output
   })

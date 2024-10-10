@@ -74,7 +74,7 @@ class ysyx_23060198 extends Module {
 
   // bus GNU -> REG -> EXU without delay
   GNU.io.GNU_2_REG     <> REG.io.GNU_2_REG
-  REG.io.out.CSR_data  <> EXU.io.CSR   
+  REG.io.BUS_REG_2_EXU <> EXU.io.BUS_REG_2_EXU   
 
   // bus EXU -> WBU
   EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   

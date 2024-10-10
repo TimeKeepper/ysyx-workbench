@@ -20,12 +20,12 @@ class ysyx_23060198_WBU extends Module {
     state := MuxLookup(state, s_wait_valid)(
         Seq(
             s_wait_valid -> Mux(io.EXU_2_WBU.valid,  s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.WBU_2_IFU.ready, s_wait_valid, s_wait_ready),
+            s_wait_ready -> Mux(io.EXU_2_WBU.ready, s_wait_valid, s_wait_ready),
         )
     )
 
-    io.WBU_2_REG.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
-    io.WBU_2_IFU.ready  := state === s_wait_valid
+    io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
+    io.EXU_2_WBU.ready  := state === s_wait_valid
 
     val bcu = Module(new ysyx_23060198_BCU)    
 
@@ -49,7 +49,7 @@ class ysyx_23060198_WBU extends Module {
         PCBsrc_0   -> 0.U,
     ))
 
-    when(io.EXU_2_WBU.valid && io.WBU_2_IFU.ready){
+    when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
         io.WBU_2_REG.bits.inst_valid := true.B
     }.otherwise{
         io.WBU_2_REG.bits.inst_valid := false.B

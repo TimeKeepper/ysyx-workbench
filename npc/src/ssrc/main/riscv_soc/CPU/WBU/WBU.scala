@@ -14,7 +14,7 @@ class ysyx_23060198_WBU extends Module {
             val EXU_io = new EXU_output
         }))
         val out = Decoupled(new Bundle{
-            val WBU_io = new WBU_output
+            val WBU_io = new WBU_output_
         })
     })
 

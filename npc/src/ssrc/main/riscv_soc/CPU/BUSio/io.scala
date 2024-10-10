@@ -47,7 +47,7 @@ class EXU_output extends Bundle{
     val Mem_rdata   = Output(UInt(32.W))
 }
 
-class WBU_output extends Bundle{
+class WBU_output_ extends Bundle{
     val inst_valid= Output(Bool())
     val Next_Pc   = Output(UInt(32.W))
     val GPR_waddr = Output(UInt(5.W))

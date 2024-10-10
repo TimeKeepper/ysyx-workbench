@@ -60,9 +60,6 @@ class ysyx_23060198_REG extends Module {
     val in = new Bundle{
       val WBU_io     = Input(new WBU_output_)
     }
-    val out = new Bundle{
-      val CSR_data = Output(UInt(32.W))
-    }
     val IFU_2_REG = Input(new BUS_IFU_2_REG)
     val REG_2_GNU = Output(new BUS_REG_2_GNU)
     val GNU_2_REG = Input(new BUS_GNU_2_REG)

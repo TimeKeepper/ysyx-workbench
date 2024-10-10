@@ -14,6 +14,12 @@ class IFU_Output extends Bundle{
     val data = Output(UInt(32.W))
 }
 
+class REG_2_GNU extends Bundle{
+    val PC         = Output(UInt(32.W))
+    val GPR_Adata  = Output(UInt(32.W))
+    val GPR_Bdata  = Output(UInt(32.W))
+}
+
 class GNU_Output extends Bundle{
     val RegWr    = Output(Bool())
     val Branch   = Output(Bran_Type)

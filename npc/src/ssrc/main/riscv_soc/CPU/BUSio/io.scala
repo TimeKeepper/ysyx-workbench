@@ -6,8 +6,8 @@ import chisel3.util._
 import signal_value._
 
 
-class IFU_input extends Bundle{
-    val addr = Input(UInt(32.W))
+class WBU_output extends Bundle{
+    val addr = Output(UInt(32.W))
 }
 
 class IFU_Output extends Bundle{

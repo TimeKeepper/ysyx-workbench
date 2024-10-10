@@ -66,9 +66,9 @@ class BUS_EXU_2_WBU extends Bundle{
     val Mem_rdata   = UInt(32.W)
 }
 
-class BUS_WBU_2_REG extends Bundle{
+class WBU_output_ extends Bundle{
     val inst_valid= Output(Bool())
-    val Next_PC   = Output(UInt(32.W))
+    val Next_Pc   = Output(UInt(32.W))
     val GPR_waddr = Output(UInt(5.W))
     val GPR_wdata = Output(UInt(32.W))
     val GPR_wen   = Output(Bool())

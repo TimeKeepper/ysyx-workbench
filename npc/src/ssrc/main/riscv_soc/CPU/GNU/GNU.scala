@@ -11,12 +11,12 @@ import Instructions._
 class ysyx_23060198_GNU extends Module{
     val io = IO(new Bundle{
         // Form IFU
-        val in          = Flipped(Decoupled(new Bundle{
-            val IFU_io     = new IFU_Output
-            val PC         = UInt(32.W)
-            val GPR_Adata  = UInt(32.W)
-            val GPR_Bdata  = UInt(32.W)
-        }))
+        val in          = new Bundle{
+            val IFU_io     = Flipped(Decoupled(new IFU_Output))
+            val PC         = Input(UInt(32.W))
+            val GPR_Adata  = Input(UInt(32.W))
+            val GPR_Bdata  = Input(UInt(32.W))
+        }
 
         val out         = Decoupled(new Bundle{
             val GNU_io     = new GNU_Output
@@ -30,7 +30,7 @@ class ysyx_23060198_GNU extends Module{
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+            s_wait_valid -> Mux(io.in.IFU_io.valid,  s_wait_ready, s_wait_valid),
             s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
         )
     )
@@ -39,13 +39,13 @@ class ysyx_23060198_GNU extends Module{
     val igu = Module(new ysyx_23060198_IGU)
 
     io.out.valid := state === s_wait_ready
-    io.in.ready  := state === s_wait_valid
-    val comunication_succeed = (io.in.valid && io.in.ready)
+    io.in.IFU_io.ready  := state === s_wait_valid
+    val comunication_succeed = (io.in.IFU_io.valid && io.in.IFU_io.ready)
 
-    igu.io.inst     <> io.in.bits.IFU_io.data
+    igu.io.inst     <> io.in.IFU_io.bits.data
     igu.io.ExtOp    <> idu.io.ExtOp
 
-    idu.io.inst     <> io.in.bits.IFU_io.data
+    idu.io.inst     <> io.in.IFU_io.bits.data
 
     io.out.bits.GNU_io.RegWr        <> RegEnable(idu.io.RegWr,          comunication_succeed) 
     io.out.bits.GNU_io.Branch       <> RegEnable(idu.io.Branch,         comunication_succeed) 
@@ -57,10 +57,10 @@ class ysyx_23060198_GNU extends Module{
     io.out.bits.GNU_io.ALUctr       <> RegEnable(idu.io.ALUctr,         comunication_succeed) 
     io.out.bits.GNU_io.csr_ctr      <> RegEnable(idu.io.csr_ctr,        comunication_succeed) 
     io.out.bits.GNU_io.Imm          <> RegEnable(igu.io.imm,            comunication_succeed) 
-    io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.in.bits.GPR_Adata,  comunication_succeed) 
-    io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.in.bits.GPR_Bdata,  comunication_succeed) 
-    io.out.bits.GNU_io.GPR_waddr    <> RegEnable(io.in.bits.IFU_io.data(11, 7), comunication_succeed) 
-    io.out.bits.GNU_io.PC           <> RegEnable(io.in.bits.PC,         comunication_succeed) 
+    io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.in.GPR_Adata,  comunication_succeed) 
+    io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.in.GPR_Bdata,  comunication_succeed) 
+    io.out.bits.GNU_io.GPR_waddr    <> RegEnable(io.in.IFU_io.bits.data(11, 7), comunication_succeed) 
+    io.out.bits.GNU_io.PC           <> RegEnable(io.in.PC,         comunication_succeed) 
     io.out.bits.CSR_raddr           <> RegEnable(MuxLookup(
                                                         idu.io.csr_ctr, igu.io.imm(11, 0))(
                                                             Seq(

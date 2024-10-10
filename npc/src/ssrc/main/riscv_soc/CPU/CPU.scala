@@ -63,16 +63,14 @@ class ysyx_23060198 extends Module {
   val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
   // bus IFU -> GNU
-  IFU.io.out.ready     <> GNU.io.in.ready
-  IFU.io.out.valid     <> GNU.io.in.valid
-  IFU.io.out.bits.data <> GNU.io.in.bits.IFU_io.data
+  IFU.io.out     <> GNU.io.in.IFU_io
 
   // bus IFU -> REG -> GNU without delay
   IFU.io.out.bits.data(19, 15) <> REG.io.in.GPR_raddra 
   IFU.io.out.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
-  REG.io.out.pc         <> GNU.io.in.bits.PC
-  REG.io.out.GPR_rdataa <> GNU.io.in.bits.GPR_Adata
-  REG.io.out.GPR_rdatab <> GNU.io.in.bits.GPR_Bdata
+  REG.io.out.pc         <> GNU.io.in.PC
+  REG.io.out.GPR_rdataa <> GNU.io.in.GPR_Adata
+  REG.io.out.GPR_rdatab <> GNU.io.in.GPR_Bdata
 
   // bus GNU -> EXU
   GNU.io.out.valid     <> EXU.io.in.valid

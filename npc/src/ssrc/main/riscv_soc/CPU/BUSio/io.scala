@@ -25,21 +25,25 @@ class BUS_REG_2_GNU extends Bundle{
     val GPR_Bdata  = UInt(32.W)
 }
 
-class GNU_Output extends Bundle{
-    val RegWr    = Output(Bool())
-    val Branch   = Output(Bran_Type)
-    val MemtoReg = Output(Bool())
-    val MemWr    = Output(Bool())
-    val MemOp    = Output(MemOp_Type)
-    val ALUAsrc  = Output(ALUAsrc_Type)
-    val ALUBsrc  = Output(ALUBSrc_Type)
-    val ALUctr   = Output(ALUctr_Type)
-    val csr_ctr  = Output(CSR_Type)
-    val Imm      = Output(UInt(32.W))
-    val GPR_Adata = Output(UInt(32.W))
-    val GPR_Bdata = Output(UInt(32.W))
-    val GPR_waddr = Output(UInt(5.W))
-    val PC       = Output(UInt(32.W))
+class BUS_GNU_2_EXU extends Bundle{
+    val RegWr    = Bool()
+    val Branch   = Bran_Type
+    val MemtoReg = Bool()
+    val MemWr    = Bool()
+    val MemOp    = MemOp_Type
+    val ALUAsrc  = ALUAsrc_Type
+    val ALUBsrc  = ALUBSrc_Type
+    val ALUctr   = ALUctr_Type
+    val csr_ctr  = CSR_Type
+    val Imm      = UInt(32.W)
+    val GPR_Adata = UInt(32.W)
+    val GPR_Bdata = UInt(32.W)
+    val GPR_waddr = UInt(5.W)
+    val PC       = UInt(32.W)
+}
+
+class BUS_GNU_2_REG extends Bundle{
+    val CSR_raddr   = UInt(12.W)
 }
 
 class EXU_output extends Bundle{

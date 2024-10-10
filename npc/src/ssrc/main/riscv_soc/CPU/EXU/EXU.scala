@@ -11,12 +11,8 @@ import bus_state._
 class ysyx_23060198_EXU extends Module {
     val io = IO(new Bundle{
         // From CSR
-        val in = Flipped(Decoupled(new Bundle{
-            val GNU_io    = new GNU_Output
-
-            // Form Register File
-            val CSR       = Input(UInt(32.W))
-        }))
+        val GNU_2_EXU = Flipped(Decoupled(Input(new BUS_GNU_2_EXU)))
+        val CSR       = Input(UInt(32.W))
 
         val out = Decoupled(new Bundle{
             val EXU_io    = new EXU_output
@@ -41,39 +37,39 @@ class ysyx_23060198_EXU extends Module {
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)
 
-    when(io.in.bits.GNU_io.MemWr || io.in.bits.GNU_io.MemtoReg){
-        alu.io.in.valid := false.B
+    when(io.GNU_2_EXU.bits.GNU_io.MemWr || io.GNU_2_EXU.bits.GNU_io.MemtoReg){
+        alu.io.GNU_2_EXU.valid := false.B
         alu.io.out.ready := false.B
-        io.in.ready <> lsu.io.in.ready
-        io.in.valid <> lsu.io.in.valid
+        io.GNU_2_EXU.ready <> lsu.io.GNU_2_EXU.ready
+        io.GNU_2_EXU.valid <> lsu.io.GNU_2_EXU.valid
         io.out.ready <> lsu.io.out.ready
         io.out.valid <> lsu.io.out.valid
     }.otherwise{
-        lsu.io.in.valid := false.B
+        lsu.io.GNU_2_EXU.valid := false.B
         lsu.io.out.ready := false.B
-        io.in.ready <> alu.io.in.ready
-        io.in.valid <> alu.io.in.valid
+        io.GNU_2_EXU.ready <> alu.io.GNU_2_EXU.ready
+        io.GNU_2_EXU.valid <> alu.io.GNU_2_EXU.valid
         io.out.ready <> alu.io.out.ready
         io.out.valid <> alu.io.out.valid
     }
 
-    when(io.in.valid && io.in.ready){
-        RegWr_cache       := io.in.bits.GNU_io.RegWr
-        Branch_cache      := io.in.bits.GNU_io.Branch
-        MemtoReg_cache    := io.in.bits.GNU_io.MemtoReg
-        csr_ctr_cache     := io.in.bits.GNU_io.csr_ctr
-        Imm_cache         := io.in.bits.GNU_io.Imm
-        GPR_Adata_cache   := io.in.bits.GNU_io.GPR_Adata
-        GPR_waddr_cache   := io.in.bits.GNU_io.GPR_waddr
-        PC_cache          := io.in.bits.GNU_io.PC 
+    when(io.GNU_2_EXU.valid && io.GNU_2_EXU.ready){
+        RegWr_cache       := io.GNU_2_EXU.bits.GNU_io.RegWr
+        Branch_cache      := io.GNU_2_EXU.bits.GNU_io.Branch
+        MemtoReg_cache    := io.GNU_2_EXU.bits.GNU_io.MemtoReg
+        csr_ctr_cache     := io.GNU_2_EXU.bits.GNU_io.csr_ctr
+        Imm_cache         := io.GNU_2_EXU.bits.GNU_io.Imm
+        GPR_Adata_cache   := io.GNU_2_EXU.bits.GNU_io.GPR_Adata
+        GPR_waddr_cache   := io.GNU_2_EXU.bits.GNU_io.GPR_waddr
+        PC_cache          := io.GNU_2_EXU.bits.GNU_io.PC 
 
-        CSR_cache         := io.in.bits.CSR
+        CSR_cache         := io.GNU_2_EXU.CSR
     }
 
-    alu.io.in.bits.GNU_io := io.in.bits.GNU_io
-    alu.io.in.bits.CSR    := io.in.bits.CSR
+    alu.io.GNU_2_EXU.bits.GNU_io := io.GNU_2_EXU.bits.GNU_io
+    alu.io.GNU_2_EXU.CSR         := io.GNU_2_EXU.CSR
 
-    lsu.io.in.bits.GNU_io := io.in.bits.GNU_io
+    lsu.io.GNU_2_EXU.bits.GNU_io := io.GNU_2_EXU.bits.GNU_io
     lsu.io.AXI <> io.AXI
 
 

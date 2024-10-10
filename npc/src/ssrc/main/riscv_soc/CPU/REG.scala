@@ -58,8 +58,6 @@ class REG_output extends Bundle{
 class ysyx_23060198_REG extends Module {
   val io = IO(new Bundle {
     val in = new Bundle{
-      val csr_raddr  = Input(UInt(12.W))
-
       val WBU_io     = Input(new WBU_output_)
     }
     val out = new Bundle{
@@ -67,6 +65,7 @@ class ysyx_23060198_REG extends Module {
     }
     val IFU_2_REG = Input(new BUS_IFU_2_REG)
     val REG_2_GNU = Output(new BUS_REG_2_GNU)
+    val GNU_2_REG = Input(new BUS_GNU_2_REG)
   })
 
   val pc_wen = io.in.WBU_io.inst_valid === true.B
@@ -106,7 +105,7 @@ class ysyx_23060198_REG extends Module {
   val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
   val marchid   = RegInit("d23060198".U(32.W)) // my id 
 
-  io.out.CSR_data := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
+  io.out.CSR_data := MuxLookup(io.GNU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,
@@ -115,9 +114,6 @@ class ysyx_23060198_REG extends Module {
     ADDR_MVENDORID -> mvendorid,
     ADDR_MARCHID   -> marchid
   ))
-
-  // val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
-  // io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
   when(csra_wen) {
     when(io.in.WBU_io.CSR_waddra === ADDR_MSTATUS){

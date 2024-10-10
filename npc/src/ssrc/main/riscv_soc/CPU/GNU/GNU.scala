@@ -60,7 +60,7 @@ class ysyx_23060198_GNU extends Module{
     io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.in.GPR_Adata,  comunication_succeed) 
     io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.in.GPR_Bdata,  comunication_succeed) 
     io.out.bits.GNU_io.GPR_waddr    <> RegEnable(io.in.IFU_io.bits.data(11, 7), comunication_succeed) 
-    io.out.bits.GNU_io.PC           <> RegEnable(io.in.IFU_io.bits.PC,         comunication_succeed) 
+    io.out.bits.GNU_io.PC           <> RegEnable(io.in.PC,         comunication_succeed) 
     io.out.bits.CSR_raddr           <> RegEnable(MuxLookup(
                                                         idu.io.csr_ctr, igu.io.imm(11, 0))(
                                                             Seq(

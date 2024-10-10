@@ -89,7 +89,7 @@ class ysyx_23060198 extends Module {
 
   WBU.io.out.valid        <> IFU.io.in.valid
   WBU.io.out.ready        <> IFU.io.in.ready
-  REG.io.out.GNU_io.PC           <> IFU.io.in.bits.addr
+  REG.io.REG_2_GNU.PC           <> IFU.io.in.bits.addr
 
   // bus AXI Interconnect
   io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready

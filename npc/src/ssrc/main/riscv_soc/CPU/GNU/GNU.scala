@@ -40,12 +40,12 @@ class ysyx_23060198_GNU extends Module{
 
     io.out.valid := state === s_wait_ready
     io.in.IFU_io.ready  := state === s_wait_valid
-    val comunication_succeed = (io.in.IFU_io.valid && io.in.ready)
+    val comunication_succeed = (io.in.IFU_io.valid && io.in.IFU_io.ready)
 
-    igu.io.inst     <> io.in.bits.IFU_io.data
+    igu.io.inst     <> io.in.IFU_io.bits.IFU_io.data
     igu.io.ExtOp    <> idu.io.ExtOp
 
-    idu.io.inst     <> io.in.bits.IFU_io.data
+    idu.io.inst     <> io.in.IFU_io.bits.IFU_io.data
 
     io.out.bits.GNU_io.RegWr        <> RegEnable(idu.io.RegWr,          comunication_succeed) 
     io.out.bits.GNU_io.Branch       <> RegEnable(idu.io.Branch,         comunication_succeed) 
@@ -57,10 +57,10 @@ class ysyx_23060198_GNU extends Module{
     io.out.bits.GNU_io.ALUctr       <> RegEnable(idu.io.ALUctr,         comunication_succeed) 
     io.out.bits.GNU_io.csr_ctr      <> RegEnable(idu.io.csr_ctr,        comunication_succeed) 
     io.out.bits.GNU_io.Imm          <> RegEnable(igu.io.imm,            comunication_succeed) 
-    io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.in.bits.GPR_Adata,  comunication_succeed) 
-    io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.in.bits.GPR_Bdata,  comunication_succeed) 
-    io.out.bits.GNU_io.GPR_waddr    <> RegEnable(io.in.bits.IFU_io.data(11, 7), comunication_succeed) 
-    io.out.bits.GNU_io.PC           <> RegEnable(io.in.bits.PC,         comunication_succeed) 
+    io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.in.IFU_io.bits.GPR_Adata,  comunication_succeed) 
+    io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.in.IFU_io.bits.GPR_Bdata,  comunication_succeed) 
+    io.out.bits.GNU_io.GPR_waddr    <> RegEnable(io.in.IFU_io.bits.IFU_io.data(11, 7), comunication_succeed) 
+    io.out.bits.GNU_io.PC           <> RegEnable(io.in.IFU_io.bits.PC,         comunication_succeed) 
     io.out.bits.CSR_raddr           <> RegEnable(MuxLookup(
                                                         idu.io.csr_ctr, igu.io.imm(11, 0))(
                                                             Seq(

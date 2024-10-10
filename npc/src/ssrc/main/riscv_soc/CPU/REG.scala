@@ -82,15 +82,15 @@ class ysyx_23060198_REG extends Module {
     gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
   }
 
-  io.out.REG_2_GNU.GPR_Adata := gpr(io.in.GPR_raddra)
-  io.out.REG_2_GNU.GPR_Bdata := gpr(io.in.GPR_raddrb)
+  io.REG_2_GNU.GPR_Adata := gpr(io.in.GPR_raddra)
+  io.REG_2_GNU.GPR_Bdata := gpr(io.in.GPR_raddrb)
 
   val pc = RegInit(main_val.Reset_Vector)
 
   when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc
   }
-  io.out.REG_2_GNU.PC := pc
+  io.REG_2_GNU.PC := pc
 
   // CSR
   def ADDR_MSTATUS = "h300".U

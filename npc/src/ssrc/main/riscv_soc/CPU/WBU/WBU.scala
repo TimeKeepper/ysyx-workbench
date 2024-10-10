@@ -20,8 +20,8 @@ class ysyx_23060198_WBU extends Module {
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.EXU_2_WBU.valid,  s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.EXU_2_WBU.ready, s_wait_valid, s_wait_ready),
+            s_wait_valid -> Mux(io.EXU_2_WBU.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.WBU_2_IFU.ready, s_wait_valid, s_wait_ready),
         )
     )
 

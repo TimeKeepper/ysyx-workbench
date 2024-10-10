@@ -5,6 +5,7 @@ import chisel3.util._
 
 import signal_value._
 import bus_state._
+import config._
 
 // riscv writeback unit
 

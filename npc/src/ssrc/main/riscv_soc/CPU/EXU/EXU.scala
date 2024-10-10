@@ -85,5 +85,5 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.Zero         <> alu.io.out.bits.Zero
     io.EXU_2_WBU.bits.Less         <> alu.io.out.bits.Less
 
-    io.EXU_2_WBU.bits.EXU_io.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
+    io.EXU_2_WBU.bits.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
 }

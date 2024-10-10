@@ -11,7 +11,7 @@ import Instructions._
 class ysyx_23060198_GNU extends Module{
     val io = IO(new Bundle{
         val IFU_2_GNU     = Flipped(Decoupled(Input(new BUS_IFU_2_GNU)))
-        val REG_io     = Flipped(new REG_2_GNU)
+        val REG_2_GNU     = Input(new BUS_REG_2_GNU)
 
         val out         = Decoupled(new Bundle{
             val GNU_io     = new GNU_Output
@@ -52,10 +52,10 @@ class ysyx_23060198_GNU extends Module{
     io.out.bits.GNU_io.ALUctr       <> RegEnable(idu.io.ALUctr,         comunication_succeed) 
     io.out.bits.GNU_io.csr_ctr      <> RegEnable(idu.io.csr_ctr,        comunication_succeed) 
     io.out.bits.GNU_io.Imm          <> RegEnable(igu.io.imm,            comunication_succeed) 
-    io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.REG_io.GPR_Adata,  comunication_succeed) 
-    io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.REG_io.GPR_Bdata,  comunication_succeed) 
+    io.out.bits.GNU_io.GPR_Adata    <> RegEnable(io.REG_2_GNU.GPR_Adata,  comunication_succeed) 
+    io.out.bits.GNU_io.GPR_Bdata    <> RegEnable(io.REG_2_GNU.GPR_Bdata,  comunication_succeed) 
     io.out.bits.GNU_io.GPR_waddr    <> RegEnable(io.IFU_2_GNU.bits.data(11, 7), comunication_succeed) 
-    io.out.bits.GNU_io.PC           <> RegEnable(io.REG_io.PC,         comunication_succeed) 
+    io.out.bits.GNU_io.PC           <> RegEnable(io.REG_2_GNU.PC,         comunication_succeed) 
     io.out.bits.CSR_raddr           <> RegEnable(MuxLookup(
                                                         idu.io.csr_ctr, igu.io.imm(11, 0))(
                                                             Seq(

@@ -57,8 +57,9 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
 
 class ysyx_23060198_IFU extends Module {
     val io = IO(new Bundle{
-        val in = Flipped(Decoupled(new IFU_input))
-        val out = Decoupled(new IFU_Output)
+        val in = Flipped(Decoupled(Flipped(new WBU_output)))
+        val IFU_2_GNU = Decoupled(Output(new BUS_IFU_2_GNU))
+        val IFU_2_REG = Output(new BUS_IFU_2_REG)
         val AXI = new AXI_Master
     })
 
@@ -67,9 +68,12 @@ class ysyx_23060198_IFU extends Module {
     io.in.bits.addr <> io.AXI.araddr.bits.addr
     io.AXI.araddr.bits.size <> 2.U
 
-    io.out.ready <> io.AXI.rdata.ready
-    io.out.valid <> io.AXI.rdata.valid
-    io.out.bits.data <> io.AXI.rdata.bits.data
+    io.IFU_2_GNU.ready <> io.AXI.rdata.ready
+    io.IFU_2_GNU.valid <> io.AXI.rdata.valid
+    io.IFU_2_GNU.bits.data <> io.AXI.rdata.bits.data
+
+    io.IFU_2_REG.GPR_Aaddr <> io.AXI.rdata.bits.data(19, 15)
+    io.IFU_2_REG.GPR_Baddr <> io.AXI.rdata.bits.data(24, 20)
 
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U
@@ -83,12 +87,12 @@ class ysyx_23060198_IFU extends Module {
         val trace = Module(new IFU_TRACE)
 
         trace.io.clock := clock
-        trace.io.valid := io.out.valid && io.out.ready && !reset.asBool
+        trace.io.valid := io.IFU_2_GNU.valid && io.IFU_2_GNU.ready && !reset.asBool
         trace.io.addr := io.in.bits.addr
-        trace.io.data := io.out.bits.data
+        trace.io.data := io.IFU_2_GNU.bits.data
 
         val IFU_PC = Module(new IFU_PC)
         IFU_PC.io.clock := clock
-        IFU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
+        IFU_PC.io.valid := io.IFU_2_GNU.valid && io.IFU_2_GNU.ready && !reset.asBool
     }
 }

@@ -117,12 +117,8 @@ class ysyx_23060198_ALU_BarrelShifter extends Module {
 
 class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
-    val in = Flipped(Decoupled(new Bundle{
-      val GNU_io    = Input(new GNU_Output)
-
-      // Form Register File
-      val CSR       = Input(UInt(32.W))
-    }))
+    val GNU_2_EXU = Flipped(Decoupled(Input(new BUS_GNU_2_EXU)))
+    val CSR       = Input(UInt(32.W))
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
@@ -135,34 +131,34 @@ class ysyx_23060198_ALU extends Module {
 
   state := MuxLookup(state, s_wait_valid)(
       Seq(
-          s_wait_valid -> Mux(io.in.valid,  s_wait_ready, s_wait_valid),
+          s_wait_valid -> Mux(io.GNU_2_EXU.valid,  s_wait_ready, s_wait_valid),
           s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
       )
   )
 
   io.out.valid := state === s_wait_ready
-  io.in.ready  := state === s_wait_valid
-  val comunication_succeed = (io.in.valid && io.in.ready)
+  io.GNU_2_EXU.ready  := state === s_wait_valid
+  val comunication_succeed = (io.GNU_2_EXU.valid && io.GNU_2_EXU.ready)
 
   // ALU operation
   val alu_ctrl = Module(new ysyx_23060198_ALU_Ctrl)
-  alu_ctrl.io.ALUctr := io.in.bits.GNU_io.ALUctr
+  alu_ctrl.io.ALUctr := io.GNU_2_EXU.bits.ALUctr
 
   // ALU Adder
   val Sub_Add_ex = Wire(SInt(32.W))
   val src_A      = Wire(UInt(32.W))
   val src_B      = Wire(UInt(32.W))
 
-  src_A := MuxLookup(io.in.bits.GNU_io.ALUAsrc, 0.U)(Seq(
-      ALUAsrc_RS1 -> io.in.bits.GNU_io.GPR_Adata,
-      ALUAsrc_PC  -> io.in.bits.GNU_io.PC,
-      ALUAsrc_CSR -> io.in.bits.CSR,
+  src_A := MuxLookup(io.GNU_2_EXU.bits.ALUAsrc, 0.U)(Seq(
+      ALUAsrc_RS1 -> io.GNU_2_EXU.bits.GPR_Adata,
+      ALUAsrc_PC  -> io.GNU_2_EXU.bits.PC,
+      ALUAsrc_CSR -> io.CSR,
   ))
 
-  src_B := MuxLookup(io.in.bits.GNU_io.ALUBsrc, 0.U)(Seq(
-      ALUBSrc_RS1 -> io.in.bits.GNU_io.GPR_Adata,
-      ALUBSrc_RS2 -> io.in.bits.GNU_io.GPR_Bdata,
-      ALUBSrc_IMM -> io.in.bits.GNU_io.Imm,
+  src_B := MuxLookup(io.GNU_2_EXU.bits.ALUBsrc, 0.U)(Seq(
+      ALUBSrc_RS1 -> io.GNU_2_EXU.bits.GPR_Adata,
+      ALUBSrc_RS2 -> io.GNU_2_EXU.bits.GPR_Bdata,
+      ALUBSrc_IMM -> io.GNU_2_EXU.bits.Imm,
       ALUBSrc_4   -> 4.U,
   ))
 
@@ -200,7 +196,7 @@ class ysyx_23060198_ALU extends Module {
     Less := adder(31) ^ Overflow
   }
 
-  val Result = MuxLookup(io.in.bits.GNU_io.ALUctr, 0.U)(
+  val Result = MuxLookup(io.GNU_2_EXU.bits.ALUctr, 0.U)(
     Seq(
       ALUctr_ADD -> adder,
       ALUctr_SUB -> adder,

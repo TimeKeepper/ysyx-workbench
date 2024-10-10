@@ -50,9 +50,7 @@ class LSU_PC extends BlackBox with HasBlackBoxInline {
 
 class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
-        val in = Flipped(Decoupled(new Bundle{
-            val GNU_io    = Input(new GNU_Output)
-        }))
+        val GNU_2_EXU = Flipped(Decoupled(Input(new BUS_GNU_2_EXU)))
 
         val out = Decoupled(new Bundle{
             val Mem_rdata  = Output(UInt(32.W))
@@ -64,18 +62,18 @@ class ysyx_23060198_LSU extends Module{
 
     val state_write = RegInit(s_idle)
 
-    when(io.in.bits.GNU_io.MemWr) {
+    when(io.GNU_2_EXU.bits.MemWr) {
         io.AXI.araddr.valid   := false.B
         io.AXI.rdata.ready    := false.B
-        io.AXI.awaddr.valid   <> io.in.valid
-        io.AXI.wdata.valid    := io.in.valid
+        io.AXI.awaddr.valid   <> io.GNU_2_EXU.valid
+        io.AXI.wdata.valid    := io.GNU_2_EXU.valid
         io.AXI.bresp.ready    <> io.out.ready
         io.AXI.bresp.valid    <> io.out.valid
 
         when(state_write === s_idle) {
-            io.in.ready := io.AXI.awaddr.ready && io.AXI.wdata.ready
+            io.GNU_2_EXU.ready := io.AXI.awaddr.ready && io.AXI.wdata.ready
 
-            when(io.in.valid){
+            when(io.GNU_2_EXU.valid){
                 when(io.AXI.awaddr.ready && io.AXI.wdata.ready){
                     state_write := s_idle
                 }.elsewhen(io.AXI.awaddr.ready && !io.AXI.wdata.ready){
@@ -87,24 +85,24 @@ class ysyx_23060198_LSU extends Module{
                 }
             }
         }.elsewhen(state_write === s_wait_addr){
-            io.in.ready := io.AXI.awaddr.ready
-            when(io.in.valid && io.AXI.awaddr.ready){
+            io.GNU_2_EXU.ready := io.AXI.awaddr.ready
+            when(io.GNU_2_EXU.valid && io.AXI.awaddr.ready){
                 state_write := s_idle
             }
         }.elsewhen(state_write === s_wait_data){
-            io.in.ready := io.AXI.wdata.ready
-            when(io.in.valid && io.AXI.wdata.ready){
+            io.GNU_2_EXU.ready := io.AXI.wdata.ready
+            when(io.GNU_2_EXU.valid && io.AXI.wdata.ready){
                 state_write := s_idle
             }
         }.otherwise{
-            io.in.ready := false.B
+            io.GNU_2_EXU.ready := false.B
         }
-    }.elsewhen(io.in.bits.GNU_io.MemtoReg) {
+    }.elsewhen(io.GNU_2_EXU.bits.MemtoReg) {
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B
-        io.AXI.araddr.ready   <> io.in.ready
-        io.AXI.araddr.valid   <> io.in.valid
+        io.AXI.araddr.ready   <> io.GNU_2_EXU.ready
+        io.AXI.araddr.valid   <> io.GNU_2_EXU.valid
         io.AXI.rdata.valid    <> io.out.valid
         io.AXI.rdata.ready    <> io.out.ready
     }.otherwise {
@@ -113,22 +111,22 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B
-        io.in.ready           <> false.B
+        io.GNU_2_EXU.ready           <> false.B
         io.out.valid          <> false.B
     }
 
-    io.AXI.araddr.bits.addr  <> io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
-    io.AXI.awaddr.bits.addr  <> io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
-    io.AXI.wdata.bits.data   <> (io.in.bits.GNU_io.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
+    io.AXI.araddr.bits.addr  <> io.GNU_2_EXU.bits.GPR_Adata + io.GNU_2_EXU.bits.Imm
+    io.AXI.awaddr.bits.addr  <> io.GNU_2_EXU.bits.GPR_Adata + io.GNU_2_EXU.bits.Imm
+    io.AXI.wdata.bits.data   <> (io.GNU_2_EXU.bits.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
     
-    when(io.in.bits.GNU_io.MemOp === MemOp_1BU || io.in.bits.GNU_io.MemOp === MemOp_1BS){
+    when(io.GNU_2_EXU.bits.MemOp === MemOp_1BU || io.GNU_2_EXU.bits.MemOp === MemOp_1BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0001".U)(Seq(
             "b00".U -> "b0001".U,
             "b01".U -> "b0010".U,
             "b10".U -> "b0100".U,
             "b11".U -> "b1000".U,
         ))
-    }.elsewhen(io.in.bits.GNU_io.MemOp === MemOp_2BU || io.in.bits.GNU_io.MemOp === MemOp_2BS){
+    }.elsewhen(io.GNU_2_EXU.bits.MemOp === MemOp_2BU || io.GNU_2_EXU.bits.MemOp === MemOp_2BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0011".U)(Seq(
             "b00".U -> "b0011".U,
             "b01".U -> "b0110".U,
@@ -137,21 +135,21 @@ class ysyx_23060198_LSU extends Module{
     }.otherwise{
         io.AXI.wdata.bits.strb   := "b1111".U
     }
-    // io.AXI.wdata.bits.strb   := MuxLookup(io.in.bits.GNU_io.MemOp, "b1111".U)(Seq(
+    // io.AXI.wdata.bits.strb   := MuxLookup(io.GNU_2_EXU.bits.MemOp, "b1111".U)(Seq(
     //     MemOp_1BU -> "b0001".U,
     //     MemOp_1BS -> "b0001".U,
     //     MemOp_2BU -> "b0011".U,
     //     MemOp_2BS -> "b0011".U,
     //     MemOp_4BU -> "b1111".U,
     // ))
-    io.AXI.awaddr.bits.size  := MuxLookup(io.in.bits.GNU_io.MemOp, 0.U)(Seq(
+    io.AXI.awaddr.bits.size  := MuxLookup(io.GNU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> 0.U,
         MemOp_1BS -> 0.U,
         MemOp_2BU -> 1.U,
         MemOp_2BS -> 1.U,
         MemOp_4BU -> 2.U,
     ))
-    io.AXI.araddr.bits.size  := MuxLookup(io.in.bits.GNU_io.MemOp, 0.U)(Seq(
+    io.AXI.araddr.bits.size  := MuxLookup(io.GNU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> 0.U,
         MemOp_1BS -> 0.U,
         MemOp_2BU -> 1.U,
@@ -162,7 +160,7 @@ class ysyx_23060198_LSU extends Module{
     val u_mem_rd = Wire(UInt(32.W))
     val s_mem_rd = Wire(SInt(32.W))
 
-    u_mem_rd := MuxLookup(io.in.bits.GNU_io.MemOp, 0.U)(Seq(
+    u_mem_rd := MuxLookup(io.GNU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> (io.AXI.rdata.bits.data(7,0).asUInt),
         MemOp_1BS -> (io.AXI.rdata.bits.data(7,0).asUInt),
         MemOp_2BU -> (io.AXI.rdata.bits.data(15,0).asUInt),
@@ -170,7 +168,7 @@ class ysyx_23060198_LSU extends Module{
         MemOp_4BU -> (io.AXI.rdata.bits.data(31,0).asUInt),
     ))
     
-    s_mem_rd := MuxLookup(io.in.bits.GNU_io.MemOp, 0.S)(Seq(
+    s_mem_rd := MuxLookup(io.GNU_2_EXU.bits.MemOp, 0.S)(Seq(
         MemOp_1BU -> (io.AXI.rdata.bits.data(7,0)).asSInt,
         MemOp_1BS -> (io.AXI.rdata.bits.data(7,0)).asSInt,
         MemOp_2BU -> (io.AXI.rdata.bits.data(15,0)).asSInt,
@@ -178,7 +176,7 @@ class ysyx_23060198_LSU extends Module{
         MemOp_4BU -> (io.AXI.rdata.bits.data(31,0)).asSInt,
     ))
 
-    when(io.in.bits.GNU_io.MemOp === MemOp_1BU || io.in.bits.GNU_io.MemOp === MemOp_2BU || io.in.bits.GNU_io.MemOp === MemOp_4BU){
+    when(io.GNU_2_EXU.bits.MemOp === MemOp_1BU || io.GNU_2_EXU.bits.MemOp === MemOp_2BU || io.GNU_2_EXU.bits.MemOp === MemOp_4BU){
         io.out.bits.Mem_rdata := u_mem_rd
     }.otherwise{
         io.out.bits.Mem_rdata := s_mem_rd.asUInt
@@ -187,7 +185,7 @@ class ysyx_23060198_LSU extends Module{
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
-        LS_DPIC.io.addr      := io.in.bits.GNU_io.GPR_Adata + io.in.bits.GNU_io.Imm
+        LS_DPIC.io.addr      := io.GNU_2_EXU.bits.GPR_Adata + io.GNU_2_EXU.bits.Imm
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock

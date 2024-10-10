@@ -46,24 +46,6 @@ class REG_BRIDGE extends BlackBox with HasBlackBoxInline {
 
 // riscv cpu register file
 
-class REG_input extends Bundle{
-  val csr_raddr  = Input(UInt(12.W))
-
-  val GPR_raddra = Input(UInt(5.W))
-  val GPR_raddrb = Input(UInt(5.W))
-
-  val inst_valid = Input(Bool())
-  val pc  = Input(UInt(32.W))
-  val GPR_wdata = Input(UInt(32.W))
-  val GPR_waddr = Input(UInt(5.W))
-  val GPR_wen   = Input(Bool())
-  val csr_ctr    = Input(CSR_Type)
-  val csr_waddra = Input(UInt(12.W))
-  val csr_waddrb = Input(UInt(12.W))
-  val csr_wdataa = Input(UInt(32.W))
-  val csr_wdatab = Input(UInt(32.W))
-}
-
 class REG_output extends Bundle{
   val GPR_rdataa = Output(UInt(32.W))
   val GPR_rdatab = Output(UInt(32.W))
@@ -76,14 +58,12 @@ class REG_output extends Bundle{
 class ysyx_23060198_REG extends Module {
   val io = IO(new Bundle {
     val in = new Bundle{
-      val csr_raddr  = Input(UInt(12.W))
-
-      val GPR_raddra = Input(UInt(5.W))
-      val GPR_raddrb = Input(UInt(5.W))
-
-      val WBU_io     = Input(new WBU_output)
+      val WBU_io     = Input(new WBU_output_)
     }
-    val out = new REG_output
+    val IFU_2_REG = Input(new BUS_IFU_2_REG)
+    val REG_2_GNU = Output(new BUS_REG_2_GNU)
+    val GNU_2_REG = Input(new BUS_GNU_2_REG)
+    val REG_2_EXU = Output(new BUS_REG_2_EXU)
   })
 
   val pc_wen = io.in.WBU_io.inst_valid === true.B
@@ -97,15 +77,15 @@ class ysyx_23060198_REG extends Module {
     gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
   }
 
-  io.out.GPR_rdataa := gpr(io.in.GPR_raddra)
-  io.out.GPR_rdatab := gpr(io.in.GPR_raddrb)
+  io.REG_2_GNU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
+  io.REG_2_GNU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
 
   val pc = RegInit(main_val.Reset_Vector)
 
   when(pc_wen){
     pc        := io.in.WBU_io.Next_Pc
   }
-  io.out.pc := pc
+  io.REG_2_GNU.PC := pc
 
   // CSR
   def ADDR_MSTATUS = "h300".U
@@ -123,7 +103,7 @@ class ysyx_23060198_REG extends Module {
   val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
   val marchid   = RegInit("d23060198".U(32.W)) // my id 
 
-  io.out.csr_rdata := MuxLookup(io.in.csr_raddr, 0.U(32.W))(Seq(
+  io.REG_2_EXU.CSR_rdata := MuxLookup(io.GNU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,
@@ -132,9 +112,6 @@ class ysyx_23060198_REG extends Module {
     ADDR_MVENDORID -> mvendorid,
     ADDR_MARCHID   -> marchid
   ))
-
-  // val csr = RegInit(VecInit(Seq.fill(128)(0.U(32.W))))
-  // io.out.csr_rdata := csr((io.in.csr_raddr - "h300".U)(6, 0))
 
   when(csra_wen) {
     when(io.in.WBU_io.CSR_waddra === ADDR_MSTATUS){

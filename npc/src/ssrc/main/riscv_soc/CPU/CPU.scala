@@ -63,35 +63,28 @@ class ysyx_23060198 extends Module {
   val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
   // bus IFU -> GNU
-  IFU.io.out     <> GNU.io.in.IFU_io
+  IFU.io.IFU_2_GNU     <> GNU.io.IFU_2_GNU
 
   // bus IFU -> REG -> GNU without delay
-  IFU.io.out.bits.data(19, 15) <> REG.io.in.GPR_raddra 
-  IFU.io.out.bits.data(24, 20) <> REG.io.in.GPR_raddrb 
-  REG.io.out.pc         <> GNU.io.in.PC
-  REG.io.out.GPR_rdataa <> GNU.io.in.GPR_Adata
-  REG.io.out.GPR_rdatab <> GNU.io.in.GPR_Bdata
+  IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
+  REG.io.REG_2_GNU     <> GNU.io.REG_2_GNU
 
   // bus GNU -> EXU
-  GNU.io.out.valid     <> EXU.io.in.valid
-  GNU.io.out.ready     <> EXU.io.in.ready
-  GNU.io.out.bits.GNU_io    <> EXU.io.in.bits.GNU_io     
+  GNU.io.GNU_2_EXU     <> EXU.io.GNU_2_EXU    
 
   // bus GNU -> REG -> EXU without delay
-  GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
-  REG.io.out.csr_rdata      <> EXU.io.in.bits.CSR   
+  GNU.io.GNU_2_REG     <> REG.io.GNU_2_REG
+  REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
   // bus EXU -> WBU
-  EXU.io.out.valid          <> WBU.io.in.valid
-  EXU.io.out.ready          <> WBU.io.in.ready
-  EXU.io.out.bits.EXU_io    <> WBU.io.in.bits.EXU_io    
+  EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
 
   // bus WBU -> REG -> WBU with delay
   WBU.io.out.bits.WBU_io <> REG.io.in.WBU_io
 
   WBU.io.out.valid        <> IFU.io.in.valid
   WBU.io.out.ready        <> IFU.io.in.ready
-  REG.io.out.pc           <> IFU.io.in.bits.addr
+  REG.io.REG_2_GNU.PC           <> IFU.io.in.bits.addr
 
   // bus AXI Interconnect
   io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready
@@ -126,8 +119,8 @@ class ysyx_23060198 extends Module {
   io.master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
   AXI_Interconnect.io.AXI.rdata.bits.data := ((io.master.rdata >> (io.master.araddr(1,0) << 3.U))(31, 0))
 
-  AXI_Interconnect.io.ls_resq := IFU.io.out.valid
-  AXI_Interconnect.io.if_resq := EXU.io.out.valid
+  AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_GNU.valid
+  AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
 
   AXI_Interconnect.io.IFU         <> IFU.io.AXI
   AXI_Interconnect.io.LSU         <> EXU.io.AXI

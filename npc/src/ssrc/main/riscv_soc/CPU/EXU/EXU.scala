@@ -37,7 +37,7 @@ class ysyx_23060198_EXU extends Module {
 
     when(io.GNU_2_EXU.bits.MemWr || io.GNU_2_EXU.bits.MemtoReg){
         alu.io.GNU_2_EXU.valid := false.B
-        alu.io.EXU_2_WBU.ready := false.B
+        alu.io.out.ready := false.B
         io.GNU_2_EXU.ready <> lsu.io.GNU_2_EXU.ready
         io.GNU_2_EXU.valid <> lsu.io.GNU_2_EXU.valid
         io.EXU_2_WBU.ready <> lsu.io.EXU_2_WBU.ready
@@ -47,8 +47,8 @@ class ysyx_23060198_EXU extends Module {
         lsu.io.EXU_2_WBU.ready := false.B
         io.GNU_2_EXU.ready <> alu.io.GNU_2_EXU.ready
         io.GNU_2_EXU.valid <> alu.io.GNU_2_EXU.valid
-        io.EXU_2_WBU.ready <> alu.io.EXU_2_WBU.ready
-        io.EXU_2_WBU.valid <> alu.io.EXU_2_WBU.valid
+        io.EXU_2_WBU.ready <> alu.io.out.ready
+        io.EXU_2_WBU.valid <> alu.io.out.valid
     }
 
     when(io.GNU_2_EXU.valid && io.GNU_2_EXU.ready){

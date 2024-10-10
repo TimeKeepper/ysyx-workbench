@@ -120,7 +120,7 @@ class ysyx_23060198 extends Module {
   AXI_Interconnect.io.AXI.rdata.bits.data := ((io.master.rdata >> (io.master.araddr(1,0) << 3.U))(31, 0))
 
   AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_GNU.valid
-  AXI_Interconnect.io.if_resq := EXU.io.out.valid
+  AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
 
   AXI_Interconnect.io.IFU         <> IFU.io.AXI
   AXI_Interconnect.io.LSU         <> EXU.io.AXI

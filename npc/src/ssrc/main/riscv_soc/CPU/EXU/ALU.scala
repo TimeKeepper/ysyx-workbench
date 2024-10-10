@@ -152,7 +152,7 @@ class ysyx_23060198_ALU extends Module {
   src_A := MuxLookup(io.GNU_2_EXU.bits.ALUAsrc, 0.U)(Seq(
       ALUAsrc_RS1 -> io.GNU_2_EXU.bits.GPR_Adata,
       ALUAsrc_PC  -> io.GNU_2_EXU.bits.PC,
-      ALUAsrc_CSR -> io.GNU_2_EXU.bits.CSR,
+      ALUAsrc_CSR -> io.CSR,
   ))
 
   src_B := MuxLookup(io.GNU_2_EXU.bits.ALUBsrc, 0.U)(Seq(

@@ -65,10 +65,10 @@ class ysyx_23060198_REG extends Module {
 
       val WBU_io     = Input(new WBU_output_)
     }
-    val out = IO(new Bundle{
+    val out = new Bundle{
       val GNU_io = new REG_2_GNU
       val CSR_data = Output(UInt(32.W))
-    })
+    }
   })
 
   val pc_wen = io.in.WBU_io.inst_valid === true.B

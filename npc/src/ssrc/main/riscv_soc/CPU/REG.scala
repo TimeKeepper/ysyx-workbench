@@ -82,8 +82,8 @@ class ysyx_23060198_REG extends Module {
     gpr(io.in.WBU_io.GPR_waddr) := io.in.WBU_io.GPR_wdata
   }
 
-  io.out.WBU_io.GPR_Adata := gpr(io.in.GPR_raddra)
-  io.out.WBU_io.GPR_Bdata := gpr(io.in.GPR_raddrb)
+  io.out.GNU_io.GPR_Adata := gpr(io.in.GPR_raddra)
+  io.out.GNU_io.GPR_Bdata := gpr(io.in.GPR_raddrb)
 
   val pc = RegInit(main_val.Reset_Vector)
 

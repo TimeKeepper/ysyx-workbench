@@ -77,7 +77,7 @@ class ysyx_23060198 extends Module {
 
   // bus GNU -> REG -> EXU without delay
   GNU.io.out.bits.CSR_raddr <> REG.io.in.csr_raddr  
-  REG.io.out.csr_rdata      <> EXU.io.in.bits.CSR   
+  REG.io.out.CSR_data      <> EXU.io.in.bits.CSR   
 
   // bus EXU -> WBU
   EXU.io.out.valid          <> WBU.io.in.valid
@@ -89,7 +89,7 @@ class ysyx_23060198 extends Module {
 
   WBU.io.out.valid        <> IFU.io.in.valid
   WBU.io.out.ready        <> IFU.io.in.ready
-  REG.io.out.pc           <> IFU.io.in.bits.addr
+  REG.io.out.GNU_io.PC           <> IFU.io.in.bits.addr
 
   // bus AXI Interconnect
   io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready

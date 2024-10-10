@@ -67,7 +67,7 @@ class ysyx_23060198_EXU extends Module {
     }
 
     alu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
-    alu.io.GNU_2_EXU.CSR         := io.GNU_2_EXU.CSR
+    alu.io.CSR         := io.CSR
 
     lsu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
     lsu.io.AXI <> io.AXI

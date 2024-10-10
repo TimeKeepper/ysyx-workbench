@@ -49,6 +49,6 @@ perf: $(RPT_FILE) $(STAT_FILE) $(PERFOMENSE_FILE)
 	@python ./perf.py
 
 test: 
-	$(MAKE) -C $(NEMU_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-npc mainargs=test batch
+	$(MAKE) -C $(NEMU_HOME)/../rtthread_for_ysyx/bsp/abstract-machine ARCH=riscv32e-npc batch
 
 .PHONY: clean verilog syn perf SSRC

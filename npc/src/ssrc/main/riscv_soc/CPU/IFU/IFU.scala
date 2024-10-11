@@ -76,17 +76,12 @@ class ysyx_23060198_IFU extends Module {
     io.IFU_2_REG.GPR_Aaddr <> io.AXI.rdata.bits.data(19, 15)
     io.IFU_2_REG.GPR_Baddr <> io.AXI.rdata.bits.data(24, 20)
 
-    class awaddr_noreqs extends Bundle{
-        val wdata = Decoupled(Wire(new wdata))
-        wdata.valid := false.B
-        wdata.bits.data := 0.U
-        wdata.bits.strb := 0.U
-    }
-
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U
     io.AXI.awaddr.bits.size := 0.U
-    io.AXI.wdata <> (new awaddr_noreqs).wdata
+    io.AXI.wdata.valid := false.B
+    io.AXI.wdata.bits.data := 0.U
+    io.AXI.wdata.bits.strb := 0.U
     io.AXI.bresp.ready := false.B
 
     if(Config.DPIC_on){

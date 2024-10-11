@@ -124,7 +124,11 @@ class AXI_Slave extends Bundle{
     val wdata = Flipped(Decoupled(new wdata))
     val bresp  = Decoupled(new bresp)
 }
- 
+
+object not_Connect extends Wire{
+    val araddr = WireDefault(0.U.asTypeOf(Decoupled(new araddr)))
+}
+
 class FIX_AXI_BUS_Master extends Bundle{
   val awready = Input(Bool())
   val awvalid = Output(Bool())

@@ -78,24 +78,26 @@ object signal_value {
   def N = false.B
 
   // ExtOp
-  def Imm_Type   = UInt(3.W)
-  def Imm_I       = 0.U(3.W) //I型指令
-  def Imm_U       = 1.U(3.W) //U型指令
-  def Imm_S       = 2.U(3.W) //S型指令
-  def Imm_B       = 3.U(3.W) //B型指令
-  def Imm_J       = 4.U(3.W) //J型指令
+  def Imm_width  = 3.W
+  def Imm_Type   = UInt(Imm_width)
+  def Imm_I       = 0.U(Imm_width) //I型指令
+  def Imm_U       = 1.U(Imm_width) //U型指令
+  def Imm_S       = 2.U(Imm_width) //S型指令
+  def Imm_B       = 3.U(Imm_width) //B型指令
+  def Imm_J       = 4.U(Imm_width) //J型指令
 
   // Branch
-  def Bran_Type = UInt(4.W)
-  def Bran_NJmp = 0.U(4.W) //非跳转
-  def Bran_Jmp  = 1.U(4.W) //无条件跳转
-  def Bran_Jmpr = 2.U(4.W) //寄存器基址跳转
-  def Bran_Jeq  = 4.U(4.W) //相等跳转
-  def Bran_Jne  = 5.U(4.W) //不相等跳转
-  def Bran_Jlt  = 6.U(4.W) //小于跳转
-  def Bran_Jge  = 7.U(4.W) //大于等于跳转
-  def Bran_Jcsr = 8.U(4.W) //CSR跳转
-  def Bran_NoC  = 9.U(4.W) //不要改变
+  def Bran_width= 4.W
+  def Bran_Type = UInt(Bran_width)
+  def Bran_NJmp = 0.U(Bran_width) //非跳转
+  def Bran_Jmp  = 1.U(Bran_width) //无条件跳转
+  def Bran_Jmpr = 2.U(Bran_width) //寄存器基址跳转
+  def Bran_Jeq  = 4.U(Bran_width) //相等跳转
+  def Bran_Jne  = 5.U(Bran_width) //不相等跳转
+  def Bran_Jlt  = 6.U(Bran_width) //小于跳转
+  def Bran_Jge  = 7.U(Bran_width) //大于等于跳转
+  def Bran_Jcsr = 8.U(Bran_width) //CSR跳转
+  def Bran_NoC  = 9.U(Bran_width) //不要改变
 
   // Branch sub signal
   def PCAsrc_Type = UInt(2.W)

@@ -126,7 +126,9 @@ class AXI_Slave extends Bundle{
 }
 
 object not_Connect{
-    val araddr = WireDefault(0.U.asTypeOf(Decoupled(new araddr)))
+    val araddr = Wire(Decoupled(new araddr))
+    araddr <> DontCare
+    araddr.valid := false.B
 }
 
 class FIX_AXI_BUS_Master extends Bundle{

@@ -64,7 +64,7 @@ class ysyx_23060198_IFU extends Module {
         val AXI = new AXI_Master
     })
 
-    io.AXI.araddr <> not_Connect.araddr
+    io.AXI.araddr <> WireDefault(not_Connect.araddr)
 
     io.WBU_2_IFU.ready <> io.AXI.araddr.ready
     io.WBU_2_IFU.valid <> io.AXI.araddr.valid

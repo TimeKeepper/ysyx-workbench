@@ -125,7 +125,7 @@ class AXI_Slave extends Bundle{
     val bresp  = Decoupled(new bresp)
 }
 
-object not_Connect extends Wire{
+object not_Connect{
     val araddr = WireDefault(0.U.asTypeOf(Decoupled(new araddr)))
 }
 

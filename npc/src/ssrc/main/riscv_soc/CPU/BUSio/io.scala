@@ -85,6 +85,10 @@ class BUS_REG_2_IFU extends Bundle{
     val Next_PC = UInt(32.W)
 }
 
+trait Bus_default_valud {
+    def setDefault(): Unit
+}
+
 class araddr extends Bundle{
     val addr = Output(UInt(32.W))
     val size = Output(UInt(3.W))
@@ -109,12 +113,20 @@ class bresp extends Bundle{
     val bresp = Input(Bool())
 }
 
-class AXI_Master extends Bundle{
+class AXI_Master extends Bundle with Bus_default_valud{
     val araddr = Decoupled(new araddr)
     val rdata = Flipped(Decoupled(new rdata))
     val awaddr = Decoupled(new awaddr)
     val wdata = Decoupled(Output(new wdata))
     val bresp  = Flipped(Decoupled(new bresp))
+
+    setDefault(){
+        araddr.ready := false.B
+        rdata.valid := false.B
+        awaddr.ready := false.B
+        wdata.ready := false.B
+        bresp.valid := false.B
+    }
 }
 
 class AXI_Slave extends Bundle{
@@ -123,11 +135,6 @@ class AXI_Slave extends Bundle{
     val awaddr = Flipped(Decoupled(new awaddr))
     val wdata = Flipped(Decoupled(new wdata))
     val bresp  = Decoupled(new bresp)
-}
-
-object not_Connect{
-    val araddr = Wire(Decoupled(new araddr))
-    araddr.valid := false.B
 }
 
 class FIX_AXI_BUS_Master extends Bundle{

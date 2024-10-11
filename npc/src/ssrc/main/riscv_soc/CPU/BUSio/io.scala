@@ -120,7 +120,7 @@ class AXI_Master extends Bundle with Bus_default_valud{
     val wdata = Decoupled(Output(new wdata))
     val bresp  = Flipped(Decoupled(new bresp))
 
-    setDefault(){
+    def setDefault(): Unit = {
         araddr.ready := false.B
         rdata.valid := false.B
         awaddr.ready := false.B

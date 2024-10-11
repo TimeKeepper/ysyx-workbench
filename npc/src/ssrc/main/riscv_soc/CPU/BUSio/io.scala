@@ -85,7 +85,7 @@ class BUS_REG_2_IFU extends Bundle{
     val Next_PC = UInt(32.W)
 }
 
-trait Bus_default_valud {
+trait Bus_default_value {
     def setDefault(): Unit
 }
 
@@ -113,7 +113,7 @@ class bresp extends Bundle{
     val bresp = Input(Bool())
 }
 
-class AXI_Master extends Bundle with Bus_default_valud{
+class AXI_Master extends Bundle with Bus_default_value{
     val araddr = Decoupled(new araddr)
     val rdata = Flipped(Decoupled(new rdata))
     val awaddr = Decoupled(new awaddr)

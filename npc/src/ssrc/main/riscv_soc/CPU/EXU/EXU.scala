@@ -17,21 +17,6 @@ class ysyx_23060198_EXU extends Module {
         val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
         val AXI = new AXI_Master
     })
-
-    val RegWr_cache       = RegInit(false.B)
-    val Branch_cache      = RegInit(Bran_NJmp)
-    val MemtoReg_cache    = RegInit(false.B)
-    val csr_ctr_cache     = RegInit(CSR_N)
-    val Imm_cache         = RegInit(0.U(32.W))
-    val GPR_Adata_cache   = RegInit(0.U(32.W))
-    val GPR_waddr_cache   = RegInit(0.U(5.W))
-    val PC_cache          = RegInit(0.U(32.W))
-    val Result_cache      = RegInit(0.U(32.W))
-    val Zero_cache        = RegInit(false.B)
-    val Less_cache        = RegInit(false.B)
-    
-    val CSR_cache         = RegInit(0.U(32.W)) 
-
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)
 
@@ -51,39 +36,26 @@ class ysyx_23060198_EXU extends Module {
         io.EXU_2_WBU.valid <> alu.io.out.valid
     }
 
-    when(io.GNU_2_EXU.valid && io.GNU_2_EXU.ready){
-        RegWr_cache       := io.GNU_2_EXU.bits.RegWr
-        Branch_cache      := io.GNU_2_EXU.bits.Branch
-        MemtoReg_cache    := io.GNU_2_EXU.bits.MemtoReg
-        csr_ctr_cache     := io.GNU_2_EXU.bits.csr_ctr
-        Imm_cache         := io.GNU_2_EXU.bits.Imm
-        GPR_Adata_cache   := io.GNU_2_EXU.bits.GPR_Adata
-        GPR_waddr_cache   := io.GNU_2_EXU.bits.GPR_waddr
-        PC_cache          := io.GNU_2_EXU.bits.PC 
-
-        CSR_cache         := io.REG_2_EXU.CSR_rdata
-    }
+    val comunication_succeed = (io.GNU_2_EXU.valid && io.GNU_2_EXU.ready)
 
     alu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
-    alu.io.CSR         := io.REG_2_EXU.CSR_rdata
+    alu.io.CSR            := io.REG_2_EXU.CSR_rdata
 
     lsu.io.GNU_2_EXU.bits := io.GNU_2_EXU.bits
     lsu.io.AXI <> io.AXI
 
+    io.EXU_2_WBU.bits.RegWr        <> RegEnable(io.GNU_2_EXU.bits.RegWr,        comunication_succeed)     
+    io.EXU_2_WBU.bits.Branch       <> RegEnable(io.GNU_2_EXU.bits.Branch,       comunication_succeed)     
+    io.EXU_2_WBU.bits.MemtoReg     <> RegEnable(io.GNU_2_EXU.bits.MemtoReg,     comunication_succeed) 
+    io.EXU_2_WBU.bits.csr_ctr      <> RegEnable(io.GNU_2_EXU.bits.csr_ctr,      comunication_succeed)  
+    io.EXU_2_WBU.bits.Imm          <> RegEnable(io.GNU_2_EXU.bits.Imm,          comunication_succeed)      
+    io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.GNU_2_EXU.bits.GPR_Adata,    comunication_succeed)
+    io.EXU_2_WBU.bits.GPR_waddr    <> RegEnable(io.GNU_2_EXU.bits.GPR_waddr,    comunication_succeed)
+    io.EXU_2_WBU.bits.PC           <> RegEnable(io.GNU_2_EXU.bits.PC,           comunication_succeed)   
+    io.EXU_2_WBU.bits.CSR          <> RegEnable(io.REG_2_EXU.CSR_rdata,         comunication_succeed)  
 
-    io.EXU_2_WBU.bits.RegWr        <> RegWr_cache    
-    io.EXU_2_WBU.bits.Branch       <> Branch_cache   
-    io.EXU_2_WBU.bits.MemtoReg     <> MemtoReg_cache 
-    io.EXU_2_WBU.bits.csr_ctr      <> csr_ctr_cache  
-    io.EXU_2_WBU.bits.Imm          <> Imm_cache      
-    io.EXU_2_WBU.bits.GPR_Adata    <> GPR_Adata_cache
-    io.EXU_2_WBU.bits.GPR_waddr    <> GPR_waddr_cache
-    io.EXU_2_WBU.bits.PC           <> PC_cache   
-    io.EXU_2_WBU.bits.CSR          <> CSR_cache    
-
-    io.EXU_2_WBU.bits.Result       <> alu.io.out.bits.Result
-    io.EXU_2_WBU.bits.Zero         <> alu.io.out.bits.Zero
-    io.EXU_2_WBU.bits.Less         <> alu.io.out.bits.Less
-
-    io.EXU_2_WBU.bits.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
+    io.EXU_2_WBU.bits.Result       <> RegEnable(alu.io.out.bits.Result,         comunication_succeed)
+    io.EXU_2_WBU.bits.Zero         <> RegEnable(alu.io.out.bits.Zero,           comunication_succeed)
+    io.EXU_2_WBU.bits.Less         <> RegEnable(alu.io.out.bits.Less,           comunication_succeed)
+    io.EXU_2_WBU.bits.Mem_rdata    <> RegEnable(lsu.io.out.bits.Mem_rdata,      comunication_succeed)
 }

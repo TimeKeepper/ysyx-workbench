@@ -127,7 +127,6 @@ class AXI_Slave extends Bundle{
 
 object not_Connect{
     val araddr = Wire(Decoupled(new araddr))
-    araddr <> DontCare
     araddr.valid := false.B
 }
 

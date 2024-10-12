@@ -36,17 +36,21 @@ class ysyx_23060198_WBU extends Module {
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
-    PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        PCAsrc_Imm -> io.EXU_2_WBU.bits.Imm,
-        PCAsrc_0  -> 0.U,
-        PCAsrc_4 -> 4.U,
-        PCAsrc_csr -> io.EXU_2_WBU.bits.CSR,
+    PCAsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, 0.U)(Seq(
+        Bran_Jmp -> io.EXU_2_WBU.bits.Imm,
+        Bran_Jmpr -> io.EXU_2_WBU.bits.Imm,
+        Bran_Jeq -> Mux(io.Zero, io.EXU_2_WBU.bits.Imm, 4.U),
+        Bran_Jne -> Mux(io.Zero, 4.U, io.EXU_2_WBU.bits.Imm),
+        Bran_Jlt -> Mux(io.Less, io.EXU_2_WBU.bits.Imm, 4.U),
+        Bran_Jge -> Mux(io.Less, 4.U, io.EXU_2_WBU.bits.Imm),
+        Bran_Jcsr -> io.EXU_2_WBU.bits.CSR,
+        Bran_NoC -> 0.U,
     ))
 
-    PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        PCBsrc_gpr -> io.EXU_2_WBU.bits.GPR_Adata,
-        PCBsrc_pc  -> io.EXU_2_WBU.bits.PC,
-        PCBsrc_0   -> 0.U,
+    PCBsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, 0.U)(Seq(
+        Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata,
+        Bran_Jcsr -> 0.U,
+        Bran_NoC  -> io.EXU_2_WBU.bits.PC,
     ))
 
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){

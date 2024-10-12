@@ -45,7 +45,8 @@ class ysyx_23060198_EXU extends Module {
     lsu.io.AXI <> io.AXI
 
     io.EXU_2_WBU.bits.RegWr        <> RegEnable(io.IDU_2_EXU.bits.RegWr,        comunication_succeed)     
-    io.EXU_2_WBU.bits.Branch       <> RegEnable(io.IDU_2_EXU.bits.Branch,       comunication_succeed)  
+    io.EXU_2_WBU.bits.Branch       <> RegEnable(io.IDU_2_EXU.bits.Branch,       comunication_succeed)     
+    io.EXU_2_WBU.bits.MemtoReg     <> RegEnable(io.IDU_2_EXU.bits.MemtoReg,     comunication_succeed) 
     io.EXU_2_WBU.bits.csr_ctr      <> RegEnable(io.IDU_2_EXU.bits.csr_ctr,      comunication_succeed)  
     io.EXU_2_WBU.bits.Imm          <> RegEnable(io.IDU_2_EXU.bits.Imm,          comunication_succeed)      
     io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.IDU_2_EXU.bits.GPR_Adata,    comunication_succeed)

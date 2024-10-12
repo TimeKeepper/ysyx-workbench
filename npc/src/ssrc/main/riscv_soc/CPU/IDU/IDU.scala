@@ -17,7 +17,7 @@ object Decode {
     val default =
     //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp       ALUAsrc    ALUBsrc         ALUctr     csr_ctr 
     //     |        |       |         |       |        |           |          |               |          |    
-    List(Imm_I,     N,   Bran_NJmp,   N,      N,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
+    List(Imm_I,     Reg_Wr_gpr,   Bran_NJmp,   N,      N,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
 
     val map = Array(
         BitPat(LUI)     -> List(Imm_U, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),
@@ -121,4 +121,7 @@ class ysyx_23060198_IDU extends Module{
                                                             )
                                                     ), comunication_succeed
                                         )
+
+    io.IDU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
+    io.IDU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 }

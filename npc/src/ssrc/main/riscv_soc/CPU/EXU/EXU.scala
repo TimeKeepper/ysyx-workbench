@@ -39,9 +39,11 @@ class ysyx_23060198_EXU extends Module {
     val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
     alu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
+    alu.io.REG_2_EXU   <> io.REG_2_EXU
     alu.io.CSR         := io.REG_2_EXU.CSR_rdata
 
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
+    lsu.io.REG_2_EXU   <> io.REG_2_EXU
     lsu.io.AXI <> io.AXI
 
     io.EXU_2_WBU.bits.RegWr        <> RegEnable(io.IDU_2_EXU.bits.RegWr,        comunication_succeed)     

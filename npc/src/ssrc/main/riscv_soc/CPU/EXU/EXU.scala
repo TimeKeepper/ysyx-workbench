@@ -43,22 +43,12 @@ class ysyx_23060198_EXU extends Module {
 
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
     lsu.io.AXI <> io.AXI
-
-    // io.EXU_2_WBU.bits.RegWr        <> RegEnable(io.IDU_2_EXU.bits.RegWr,        comunication_succeed)     
-    // io.EXU_2_WBU.bits.Branch       <> RegEnable(io.IDU_2_EXU.bits.Branch,       comunication_succeed)     
-    // io.EXU_2_WBU.bits.MemtoReg     <> RegEnable(io.IDU_2_EXU.bits.MemtoReg,     comunication_succeed) 
-    // io.EXU_2_WBU.bits.csr_ctr      <> RegEnable(io.IDU_2_EXU.bits.csr_ctr,      comunication_succeed)  
-    // io.EXU_2_WBU.bits.Imm          <> RegEnable(io.IDU_2_EXU.bits.Imm,          comunication_succeed)      
-    // io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.IDU_2_EXU.bits.GPR_Adata,    comunication_succeed)
-    // io.EXU_2_WBU.bits.GPR_waddr    <> RegEnable(io.IDU_2_EXU.bits.GPR_waddr,    comunication_succeed)
-    // io.EXU_2_WBU.bits.PC           <> RegEnable(io.IDU_2_EXU.bits.PC,           comunication_succeed)   
-    // io.EXU_2_WBU.bits.CSR          <> RegEnable(io.REG_2_EXU.CSR_rdata,         comunication_succeed)  
-      
-    // io.EXU_2_WBU.bits.Result       <> alu.io.out.bits.Result
-    // io.EXU_2_WBU.bits.Zero         <> alu.io.out.bits.Zero
-    // io.EXU_2_WBU.bits.Less         <> alu.io.out.bits.Less
-    // io.EXU_2_WBU.bits.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
     
+    when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
+        io.EXU_2_WBU.inst_valid := true.B
+    }.otherwise{
+        io.EXU_2_WBU.inst_valid := false.B
+    }
     
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))

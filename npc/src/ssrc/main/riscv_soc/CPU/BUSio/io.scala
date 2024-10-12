@@ -51,6 +51,7 @@ class BUS_REG_2_EXU extends Bundle{
 }
 
 class BUS_EXU_2_WBU extends Bundle{
+    val inst_valid= Bool()
     val Next_Pc   = UInt(32.W)
     val GPR_waddr = UInt(5.W)
     val GPR_wdata = UInt(32.W)

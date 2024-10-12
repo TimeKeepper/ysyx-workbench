@@ -6,77 +6,6 @@ import chisel3.util._
 import signal_value._
 import bus_state._
 
-// riscv writeback unit
-
-// class ysyx_23060198_WBU_ extends Module {
-//     val io = IO(new Bundle{
-//         val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
-//         val WBU_2_IFU = Decoupled(Output(new BUS_WBU_2_IFU))
-//         val WBU_2_REG = Output(new BUS_WBU_2_REG)
-//     })
-
-//     val state = RegInit(s_wait_ready)
-
-//     state := MuxLookup(state, s_wait_valid)(
-//         Seq(
-//             s_wait_valid -> Mux(io.EXU_2_WBU.valid, s_wait_ready, s_wait_valid),
-//             s_wait_ready -> Mux(io.WBU_2_IFU.ready, s_wait_valid, s_wait_ready),
-//         )
-//     )
-
-//     io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
-//     io.EXU_2_WBU.ready  := state === s_wait_valid
-    
-//     val PCAsrc = Wire(UInt(32.W))
-//     val PCBsrc = Wire(UInt(32.W))
-
-//     PCAsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, 4.U)(Seq(
-//         Bran_Jmp -> io.EXU_2_WBU.bits.Imm,
-//         Bran_Jmpr -> io.EXU_2_WBU.bits.Imm,
-//         Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.Imm, 4.U),
-//         Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, 4.U, io.EXU_2_WBU.bits.Imm),
-//         Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.Imm, 4.U),
-//         Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, 4.U, io.EXU_2_WBU.bits.Imm),
-//         Bran_Jcsr -> io.EXU_2_WBU.bits.CSR,
-//         Bran_NoC -> 0.U,
-//     ))
-
-//     PCBsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
-//         Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata,
-//         Bran_Jcsr -> 0.U,
-//         Bran_NoC  -> io.EXU_2_WBU.bits.PC,
-//     ))
-
-//     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
-//         io.WBU_2_REG.inst_valid := true.B
-//     }.otherwise{
-//         io.WBU_2_REG.inst_valid := false.B
-//     }
-
-//     io.WBU_2_REG.Next_Pc := PCAsrc + PCBsrc
-
-//     io.WBU_2_REG.GPR_waddr := io.EXU_2_WBU.bits.GPR_waddr
-//     io.WBU_2_REG.GPR_wdata := MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
-//         Y  -> io.EXU_2_WBU.bits.Mem_rdata,
-//         N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR),
-//     ))
-//     io.WBU_2_REG.GPR_wen <> io.EXU_2_WBU.bits.RegWr
-
-//     io.WBU_2_REG.CSR_ctr <> io.EXU_2_WBU.bits.csr_ctr
-
-//     io.WBU_2_REG.CSR_waddra := MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Imm(11, 0))(Seq(
-//         CSR_R1W2 -> "h341".U
-//     ))
-
-//     io.WBU_2_REG.CSR_waddrb := "h342".U
-
-//     io.WBU_2_REG.CSR_wdataa := MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
-//         CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
-//     ))
-
-//     io.WBU_2_REG.CSR_wdatab := 11.U
-// }
-
 class ysyx_23060198_WBU extends Module {
     val io = IO(new Bundle{
         val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
@@ -96,20 +25,5 @@ class ysyx_23060198_WBU extends Module {
     io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
     io.EXU_2_WBU.ready  := state === s_wait_valid
     
-    when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
-        io.WBU_2_REG.inst_valid := true.B
-    }.otherwise{
-        io.WBU_2_REG.inst_valid := false.B
-    }
-
-    io.EXU_2_WBU.bits.Next_Pc <> io.WBU_2_REG.Next_Pc
-    io.EXU_2_WBU.bits.GPR_waddr <> io.WBU_2_REG.GPR_waddr
-    io.EXU_2_WBU.bits.GPR_wdata <> io.WBU_2_REG.GPR_wdata
-    io.EXU_2_WBU.bits.GPR_wen <> io.WBU_2_REG.GPR_wen
-    io.EXU_2_WBU.bits.CSR_ctr <> io.WBU_2_REG.CSR_ctr
-    io.EXU_2_WBU.bits.CSR_waddra <> io.WBU_2_REG.CSR_waddra
-    io.EXU_2_WBU.bits.CSR_waddrb <> io.WBU_2_REG.CSR_waddrb
-    io.EXU_2_WBU.bits.CSR_wdataa <> io.WBU_2_REG.CSR_wdataa
-    io.EXU_2_WBU.bits.CSR_wdatab <> io.WBU_2_REG.CSR_wdatab
-
+    io.EXU_2_WBU <> io.WBU_2_REG
 }

@@ -15,10 +15,14 @@ class BUS_IFU_2_IDU extends Bundle{
 }
 
 class BUS_IFU_2_REG extends Bundle{
+    val GPR_Aaddr  = UInt(5.W)
+    val GPR_Baddr  = UInt(5.W)
 }
 
 class BUS_REG_2_IDU extends Bundle{
     val PC         = UInt(32.W)
+    val GPR_Adata  = UInt(32.W)
+    val GPR_Bdata  = UInt(32.W)
 }
 
 class BUS_IDU_2_EXU extends Bundle{
@@ -32,20 +36,18 @@ class BUS_IDU_2_EXU extends Bundle{
     val ALUctr   = ALUctr_Type
     val csr_ctr  = CSR_Type
     val Imm      = UInt(32.W)
+    val GPR_Adata = UInt(32.W)
+    val GPR_Bdata = UInt(32.W)
     val GPR_waddr = UInt(5.W)
     val PC       = UInt(32.W)
 }
 
 class BUS_IDU_2_REG extends Bundle{
     val CSR_raddr   = UInt(12.W)
-    val GPR_Aaddr  = UInt(5.W)
-    val GPR_Baddr  = UInt(5.W)
 }
 
 class BUS_REG_2_EXU extends Bundle{
     val CSR_rdata   = UInt(32.W)
-    val GPR_Adata = UInt(32.W)
-    val GPR_Bdata = UInt(32.W)
 }
 
 class BUS_EXU_2_WBU extends Bundle{

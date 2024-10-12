@@ -51,7 +51,6 @@ class LSU_PC extends BlackBox with HasBlackBoxInline {
 class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
         val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
-        val REG_2_EXU = Input(new BUS_REG_2_EXU)
 
         val out = Decoupled(new Bundle{
             val Mem_rdata  = Output(UInt(32.W))
@@ -116,9 +115,9 @@ class ysyx_23060198_LSU extends Module{
         io.out.valid          <> false.B
     }
 
-    io.AXI.araddr.bits.addr  <> io.REG_2_EXU.GPR_Adata + io.IDU_2_EXU.bits.Imm
-    io.AXI.awaddr.bits.addr  <> io.REG_2_EXU.GPR_Adata + io.IDU_2_EXU.bits.Imm
-    io.AXI.wdata.bits.data   <> (io.REG_2_EXU.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
+    io.AXI.araddr.bits.addr  <> io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
+    io.AXI.awaddr.bits.addr  <> io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
+    io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
     
     when(io.IDU_2_EXU.bits.MemOp === MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_1BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0001".U)(Seq(
@@ -186,7 +185,7 @@ class ysyx_23060198_LSU extends Module{
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
-        LS_DPIC.io.addr      := io.REG_2_EXU.GPR_Adata + io.IDU_2_EXU.bits.Imm
+        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock

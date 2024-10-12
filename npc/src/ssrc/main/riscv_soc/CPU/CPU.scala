@@ -56,24 +56,24 @@ class ysyx_23060198 extends Module {
   })
   
   val IFU             = Module(new ysyx_23060198_IFU)
-  val GNU             = Module(new ysyx_23060198_GNU)
+  val IDU             = Module(new ysyx_23060198_IDU)
   val EXU             = Module(new ysyx_23060198_EXU)
   val WBU             = Module(new ysyx_23060198_WBU)
   val REG             = Module(new ysyx_23060198_REG) 
   val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
-  // bus IFU -> GNU
-  IFU.io.IFU_2_GNU     <> GNU.io.IFU_2_GNU
+  // bus IFU -> IDU
+  IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
 
-  // bus IFU -> REG -> GNU without delay
+  // bus IFU -> REG -> IDU without delay
   IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
-  REG.io.REG_2_GNU     <> GNU.io.REG_2_GNU
+  REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
-  // bus GNU -> EXU
-  GNU.io.GNU_2_EXU     <> EXU.io.GNU_2_EXU    
+  // bus IDU -> EXU
+  IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
 
-  // bus GNU -> REG -> EXU without delay
-  GNU.io.GNU_2_REG     <> REG.io.GNU_2_REG
+  // bus IDU -> REG -> EXU without delay
+  IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
   REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
   // bus EXU -> WBU
@@ -119,7 +119,7 @@ class ysyx_23060198 extends Module {
   io.master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
   AXI_Interconnect.io.AXI.rdata.bits.data := ((io.master.rdata >> (io.master.araddr(1,0) << 3.U))(31, 0))
 
-  AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_GNU.valid
+  AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
   AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
 
   AXI_Interconnect.io.IFU         <> IFU.io.AXI

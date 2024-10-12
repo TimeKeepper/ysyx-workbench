@@ -7,8 +7,8 @@ class ysyx_23060198_AXI_Interconnect extends Module {
     val io = IO(new Bundle{
         val ls_resq = Input(Bool())
         val if_resq = Input(Bool())
-        val IFU = new AXI_Slave
-        val LSU = new AXI_Slave
+        val IFU = new AXI_Master
+        val LSU = new AXI_Master
         val AXI = new AXI_Master
     })
 
@@ -23,23 +23,29 @@ class ysyx_23060198_AXI_Interconnect extends Module {
         )
     )
 
-    when(state === s_if){
-        io.IFU <> io.AXI
-        io.LSU.rdata.valid := false.B
-        io.LSU.rdata.bits := DontCare
-        io.LSU.araddr.ready := false.B
-        io.LSU.awaddr.ready := false.B
-        io.LSU.wdata.ready := false.B
-        io.LSU.bresp.valid := false.B
-        io.LSU.bresp.bits := DontCare
-    }.otherwise{
-        io.LSU <> io.AXI
-        io.IFU.rdata.valid := false.B
-        io.IFU.rdata.bits := DontCare
-        io.IFU.araddr.ready := false.B
-        io.IFU.awaddr.ready := false.B
-        io.IFU.wdata.ready := false.B
-        io.IFU.bresp.valid := false.B
-        io.IFU.bresp.bits := DontCare
-    }
+    val AXI_Arbiter = Module(new Arbiter(new AXI_Master, 2))
+
+    // when(state === s_if){
+    //     io.IFU <> io.AXI
+    //     io.LSU.rdata.valid := false.B
+    //     io.LSU.rdata.bits := DontCare
+    //     io.LSU.araddr.ready := false.B
+    //     io.LSU.awaddr.ready := false.B
+    //     io.LSU.wdata.ready := false.B
+    //     io.LSU.bresp.valid := false.B
+    //     io.LSU.bresp.bits := DontCare
+    // }.otherwise{
+    //     io.LSU <> io.AXI
+    //     io.IFU.rdata.valid := false.B
+    //     io.IFU.rdata.bits := DontCare
+    //     io.IFU.araddr.ready := false.B
+    //     io.IFU.awaddr.ready := false.B
+    //     io.IFU.wdata.ready := false.B
+    //     io.IFU.bresp.valid := false.B
+    //     io.IFU.bresp.bits := DontCare
+    // }
+
+    AXI_Arbiter.io.in(0) <> io.IFU
+    AXI_Arbiter.io.in(1) <> io.LSU
+    io.AXI <> AXI_Arbiter.io.out
 }

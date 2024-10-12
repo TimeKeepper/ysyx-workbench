@@ -114,7 +114,7 @@ class ysyx_23060198_GNU extends Module{
     io.GNU_2_EXU.bits.GPR_waddr    <> RegEnable(io.IFU_2_GNU.bits.data(11, 7), comunication_succeed) 
     io.GNU_2_EXU.bits.PC           <> RegEnable(io.REG_2_GNU.PC,         comunication_succeed) 
     io.GNU_2_REG.CSR_raddr         <> RegEnable(MuxLookup(
-                                                    io.GNU_2_EXU.bits.csr_ctr, idu.io.imm(11, 0))(
+                                                    io.GNU_2_EXU.bits.csr_ctr, imm(11, 0))(
                                                             Seq(
                                                                 CSR_R1W0 -> "h341".U,
                                                                 CSR_R1W2 -> "h305".U,

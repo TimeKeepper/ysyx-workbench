@@ -213,9 +213,9 @@ class ysyx_23060198_ALU extends Module {
     )
   )
   
-  io.out.bits.Result       := Result
-  io.out.bits.Zero         := alu_adder.io.Zero 
-  io.out.bits.Less         := Less
+  io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
+  io.out.bits.Zero          := alu_adder.io.Zero 
+  io.out.bits.Less          := Less
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

@@ -8,7 +8,7 @@ import bus_state._
 
 // riscv writeback unit
 
-class ysyx_23060198_WBU extends Module {
+class ysyx_23060198_WBU_ extends Module {
     val io = IO(new Bundle{
         val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
         val WBU_2_IFU = Decoupled(Output(new BUS_WBU_2_IFU))
@@ -75,4 +75,41 @@ class ysyx_23060198_WBU extends Module {
     ))
 
     io.WBU_2_REG.CSR_wdatab := 11.U
+}
+
+class ysyx_23060198_WBU_ extends Module {
+    val io = IO(new Bundle{
+        val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
+        val WBU_2_IFU = Decoupled(Output(new BUS_WBU_2_IFU))
+        val WBU_2_REG = Output(new BUS_WBU_2_REG)
+    })
+
+    val state = RegInit(s_wait_ready)
+
+    state := MuxLookup(state, s_wait_valid)(
+        Seq(
+            s_wait_valid -> Mux(io.EXU_2_WBU.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.WBU_2_IFU.ready, s_wait_valid, s_wait_ready),
+        )
+    )
+
+    io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
+    io.EXU_2_WBU.ready  := state === s_wait_valid
+    
+    when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
+        io.WBU_2_REG.inst_valid := true.B
+    }.otherwise{
+        io.WBU_2_REG.inst_valid := false.B
+    }
+
+    io.EXU_2_WBU.bits.Next_Pc <> io.WBU_2_REG.Next_Pc
+    io.EXU_2_WBU.bits.GPR_waddr <> io.WBU_2_REG.GPR_waddr
+    io.EXU_2_WBU.bits.GPR_wdata <> io.WBU_2_REG.GPR_wdata
+    io.EXU_2_WBU.bits.GPR_wen <> io.WBU_2_REG.GPR_wen
+    io.EXU_2_WBU.bits.CSR_ctr <> io.WBU_2_REG.CSR_ctr
+    io.EXU_2_WBU.bits.CSR_waddra <> io.WBU_2_REG.CSR_waddra
+    io.EXU_2_WBU.bits.CSR_waddrb <> io.WBU_2_REG.CSR_waddrb
+    io.EXU_2_WBU.bits.CSR_wdataa <> io.WBU_2_REG.CSR_wdataa
+    io.EXU_2_WBU.bits.CSR_wdatab <> io.WBU_2_REG.CSR_wdatab
+    
 }

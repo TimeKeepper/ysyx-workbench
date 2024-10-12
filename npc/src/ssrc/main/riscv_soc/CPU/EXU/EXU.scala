@@ -44,18 +44,56 @@ class ysyx_23060198_EXU extends Module {
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
     lsu.io.AXI <> io.AXI
 
-    io.EXU_2_WBU.bits.RegWr        <> RegEnable(io.IDU_2_EXU.bits.RegWr,        comunication_succeed)     
-    io.EXU_2_WBU.bits.Branch       <> RegEnable(io.IDU_2_EXU.bits.Branch,       comunication_succeed)     
-    io.EXU_2_WBU.bits.MemtoReg     <> RegEnable(io.IDU_2_EXU.bits.MemtoReg,     comunication_succeed) 
-    io.EXU_2_WBU.bits.csr_ctr      <> RegEnable(io.IDU_2_EXU.bits.csr_ctr,      comunication_succeed)  
-    io.EXU_2_WBU.bits.Imm          <> RegEnable(io.IDU_2_EXU.bits.Imm,          comunication_succeed)      
-    io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.IDU_2_EXU.bits.GPR_Adata,    comunication_succeed)
-    io.EXU_2_WBU.bits.GPR_waddr    <> RegEnable(io.IDU_2_EXU.bits.GPR_waddr,    comunication_succeed)
-    io.EXU_2_WBU.bits.PC           <> RegEnable(io.IDU_2_EXU.bits.PC,           comunication_succeed)   
-    io.EXU_2_WBU.bits.CSR          <> RegEnable(io.REG_2_EXU.CSR_rdata,         comunication_succeed)  
+    // io.EXU_2_WBU.bits.RegWr        <> RegEnable(io.IDU_2_EXU.bits.RegWr,        comunication_succeed)     
+    // io.EXU_2_WBU.bits.Branch       <> RegEnable(io.IDU_2_EXU.bits.Branch,       comunication_succeed)     
+    // io.EXU_2_WBU.bits.MemtoReg     <> RegEnable(io.IDU_2_EXU.bits.MemtoReg,     comunication_succeed) 
+    // io.EXU_2_WBU.bits.csr_ctr      <> RegEnable(io.IDU_2_EXU.bits.csr_ctr,      comunication_succeed)  
+    // io.EXU_2_WBU.bits.Imm          <> RegEnable(io.IDU_2_EXU.bits.Imm,          comunication_succeed)      
+    // io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.IDU_2_EXU.bits.GPR_Adata,    comunication_succeed)
+    // io.EXU_2_WBU.bits.GPR_waddr    <> RegEnable(io.IDU_2_EXU.bits.GPR_waddr,    comunication_succeed)
+    // io.EXU_2_WBU.bits.PC           <> RegEnable(io.IDU_2_EXU.bits.PC,           comunication_succeed)   
+    // io.EXU_2_WBU.bits.CSR          <> RegEnable(io.REG_2_EXU.CSR_rdata,         comunication_succeed)  
       
-    io.EXU_2_WBU.bits.Result       <> alu.io.out.bits.Result
-    io.EXU_2_WBU.bits.Zero         <> alu.io.out.bits.Zero
-    io.EXU_2_WBU.bits.Less         <> alu.io.out.bits.Less
-    io.EXU_2_WBU.bits.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
+    // io.EXU_2_WBU.bits.Result       <> alu.io.out.bits.Result
+    // io.EXU_2_WBU.bits.Zero         <> alu.io.out.bits.Zero
+    // io.EXU_2_WBU.bits.Less         <> alu.io.out.bits.Less
+    // io.EXU_2_WBU.bits.Mem_rdata    <> lsu.io.out.bits.Mem_rdata
+    
+    
+    val PCAsrc = Wire(UInt(32.W))
+    val PCBsrc = Wire(UInt(32.W))
+
+    PCAsrc := MuxLookup(io.IDU_2_EXU.bits.Branch, 4.U)(Seq(
+        Bran_Jmp -> io.IDU_2_EXU.bits.Imm,
+        Bran_Jmpr -> io.IDU_2_EXU.bits.Imm,
+        Bran_Jeq -> Mux(alu.io.out.bits.Zero, io.IDU_2_EXU.bits.Imm, 4.U),
+        Bran_Jne -> Mux(alu.io.out.bits.Zero, 4.U, io.IDU_2_EXU.bits.Imm),
+        Bran_Jlt -> Mux(alu.io.out.bits.Less, io.IDU_2_EXU.bits.Imm, 4.U),
+        Bran_Jge -> Mux(alu.io.out.bits.Less, 4.U, io.IDU_2_EXU.bits.Imm),
+        Bran_Jcsr -> io.REG_2_EXU.CSR_rdata,
+        Bran_NoC -> 0.U,
+    ))
+
+    PCBsrc := MuxLookup(io.IDU_2_EXU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
+        Bran_Jmpr -> io.IDU_2_EXU.bits.GPR_Adata,
+        Bran_Jcsr -> 0.U,
+        Bran_NoC  -> io.IDU_2_EXU.bits.PC,
+    ))
+
+    io.EXU_2_WBU.bits.Next_Pc := PCAsrc + PCBsrc
+    io.EXU_2_WBU.bits.GPR_waddr := io.IDU_2_EXU.bits.GPR_waddr
+    io.EXU_2_WBU.bits.GPR_wdata := MuxLookup(io.IDU_2_EXU.bits.MemtoReg, alu.io.out.bits.Result)(Seq(
+        Y  -> lsu.io.out.bits.Mem_rdata,
+        N  -> Mux(io.IDU_2_EXU.bits.csr_ctr === CSR_N, alu.io.out.bits.Result, io.REG_2_EXU.CSR_rdata),
+    ))
+    io.EXU_2_WBU.bits.GPR_wen <> io.IDU_2_EXU.bits.RegWr
+    io.EXU_2_WBU.bits.CSR_ctr <> io.IDU_2_EXU.bits.csr_ctr
+    io.EXU_2_WBU.bits.CSR_waddra := MuxLookup(io.IDU_2_EXU.bits.csr_ctr, io.IDU_2_EXU.bits.Imm(11, 0))(Seq(
+        CSR_R1W2 -> "h341".U
+    ))
+    io.EXU_2_WBU.bits.CSR_waddrb := "h342".U
+    io.EXU_2_WBU.bits.CSR_wdataa := MuxLookup(io.IDU_2_EXU.bits.csr_ctr, alu.io.out.bits.Result)(Seq(
+        CSR_R1W2 -> io.IDU_2_EXU.bits.PC,
+    ))
+    io.EXU_2_WBU.bits.CSR_wdatab := 11.U
 }

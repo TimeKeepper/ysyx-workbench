@@ -74,7 +74,7 @@ class ysyx_23060198_EXU extends Module {
         Bran_NoC -> 0.U,
     ))
 
-    PCBsrc := MuxLookup(io.IDU_2_EXU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
+    PCBsrc := MuxLookup(io.IDU_2_EXU.bits.Branch, RegEnable(io.IDU_2_EXU.bits.PC))(Seq(
         Bran_Jmpr -> io.IDU_2_EXU.bits.GPR_Adata,
         Bran_Jcsr -> 0.U,
         Bran_NoC  -> io.IDU_2_EXU.bits.PC,

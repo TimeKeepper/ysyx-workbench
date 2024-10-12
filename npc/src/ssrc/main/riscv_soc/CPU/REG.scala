@@ -99,18 +99,14 @@ class ysyx_23060198_REG extends Module {
 
   val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
 
-  // read only csr
-  val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
-  val marchid   = RegInit("d23060198".U(32.W)) // my id 
-
   io.REG_2_EXU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,
     ADDR_MEPC      -> mepc,
     ADDR_MCAUSE    -> mcause,
-    ADDR_MVENDORID -> mvendorid,
-    ADDR_MARCHID   -> marchid
+    ADDR_MVENDORID -> "h79737978".U(32.W), // ysyx
+    ADDR_MARCHID   -> "d23060198".U(32.W)  // my id 
   ))
 
   when(csra_wen) {

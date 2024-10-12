@@ -109,8 +109,8 @@ class ysyx_23060198_REG extends Module {
     ADDR_MSCRATCH  -> mscratch,
     ADDR_MEPC      -> mepc,
     ADDR_MCAUSE    -> mcause,
-    ADDR_MVENDORID -> mvendorid,
-    ADDR_MARCHID   -> marchid
+    ADDR_MVENDORID -> "h79737978".U(32.W), // ysyx
+    ADDR_MARCHID   -> "d23060198".U(32.W)  // my id 
   ))
 
   when(csra_wen) {

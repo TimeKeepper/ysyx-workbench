@@ -10,7 +10,7 @@ class WBU_output extends Bundle{
     val addr = Output(UInt(32.W))
 }
 
-class BUS_IFU_2_GNU extends Bundle{
+class BUS_IFU_2_IDU extends Bundle{
     val data = UInt(32.W)
 }
 
@@ -19,13 +19,13 @@ class BUS_IFU_2_REG extends Bundle{
     val GPR_Baddr  = UInt(5.W)
 }
 
-class BUS_REG_2_GNU extends Bundle{
+class BUS_REG_2_IDU extends Bundle{
     val PC         = UInt(32.W)
     val GPR_Adata  = UInt(32.W)
     val GPR_Bdata  = UInt(32.W)
 }
 
-class BUS_GNU_2_EXU extends Bundle{
+class BUS_IDU_2_EXU extends Bundle{
     val RegWr    = Bool()
     val Branch   = Bran_Type
     val MemtoReg = Bool()
@@ -42,7 +42,7 @@ class BUS_GNU_2_EXU extends Bundle{
     val PC       = UInt(32.W)
 }
 
-class BUS_GNU_2_REG extends Bundle{
+class BUS_IDU_2_REG extends Bundle{
     val CSR_raddr   = UInt(12.W)
 }
 
@@ -66,7 +66,7 @@ class BUS_EXU_2_WBU extends Bundle{
     val Mem_rdata   = UInt(32.W)
 }
 
-class WBU_output_ extends Bundle{
+class BUS_WBU_2_REG extends Bundle{
     val inst_valid= Output(Bool())
     val Next_Pc   = Output(UInt(32.W))
     val GPR_waddr = Output(UInt(5.W))
@@ -77,6 +77,16 @@ class WBU_output_ extends Bundle{
     val CSR_waddrb= Output(UInt(12.W))
     val CSR_wdataa= Output(UInt(32.W))
     val CSR_wdatab= Output(UInt(32.W))
+}
+
+class BUS_WBU_2_IFU extends Bundle
+
+class BUS_REG_2_IFU extends Bundle{
+    val Next_PC = UInt(32.W)
+}
+
+trait Bus_default_value {
+    def setDefault(): Unit
 }
 
 class araddr extends Bundle{
@@ -95,20 +105,28 @@ class awaddr extends Bundle{
 }
 
 class wdata extends Bundle{
-    val data = Output(UInt(32.W))
-    val strb = Output(UInt(4.W))
+    val data = UInt(32.W)
+    val strb = UInt(4.W)
 }
 
 class bresp extends Bundle{
     val bresp = Input(Bool())
 }
 
-class AXI_Master extends Bundle{
+class AXI_Master extends Bundle with Bus_default_value{
     val araddr = Decoupled(new araddr)
     val rdata = Flipped(Decoupled(new rdata))
     val awaddr = Decoupled(new awaddr)
-    val wdata = Decoupled(new wdata)
+    val wdata = Decoupled(Output(new wdata))
     val bresp  = Flipped(Decoupled(new bresp))
+
+    def setDefault(): Unit = {
+        araddr.ready := false.B
+        rdata.valid := false.B
+        awaddr.ready := false.B
+        wdata.ready := false.B
+        bresp.valid := false.B
+    }
 }
 
 class AXI_Slave extends Bundle{
@@ -118,7 +136,7 @@ class AXI_Slave extends Bundle{
     val wdata = Flipped(Decoupled(new wdata))
     val bresp  = Decoupled(new bresp)
 }
- 
+
 class FIX_AXI_BUS_Master extends Bundle{
   val awready = Input(Bool())
   val awvalid = Output(Bool())

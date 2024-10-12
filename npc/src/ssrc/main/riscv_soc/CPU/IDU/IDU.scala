@@ -3,6 +3,11 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 
+import signal_value._
+import bus_state._
+import Instructions._
+// riscv generating number(all meassge ALU and other thing needs) unit
+
 object Decode {
   import signal_value._
 
@@ -60,35 +65,60 @@ object Decode {
     // format: on
 }
 
-// riscv cpu instruction decode unit
+class ysyx_23060198_IDU extends Module{
+    val io = IO(new Bundle{
+        val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
+        val REG_2_IDU     = Input(new BUS_REG_2_IDU)
 
-class ysyx_23060198_IDU extends Module {
-  import signal_value._
-  val io = IO(new Bundle {
-    val inst = Input(UInt(32.W))
+        val IDU_2_EXU     = Decoupled(Output(new BUS_IDU_2_EXU))
+        val IDU_2_REG     = Output(new BUS_IDU_2_REG)
+    })
 
-    val ExtOp    = Output(Imm_Type)
-    val RegWr    = Output(Bool())
-    val Branch   = Output(Bran_Type)
-    val MemtoReg = Output(Bool())
-    val MemWr    = Output(Bool())
-    val MemOp    = Output(MemOp_Type)
-    val ALUAsrc  = Output(ALUAsrc_Type)
-    val ALUBsrc  = Output(ALUBSrc_Type)
-    val ALUctr   = Output(ALUctr_Type)
-    val csr_ctr  = Output(CSR_Type)
-  })
+    val state = RegInit(s_wait_valid)
 
-  val ctrlSignals = ListLookup(io.inst, Decode.default, Decode.map)
+    state := MuxLookup(state, s_wait_valid)(
+        Seq(
+            s_wait_valid -> Mux(io.IFU_2_IDU.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.IDU_2_EXU.ready, s_wait_valid, s_wait_ready),
+        )
+    )
 
-  io.ExtOp        := ctrlSignals(0)
-  io.RegWr        := ctrlSignals(1)
-  io.Branch       := ctrlSignals(2)
-  io.MemtoReg     := ctrlSignals(3)
-  io.MemWr        := ctrlSignals(4)
-  io.MemOp        := ctrlSignals(5)
-  io.ALUAsrc      := ctrlSignals(6)
-  io.ALUBsrc      := ctrlSignals(7)
-  io.ALUctr       := ctrlSignals(8)
-  io.csr_ctr      := ctrlSignals(9)
+    io.IDU_2_EXU.valid := state === s_wait_ready
+    io.IFU_2_IDU.ready := state === s_wait_valid
+    val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
+
+    val ctrlSignals = ListLookup(io.IFU_2_IDU.bits.data, Decode.default, Decode.map)
+
+    val imm = MuxLookup(ctrlSignals(0), 0.U)(
+        Seq(
+            Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
+            Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
+            Imm_S -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),
+            Imm_B -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(7), io.IFU_2_IDU.bits.data(30, 25), io.IFU_2_IDU.bits.data(11, 8), 0.U(1.W)),
+            Imm_J -> Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W)),
+        )
+    )
+
+    io.IDU_2_EXU.bits.RegWr        <> RegEnable(ctrlSignals(1),         comunication_succeed) 
+    io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(2),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(3),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(4),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(5),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(6),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(7),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(8),         comunication_succeed) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(9),         comunication_succeed) 
+    io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(io.IFU_2_IDU.bits.data(11, 7), comunication_succeed) 
+    io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
+    io.IDU_2_REG.CSR_raddr         <> RegEnable(MuxLookup(
+                                                    ctrlSignals(9), imm(11, 0))(
+                                                            Seq(
+                                                                CSR_R1W0 -> "h341".U,
+                                                                CSR_R1W2 -> "h305".U,
+                                                            )
+                                                    ), comunication_succeed
+                                        )
 }

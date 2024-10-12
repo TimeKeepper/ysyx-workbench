@@ -10,7 +10,7 @@ class WBU_output extends Bundle{
     val addr = Output(UInt(32.W))
 }
 
-class BUS_IFU_2_GNU extends Bundle{
+class BUS_IFU_2_IDU extends Bundle{
     val data = UInt(32.W)
 }
 
@@ -19,13 +19,13 @@ class BUS_IFU_2_REG extends Bundle{
     val GPR_Baddr  = UInt(5.W)
 }
 
-class BUS_REG_2_GNU extends Bundle{
+class BUS_REG_2_IDU extends Bundle{
     val PC         = UInt(32.W)
     val GPR_Adata  = UInt(32.W)
     val GPR_Bdata  = UInt(32.W)
 }
 
-class BUS_GNU_2_EXU extends Bundle{
+class BUS_IDU_2_EXU extends Bundle{
     val RegWr    = Bool()
     val Branch   = Bran_Type
     val MemtoReg = Bool()
@@ -42,7 +42,7 @@ class BUS_GNU_2_EXU extends Bundle{
     val PC       = UInt(32.W)
 }
 
-class BUS_GNU_2_REG extends Bundle{
+class BUS_IDU_2_REG extends Bundle{
     val CSR_raddr   = UInt(12.W)
 }
 

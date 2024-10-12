@@ -59,8 +59,8 @@ class ysyx_23060198_REG extends Module {
   val io = IO(new Bundle {
     val REG_2_IFU = Output(new BUS_REG_2_IFU)
     val IFU_2_REG = Input(new BUS_IFU_2_REG)
-    val REG_2_GNU = Output(new BUS_REG_2_GNU)
-    val GNU_2_REG = Input(new BUS_GNU_2_REG)
+    val REG_2_IDU = Output(new BUS_REG_2_IDU)
+    val IDU_2_REG = Input(new BUS_IDU_2_REG)
     val REG_2_EXU = Output(new BUS_REG_2_EXU)
     val WBU_2_REG = Input(new BUS_WBU_2_REG)
   })
@@ -76,15 +76,15 @@ class ysyx_23060198_REG extends Module {
     gpr(io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
   }
 
-  io.REG_2_GNU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
-  io.REG_2_GNU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
+  io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
+  io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
 
   val pc = RegInit(main_val.Reset_Vector)
 
   when(pc_wen){
     pc        := io.WBU_2_REG.Next_Pc
   }
-  io.REG_2_GNU.PC := pc
+  io.REG_2_IDU.PC := pc
   io.REG_2_IFU.Next_PC := pc
 
   // CSR
@@ -103,7 +103,7 @@ class ysyx_23060198_REG extends Module {
   val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
   val marchid   = RegInit("d23060198".U(32.W)) // my id 
 
-  io.REG_2_EXU.CSR_rdata := MuxLookup(io.GNU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
+  io.REG_2_EXU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,

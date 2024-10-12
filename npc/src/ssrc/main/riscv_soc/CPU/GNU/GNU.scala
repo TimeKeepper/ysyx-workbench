@@ -65,55 +65,55 @@ object Decode {
     // format: on
 }
 
-class ysyx_23060198_GNU extends Module{
+class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
-        val IFU_2_GNU     = Flipped(Decoupled(Input(new BUS_IFU_2_GNU)))
-        val REG_2_GNU     = Input(new BUS_REG_2_GNU)
+        val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
+        val REG_2_IDU     = Input(new BUS_REG_2_IDU)
 
-        val GNU_2_EXU     = Decoupled(Output(new BUS_GNU_2_EXU))
-        val GNU_2_REG     = Output(new BUS_GNU_2_REG)
+        val IDU_2_EXU     = Decoupled(Output(new BUS_IDU_2_EXU))
+        val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
 
     val state = RegInit(s_wait_valid)
 
     state := MuxLookup(state, s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.IFU_2_GNU.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.GNU_2_EXU.ready, s_wait_valid, s_wait_ready),
+            s_wait_valid -> Mux(io.IFU_2_IDU.valid, s_wait_ready, s_wait_valid),
+            s_wait_ready -> Mux(io.IDU_2_EXU.ready, s_wait_valid, s_wait_ready),
         )
     )
 
-    io.GNU_2_EXU.valid := state === s_wait_ready
-    io.IFU_2_GNU.ready := state === s_wait_valid
-    val comunication_succeed = (io.IFU_2_GNU.valid && io.IFU_2_GNU.ready)
+    io.IDU_2_EXU.valid := state === s_wait_ready
+    io.IFU_2_IDU.ready := state === s_wait_valid
+    val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
 
-    val ctrlSignals = ListLookup(io.IFU_2_GNU.bits.data, Decode.default, Decode.map)
+    val ctrlSignals = ListLookup(io.IFU_2_IDU.bits.data, Decode.default, Decode.map)
 
     val imm = MuxLookup(ctrlSignals(0), 0.U)(
         Seq(
-            Imm_I -> Cat(Fill(21, io.IFU_2_GNU.bits.data(31)), io.IFU_2_GNU.bits.data(31, 20)),
-            Imm_U -> Cat(io.IFU_2_GNU.bits.data(31, 12), Fill(12, 0.U)),
-            Imm_S -> Cat(Fill(20, io.IFU_2_GNU.bits.data(31)), io.IFU_2_GNU.bits.data(31, 25), io.IFU_2_GNU.bits.data(11, 7)),
-            Imm_B -> Cat(Fill(20, io.IFU_2_GNU.bits.data(31)), io.IFU_2_GNU.bits.data(7), io.IFU_2_GNU.bits.data(30, 25), io.IFU_2_GNU.bits.data(11, 8), 0.U(1.W)),
-            Imm_J -> Cat(Fill(12, io.IFU_2_GNU.bits.data(31)), io.IFU_2_GNU.bits.data(19, 12), io.IFU_2_GNU.bits.data(20), io.IFU_2_GNU.bits.data(30, 21), 0.U(1.W)),
+            Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
+            Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
+            Imm_S -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),
+            Imm_B -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(7), io.IFU_2_IDU.bits.data(30, 25), io.IFU_2_IDU.bits.data(11, 8), 0.U(1.W)),
+            Imm_J -> Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W)),
         )
     )
 
-    io.GNU_2_EXU.bits.RegWr        <> RegEnable(ctrlSignals(1),         comunication_succeed) 
-    io.GNU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(2),         comunication_succeed) 
-    io.GNU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(3),         comunication_succeed) 
-    io.GNU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(4),         comunication_succeed) 
-    io.GNU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(5),         comunication_succeed) 
-    io.GNU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(6),         comunication_succeed) 
-    io.GNU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(7),         comunication_succeed) 
-    io.GNU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(8),         comunication_succeed) 
-    io.GNU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(9),         comunication_succeed) 
-    io.GNU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
-    io.GNU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_GNU.GPR_Adata,  comunication_succeed) 
-    io.GNU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_GNU.GPR_Bdata,  comunication_succeed) 
-    io.GNU_2_EXU.bits.GPR_waddr    <> RegEnable(io.IFU_2_GNU.bits.data(11, 7), comunication_succeed) 
-    io.GNU_2_EXU.bits.PC           <> RegEnable(io.REG_2_GNU.PC,         comunication_succeed) 
-    io.GNU_2_REG.CSR_raddr         <> RegEnable(MuxLookup(
+    io.IDU_2_EXU.bits.RegWr        <> RegEnable(ctrlSignals(1),         comunication_succeed) 
+    io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(2),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(3),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(4),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(5),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(6),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(7),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(8),         comunication_succeed) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(9),         comunication_succeed) 
+    io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(io.IFU_2_IDU.bits.data(11, 7), comunication_succeed) 
+    io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
+    io.IDU_2_REG.CSR_raddr         <> RegEnable(MuxLookup(
                                                     ctrlSignals(9), imm(11, 0))(
                                                             Seq(
                                                                 CSR_R1W0 -> "h341".U,

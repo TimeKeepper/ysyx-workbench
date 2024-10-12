@@ -47,28 +47,6 @@ class ysyx_23060198_WBU extends Module {
         Bran_NoC  -> io.EXU_2_WBU.bits.PC,
     ))
 
-    // val bcu = Module(new ysyx_23060198_BCU)    
-
-    // bcu.io.Branch   <> io.EXU_2_WBU.bits.Branch
-    // bcu.io.Zero     <> io.EXU_2_WBU.bits.Zero
-    // bcu.io.Less     <> io.EXU_2_WBU.bits.Less
-    
-    // val PCAsrc = Wire(UInt(32.W))
-    // val PCBsrc = Wire(UInt(32.W))
-
-    // PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-    //     PCAsrc_Imm -> io.EXU_2_WBU.bits.Imm,
-    //     PCAsrc_0  -> 0.U,
-    //     PCAsrc_4 -> 4.U,
-    //     PCAsrc_csr -> io.EXU_2_WBU.bits.CSR,
-    // ))
-
-    // PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-    //     PCBsrc_gpr -> io.EXU_2_WBU.bits.GPR_Adata,
-    //     PCBsrc_pc  -> io.EXU_2_WBU.bits.PC,
-    //     PCBsrc_0   -> 0.U,
-    // ))
-
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
         io.WBU_2_REG.inst_valid := true.B
     }.otherwise{

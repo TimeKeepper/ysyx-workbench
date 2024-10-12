@@ -73,9 +73,6 @@ class ysyx_23060198_IFU extends Module {
     io.IFU_2_IDU.valid <> io.AXI.rdata.valid
     io.IFU_2_IDU.bits.data <> io.AXI.rdata.bits.data
 
-    io.IFU_2_REG.GPR_Aaddr <> io.AXI.rdata.bits.data(19, 15)
-    io.IFU_2_REG.GPR_Baddr <> io.AXI.rdata.bits.data(24, 20)
-
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U
     io.AXI.awaddr.bits.size := 0.U

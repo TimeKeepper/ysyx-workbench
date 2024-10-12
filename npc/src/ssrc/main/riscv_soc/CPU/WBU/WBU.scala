@@ -26,27 +26,25 @@ class ysyx_23060198_WBU extends Module {
 
     io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
     io.EXU_2_WBU.ready  := state === s_wait_valid
-
-    val bcu = Module(new ysyx_23060198_BCU)    
-
-    bcu.io.Branch   <> io.EXU_2_WBU.bits.Branch
-    bcu.io.Zero     <> io.EXU_2_WBU.bits.Zero
-    bcu.io.Less     <> io.EXU_2_WBU.bits.Less
     
     val PCAsrc = Wire(UInt(32.W))
     val PCBsrc = Wire(UInt(32.W))
 
-    PCAsrc := MuxLookup(bcu.io.PCAsrc, 0.U)(Seq(
-        PCAsrc_Imm -> io.EXU_2_WBU.bits.Imm,
-        PCAsrc_0  -> 0.U,
-        PCAsrc_4 -> 4.U,
-        PCAsrc_csr -> io.EXU_2_WBU.bits.CSR,
+    PCAsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, 4.U)(Seq(
+        Bran_Jmp -> io.EXU_2_WBU.bits.Imm,
+        Bran_Jmpr -> io.EXU_2_WBU.bits.Imm,
+        Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.Imm, 4.U),
+        Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, 4.U, io.EXU_2_WBU.bits.Imm),
+        Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.Imm, 4.U),
+        Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, 4.U, io.EXU_2_WBU.bits.Imm),
+        Bran_Jcsr -> io.EXU_2_WBU.bits.CSR,
+        Bran_NoC -> 0.U,
     ))
 
-    PCBsrc := MuxLookup(bcu.io.PCBsrc, 0.U)(Seq(
-        PCBsrc_gpr -> io.EXU_2_WBU.bits.GPR_Adata,
-        PCBsrc_pc  -> io.EXU_2_WBU.bits.PC,
-        PCBsrc_0   -> 0.U,
+    PCBsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
+        Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata,
+        Bran_Jcsr -> 0.U,
+        Bran_NoC  -> io.EXU_2_WBU.bits.PC,
     ))
 
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){

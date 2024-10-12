@@ -45,9 +45,9 @@ class ysyx_23060198_EXU extends Module {
     lsu.io.AXI <> io.AXI
     
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
-        io.EXU_2_WBU.inst_valid := true.B
+        io.EXU_2_WBU.bits.inst_valid := true.B
     }.otherwise{
-        io.EXU_2_WBU.inst_valid := false.B
+        io.EXU_2_WBU.bits.inst_valid := false.B
     }
     
     val PCAsrc = Wire(UInt(32.W))

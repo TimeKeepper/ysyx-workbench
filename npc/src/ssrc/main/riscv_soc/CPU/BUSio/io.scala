@@ -67,16 +67,16 @@ class BUS_EXU_2_WBU extends Bundle{
 }
 
 class BUS_WBU_2_REG extends Bundle{
-    val inst_valid= Output(Bool())
-    val Next_Pc   = Output(UInt(32.W))
-    val GPR_waddr = Output(UInt(5.W))
-    val GPR_wdata = Output(UInt(32.W))
-    val GPR_wen   = Output(Bool())
-    val CSR_ctr   = Output(CSR_Type)
-    val CSR_waddra= Output(UInt(12.W))
-    val CSR_waddrb= Output(UInt(12.W))
-    val CSR_wdataa= Output(UInt(32.W))
-    val CSR_wdatab= Output(UInt(32.W))
+    val inst_valid= Bool()
+    val Next_Pc   = UInt(32.W)
+    val GPR_waddr = UInt(5.W)
+    val GPR_wdata = UInt(32.W)
+    val GPR_wen   = Bool()
+    val CSR_ctr   = CSR_Type
+    val CSR_waddra= UInt(12.W)
+    val CSR_waddrb= UInt(12.W)
+    val CSR_wdataa= UInt(32.W)
+    val CSR_wdatab= UInt(32.W)
 }
 
 class BUS_WBU_2_IFU extends Bundle

@@ -49,7 +49,7 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.MemtoReg     <> RegEnable(io.IDU_2_EXU.bits.MemtoReg,     comunication_succeed) 
     io.EXU_2_WBU.bits.csr_ctr      <> RegEnable(io.IDU_2_EXU.bits.csr_ctr,      comunication_succeed)  
     io.EXU_2_WBU.bits.Imm          <> RegEnable(io.IDU_2_EXU.bits.Imm,          comunication_succeed)      
-    io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.IDU_2_EXU.bits.GPR_Adata,    comunication_succeed)
+    io.EXU_2_WBU.bits.GPR_Adata    <> RegEnable(io.REG_2_EXU.bits.GPR_Adata,    comunication_succeed)
     io.EXU_2_WBU.bits.GPR_waddr    <> RegEnable(io.IDU_2_EXU.bits.GPR_waddr,    comunication_succeed)
     io.EXU_2_WBU.bits.PC           <> RegEnable(io.IDU_2_EXU.bits.PC,           comunication_succeed)   
     io.EXU_2_WBU.bits.CSR          <> RegEnable(io.REG_2_EXU.CSR_rdata,         comunication_succeed)  

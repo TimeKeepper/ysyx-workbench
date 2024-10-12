@@ -118,6 +118,7 @@ class ysyx_23060198_ALU_BarrelShifter extends Module {
 class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
     val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
+    val REG_2_EXU = Input(new REG_2_EXU_Type)
     val CSR       = Input(UInt(32.W))
 
     val out = Decoupled(new Bundle{
@@ -150,14 +151,14 @@ class ysyx_23060198_ALU extends Module {
   val src_B      = Wire(UInt(32.W))
 
   src_A := MuxLookup(io.IDU_2_EXU.bits.ALUAsrc, 0.U)(Seq(
-      ALUAsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
+      ALUAsrc_RS1 -> io.REG_2_EXU.bits.GPR_Adata,
       ALUAsrc_PC  -> io.IDU_2_EXU.bits.PC,
       ALUAsrc_CSR -> io.CSR,
   ))
 
   src_B := MuxLookup(io.IDU_2_EXU.bits.ALUBsrc, 0.U)(Seq(
-      ALUBSrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
-      ALUBSrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
+      ALUBSrc_RS1 -> io.REG_2_EXU.bits.GPR_Adata,
+      ALUBSrc_RS2 -> io.REG_2_EXU.bits.GPR_Bdata,
       ALUBSrc_IMM -> io.IDU_2_EXU.bits.Imm,
       ALUBSrc_4   -> 4.U,
   ))

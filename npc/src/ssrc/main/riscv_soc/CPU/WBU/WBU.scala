@@ -26,6 +26,9 @@ class ysyx_23060198_WBU extends Module {
 
     io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
     io.EXU_2_WBU.ready  := state === s_wait_valid
+    
+    val PCAsrc = Wire(UInt(32.W))
+    val PCBsrc = Wire(UInt(32.W))
 
     PCAsrc := MuxLookup(io.EXU_2_WBU.bits.Branch, 0.U)(Seq(
         Bran_Jmp -> io.EXU_2_WBU.bits.Imm,

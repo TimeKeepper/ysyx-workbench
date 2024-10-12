@@ -77,7 +77,7 @@ class ysyx_23060198_WBU_ extends Module {
     io.WBU_2_REG.CSR_wdatab := 11.U
 }
 
-class ysyx_23060198_WBU_ extends Module {
+class ysyx_23060198_WBU extends Module {
     val io = IO(new Bundle{
         val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
         val WBU_2_IFU = Decoupled(Output(new BUS_WBU_2_IFU))
@@ -111,5 +111,5 @@ class ysyx_23060198_WBU_ extends Module {
     io.EXU_2_WBU.bits.CSR_waddrb <> io.WBU_2_REG.CSR_waddrb
     io.EXU_2_WBU.bits.CSR_wdataa <> io.WBU_2_REG.CSR_wdataa
     io.EXU_2_WBU.bits.CSR_wdatab <> io.WBU_2_REG.CSR_wdatab
-    
+
 }

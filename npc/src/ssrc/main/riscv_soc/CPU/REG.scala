@@ -139,7 +139,7 @@ class ysyx_23060198_REG extends Module {
     val bridge = Module(new REG_BRIDGE)
 
     bridge.io.clock := clock
-    bridge.io.pc_wen := pc_wen
+    bridge.io.pc_wen := io.WBU_2_REG.inst_valid
     bridge.io.csra_wen := csra_wen
     bridge.io.csrb_wen := csrb_wen
     bridge.io.gpr_wen := gpr_wen

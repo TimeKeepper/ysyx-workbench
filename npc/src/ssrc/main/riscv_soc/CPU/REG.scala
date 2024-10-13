@@ -76,13 +76,13 @@ class ysyx_23060198_REG extends Module {
   }
 
   when(io.IFU_2_REG.GPR_Aaddr === 0.U){
-    io.REG_2_IFU.GPR_Adata := 0.U
+    io.REG_2_IDU.GPR_Adata := 0.U
   }.otherwise{
     io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
   }
 
   when(io.IFU_2_REG.GPR_Baddr === 0.U){
-    io.REG_2_IFU.GPR_Bdata := 0.U
+    io.REG_2_IDU.GPR_Bdata := 0.U
   }.otherwise{
     io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
   }

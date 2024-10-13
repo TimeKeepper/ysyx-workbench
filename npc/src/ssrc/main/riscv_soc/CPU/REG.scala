@@ -72,17 +72,17 @@ class ysyx_23060198_REG extends Module {
   val gpr = RegInit(VecInit(Seq.fill(15)(0.U(32.W))))
 
   when(gpr_wen) {
-    gpr(~io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
+    gpr(io.WBU_2_REG.GPR_waddr - 1.U) := io.WBU_2_REG.GPR_wdata
   }
 
   when(io.IFU_2_REG.GPR_Aaddr =/= 0.U){
-    io.REG_2_IDU.GPR_Adata := gpr(~io.IFU_2_REG.GPR_Aaddr)
+    io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr - 1.U)
   }.otherwise{
     io.REG_2_IDU.GPR_Adata := 0.U
   }
 
   when(io.IFU_2_REG.GPR_Baddr =/= 0.U){
-    io.REG_2_IDU.GPR_Bdata := gpr(~io.IFU_2_REG.GPR_Baddr)
+    io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr - 1.U)
   }.otherwise{
     io.REG_2_IDU.GPR_Bdata := 0.U
   }

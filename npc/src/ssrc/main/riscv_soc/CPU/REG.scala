@@ -65,12 +65,11 @@ class ysyx_23060198_REG extends Module {
     val WBU_2_REG = Input(new BUS_WBU_2_REG)
   })
 
-  val pc_wen = io.WBU_2_REG.inst_valid === true.B
   val csra_wen = (io.WBU_2_REG.CSR_ctr === CSR_R1W1 || io.WBU_2_REG.CSR_ctr === CSR_R1W2) && io.WBU_2_REG.inst_valid === true.B
   val csrb_wen = io.WBU_2_REG.CSR_ctr === CSR_R1W2 && io.WBU_2_REG.inst_valid === true.B
   val gpr_wen = io.WBU_2_REG.GPR_wen && io.WBU_2_REG.GPR_waddr =/= 0.U && io.WBU_2_REG.inst_valid === true.B
 
-  val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
+  val gpr = RegInit(VecInit(Seq.fill(16)(0.U(32.W))))
 
   when(gpr_wen) {
     gpr(io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
@@ -79,11 +78,8 @@ class ysyx_23060198_REG extends Module {
   io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
   io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
 
-  val pc = RegInit(main_val.Reset_Vector)
+  val pc = RegEnable(io.WBU_2_REG.Next_Pc, main_val.Reset_Vector, io.WBU_2_REG.inst_valid)
 
-  when(pc_wen){
-    pc        := io.WBU_2_REG.Next_Pc
-  }
   io.REG_2_IDU.PC := pc
   io.REG_2_IFU.Next_PC := pc
 
@@ -143,7 +139,7 @@ class ysyx_23060198_REG extends Module {
     val bridge = Module(new REG_BRIDGE)
 
     bridge.io.clock := clock
-    bridge.io.pc_wen := pc_wen
+    bridge.io.pc_wen := io.WBU_2_REG.inst_valid
     bridge.io.csra_wen := csra_wen
     bridge.io.csrb_wen := csrb_wen
     bridge.io.gpr_wen := gpr_wen

@@ -72,11 +72,11 @@ class ysyx_23060198_REG extends Module {
   val gpr = RegInit(VecInit(Seq.fill(16)(0.U(32.W))))
 
   when(gpr_wen) {
-    gpr(~io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
+    gpr(io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
   }
 
-  io.REG_2_IDU.GPR_Adata := gpr(~io.IFU_2_REG.GPR_Aaddr)
-  io.REG_2_IDU.GPR_Bdata := gpr(~io.IFU_2_REG.GPR_Baddr)
+  io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
+  io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
 
   val pc = RegEnable(io.WBU_2_REG.Next_Pc, main_val.Reset_Vector, io.WBU_2_REG.inst_valid)
 

@@ -29,7 +29,8 @@ class ysyx_23060198_AXI_Interconnect extends Module {
         io.LSU.rdata.bits := DontCare
         io.LSU.araddr.ready := false.B
         io.LSU.awaddr.ready := false.B
-        io.LSU.wdata.ready := false.B
+        io.LSU.wdata.valid := false.B
+        io.LSU.wdata.bits := DontCare
         io.LSU.bresp.valid := false.B
         io.LSU.bresp.bits := DontCare
     }.otherwise{
@@ -38,7 +39,8 @@ class ysyx_23060198_AXI_Interconnect extends Module {
         io.IFU.rdata.bits := DontCare
         io.IFU.araddr.ready := false.B
         io.IFU.awaddr.ready := false.B
-        io.IFU.wdata.ready := false.B
+        io.IFU.wdata.valid := false.B
+        io.IFU.wdata.bits := DontCare
         io.IFU.bresp.valid := false.B
         io.IFU.bresp.bits := DontCare
     }

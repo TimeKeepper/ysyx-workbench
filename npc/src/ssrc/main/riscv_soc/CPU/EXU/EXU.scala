@@ -50,7 +50,7 @@ class ysyx_23060198_EXU extends Module {
         io.EXU_2_WBU.bits.inst_valid := false.B
     }
     
-    val PCAsrc = MuxLookup(io.IDU_2_EXU.bits.Branch, Dontcare)(Seq(
+    val PCAsrc = MuxLookup(io.IDU_2_EXU.bits.Branch, Bitpat.Dontcare)(Seq(
         Bran_NJmp -> 4.U,
         Bran_Jmp -> io.IDU_2_EXU.bits.Imm,
         Bran_Jmpr -> io.IDU_2_EXU.bits.Imm,
@@ -62,7 +62,7 @@ class ysyx_23060198_EXU extends Module {
         Bran_NoC -> 0.U,
     ))
 
-    val PCBsrc = MuxLookup(io.IDU_2_EXU.bits.Branch, Dontcare)(Seq(
+    val PCBsrc = MuxLookup(io.IDU_2_EXU.bits.Branch, Bitpat.Dontcare)(Seq(
         Bran_NJmp -> io.IDU_2_EXU.bits.PC,
         Bran_Jmp  -> io.IDU_2_EXU.bits.PC,
         Bran_Jeq  -> io.IDU_2_EXU.bits.PC,

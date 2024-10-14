@@ -141,8 +141,34 @@ class ysyx_23060198_ALU extends Module {
   val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
-  val alu_ctrl = Module(new ysyx_23060198_ALU_Ctrl)
-  alu_ctrl.io.ALUctr := io.IDU_2_EXU.bits.ALUctr
+  val A_L     = Wire(Bool())
+  val L_R     = Wire(Bool())
+  val U_S     = Wire(Bool())
+  val Sub_Add = Wire(Bool())
+
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U || io.IDU_2_EXU.bits.ALUctr === ALUctr_SRL) {
+    A_L := N
+  }.otherwise {
+    A_L := Y
+  }
+
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_SLL) {
+    L_R := Y
+  }.otherwise {
+    L_R := N
+  }
+
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
+    U_S := Y
+  }.otherwise {
+    U_S := N
+  }
+
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_ADD) {
+    Sub_Add := N
+  }.otherwise {
+    Sub_Add := Y
+  }
 
   // ALU Adder
   val Sub_Add_ex = Wire(SInt(32.W))
@@ -162,12 +188,12 @@ class ysyx_23060198_ALU extends Module {
       ALUBSrc_4   -> 4.U,
   ))
 
-  Sub_Add_ex := alu_ctrl.io.Sub_Add.asSInt
+  Sub_Add_ex := Sub_Add.asSInt
 
   val alu_adder = Module(new ysyx_23060198_ALU_Adder)
   alu_adder.io.A   := src_A
   alu_adder.io.B   := src_B ^ Sub_Add_ex.asUInt
-  alu_adder.io.Cin := alu_ctrl.io.Sub_Add
+  alu_adder.io.Cin := Sub_Add
 
   val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
@@ -182,14 +208,14 @@ class ysyx_23060198_ALU extends Module {
   val alu_barrel_shifter = Module(new ysyx_23060198_ALU_BarrelShifter)
   alu_barrel_shifter.io.Din   := src_A
   alu_barrel_shifter.io.shamt := src_B(4, 0)
-  alu_barrel_shifter.io.L_R   := alu_ctrl.io.L_R
-  alu_barrel_shifter.io.A_L   := alu_ctrl.io.A_L
+  alu_barrel_shifter.io.L_R   := L_R
+  alu_barrel_shifter.io.A_L   := A_L
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(alu_ctrl.io.U_S) {
-    Less := alu_ctrl.io.Sub_Add ^ Carry
-  }.elsewhen(src_B === "h80000000".U && alu_ctrl.io.Sub_Add) {
+  when(U_S) {
+    Less := Sub_Add ^ Carry
+  }.elsewhen(src_B === "h80000000".U && Sub_Add) {
     // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
     Less := N
   }.otherwise {

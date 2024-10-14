@@ -99,7 +99,8 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val csr_raddr = MuxLookup(ctrlSignals(9), imm(11, 0))(
+    val csr_raddr = Wire(UInt(12.W))
+    csr_raddr := MuxLookup(ctrlSignals(9), imm(11, 0))(
         Seq(
             CSR_R1W0 -> "h341".U,
             CSR_R1W2 -> "h305".U,

@@ -80,7 +80,7 @@ class ysyx_23060198_EXU extends Module {
         CSR_R1W2 -> io.IDU_2_EXU.bits.PC,
     ))
 
-    io.EXU_2_WBU.bits.Next_Pc       := RegEnable(PCAsrc + PCBsrc, comunication_succeed)
+    io.EXU_2_WBU.bits.Next_Pc       := PCAsrc + PCBsrc
     io.EXU_2_WBU.bits.GPR_waddr     := io.IDU_2_EXU.bits.GPR_waddr
     io.EXU_2_WBU.bits.GPR_wdata     := GPR_wdata
     io.EXU_2_WBU.bits.GPR_wen       <> io.IDU_2_EXU.bits.RegWr

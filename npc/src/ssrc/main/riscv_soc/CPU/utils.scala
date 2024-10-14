@@ -92,12 +92,12 @@ object signal_value {
   def Bran_NJmp = 0.U(Bran_width) //非跳转
   def Bran_Jmp  = 1.U(Bran_width) //无条件跳转
   def Bran_Jmpr = 2.U(Bran_width) //寄存器基址跳转
-  def Bran_Jeq  = 3.U(Bran_width) //相等跳转
-  def Bran_Jne  = 4.U(Bran_width) //不相等跳转
-  def Bran_Jlt  = 5.U(Bran_width) //小于跳转
-  def Bran_Jge  = 6.U(Bran_width) //大于等于跳转
-  def Bran_Jcsr = 7.U(Bran_width) //CSR跳转
-  def Bran_NoC  = 8.U(Bran_width) //不要改变
+  def Bran_Jeq  = 4.U(Bran_width) //相等跳转
+  def Bran_Jne  = 5.U(Bran_width) //不相等跳转
+  def Bran_Jlt  = 6.U(Bran_width) //小于跳转
+  def Bran_Jge  = 7.U(Bran_width) //大于等于跳转
+  def Bran_Jcsr = 8.U(Bran_width) //CSR跳转
+  def Bran_NoC  = 9.U(Bran_width) //不要改变
 
   // Branch sub signal
   def PCAsrc_width  = 2.W

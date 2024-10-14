@@ -99,15 +99,6 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val csr_raddr = MuxLookup(ctrlSignals(9), imm(11, 0))(
-        Seq(
-            CSR_R1W0 -> "h341".U,
-            CSR_R1W2 -> "h305".U,
-        )
-    )
-
-    io.IDU_2_REG.CSR_raddr         <> csr_raddr
-
     io.IDU_2_EXU.bits.RegWr        <> RegEnable(ctrlSignals(1),         comunication_succeed) 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(2),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(3),         comunication_succeed) 
@@ -122,5 +113,12 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(io.IFU_2_IDU.bits.data(11, 7), comunication_succeed) 
     io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
-    io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,  comunication_succeed) 
+    io.IDU_2_REG.CSR_raddr         <> RegEnable(MuxLookup(
+                                                    ctrlSignals(9), imm(11, 0))(
+                                                            Seq(
+                                                                CSR_R1W0 -> "h341".U,
+                                                                CSR_R1W2 -> "h305".U,
+                                                            )
+                                                    ), comunication_succeed
+                                        )
 }

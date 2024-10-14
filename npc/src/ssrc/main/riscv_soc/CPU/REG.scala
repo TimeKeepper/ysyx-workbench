@@ -65,30 +65,25 @@ class ysyx_23060198_REG extends Module {
     val WBU_2_REG = Input(new BUS_WBU_2_REG)
   })
 
+  val pc_wen = io.WBU_2_REG.inst_valid === true.B
   val csra_wen = (io.WBU_2_REG.CSR_ctr === CSR_R1W1 || io.WBU_2_REG.CSR_ctr === CSR_R1W2) && io.WBU_2_REG.inst_valid === true.B
   val csrb_wen = io.WBU_2_REG.CSR_ctr === CSR_R1W2 && io.WBU_2_REG.inst_valid === true.B
   val gpr_wen = io.WBU_2_REG.GPR_wen && io.WBU_2_REG.GPR_waddr =/= 0.U && io.WBU_2_REG.inst_valid === true.B
 
-  val gpr = RegInit(VecInit(Seq.fill(15)(0.U(32.W))))
+  val gpr = RegInit(VecInit(Seq.fill(32)(0.U(32.W))))
 
   when(gpr_wen) {
-    gpr((io.WBU_2_REG.GPR_waddr - 1.U)(3, 0)) := io.WBU_2_REG.GPR_wdata
+    gpr(io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
   }
 
-  when(io.IFU_2_REG.GPR_Aaddr =/= 0.U){
-    io.REG_2_IDU.GPR_Adata := gpr((io.IFU_2_REG.GPR_Aaddr - 1.U)(3, 0))
-  }.otherwise{
-    io.REG_2_IDU.GPR_Adata := 0.U
+  io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
+  io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
+
+  val pc = RegInit(main_val.Reset_Vector)
+
+  when(pc_wen){
+    pc        := io.WBU_2_REG.Next_Pc
   }
-
-  when(io.IFU_2_REG.GPR_Baddr =/= 0.U){
-    io.REG_2_IDU.GPR_Bdata := gpr((io.IFU_2_REG.GPR_Baddr - 1.U)(3, 0))
-  }.otherwise{
-    io.REG_2_IDU.GPR_Bdata := 0.U
-  }
-
-  val pc = RegEnable(io.WBU_2_REG.Next_Pc, main_val.Reset_Vector, io.WBU_2_REG.inst_valid)
-
   io.REG_2_IDU.PC := pc
   io.REG_2_IFU.Next_PC := pc
 
@@ -104,14 +99,18 @@ class ysyx_23060198_REG extends Module {
 
   val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
 
-  io.REG_2_IDU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
+  // read only csr
+  val mvendorid = RegInit("h79737978".U(32.W)) // ysyx
+  val marchid   = RegInit("d23060198".U(32.W)) // my id 
+
+  io.REG_2_EXU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,
     ADDR_MEPC      -> mepc,
     ADDR_MCAUSE    -> mcause,
-    ADDR_MVENDORID -> "h79737978".U(32.W), // ysyx
-    ADDR_MARCHID   -> "d23060198".U(32.W)  // my id 
+    ADDR_MVENDORID -> mvendorid,
+    ADDR_MARCHID   -> marchid
   ))
 
   when(csra_wen) {
@@ -148,7 +147,7 @@ class ysyx_23060198_REG extends Module {
     val bridge = Module(new REG_BRIDGE)
 
     bridge.io.clock := clock
-    bridge.io.pc_wen := io.WBU_2_REG.inst_valid
+    bridge.io.pc_wen := pc_wen
     bridge.io.csra_wen := csra_wen
     bridge.io.csrb_wen := csrb_wen
     bridge.io.gpr_wen := gpr_wen

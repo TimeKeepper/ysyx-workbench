@@ -69,12 +69,13 @@ class ysyx_23060198_IFU extends Module {
     io.REG_2_IFU.Next_PC <> io.AXI.araddr.bits.addr
     io.AXI.araddr.bits.size <> 2.U
 
+    val AXI_rdata = Wire(((io.AXI.rdata.bits.data >> (io.master.araddr(1,0) << 3.U))(31, 0)))
     io.IFU_2_IDU.ready <> io.AXI.rdata.ready
     io.IFU_2_IDU.valid <> io.AXI.rdata.valid
-    io.IFU_2_IDU.bits.data <> io.AXI.rdata.bits.data
+    io.IFU_2_IDU.bits.data <> AXI_rdata
 
-    io.IFU_2_REG.GPR_Aaddr <> io.AXI.rdata.bits.data(19, 15)
-    io.IFU_2_REG.GPR_Baddr <> io.AXI.rdata.bits.data(24, 20)
+    io.IFU_2_REG.GPR_Aaddr <> AXI_rdata(19, 15)
+    io.IFU_2_REG.GPR_Baddr <> AXI_rdata(24, 20)
 
     io.AXI.awaddr.valid := false.B
     io.AXI.awaddr.bits.addr := 0.U

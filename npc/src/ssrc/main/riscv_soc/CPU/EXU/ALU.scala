@@ -151,6 +151,7 @@ class ysyx_23060198_ALU extends Module {
   alu_barrel_shifter.io.shamt := src_B(4, 0)
   alu_barrel_shifter.io.L_R   := L_R
   alu_barrel_shifter.io.A_L   := A_L
+  val shifter_result = Wire(UInt(32.W))
 
   when(L_R) {
     when(A_L) {
@@ -165,7 +166,6 @@ class ysyx_23060198_ALU extends Module {
       shifter_result := (src_A >> src_B(4, 0))(31, 0)
     }
   }
-  val shifter_result = Wire(UInt(32.W))
 
   // other ALU outputs
   val Less = Wire(Bool())

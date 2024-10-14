@@ -71,6 +71,7 @@ class ysyx_23060198_IFU extends Module {
 
     val AXI_rdata = Wire(UInt(32.W))
     AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)
+    
     io.IFU_2_IDU.ready <> io.AXI.rdata.ready
     io.IFU_2_IDU.valid <> io.AXI.rdata.valid
     io.IFU_2_IDU.bits.data <> AXI_rdata

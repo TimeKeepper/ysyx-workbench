@@ -160,7 +160,8 @@ class ysyx_23060198_LSU extends Module{
     val u_mem_rd = Wire(UInt(32.W))
     val s_mem_rd = Wire(SInt(32.W))
 
-    val AXI_rdata = Wire((io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0))
+    val AXI_rdata = Wire(UInt(32.W))
+    AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)
 
     u_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> (AXI_rdata(7,0).asUInt),

@@ -21,7 +21,7 @@ class BUS_IFU_2_REG extends Bundle{
 
 class BUS_REG_2_IDU extends Bundle{
     val PC         = UInt(32.W)
-    val CSR        = UInt(32.W)
+    val CSR_rdata  = UInt(32.W)
     val GPR_Adata  = UInt(32.W)
     val GPR_Bdata  = UInt(32.W)
 }

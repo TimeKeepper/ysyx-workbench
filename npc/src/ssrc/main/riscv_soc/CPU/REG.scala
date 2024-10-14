@@ -104,7 +104,7 @@ class ysyx_23060198_REG extends Module {
 
   val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
 
-  io.REG_2_EXU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
+  io.REG_2_IDU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,

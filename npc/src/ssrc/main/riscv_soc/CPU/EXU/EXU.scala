@@ -60,7 +60,7 @@ class ysyx_23060198_EXU extends Module {
         Bran_Jne -> Mux(alu.io.out.bits.Zero, 4.U, io.IDU_2_EXU.bits.Imm),
         Bran_Jlt -> Mux(alu.io.out.bits.Less, io.IDU_2_EXU.bits.Imm, 4.U),
         Bran_Jge -> Mux(alu.io.out.bits.Less, 4.U, io.IDU_2_EXU.bits.Imm),
-        Bran_Jcsr -> io.REG_2_EXU.CSR_rdata,
+        Bran_Jcsr -> io.IDU_2_EXU.bits.CSR_rdata,
         Bran_NoC -> 0.U,
     ))
 
@@ -74,7 +74,7 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.GPR_waddr := io.IDU_2_EXU.bits.GPR_waddr
     io.EXU_2_WBU.bits.GPR_wdata := MuxLookup(io.IDU_2_EXU.bits.MemtoReg, alu.io.out.bits.Result)(Seq(
         Y  -> lsu.io.out.bits.Mem_rdata,
-        N  -> Mux(io.IDU_2_EXU.bits.csr_ctr === CSR_N, alu.io.out.bits.Result, io.REG_2_EXU.CSR_rdata),
+        N  -> Mux(io.IDU_2_EXU.bits.csr_ctr === CSR_N, alu.io.out.bits.Result, io.IDU_2_EXU.bits.CSR_rdata),
     ))
     io.EXU_2_WBU.bits.GPR_wen <> io.IDU_2_EXU.bits.RegWr
     io.EXU_2_WBU.bits.CSR_ctr <> io.IDU_2_EXU.bits.csr_ctr

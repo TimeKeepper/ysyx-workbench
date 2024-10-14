@@ -70,12 +70,14 @@ class ysyx_23060198_EXU extends Module {
         Bran_NoC  -> io.IDU_2_EXU.bits.PC,
     ))
 
-    io.EXU_2_WBU.bits.Next_Pc := PCAsrc + PCBsrc
-    io.EXU_2_WBU.bits.GPR_waddr := io.IDU_2_EXU.bits.GPR_waddr
-    io.EXU_2_WBU.bits.GPR_wdata := MuxLookup(io.IDU_2_EXU.bits.MemtoReg, alu.io.out.bits.Result)(Seq(
+    val GPR_wdata = MuxLookup(io.IDU_2_EXU.bits.MemtoReg, alu.io.out.bits.Result)(Seq(
         Y  -> lsu.io.out.bits.Mem_rdata,
         N  -> Mux(io.IDU_2_EXU.bits.csr_ctr === CSR_N, alu.io.out.bits.Result, io.IDU_2_EXU.bits.CSR_rdata),
     ))
+
+    io.EXU_2_WBU.bits.Next_Pc := PCAsrc + PCBsrc
+    io.EXU_2_WBU.bits.GPR_waddr := io.IDU_2_EXU.bits.GPR_waddr
+    io.EXU_2_WBU.bits.GPR_wdata := GPR_wdata
     io.EXU_2_WBU.bits.GPR_wen <> io.IDU_2_EXU.bits.RegWr
     io.EXU_2_WBU.bits.CSR_ctr <> io.IDU_2_EXU.bits.csr_ctr
     io.EXU_2_WBU.bits.CSR_waddra := MuxLookup(io.IDU_2_EXU.bits.csr_ctr, io.IDU_2_EXU.bits.Imm(11, 0))(Seq(

@@ -30,41 +30,6 @@ class ALU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
-class ysyx_23060198_ALU_Ctrl extends Module {
-  val io = IO(new Bundle {
-    val ALUctr = Input(ALUctr_Type)
-
-    val A_L     = Output(Bool())
-    val L_R     = Output(Bool())
-    val U_S     = Output(Bool())
-    val Sub_Add = Output(Bool())
-  })
-
-  when(io.ALUctr === ALUctr_Less_U || io.ALUctr === ALUctr_SRL) {
-    io.A_L := N
-  }.otherwise {
-    io.A_L := Y
-  }
-
-  when(io.ALUctr === ALUctr_SLL) {
-    io.L_R := Y
-  }.otherwise {
-    io.L_R := N
-  }
-
-  when(io.ALUctr === ALUctr_Less_U) {
-    io.U_S := Y
-  }.otherwise {
-    io.U_S := N
-  }
-
-  when(io.ALUctr === ALUctr_ADD) {
-    io.Sub_Add := N
-  }.otherwise {
-    io.Sub_Add := Y
-  }
-}
-
 class ysyx_23060198_ALU_Adder extends Module {
   val io = IO(new Bundle {
     val A   = Input(UInt(32.W))
@@ -195,12 +160,15 @@ class ysyx_23060198_ALU extends Module {
   alu_adder.io.B   := src_B ^ Sub_Add_ex.asUInt
   alu_adder.io.Cin := Sub_Add
 
+  val add_result = Wire(UInt(33.W))
+  add_result := src_A +& (src_B ^ Sub_Add_ex.asUInt) +& Sub_Add
+
   val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
   val Overflow = Wire(Bool())
   val Zero     = Wire(Bool())
-  Carry    := alu_adder.io.Carry
-  adder    := alu_adder.io.Result
+  Carry    := add_result(32)
+  adder    := add_result(31, 0)
   Overflow := alu_adder.io.Overflow
   Zero     := alu_adder.io.Zero
 

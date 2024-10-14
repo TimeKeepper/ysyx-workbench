@@ -117,6 +117,7 @@ class ysyx_23060198 extends Module {
   io.master.rready <> AXI_Interconnect.io.AXI.rdata.ready
   io.master.rvalid <> AXI_Interconnect.io.AXI.rdata.valid
   io.master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
+  AXI_Interconnect.io.AXI.rdata.bits.data := io.master.rdata
 
   AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
   AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid

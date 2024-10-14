@@ -30,31 +30,6 @@ class ALU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
-class ysyx_23060198_ALU_BarrelShifter extends Module {
-  val io = IO(new Bundle {
-    val Din   = Input(UInt(32.W))
-    val shamt = Input(UInt(5.W))
-    val L_R   = Input(Bool())
-    val A_L   = Input(Bool())
-
-    val Dout = Output(UInt(32.W))
-  })
-
-  when(io.L_R) {
-    when(io.A_L) {
-      io.Dout := (io.Din.asSInt << io.shamt)(31, 0)
-    }.otherwise {
-      io.Dout := (io.Din << io.shamt)(31, 0)
-    }
-  }.otherwise {
-    when(io.A_L) {
-      io.Dout := (io.Din.asSInt >> io.shamt)(31, 0)
-    }.otherwise {
-      io.Dout := (io.Din >> io.shamt)(31, 0)
-    }
-  }
-}
-
 class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
     val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
@@ -146,11 +121,6 @@ class ysyx_23060198_ALU extends Module {
   Zero     := adder === 0.U
 
   // ALU BarrelShifter
-  val alu_barrel_shifter = Module(new ysyx_23060198_ALU_BarrelShifter)
-  alu_barrel_shifter.io.Din   := src_A
-  alu_barrel_shifter.io.shamt := src_B(4, 0)
-  alu_barrel_shifter.io.L_R   := L_R
-  alu_barrel_shifter.io.A_L   := A_L
   val shifter_result = Wire(UInt(32.W))
 
   when(L_R) {

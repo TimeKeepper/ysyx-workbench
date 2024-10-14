@@ -69,14 +69,23 @@ class ysyx_23060198_REG extends Module {
   val csrb_wen = io.WBU_2_REG.CSR_ctr === CSR_R1W2 && io.WBU_2_REG.inst_valid === true.B
   val gpr_wen = io.WBU_2_REG.GPR_wen && io.WBU_2_REG.GPR_waddr =/= 0.U && io.WBU_2_REG.inst_valid === true.B
 
-  val gpr = RegInit(VecInit(Seq.fill(16)(0.U(32.W))))
+  val gpr = RegInit(VecInit(Seq.fill(15)(0.U(32.W))))
 
   when(gpr_wen) {
-    gpr(io.WBU_2_REG.GPR_waddr) := io.WBU_2_REG.GPR_wdata
+    gpr((io.WBU_2_REG.GPR_waddr - 1.U)(3, 0)) := io.WBU_2_REG.GPR_wdata
   }
 
-  io.REG_2_IDU.GPR_Adata := gpr(io.IFU_2_REG.GPR_Aaddr)
-  io.REG_2_IDU.GPR_Bdata := gpr(io.IFU_2_REG.GPR_Baddr)
+  when(io.IFU_2_REG.GPR_Aaddr =/= 0.U){
+    io.REG_2_IDU.GPR_Adata := gpr((io.IFU_2_REG.GPR_Aaddr - 1.U)(3, 0))
+  }.otherwise{
+    io.REG_2_IDU.GPR_Adata := 0.U
+  }
+
+  when(io.IFU_2_REG.GPR_Baddr =/= 0.U){
+    io.REG_2_IDU.GPR_Bdata := gpr((io.IFU_2_REG.GPR_Baddr - 1.U)(3, 0))
+  }.otherwise{
+    io.REG_2_IDU.GPR_Bdata := 0.U
+  }
 
   val pc = RegEnable(io.WBU_2_REG.Next_Pc, main_val.Reset_Vector, io.WBU_2_REG.inst_valid)
 
@@ -95,7 +104,7 @@ class ysyx_23060198_REG extends Module {
 
   val mstatus, mtevc, mepc, mcause, mscratch = RegInit(0.U(32.W))
 
-  io.REG_2_EXU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
+  io.REG_2_IDU.CSR_rdata := MuxLookup(io.IDU_2_REG.CSR_raddr, 0.U(32.W))(Seq(
     ADDR_MSTATUS   -> mstatus,
     ADDR_MTEVC     -> mtevc,
     ADDR_MSCRATCH  -> mscratch,

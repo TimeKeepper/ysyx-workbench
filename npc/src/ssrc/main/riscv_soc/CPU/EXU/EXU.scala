@@ -43,32 +43,18 @@ class ysyx_23060198_EXU extends Module {
 
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
     lsu.io.AXI <> io.AXI
-
-    val PCAsrc = MuxLookup(io.IDU_2_EXU.bits.Branch, 4.U)(Seq(
-        Bran_Jmp -> io.IDU_2_EXU.bits.Imm,
-        Bran_Jmpr -> io.IDU_2_EXU.bits.Imm,
-        Bran_Jeq -> Mux(alu.io.out.bits.Zero, io.IDU_2_EXU.bits.Imm, 4.U),
-        Bran_Jne -> Mux(alu.io.out.bits.Zero, 4.U, io.IDU_2_EXU.bits.Imm),
-        Bran_Jlt -> Mux(alu.io.out.bits.Less, io.IDU_2_EXU.bits.Imm, 4.U),
-        Bran_Jge -> Mux(alu.io.out.bits.Less, 4.U, io.IDU_2_EXU.bits.Imm),
-        Bran_Jcsr -> io.IDU_2_EXU.bits.CSR_rdata,
-        Bran_NoC -> 0.U,
-    ))
-
-    val PCBsrc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC)(Seq(
-        Bran_Jmpr -> io.IDU_2_EXU.bits.GPR_Adata,
-        Bran_Jcsr -> 0.U,
-    ))
     
     io.EXU_2_WBU.bits.RegWr         := RegEnable(io.IDU_2_EXU.bits.RegWr, communication_succeed)
-    io.EXU_2_WBU.bits.PCAsrc        := RegEnable(PCAsrc, communication_succeed)
-    io.EXU_2_WBU.bits.PCBsrc        := RegEnable(PCBsrc, communication_succeed)
+    io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch, communication_succeed)
     io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.MemtoReg, communication_succeed)
     io.EXU_2_WBU.bits.csr_ctr       := RegEnable(io.IDU_2_EXU.bits.csr_ctr, communication_succeed)
     io.EXU_2_WBU.bits.Imm           := RegEnable(io.IDU_2_EXU.bits.Imm, communication_succeed)
+    io.EXU_2_WBU.bits.GPR_Adata     := RegEnable(io.IDU_2_EXU.bits.GPR_Adata, communication_succeed)
     io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr, communication_succeed)
     io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC, communication_succeed)
     io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata, communication_succeed)
-    io.EXU_2_WBU.bits.Result        := RegEnable(alu.io.out.bits.Result, communication_succeed)
+    io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
+    io.EXU_2_WBU.bits.Zero          := alu.io.out.bits.Zero
+    io.EXU_2_WBU.bits.Less          := alu.io.out.bits.Less
     io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
 }

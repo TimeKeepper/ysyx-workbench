@@ -53,15 +53,17 @@ class BUS_REG_2_EXU extends Bundle{
 
 class BUS_EXU_2_WBU extends Bundle{
     val RegWr    = Bool()
-    val PCAsrc   = UInt(32.W)
-    val PCBsrc   = UInt(32.W)
+    val Branch   = Bran_Type
     val MemtoReg = Bool()
     val csr_ctr  = CSR_Type
     val Imm      = UInt(32.W)
+    val GPR_Adata = UInt(32.W)
     val GPR_waddr = UInt(5.W)
     val PC       = UInt(32.W)
     val CSR_rdata = UInt(32.W)
     val Result   = UInt(32.W)
+    val Zero     = Bool()
+    val Less     = Bool()
     val Mem_rdata  = UInt(32.W)
 }
 

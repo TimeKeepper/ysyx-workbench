@@ -31,19 +31,29 @@ class ysyx_23060198_WBU extends Module {
         io.WBU_2_REG.inst_valid := false.B
     }
     
-    val PCAsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, 4.U)(Seq(
-        Bran_Jmp -> io.EXU_2_WBU.bits.Imm,
-        Bran_Jmpr -> io.EXU_2_WBU.bits.Imm,
-        Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.Imm, 4.U),
-        Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, 4.U, io.EXU_2_WBU.bits.Imm),
-        Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.Imm, 4.U),
-        Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, 4.U, io.EXU_2_WBU.bits.Imm),
-        Bran_Jcsr -> io.EXU_2_WBU.bits.CSR_rdata,
-    ))
+    // val PCAsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, 4.U)(Seq(
+    //     Bran_Jmp -> io.EXU_2_WBU.bits.Imm,
+    //     Bran_Jmpr -> io.EXU_2_WBU.bits.Imm,
+    //     Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.Imm, 4.U),
+    //     Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, 4.U, io.EXU_2_WBU.bits.Imm),
+    //     Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.Imm, 4.U),
+    //     Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, 4.U, io.EXU_2_WBU.bits.Imm),
+    //     Bran_Jcsr -> io.EXU_2_WBU.bits.CSR_rdata,
+    // ))
 
-    val PCBsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
-        Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata,
-        Bran_Jcsr -> 0.U,
+    // val PCBsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
+    //     Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata,
+    //     Bran_Jcsr -> 0.U,
+    // ))
+
+    val Next_Pc = MuxLoopup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC + 4.U)(Seq(
+        Bran_Jmp -> io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm,
+        Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata + io.EXU_2_WBU.bits.Imm,
+        Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm, io.EXU_2_WBU.bits.PC + 4.U),
+        Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.PC + 4.U, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm),
+        Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm, io.EXU_2_WBU.bits.PC + 4.U),
+        Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.PC + 4.U, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm),
+        Bran_Jcsr -> io.EXU_2_WBU.bits.CSR_rdata,
     ))
 
     val GPR_wdata = MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
@@ -59,7 +69,7 @@ class ysyx_23060198_WBU extends Module {
         CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
 
-    io.WBU_2_REG.Next_Pc       := PCAsrc + PCBsrc
+    io.WBU_2_REG.Next_Pc       := Next_Pc
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr
     io.WBU_2_REG.GPR_wdata     := GPR_wdata
     io.WBU_2_REG.GPR_wen       <> io.EXU_2_WBU.bits.RegWr

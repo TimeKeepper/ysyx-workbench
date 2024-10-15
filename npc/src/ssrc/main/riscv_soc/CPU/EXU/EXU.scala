@@ -80,13 +80,13 @@ class ysyx_23060198_EXU extends Module {
         CSR_R1W2 -> io.IDU_2_EXU.bits.PC,
     ))
 
-    io.EXU_2_WBU.bits.Next_Pc       := PCAsrc + PCBsrc
-    io.EXU_2_WBU.bits.GPR_waddr     := io.IDU_2_EXU.bits.GPR_waddr
-    io.EXU_2_WBU.bits.GPR_wdata     := GPR_wdata
-    io.EXU_2_WBU.bits.GPR_wen       <> io.IDU_2_EXU.bits.RegWr
-    io.EXU_2_WBU.bits.CSR_ctr       <> io.IDU_2_EXU.bits.csr_ctr
-    io.EXU_2_WBU.bits.CSR_waddra    := CSR_waddra
-    io.EXU_2_WBU.bits.CSR_waddrb    := "h342".U
-    io.EXU_2_WBU.bits.CSR_wdataa    := CSR_wdataa
-    io.EXU_2_WBU.bits.CSR_wdatab    := 11.U
+    io.EXU_2_WBU.bits.Next_Pc       := RegEnable(PCAsrc + PCBsrc, comunication_succeed)
+    io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr, comunication_succeed)
+    io.EXU_2_WBU.bits.GPR_wdata     := RegEnable(GPR_wdata, comunication_succeed)
+    io.EXU_2_WBU.bits.GPR_wen       <> RegEnable(io.IDU_2_EXU.bits.RegWr, comunication_succeed)
+    io.EXU_2_WBU.bits.CSR_ctr       <> RegEnable(io.IDU_2_EXU.bits.csr_ctr, comunication_succeed)
+    io.EXU_2_WBU.bits.CSR_waddra    := RegEnable(CSR_waddra, comunication_succeed)
+    io.EXU_2_WBU.bits.CSR_waddrb    := RegEnable("h342".U, comunication_succeed)
+    io.EXU_2_WBU.bits.CSR_wdataa    := RegEnable(CSR_wdataa, comunication_succeed)
+    io.EXU_2_WBU.bits.CSR_wdatab    := RegEnable(11.U, comunication_succeed)
 }

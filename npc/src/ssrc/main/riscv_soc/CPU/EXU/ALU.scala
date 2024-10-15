@@ -56,14 +56,7 @@ class ysyx_23060198_ALU extends Module {
   val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
-  val U_S     = Wire(Bool())
   val Sub_Add = Wire(Bool())
-
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
-    U_S := Y
-  }.otherwise {
-    U_S := N
-  }
 
   when(io.IDU_2_EXU.bits.ALUctr === ALUctr_ADD) {
     Sub_Add := N
@@ -116,7 +109,7 @@ class ysyx_23060198_ALU extends Module {
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(U_S) {
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
     Less := !Carry
   }.elsewhen(src_B === "h80000000".U && Sub_Add) {
     // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下

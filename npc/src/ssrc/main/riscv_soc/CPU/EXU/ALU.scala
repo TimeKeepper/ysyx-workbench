@@ -56,22 +56,8 @@ class ysyx_23060198_ALU extends Module {
   val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
-  val A_L     = Wire(Bool())
-  val L_R     = Wire(Bool())
   val U_S     = Wire(Bool())
   val Sub_Add = Wire(Bool())
-
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U || io.IDU_2_EXU.bits.ALUctr === ALUctr_SRL) {
-    A_L := N
-  }.otherwise {
-    A_L := Y
-  }
-
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_SLL) {
-    L_R := Y
-  }.otherwise {
-    L_R := N
-  }
 
   when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
     U_S := Y
@@ -121,15 +107,12 @@ class ysyx_23060198_ALU extends Module {
   Zero     := adder === 0.U
 
   // ALU BarrelShifter
-  val shifter_result = Wire(UInt(32.W))
 
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_SLL) {
-    shifter_result := (src_A << src_B(4, 0))(31, 0)
-  }.elsewhen(io.IDU_2_EXU.bits.ALUctr === ALUctr_SRL){
-    shifter_result := (src_A >> src_B(4, 0))(31, 0)
-  }.otherwise {
-    shifter_result := (src_A.asSInt >> src_B(4, 0))(31, 0)
-  }
+  val shifter_result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(Seq(
+    ALUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
+    ALUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
+    ALUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
+  ))
 
   // other ALU outputs
   val Less = Wire(Bool())

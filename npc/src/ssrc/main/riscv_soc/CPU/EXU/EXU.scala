@@ -39,7 +39,6 @@ class ysyx_23060198_EXU extends Module {
     val communication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
     alu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
-    alu.io.CSR         := io.IDU_2_EXU.bits.CSR_rdata
 
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
     lsu.io.AXI <> io.AXI

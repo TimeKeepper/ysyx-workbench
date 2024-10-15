@@ -33,7 +33,6 @@ class ALU_PC extends BlackBox with HasBlackBoxInline {
 class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
     val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
-    val CSR       = Input(UInt(32.W))
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
@@ -72,7 +71,7 @@ class ysyx_23060198_ALU extends Module {
   src_A := MuxLookup(io.IDU_2_EXU.bits.ALUAsrc, 0.U)(Seq(
       ALUAsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
       ALUAsrc_PC  -> io.IDU_2_EXU.bits.PC,
-      ALUAsrc_CSR -> io.CSR,
+      ALUAsrc_CSR -> io.IDU_2_EXU.bits.CSR_rdata,
   ))
 
   src_B := MuxLookup(io.IDU_2_EXU.bits.ALUBsrc, 0.U)(Seq(

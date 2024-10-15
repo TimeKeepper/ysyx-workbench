@@ -61,7 +61,6 @@ class ysyx_23060198_EXU extends Module {
     ))
     
     io.EXU_2_WBU.bits.RegWr         := RegEnable(io.IDU_2_EXU.bits.RegWr, communication_succeed)
-    io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch, communication_succeed)
     io.EXU_2_WBU.bits.PCAsrc        := RegEnable(PCAsrc, communication_succeed)
     io.EXU_2_WBU.bits.PCBsrc        := RegEnable(PCBsrc, communication_succeed)
     io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.MemtoReg, communication_succeed)
@@ -72,7 +71,5 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC, communication_succeed)
     io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata, communication_succeed)
     io.EXU_2_WBU.bits.Result        := RegEnable(alu.io.out.bits.Result, communication_succeed)
-    io.EXU_2_WBU.bits.Zero          := RegEnable(alu.io.out.bits.Zero, communication_succeed)
-    io.EXU_2_WBU.bits.Less          := RegEnable(alu.io.out.bits.Less, communication_succeed)
     io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
 }

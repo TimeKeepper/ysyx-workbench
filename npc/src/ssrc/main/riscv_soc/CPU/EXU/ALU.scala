@@ -125,7 +125,7 @@ class ysyx_23060198_ALU extends Module {
 
   when(io.IDU_2_EXU.bits.ALUctr === ALUctr_SLL) {
     shifter_result := (src_A << src_B(4, 0))(31, 0)
-  }.elsewhen(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U || io.IDU_2_EXU.bits.ALUctr === ALUctr_SRL){
+  }.elsewhen(io.IDU_2_EXU.bits.ALUctr === ALUctr_SRL){
     shifter_result := (src_A >> src_B(4, 0))(31, 0)
   }.otherwise {
     shifter_result := (src_A.asSInt >> src_B(4, 0))(31, 0)

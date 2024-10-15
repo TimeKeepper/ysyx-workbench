@@ -87,7 +87,7 @@ object signal_value {
   def Imm_J       = 4.U(Imm_width) //J型指令
 
   // Branch
-  def Bran_width= 4.W
+  def Bran_width= 3.W
   def Bran_Type = UInt(Bran_width)
   def Bran_NJmp = 0.U(Bran_width) //非跳转
   def Bran_Jmp  = 1.U(Bran_width) //无条件跳转
@@ -97,7 +97,6 @@ object signal_value {
   def Bran_Jlt  = 5.U(Bran_width) //小于跳转
   def Bran_Jge  = 6.U(Bran_width) //大于等于跳转
   def Bran_Jcsr = 7.U(Bran_width) //CSR跳转
-  def Bran_NoC  = 8.U(Bran_width) //不要改变
 
   // Branch sub signal
   def PCAsrc_width  = 2.W

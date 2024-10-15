@@ -26,9 +26,9 @@ class ysyx_23060198_WBU extends Module {
     io.EXU_2_WBU.ready  := state === s_wait_valid
     
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
-        io.WBU_2_REG.bits.inst_valid := true.B
+        io.WBU_2_REG.inst_valid := true.B
     }.otherwise{
-        io.WBU_2_REG.bits.inst_valid := false.B
+        io.WBU_2_REG.inst_valid := false.B
     }
     
     val PCAsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, 4.U)(Seq(

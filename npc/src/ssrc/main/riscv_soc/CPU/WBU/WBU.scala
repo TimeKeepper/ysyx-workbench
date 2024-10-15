@@ -48,7 +48,7 @@ class ysyx_23060198_WBU extends Module {
 
     val Next_Pc = MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC + 4.U)(Seq(
         Bran_Jmp -> (io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm),
-        Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata + io.EXU_2_WBU.bits.Imm,
+        Bran_Jmpr -> (io.EXU_2_WBU.bits.GPR_Adata + io.EXU_2_WBU.bits.Imm),
         Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm, io.EXU_2_WBU.bits.PC + 4.U),
         Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.PC + 4.U, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm),
         Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm, io.EXU_2_WBU.bits.PC + 4.U),

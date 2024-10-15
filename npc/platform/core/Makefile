@@ -7,7 +7,7 @@ SRC_DIR = ${NPC_HOME}/src
 
 SSRC_DIR = $(SRC_DIR)/ssrc
 
-TARGET ?= ysyx_23060198_IDU
+TARGET ?= ysyx_23060198
 
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 SSRC += $(shell find $(abspath ./) -name "*.scala")
@@ -44,7 +44,7 @@ verilog: SSRC
 	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
 
 syn: $(V_FILE_GEN)
-	$(MAKE) -C $(YOSYS_HOME) sta DESIGN=ysyx_23060198_IDU SDC_FILE=$(SDC_FILE) RTL_FILES=$(DESIGN_FILE) CLK_FREQ_MHZ=500 RESULT_DIR=$(abspath $(BUILD_DIR)/result)
+	$(MAKE) -C $(YOSYS_HOME) sta DESIGN=ysyx_23060198 SDC_FILE=$(SDC_FILE) RTL_FILES=$(DESIGN_FILE) CLK_FREQ_MHZ=500 RESULT_DIR=$(abspath $(BUILD_DIR)/result)
 
 perf: $(RPT_FILE) $(STAT_FILE) $(PERFOMENSE_FILE)
 	$(call git_commit, "$(shell python ./get_parameter.py)")

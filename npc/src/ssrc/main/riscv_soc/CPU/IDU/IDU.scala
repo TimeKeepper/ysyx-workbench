@@ -20,7 +20,7 @@ object Decode {
     List(Imm_I,     N,   Bran_NJmp,   N,      N,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
 
     val map = Array(
-        BitPat(LUI)     -> List(Imm_U, Y, Bran_NJmp, N, N, BitPat.dontCare(MemOp_width), ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),
+        BitPat(LUI)     -> List(Imm_U, Y, Bran_NJmp, N, N, BitPat.dontCare(3), ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),
         BitPat(AUIPC)   -> List(Imm_U, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_PC,  ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
         BitPat(ADDI)    -> List(Imm_I, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
         BitPat(SLTI)    -> List(Imm_I, Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_Less_S, CSR_N    ),

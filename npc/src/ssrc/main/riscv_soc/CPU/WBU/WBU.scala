@@ -30,23 +30,6 @@ class ysyx_23060198_WBU extends Module {
     }.otherwise{
         io.WBU_2_REG.inst_valid := false.B
     }
-    
-    // val PCAsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, 4.U)(Seq(
-    //     Bran_Jmp -> io.EXU_2_WBU.bits.Imm,
-    //     Bran_Jmpr -> io.EXU_2_WBU.bits.Imm,
-    //     Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.Imm, 4.U),
-    //     Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, 4.U, io.EXU_2_WBU.bits.Imm),
-    //     Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.Imm, 4.U),
-    //     Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, 4.U, io.EXU_2_WBU.bits.Imm),
-    //     Bran_Jcsr -> io.EXU_2_WBU.bits.CSR_rdata,
-    //     Bran_NoC -> 0.U,
-    // ))
-
-    // val PCBsrc = MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.PC)(Seq(
-    //     Bran_Jmpr -> io.EXU_2_WBU.bits.GPR_Adata,
-    //     Bran_Jcsr -> 0.U,
-    //     Bran_NoC  -> io.EXU_2_WBU.bits.PC,
-    // ))
 
     val GPR_wdata = MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
         Y  -> io.EXU_2_WBU.bits.Mem_rdata,

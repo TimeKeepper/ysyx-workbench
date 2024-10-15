@@ -71,8 +71,8 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr, communication_succeed)
     io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC, communication_succeed)
     io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata, communication_succeed)
-    io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
-    io.EXU_2_WBU.bits.Zero          := alu.io.out.bits.Zero
-    io.EXU_2_WBU.bits.Less          := alu.io.out.bits.Less
+    io.EXU_2_WBU.bits.Result        := RegEnable(alu.io.out.bits.Result, communication_succeed)
+    io.EXU_2_WBU.bits.Zero          := RegEnable(alu.io.out.bits.Zero, communication_succeed)
+    io.EXU_2_WBU.bits.Less          := RegEnable(alu.io.out.bits.Less, communication_succeed)
     io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
 }

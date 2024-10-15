@@ -117,7 +117,7 @@ class ysyx_23060198_ALU extends Module {
   // other ALU outputs
   val Less = Wire(Bool())
   when(U_S) {
-    Less := Sub_Add ^ Carry
+    Less := !Carry
   }.elsewhen(src_B === "h80000000".U && Sub_Add) {
     // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
     Less := N

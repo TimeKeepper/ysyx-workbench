@@ -43,9 +43,9 @@ class ysyx_23060198_EXU extends Module {
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
     lsu.io.AXI <> io.AXI
     
-    val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.EXU_2_WBU.bits.PC + io.EXU_2_WBU.bits.Imm)(Seq(
-        Bran_Jmpr -> (io.EXU_2_WBU.bits.GPR_Adata + io.EXU_2_WBU.bits.Imm),
-        Bran_Jcsr -> (io.EXU_2_WBU.bits.CSR_rdata)
+    val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
+        Bran_Jmpr -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
+        Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
     ))
 
     io.EXU_2_WBU.bits.RegWr         := RegEnable(io.IDU_2_EXU.bits.RegWr, communication_succeed)

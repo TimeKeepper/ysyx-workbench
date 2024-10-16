@@ -2,7 +2,7 @@ import get_parameter as gp
 from tabulate import tabulate
 
 inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc = gp.read_report()
-Freq = gp.get_Freq()
+Freq = float(gp.get_Freq())
 
 df = {
     'Commit': [gp.get_commit_id()],

@@ -36,6 +36,7 @@ class ysyx_23060198_WBU extends Module {
         Bran_Jne -> Mux(io.EXU_2_WBU.bits.Zero, io.EXU_2_WBU.bits.PC + 4.U, io.EXU_2_WBU.bits.Jmp_Pc),
         Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.Jmp_Pc, io.EXU_2_WBU.bits.PC + 4.U),
         Bran_Jge -> Mux(io.EXU_2_WBU.bits.Less, io.EXU_2_WBU.bits.PC + 4.U, io.EXU_2_WBU.bits.Jmp_Pc),
+        Bran_NJmp -> io.EXU_2_WBU.bits.PC + 4.U,
     ))
 
     val GPR_wdata = MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(

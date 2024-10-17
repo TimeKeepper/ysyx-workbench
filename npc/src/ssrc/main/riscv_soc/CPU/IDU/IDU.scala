@@ -77,12 +77,12 @@ case class InstructionPattern(
 
 object ImmField extends DecodeField[InstructionPattern, UInt] {
     def name: String = "imm"
-    def chiselType = UInt(3.W)
+    def chiselType = Imm_Type
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
             case "0000011" => BitPat(Imm_I) // Loadxx
             case "0100011" => BitPat(Imm_S) // Storexx
-            case "0110011" => BitPat.dontCare(3)
+            case "0110011" => BitPat.dontCare(Imm_width)
             case "0010011" => BitPat(Imm_I) // xxI
             case "0110111" => BitPat(Imm_U) // LUI
             case "0010111" => BitPat(Imm_U) // AUIPC
@@ -137,7 +137,7 @@ class ysyx_23060198_IDU extends Module{
     )
 
     val decodeTable = new DecodeTable(possiblePattern, allFields)
-    // val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
+    val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(ctrlSignals(0), 0.U)(
         Seq(

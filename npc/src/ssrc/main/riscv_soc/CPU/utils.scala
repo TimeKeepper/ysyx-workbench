@@ -78,13 +78,13 @@ object signal_value {
   def N = false.B
 
   // ExtOp
-  def Imm_width  = 3.W
-  def Imm_Type   = UInt(Imm_width)
-  def Imm_I       = 0.U(Imm_width) //I型指令
-  def Imm_U       = 1.U(Imm_width) //U型指令
-  def Imm_S       = 2.U(Imm_width) //S型指令
-  def Imm_B       = 3.U(Imm_width) //B型指令
-  def Imm_J       = 4.U(Imm_width) //J型指令
+  def Imm_width  = 3
+  def Imm_Type   = UInt(Imm_width.W)
+  def Imm_I       = 0.U(Imm_width.W) //I型指令
+  def Imm_U       = 1.U(Imm_width.W) //U型指令
+  def Imm_S       = 2.U(Imm_width.W) //S型指令
+  def Imm_B       = 3.U(Imm_width.W) //B型指令
+  def Imm_J       = 4.U(Imm_width.W) //J型指令
 
   // Branch
   def Bran_width= 3.W

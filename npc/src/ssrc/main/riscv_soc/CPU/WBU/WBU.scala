@@ -46,7 +46,7 @@ class ysyx_23060198_WBU extends Module {
         N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR_rdata),
     ))
 
-    val CSR_waddra = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Imm(11, 0))(Seq(
+    val CSR_waddra = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.CSR_waddr)(Seq(
         CSR_R1W2 -> "h341".U
     ))
 

@@ -57,8 +57,7 @@ class BUS_EXU_2_WBU extends Bundle{
     val Jmp_Pc   = UInt(32.W)
     val MemtoReg = Bool()
     val csr_ctr  = CSR_Type
-    val Imm      = UInt(32.W)
-    val GPR_Adata = UInt(32.W)
+    val CSR_waddr= UInt(12.W)
     val GPR_waddr = UInt(5.W)
     val PC       = UInt(32.W)
     val CSR_rdata = UInt(32.W)

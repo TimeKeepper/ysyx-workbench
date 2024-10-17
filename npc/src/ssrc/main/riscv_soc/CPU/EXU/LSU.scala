@@ -180,11 +180,11 @@ class ysyx_23060198_LSU extends Module{
     // }
 
     val mem_rd = MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> (AXI_rdata(7,0).U(32.W)),
+        MemOp_1BU -> (AXI_rdata(7,0).width.U(32.W)),
         MemOp_1BS -> (AXI_rdata(7,0).S(32.W)).asUInt,
-        MemOp_2BU -> (AXI_rdata(15,0).U(32.W)),
+        MemOp_2BU -> (AXI_rdata(15,0).width.U(32.W)),
         MemOp_2BS -> (AXI_rdata(15,0).S(32.W)).asUInt,
-        MemOp_4BU -> (AXI_rdata(31,0).U(32.W)),
+        MemOp_4BU -> (AXI_rdata(31,0).width.U(32.W)),
     ))
 
     io.out.bits.Mem_rdata := mem_rd

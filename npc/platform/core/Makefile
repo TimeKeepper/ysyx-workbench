@@ -7,12 +7,14 @@ SRC_DIR = ${NPC_HOME}/src
 
 SSRC_DIR = $(SRC_DIR)/ssrc
 
+TARGET ?= ysyx_23060198
+
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 SSRC += $(shell find $(abspath ./) -name "*.scala")
-DESIGN_FILE ?= $(abspath $(BUILD_DIR))/ysyx_23060198.sv
+DESIGN_FILE ?= $(abspath $(BUILD_DIR))/$(TARGET).sv
 SDC_FILE ?= $(abspath ./ysyx_23060198.sdc)
 
-V_FILE_GEN = $(BUILD_DIR)/ysyx_23060198.sv
+V_FILE_GEN = $(BUILD_DIR)/$(TARGET).sv
 PERFOMENSE_FILE = $(BUILD_DIR)/report.txt
 RPT_FILE = $(BUILD_DIR)/result/ysyx_23060198.rpt
 STAT_FILE = $(BUILD_DIR)/result/synth_stat.txt

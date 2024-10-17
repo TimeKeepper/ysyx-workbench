@@ -2,18 +2,21 @@ import get_parameter as gp
 from tabulate import tabulate
 
 inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc = gp.read_report()
+Freq = float(gp.get_Freq())
 
 df = {
     'Commit': [gp.get_commit_id()],
     'Message': [gp.get_commit_message()],
     'Simulation clk_cnt': [clk_cnt],
     'Simulation inst_cnt': [inst_cnt],
+    'Total time(us)': [clk_cnt / Freq],
     'IPC': [ipc],
     'IFU PC': [ifu_pc],
     'LSU PC': [lsu_pc],
     'ALU PC': [alu_pc],
-    'Freq(MHz)': [gp.get_Freq()],
-    'Chip area(um^2)': [gp.get_Chip_area()]
+    'Freq(MHz)': [Freq],
+    'Chip area(um^2)': [gp.get_Chip_area()],
+    'Performance Index': [ipc * Freq]
 }
 
 colalign = ("center",) * len(df)

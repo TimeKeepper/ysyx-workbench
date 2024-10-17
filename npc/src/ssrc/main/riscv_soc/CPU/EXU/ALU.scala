@@ -33,7 +33,6 @@ class ALU_PC extends BlackBox with HasBlackBoxInline {
 class ysyx_23060198_ALU extends Module {
   val io = IO(new Bundle {
     val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
-    val CSR       = Input(UInt(32.W))
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
@@ -56,28 +55,7 @@ class ysyx_23060198_ALU extends Module {
   val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
-  val A_L     = Wire(Bool())
-  val L_R     = Wire(Bool())
-  val U_S     = Wire(Bool())
   val Sub_Add = Wire(Bool())
-
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U || io.IDU_2_EXU.bits.ALUctr === ALUctr_SRL) {
-    A_L := N
-  }.otherwise {
-    A_L := Y
-  }
-
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_SLL) {
-    L_R := Y
-  }.otherwise {
-    L_R := N
-  }
-
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
-    U_S := Y
-  }.otherwise {
-    U_S := N
-  }
 
   when(io.IDU_2_EXU.bits.ALUctr === ALUctr_ADD) {
     Sub_Add := N
@@ -93,7 +71,7 @@ class ysyx_23060198_ALU extends Module {
   src_A := MuxLookup(io.IDU_2_EXU.bits.ALUAsrc, 0.U)(Seq(
       ALUAsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
       ALUAsrc_PC  -> io.IDU_2_EXU.bits.PC,
-      ALUAsrc_CSR -> io.CSR,
+      ALUAsrc_CSR -> io.IDU_2_EXU.bits.CSR_rdata,
   ))
 
   src_B := MuxLookup(io.IDU_2_EXU.bits.ALUBsrc, 0.U)(Seq(
@@ -105,11 +83,11 @@ class ysyx_23060198_ALU extends Module {
 
   Sub_Add_ex := Sub_Add.asSInt
 
-  val add_result = Wire(UInt(33.W))
-  add_result := src_A +& (src_B ^ Sub_Add_ex.asUInt) +& Sub_Add
-
   val R_B = Wire(UInt(32.W))
   R_B := (src_B ^ Sub_Add_ex.asUInt) +% Sub_Add
+
+  val add_result = Wire(UInt(33.W))
+  add_result := src_A +& Mux(Sub_Add, ~src_B, src_B) +& Sub_Add
 
   val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
@@ -121,26 +99,17 @@ class ysyx_23060198_ALU extends Module {
   Zero     := adder === 0.U
 
   // ALU BarrelShifter
-  val shifter_result = Wire(UInt(32.W))
 
-  when(L_R) {
-    when(A_L) {
-      shifter_result := (src_A.asSInt << src_B(4, 0))(31, 0)
-    }.otherwise {
-      shifter_result := (src_A << src_B(4, 0))(31, 0)
-    }
-  }.otherwise {
-    when(A_L) {
-      shifter_result := (src_A.asSInt >> src_B(4, 0))(31, 0)
-    }.otherwise {
-      shifter_result := (src_A >> src_B(4, 0))(31, 0)
-    }
-  }
+  val shifter_result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(Seq(
+    ALUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
+    ALUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
+    ALUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
+  ))
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(U_S) {
-    Less := Sub_Add ^ Carry
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
+    Less := !Carry
   }.elsewhen(src_B === "h80000000".U && Sub_Add) {
     // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
     Less := N

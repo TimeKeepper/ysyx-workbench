@@ -108,13 +108,18 @@ class ysyx_23060198_ALU extends Module {
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
-    Less := !Carry
-  }.elsewhen(src_B === "h80000000".U && Sub_Add) {
-    // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
-    Less := N
-  }.otherwise {
-    Less := adder(31) ^ Overflow
+  // when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
+  //   Less := !Carry
+  // }.elsewhen(src_B === "h80000000".U && Sub_Add) {
+  //   // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
+  //   Less := N
+  // }.otherwise {
+  //   Less := adder(31) ^ Overflow
+  // }
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U){
+    Less := src_A < src_B
+  }.otherwise{
+    Less := src_A.asSInt < src_B.asSInt
   }
 
   val Result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(

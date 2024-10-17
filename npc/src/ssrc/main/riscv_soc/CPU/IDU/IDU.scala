@@ -96,7 +96,6 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
 
 object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     def name: String = "RegWr"
-    def chiselType = Bool()
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
             case "0000011" => BitPat(Y) 

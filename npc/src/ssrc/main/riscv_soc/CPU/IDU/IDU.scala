@@ -117,7 +117,7 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
     def name: String = "Branch"
     def chiselType = Bran_Type
 
-    def Branch_sub: BitPat = {
+    def Branch_sub(op: InstructionPattern): BitPat = {
         op.func3.rawString match {
             case "000" => BitPat(Bran_Jeq)
             case "001" => BitPat(Bran_Jne)
@@ -131,7 +131,7 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
     
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
-            case "1100011" => Branch_sub
+            case "1100011" => Branch_sub(op)
             case "1101111" => BitPat(Bran_Jmp)
             case "1100111" => BitPat(Bran_Jmpr)
             case "1110011" => if (op.func3 == BitPat("b000")) BitPat(Bran_Jcsr) else BitPat(Bran_NJmp)

@@ -51,10 +51,10 @@ class ysyx_23060198_EXU extends Module {
     val Default_Next_Pc = io.IDU_2_EXU.bits.PC + 4.U
     
     val Next_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, Jmp_Pc)(Seq(
-        Bran_Jeq -> Mux(io.IDU_2_EXU.bits.Result === 0.U, Jmp_Pc, Default_Next_Pc),
-        Bran_Jne -> Mux(io.IDU_2_EXU.bits.Result === 0.U, Default_Next_Pc, Jmp_Pc),
-        Bran_Jlt -> Mux(io.IDU_2_EXU.bits.Result(0), Jmp_Pc, Default_Next_Pc),
-        Bran_Jge -> Mux(io.IDU_2_EXU.bits.Result(0), Default_Next_Pc, Jmp_Pc),
+        Bran_Jeq -> Mux(alu.io.out.bits.Result === 0.U, Jmp_Pc, Default_Next_Pc),
+        Bran_Jne -> Mux(alu.io.out.bits.Result === 0.U, Default_Next_Pc, Jmp_Pc),
+        Bran_Jlt -> Mux(alu.io.out.bits.Result(0), Jmp_Pc, Default_Next_Pc),
+        Bran_Jge -> Mux(alu.io.out.bits.Result(0), Default_Next_Pc, Jmp_Pc),
         Bran_NJmp -> Default_Next_Pc,
     ))
 

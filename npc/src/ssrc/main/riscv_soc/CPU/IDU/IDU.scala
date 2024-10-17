@@ -125,7 +125,6 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
                 case "101" => BitPat(Bran_Jge)
                 case "110" => BitPat(Bran_Jlt)
                 case "111" => BitPat(Bran_Jge)
-                case _ => BitPat(Bran_NJmp)
             }
             case "1101111" => BitPat(Bran_Jmp)
             case "1100111" => BitPat(Bran_Jmpr)
@@ -175,6 +174,7 @@ class ysyx_23060198_IDU extends Module{
     val allFields = Seq(
         ImmField,
         RegWrFiled,
+        BranchField,
     )
 
     val decodeTable = new DecodeTable(possiblePattern, allFields)
@@ -200,7 +200,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
     io.IDU_2_EXU.bits.RegWr        <> RegEnable(decodeResult(RegWrFiled),         comunication_succeed) 
-    io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(0),         comunication_succeed) 
+    io.IDU_2_EXU.bits.Branch       <> RegEnable(decodeResult(BranchField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(1),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(2),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(3),         comunication_succeed) 

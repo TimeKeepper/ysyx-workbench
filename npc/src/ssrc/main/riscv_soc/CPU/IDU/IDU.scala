@@ -116,17 +116,22 @@ object RegWrFiled extends BoolDecodeField[InstructionPattern] {
 object BranchField extends DecodeField[InstructionPattern, UInt] {
     def name: String = "Branch"
     def chiselType = Bran_Type
+
+    def Branch_sub: BitPat = {
+        op.func3.rawString match {
+            case "000" => BitPat(Bran_Jeq)
+            case "001" => BitPat(Bran_Jne)
+            case "100" => BitPat(Bran_Jlt)
+            case "101" => BitPat(Bran_Jge)
+            case "110" => BitPat(Bran_Jlt)
+            case "111" => BitPat(Bran_Jge)
+            case _ => BitPat(Bran_NJmp)
+        }
+    }
+    
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
-            case "1100011" => op.func3.rawString match {
-                case "000" => BitPat(Bran_Jeq)
-                case "001" => BitPat(Bran_Jne)
-                case "100" => BitPat(Bran_Jlt)
-                case "101" => BitPat(Bran_Jge)
-                case "110" => BitPat(Bran_Jlt)
-                case "111" => BitPat(Bran_Jge)
-                case _ => BitPat(Bran_NJmp)
-            }
+            case "1100011" => Branch_sub
             case "1101111" => BitPat(Bran_Jmp)
             case "1100111" => BitPat(Bran_Jmpr)
             case "1110011" => if (op.func3 == BitPat("b000")) BitPat(Bran_Jcsr) else BitPat(Bran_NJmp)

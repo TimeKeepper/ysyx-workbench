@@ -75,7 +75,7 @@ case class InstructionPattern(
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
-object ImmField extends DecodeField[InstructionPattern, Imm_Type] {
+object ImmField extends DecodeField[InstructionPattern, UInt(3.W)] {
     def name: String = "imm"
     def chiselType = Imm_Type
     def genTable(op: InstructionPattern): BitPat = {

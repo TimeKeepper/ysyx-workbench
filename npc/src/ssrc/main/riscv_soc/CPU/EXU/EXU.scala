@@ -47,25 +47,16 @@ class ysyx_23060198_EXU extends Module {
         Bran_Jmpr -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
         Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
     ))
-    
-    val Default_Next_Pc = io.IDU_2_EXU.bits.PC + 4.U
-    
-    val Next_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, Jmp_Pc)(Seq(
-        Bran_Jeq -> Mux(alu.io.out.bits.Result === 0.U, Jmp_Pc, Default_Next_Pc),
-        Bran_Jne -> Mux(alu.io.out.bits.Result === 0.U, Default_Next_Pc, Jmp_Pc),
-        Bran_Jlt -> Mux(alu.io.out.bits.Result(0), Jmp_Pc, Default_Next_Pc),
-        Bran_Jge -> Mux(alu.io.out.bits.Result(0), Default_Next_Pc, Jmp_Pc),
-        Bran_NJmp -> Default_Next_Pc,
-    ))
 
     io.EXU_2_WBU.bits.RegWr         := RegEnable(io.IDU_2_EXU.bits.RegWr, communication_succeed)
-    io.EXU_2_WBU.bits.Next_Pc       := RegEnable(Next_Pc, communication_succeed)
+    io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch, communication_succeed)
+    io.EXU_2_WBU.bits.Jmp_Pc        := RegEnable(Jmp_Pc, communication_succeed)
     io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.MemtoReg, communication_succeed)
     io.EXU_2_WBU.bits.csr_ctr       := RegEnable(io.IDU_2_EXU.bits.csr_ctr, communication_succeed)
     io.EXU_2_WBU.bits.CSR_waddr     := RegEnable(io.IDU_2_EXU.bits.Imm(11, 0), communication_succeed)
     io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr, communication_succeed)
     io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC, communication_succeed)
     io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata, communication_succeed)
-    io.EXU_2_WBU.bits.Result        := RegEnable(alu.io.out.bits.Result, communication_succeed)
+    io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
     io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
 }

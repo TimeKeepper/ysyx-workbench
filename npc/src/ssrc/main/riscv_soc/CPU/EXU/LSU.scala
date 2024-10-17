@@ -151,8 +151,8 @@ class ysyx_23060198_LSU extends Module{
         MemOp_4BU -> 2.U,
     ))
 
-    val u_mem_rd = Wire(UInt(32.W))
-    val s_mem_rd = Wire(SInt(32.W))
+    // val u_mem_rd = Wire(UInt(32.W))
+    // val s_mem_rd = Wire(SInt(32.W))
 
     val AXI_rdata = Wire(UInt(32.W))
     AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)

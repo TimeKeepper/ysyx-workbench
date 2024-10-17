@@ -94,7 +94,7 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
     }
 }
 
-object RegWrFiled extends BoolDecodeField[InstructionPattern, Bool] {
+object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     def name: String = "RegWr"
     def chiselType = Bool()
     def genTable(op: InstructionPattern): BitPat = {

@@ -143,6 +143,16 @@ object MemtoRegField extends BoolDecodeField[InstructionPattern] {
     }
 }
 
+object MemWrField extends BoolDecodeField[InstructionPattern] {
+    def name: String = "MemWr"
+    def genTable(op: InstructionPattern): BitPat = {
+        op.opcode.rawString match {
+            case "0100011" => BitPat(Y)
+            case _ => BitPat(N)
+        }
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -185,6 +195,7 @@ class ysyx_23060198_IDU extends Module{
         RegWrFiled,
         BranchField,
         MemtoRegField,
+        MemWrField,
     )
 
     val decodeTable = new DecodeTable(possiblePattern, allFields)
@@ -212,7 +223,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.RegWr        <> RegEnable(decodeResult(RegWrFiled), comunication_succeed) 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(0), comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),         comunication_succeed) 
-    io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(1),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(MemWrField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(2),         comunication_succeed) 
     io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(3),         comunication_succeed) 
     io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(4),         comunication_succeed) 

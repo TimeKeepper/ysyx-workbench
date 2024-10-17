@@ -62,7 +62,7 @@ class BUS_EXU_2_WBU extends Bundle{
     val PC       = UInt(32.W)
     val CSR_rdata = UInt(32.W)
     val Result   = UInt(32.W)
-    val Mem_rdata  = UInt(32.W)
+    val Mem_rdata  = Bits(32.W)
 }
 
 class BUS_WBU_2_REG extends Bundle{

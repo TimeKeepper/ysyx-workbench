@@ -54,7 +54,7 @@ class BUS_REG_2_EXU extends Bundle{
 class BUS_EXU_2_WBU extends Bundle{
     val RegWr    = Bool()
     val Branch   = Bran_Type
-    val Jmp_Pc   = UInt(32.W)
+    val Next_Pc   = UInt(32.W)
     val MemtoReg = Bool()
     val csr_ctr  = CSR_Type
     val CSR_waddr= UInt(12.W)

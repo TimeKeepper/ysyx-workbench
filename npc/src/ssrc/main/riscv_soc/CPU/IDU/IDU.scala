@@ -2,6 +2,8 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
+import chisel3.util.BitPat
+import chisel3.util.experimental.decode._
 
 import signal_value._
 import bus_state._
@@ -65,6 +67,36 @@ object Decode {
     // format: on
 }
 
+case class InstructionPattern(
+    val func7: BitPat = BitPat.dontCare(7),
+    val func3: BitPat = BitPat.dontCare(3),
+    val opcode: BitPat
+) extends DecodePattern {
+    def bitPat: BitPat = pattern 
+
+    val genPattern = func7 ## BitPat.dontCare(10) ## func3 ## Bitpat.dontCare(5) ## opcode
+
+}
+
+object ImmField extends DecodeField[InstructionPattern, UInt] {
+    def name: String = "imm"
+    def chiselType = Imm_Type
+    def genTable(op: InstructionPattern): BitPat = {
+        op.opcode.rawString match {
+            case "0000011" => Bitpat(Imm_I) // Loadxx
+            case "0100011" => BitPat(Imm_S) // Storexx
+            case "0010011" => BitPat(Imm_I) // xxI
+            case "0110111" => BitPat(Imm_U) // LUI
+            case "0010111" => BitPat(Imm_U) // AUIPC
+            case "1100011" => BitPat(Imm_B) // Branchxx
+            case "1101111" => BitPat(Imm_J) // JAL
+            case "1100111" => BitPat(Imm_I) // JALR
+            case "1110011" => BitPat(Imm_I) // CSRRx
+            case _ => BitPat.dontCare(Imm_width)
+        }
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -89,7 +121,27 @@ class ysyx_23060198_IDU extends Module{
 
     val ctrlSignals = ListLookup(io.IFU_2_IDU.bits.data, Decode.default, Decode.map)
 
-    val imm = MuxLookup(ctrlSignals(0), 0.U)(
+    val possiblePattern = Seq(
+       InstructionPattern(opcode = BitPat("0000011")), // Loadxx
+       InstructionPattern(opcode = BitPat("0100011")), // Storexx
+       InstructionPattern(opcode = BitPat("0110011")), // Rtype
+       InstructionPattern(opcode = BitPat("0010011")), // xxI
+       InstructionPattern(opcode = BitPat("0110111")), // LUI
+       InstructionPattern(opcode = BitPat("0010111")), // AUIPC
+       InstructionPattern(opcode = BitPat("1100011")), // Branchxx
+       InstructionPattern(opcode = BitPat("1101111")), // JAL
+       InstructionPattern(opcode = BitPat("1100111")), // JALR
+       InstructionPattern(opcode = BitPat("1110011")), // CSRRx
+    )
+
+    val allFields = Seq(
+        ImmField,
+    )
+
+    val decodeTable = new DecodeTable(possiblePattern, allFields)
+    val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
+
+    val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(
             Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
             Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),

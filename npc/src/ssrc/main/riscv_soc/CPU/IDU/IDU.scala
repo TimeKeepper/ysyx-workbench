@@ -130,12 +130,28 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
     }
     
     def genTable(op: InstructionPattern): BitPat = {
-        op.opcode.rawString match {
-            case "1100011" => Branch_sub(op)
-            case "1101111" => BitPat(Bran_Jmp)
-            case "1100111" => BitPat(Bran_Jmpr)
-            case "1110011" => if (op.func3 == BitPat("b000")) BitPat(Bran_Jcsr) else BitPat(Bran_NJmp)
-            case _ => BitPat(Bran_NJmp)
+        if(op.opcode.rawString == "1100011") {
+            op.func3.rawString match {
+                case "000" => BitPat(Bran_Jeq)
+                case "001" => BitPat(Bran_Jne)
+                case "100" => BitPat(Bran_Jlt)
+                case "101" => BitPat(Bran_Jge)
+                case "110" => BitPat(Bran_Jlt)
+                case "111" => BitPat(Bran_Jge)
+                case _ => BitPat(Bran_NJmp)
+            }
+        }else if(op.opcode.rawString == "1101111"){
+            BitPat(Bran_Jmp)
+        }else if(op.opcode.rawString == "1100111"){
+            BitPat(Bran_Jmpr)
+        }else if(op.opcode.rawString == "1110011"){
+            if(op.func3 == BitPat("b000")){
+                BitPat(Bran_Jcsr)
+            }else{
+                BitPat(Bran_NJmp)
+            }
+        }else{
+            BitPat(Bran_NJmp)
         }
     }
 }
@@ -206,7 +222,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
     io.IDU_2_EXU.bits.RegWr        <> RegEnable(decodeResult(RegWrFiled), comunication_succeed) 
-    io.IDU_2_EXU.bits.Branch       <> RegEnable(decodeResult(BranchField), comunication_succeed) 
+    io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(0), comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(1),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(2),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(3),         comunication_succeed) 

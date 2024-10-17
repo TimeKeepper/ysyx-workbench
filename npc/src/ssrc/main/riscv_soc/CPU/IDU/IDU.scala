@@ -19,7 +19,7 @@ object Decode {
     val default =
     //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp       ALUAsrc    ALUBsrc         ALUctr     csr_ctr 
     //     |        |       |         |       |        |           |          |               |          |    
-    List(Imm_I,     N,   Bran_NJmp,   N,      N,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
+    List(N,   Bran_NJmp,   N,      N,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
 
     val map = Array(
         BitPat(LUI)     -> List(Y, Bran_NJmp, N, N, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),

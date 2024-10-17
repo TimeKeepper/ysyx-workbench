@@ -157,7 +157,7 @@ class ysyx_23060198_LSU extends Module{
     val AXI_rdata = Wire(UInt(32.W))
     AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)
 
-    val bias:Int = (io.AXI.araddr.bits.addr(1,0) * 8)
+    val bias:Int = (io.AXI.araddr.bits.addr(1,0) << 3)
 
     u_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7, bias).asUInt),

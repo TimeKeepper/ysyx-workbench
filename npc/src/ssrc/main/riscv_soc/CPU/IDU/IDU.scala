@@ -211,7 +211,7 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val csr_raddr = MuxLookup(ctrlSignals(6), imm(11, 0))(
+    val csr_raddr = MuxLookup(ctrlSignals(5), imm(11, 0))(
         Seq(
             CSR_R1W0 -> "h341".U,
             CSR_R1W2 -> "h305".U,
@@ -224,11 +224,11 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(0), comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),         comunication_succeed) 
-    io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(2),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(3),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(4),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(5),         comunication_succeed) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(6),         comunication_succeed) 
+    io.IDU_2_EXU.bits.MemOp        <> RegEnable(ctrlSignals(1),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(2),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(3),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(4),         comunication_succeed) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(5),         comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 

@@ -89,6 +89,7 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
             case "1101111" => BitPat(Imm_J) // JAL
             case "1100111" => BitPat(Imm_I) // JALR
             case "1110011" => BitPat(Imm_I) // CSRRx
+            case _ => BitPat.dontCare(7)
         }
     }
 }

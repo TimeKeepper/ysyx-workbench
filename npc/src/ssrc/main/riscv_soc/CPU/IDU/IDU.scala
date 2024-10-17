@@ -136,7 +136,7 @@ class ysyx_23060198_IDU extends Module{
     )
 
     val decodeTable = new DecodeTable(possiblePattern, allFields)
-    val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
+    // val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(ctrlSignals(0), 0.U)(
         Seq(

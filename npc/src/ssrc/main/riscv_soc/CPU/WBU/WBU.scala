@@ -54,7 +54,7 @@ class ysyx_23060198_WBU extends Module {
         CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
 
-    io.WBU_2_REG.Next_Pc       := Next_Pc
+    io.WBU_2_REG.Next_Pc       := io.EXU_2_WBU.bits.Next_Pc
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr
     io.WBU_2_REG.GPR_wdata     := GPR_wdata
     io.WBU_2_REG.GPR_wen       <> io.EXU_2_WBU.bits.RegWr

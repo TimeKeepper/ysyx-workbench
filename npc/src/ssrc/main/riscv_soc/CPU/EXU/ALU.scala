@@ -84,7 +84,7 @@ class ysyx_23060198_ALU extends Module {
   Sub_Add_ex := Sub_Add.asSInt
 
   val R_B = Wire(UInt(32.W))
-  R_B := (src_B ^ Sub_Add_ex.asUInt) +% Sub_Add
+  R_B := (src_B ^ Sub_Add_ex.asUInt) +& Sub_Add
 
   val add_result = Wire(UInt(33.W))
   add_result := src_A +& R_B

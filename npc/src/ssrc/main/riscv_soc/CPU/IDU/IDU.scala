@@ -72,7 +72,7 @@ case class InstructionPattern(
     val func3: BitPat = BitPat.dontCare(3),
     val opcode: BitPat
 ) extends DecodePattern {
-    def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## Bitpat.dontCare(5) ## opcode
+    def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
 object ImmField extends DecodeField[InstructionPattern, UInt] {
@@ -80,7 +80,7 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
     def chiselType = Imm_Type
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
-            case "0000011" => Bitpat(Imm_I) // Loadxx
+            case "0000011" => BitPat(Imm_I) // Loadxx
             case "0100011" => BitPat(Imm_S) // Storexx
             case "0010011" => BitPat(Imm_I) // xxI
             case "0110111" => BitPat(Imm_U) // LUI
@@ -89,7 +89,6 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
             case "1101111" => BitPat(Imm_J) // JAL
             case "1100111" => BitPat(Imm_I) // JALR
             case "1110011" => BitPat(Imm_I) // CSRRx
-            case _ => BitPat.dontCare(Imm_width)
         }
     }
 }

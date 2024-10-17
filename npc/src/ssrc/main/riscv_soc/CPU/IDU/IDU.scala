@@ -128,7 +128,7 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
             case "1101111???" => BitPat(Bran_Jmp)
             case "1100111000" => BitPat(Bran_Jmpr)
             case "1110011000" => BitPat(Bran_Jcsr)
-            case _ => BitPat.DontCare(Bran_width)
+            case _ => BitPat.dontCare(Bran_width)
         }
     }
 }

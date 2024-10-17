@@ -72,10 +72,7 @@ case class InstructionPattern(
     val func3: BitPat = BitPat.dontCare(3),
     val opcode: BitPat
 ) extends DecodePattern {
-    def bitPat: BitPat = pattern 
-
-    val genPattern = func7 ## BitPat.dontCare(10) ## func3 ## Bitpat.dontCare(5) ## opcode
-
+    def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## Bitpat.dontCare(5) ## opcode
 }
 
 object ImmField extends DecodeField[InstructionPattern, UInt] {

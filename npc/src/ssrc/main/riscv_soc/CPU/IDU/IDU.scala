@@ -82,6 +82,7 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
         op.opcode.rawString match {
             case "0000011" => BitPat(Imm_I) // Loadxx
             case "0100011" => BitPat(Imm_S) // Storexx
+            case "0110011" => BitPat.dontCare(3)
             case "0010011" => BitPat(Imm_I) // xxI
             case "0110111" => BitPat(Imm_U) // LUI
             case "0010111" => BitPat(Imm_U) // AUIPC

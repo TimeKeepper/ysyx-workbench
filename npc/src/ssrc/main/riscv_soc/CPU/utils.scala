@@ -113,13 +113,13 @@ object signal_value {
   def PCBsrc_0    = 2.U(PCBsrc_width) //立即数0
 
   // MemOp
-  def MemOp_width     = 3.W
-  def MemOp_Type     = UInt(MemOp_width)
-  def MemOp_1BU      = 0.U(MemOp_width) //1字节无符号
-  def MemOp_1BS      = 1.U(MemOp_width) //1字节有符号
-  def MemOp_2BU      = 2.U(MemOp_width) //2字节无符号
-  def MemOp_2BS      = 3.U(MemOp_width) //2字节有符号
-  def MemOp_4BU      = 4.U(MemOp_width) //4字节无符号
+  def MemOp_width     = 3
+  def MemOp_Type     = UInt(MemOp_width.W)
+  def MemOp_1BU      = 0.U(MemOp_width.W) //1字节无符号
+  def MemOp_1BS      = 1.U(MemOp_width.W) //1字节有符号
+  def MemOp_2BU      = 2.U(MemOp_width.W) //2字节无符号
+  def MemOp_2BS      = 3.U(MemOp_width.W) //2字节有符号
+  def MemOp_4BU      = 4.U(MemOp_width.W) //4字节无符号
 
   // ALUAsrc
   def ALUAsrc_width      = 2.W

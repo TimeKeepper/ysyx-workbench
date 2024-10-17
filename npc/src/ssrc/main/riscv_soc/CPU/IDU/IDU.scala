@@ -107,7 +107,7 @@ object RegWrFiled extends BoolDecodeField[InstructionPattern] {
             case "1100011" => BitPat(N)
             case "1101111" => BitPat(Y)
             case "1100111" => BitPat(Y)
-            case "1110011" => if (op.func3 == BitPat("b001") || op.func3 == BitPat("b010")) BitPat(Y) else BitPat(N)
+            case "1110011" => if (op.func3 != BitPat("b000")) BitPat(Y) else BitPat(N)
             case _ => BitPat.dontCare(1)
         }
     }

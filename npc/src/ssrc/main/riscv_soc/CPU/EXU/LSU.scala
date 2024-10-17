@@ -157,21 +157,21 @@ class ysyx_23060198_LSU extends Module{
     val AXI_rdata = Wire(UInt(32.W))
     AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)
 
-    val bias = (io.AXI.araddr.bits.addr(1,0) << 3.U)
+    val bias = Int((io.AXI.araddr.bits.addr(1,0) << 3.U))
 
     u_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7.U, bias).asUInt),
-        MemOp_1BS -> (io.AXI.rdata.bits.data(bias + 7.U, bias).asUInt),
-        MemOp_2BU -> (io.AXI.rdata.bits.data(bias + 15.U, bias).asUInt),
-        MemOp_2BS -> (io.AXI.rdata.bits.data(bias + 15.U, bias).asUInt),
+        MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7, bias).asUInt),
+        MemOp_1BS -> (io.AXI.rdata.bits.data(bias + 7, bias).asUInt),
+        MemOp_2BU -> (io.AXI.rdata.bits.data(bias + 15, bias).asUInt),
+        MemOp_2BS -> (io.AXI.rdata.bits.data(bias + 15, bias).asUInt),
         MemOp_4BU -> (io.AXI.rdata.bits.data(31,0).asUInt),
     ))
     
     s_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.S)(Seq(
-        MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7.U, bias)).asSInt,
-        MemOp_1BS -> (io.AXI.rdata.bits.data(bias + 7.U, bias)).asSInt,
-        MemOp_2BU -> (io.AXI.rdata.bits.data(bias + 15.U, bias)).asSInt,
-        MemOp_2BS -> (io.AXI.rdata.bits.data(bias + 15.U, bias)).asSInt,
+        MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7, bias)).asSInt,
+        MemOp_1BS -> (io.AXI.rdata.bits.data(bias + 7, bias)).asSInt,
+        MemOp_2BU -> (io.AXI.rdata.bits.data(bias + 15, bias)).asSInt,
+        MemOp_2BS -> (io.AXI.rdata.bits.data(bias + 15, bias)).asSInt,
         MemOp_4BU -> (io.AXI.rdata.bits.data(31,0)).asSInt,
     ))
 

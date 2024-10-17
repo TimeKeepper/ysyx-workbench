@@ -125,12 +125,12 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
                 case "101" => BitPat(Bran_Jge)
                 case "110" => BitPat(Bran_Jlt)
                 case "111" => BitPat(Bran_Jge)
-                case _ => BitPat.dontCare(Branch_width)
+                case _ => BitPat.dontCare(Bran_width)
             }
             case "1101111" => BitPat(Bran_Jmp)
             case "1100111" => BitPat(Bran_Jmpr)
             case "1110011" => if (op.func3 == BitPat("b000")) BitPat(Bran_Jcsr)
-            case _ => BitPat.dontCare(Branch_width)
+            case _ => BitPat.dontCare(Bran_width)
         }
     }
 }

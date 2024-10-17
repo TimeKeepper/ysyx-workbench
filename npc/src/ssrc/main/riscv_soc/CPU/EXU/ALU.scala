@@ -83,19 +83,10 @@ class ysyx_23060198_ALU extends Module {
 
   Sub_Add_ex := Sub_Add.asSInt
 
-  val R_B = Wire(UInt(32.W))
-  R_B := (src_B ^ Sub_Add_ex.asUInt) +% Sub_Add
-
-  val add_result = Wire(UInt(33.W))
-  add_result := src_A +& Mux(Sub_Add, ~src_B, src_B) +& Sub_Add
-
-  val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
-  val Overflow = Wire(Bool())
+  adder := src_A + Mux(Sub_Add, ~src_B, src_B) + Sub_Add
+
   val Zero     = Wire(Bool())
-  Carry    := add_result(32)
-  adder    := add_result(31, 0)
-  Overflow := (src_A(31) & R_B(31) & !adder(31)) | (!src_A(31) & !R_B(31) & adder(31))
   Zero     := adder === 0.U
 
   // ALU BarrelShifter

@@ -163,7 +163,7 @@ object MemOpField extends DecodeField[InstructionPattern, UInt]{
             case "010" => BitPat(MemOp_4BU)
             case "100" => BitPat(MemOp_1BU)
             case "101" => BitPat(MemOp_2BU)
-            case _ => BitPat.dontCare(MemOp_width)
+            case _ => BitPat(MemOp_1BS)
         }
     }
 }

@@ -175,7 +175,6 @@ class ysyx_23060198_IDU extends Module{
     val allFields = Seq(
         ImmField,
         RegWrFiled,
-        BranchField,
     )
 
     val decodeTable = new DecodeTable(possiblePattern, allFields)

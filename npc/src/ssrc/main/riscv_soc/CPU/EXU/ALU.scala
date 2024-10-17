@@ -36,8 +36,6 @@ class ysyx_23060198_ALU extends Module {
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
-      val Zero   = Output(Bool())   
-      val Less   = Output(Bool())
     })
   })
 

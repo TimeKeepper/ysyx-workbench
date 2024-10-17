@@ -135,13 +135,7 @@ class ysyx_23060198_LSU extends Module{
     }.otherwise{
         io.AXI.wdata.bits.strb   := "b1111".U
     }
-    // io.AXI.wdata.bits.strb   := MuxLookup(io.IDU_2_EXU.bits.MemOp, "b1111".U)(Seq(
-    //     MemOp_1BU -> "b0001".U,
-    //     MemOp_1BS -> "b0001".U,
-    //     MemOp_2BU -> "b0011".U,
-    //     MemOp_2BS -> "b0011".U,
-    //     MemOp_4BU -> "b1111".U,
-    // ))
+
     io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> 0.U,
         MemOp_1BS -> 0.U,
@@ -163,20 +157,22 @@ class ysyx_23060198_LSU extends Module{
     val AXI_rdata = Wire(UInt(32.W))
     AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)
 
+    val bias:Int = (io.AXI.araddr.bits.addr(1,0) * 8)
+
     u_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> (AXI_rdata(7,0).asUInt),
-        MemOp_1BS -> (AXI_rdata(7,0).asUInt),
-        MemOp_2BU -> (AXI_rdata(15,0).asUInt),
-        MemOp_2BS -> (AXI_rdata(15,0).asUInt),
-        MemOp_4BU -> (AXI_rdata(31,0).asUInt),
+        MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7, bias).asUInt),
+        MemOp_1BS -> (io.AXI.rdata.bits.data(bias + 7, bias).asUInt),
+        MemOp_2BU -> (io.AXI.rdata.bits.data(bias + 15, bias).asUInt),
+        MemOp_2BS -> (io.AXI.rdata.bits.data(bias + 15, bias).asUInt),
+        MemOp_4BU -> (io.AXI.rdata.bits.data(31,0).asUInt),
     ))
     
     s_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.S)(Seq(
-        MemOp_1BU -> (AXI_rdata(7,0)).asSInt,
-        MemOp_1BS -> (AXI_rdata(7,0)).asSInt,
-        MemOp_2BU -> (AXI_rdata(15,0)).asSInt,
-        MemOp_2BS -> (AXI_rdata(15,0)).asSInt,
-        MemOp_4BU -> (AXI_rdata(31,0)).asSInt,
+        MemOp_1BU -> (io.AXI.rdata.bits.data(bias + 7, bias)).asSInt,
+        MemOp_1BS -> (io.AXI.rdata.bits.data(bias + 7, bias)).asSInt,
+        MemOp_2BU -> (io.AXI.rdata.bits.data(bias + 15, bias)).asSInt,
+        MemOp_2BS -> (io.AXI.rdata.bits.data(bias + 15, bias)).asSInt,
+        MemOp_4BU -> (io.AXI.rdata.bits.data(31,0)).asSInt,
     ))
 
     when(io.IDU_2_EXU.bits.MemOp === MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_4BU){

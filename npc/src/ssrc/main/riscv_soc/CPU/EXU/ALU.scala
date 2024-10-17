@@ -81,9 +81,6 @@ class ysyx_23060198_ALU extends Module {
   val adder    = Wire(UInt(32.W))
   adder := src_A + Mux(Sub_Add, ~src_B, src_B) + Sub_Add
 
-  val Zero     = Wire(Bool())
-  Zero     := adder === 0.U
-
   // ALU BarrelShifter
 
   val shifter_result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(Seq(

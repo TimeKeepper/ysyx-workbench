@@ -94,6 +94,26 @@ object ImmField extends DecodeField[InstructionPattern, UInt] {
     }
 }
 
+object RegWrFiled extends BoolDecodeField[InstructionPattern, Bool] {
+    def name: String = "RegWr"
+    def chiselType = Bool()
+    def genTable(op: InstructionPattern): BitPat = {
+        op.opcode.rawString match {
+            case "0000011" => BitPat(Y) 
+            case "0100011" => BitPat(N)
+            case "0110011" => BitPat(Y)
+            case "0010011" => BitPat(Y)
+            case "0110111" => BitPat(Y)
+            case "0010111" => BitPat(Y)
+            case "1100011" => BitPat(N)
+            case "1101111" => BitPat(Y)
+            case "1100111" => BitPat(Y)
+            case "1110011" => if (op.func3 == BitPat("b001") || op.func3 == BitPat("b010")) BitPat(Y) else BitPat(N)
+            case _ => BitPat.dontCare(1)
+        }
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -132,7 +152,8 @@ class ysyx_23060198_IDU extends Module{
     )
 
     val allFields = Seq(
-        ImmField
+        ImmField,
+        RegWrFiled,
     )
 
     val decodeTable = new DecodeTable(possiblePattern, allFields)
@@ -157,7 +178,7 @@ class ysyx_23060198_IDU extends Module{
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    io.IDU_2_EXU.bits.RegWr        <> RegEnable(ctrlSignals(0),         comunication_succeed) 
+    io.IDU_2_EXU.bits.RegWr        <> RegEnable(decodeResult(RegWrFiled),         comunication_succeed) 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(ctrlSignals(1),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(ctrlSignals(2),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(ctrlSignals(3),         comunication_succeed) 

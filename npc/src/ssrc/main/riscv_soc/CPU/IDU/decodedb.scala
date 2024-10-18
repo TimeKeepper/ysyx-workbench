@@ -58,17 +58,17 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
     def chiselType = Bran_Type
     
     def genTable(op: InstructionPattern): BitPat = {
-        (op.opcode ## op.func3).rawString match {
-            case "1100011000" => BitPat(Bran_Jeq)
-            case "1100011001" => BitPat(Bran_Jne)
-            case "1100011100" => BitPat(Bran_Jlt)
-            case "1100011101" => BitPat(Bran_Jge)
-            case "1100011110" => BitPat(Bran_Jlt)
-            case "1100011111" => BitPat(Bran_Jge)
-            case "1101111???" => BitPat(Bran_Jmp)
-            case "1100111000" => BitPat(Bran_Jmpr)
-            case "1110011000" => BitPat(Bran_Jcsr)
-            case _ => BitPat.dontCare(Bran_width)
+        (op.func3.rawString, op.opcode.rawString) match {
+            case ("000", "1100011") => BitPat(Bran_Jeq)
+            case ("001", "1100011") => BitPat(Bran_Jne)
+            case ("100", "1100011") => BitPat(Bran_Jlt)
+            case ("101", "1100011") => BitPat(Bran_Jge)
+            case ("110", "1100011") => BitPat(Bran_Jlt)
+            case ("111", "1100011") => BitPat(Bran_Jge)
+            case ("???", "1101111") => BitPat(Bran_Jmp)
+            case ("000", "1100111") => BitPat(Bran_Jmpr)
+            case ("000", "1110011") => BitPat(Bran_Jcsr)
+            case (_, _) => BitPat(Bran_NJmp)
         }
     }
 }

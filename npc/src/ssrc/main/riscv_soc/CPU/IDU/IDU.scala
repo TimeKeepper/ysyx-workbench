@@ -68,8 +68,8 @@ object Decode {
 }
 
 case class InstructionPattern(
-    val func7: BitPat = BitPat.dontCare(7),
-    val func3: BitPat = BitPat.dontCare(3),
+    val func7: BitPat = BitPat(width = 7),
+    val func3: BitPat = BitPat(width = 3),
     val opcode: BitPat
 ) extends DecodePattern {
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode

@@ -130,13 +130,13 @@ object ALUBsrcField extends DecodeField[InstructionPattern, UInt] {
     def chiselType = ALUBsrc_Type
     def genTable(op: InstructionPattern): BitPat = {
         (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, _, "0110011") => BitPat(ALUBSrc_RS2) // logical
-            case (_, _, "0010011") => BitPat(ALUBSrc_IMM) // xxI
-            case (_, _, "1100011") => BitPat(ALUBSrc_RS2) // Branch
-            case (_, _, "0010111") => BitPat(ALUBSrc_IMM)  // AUIPC
-            case (_, _, "1101111") => BitPat(ALUBSrc_IMM)  // JAL
-            case (_, "000", "1100111") => BitPat(ALUBSrc_IMM) // JALR
-            case (_, _, "1110011") => BitPat(ALUBSrc_RS1)
+            case (_, _, "0110011") => BitPat(ALUBsrc_RS2) // logical
+            case (_, _, "0010011") => BitPat(ALUBsrc_IMM) // xxI
+            case (_, _, "1100011") => BitPat(ALUBsrc_RS2) // Branch
+            case (_, _, "0010111") => BitPat(ALUBsrc_IMM)  // AUIPC
+            case (_, _, "1101111") => BitPat(ALUBsrc_IMM)  // JAL
+            case (_, "000", "1100111") => BitPat(ALUBsrc_IMM) // JALR
+            case (_, _, "1110011") => BitPat(ALUBsrc_RS1)
             case (_, _, _) => BitPat.dontCare(PCBsrc_width)
         }
     }

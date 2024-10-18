@@ -19,7 +19,7 @@ object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
     def name: String = "imm"
     def chiselType = Imm_TypeEnum()
     def genTable(op: InstructionPattern): BitPat = {
-        val Imm_Type = map(op.opcode.rawString match {
+        val Imm_Type = Map(op.opcode.rawString match {
             case "0000011" => Imm_TypeEnum.Imm_I // Loadxx
             case "0100011" => Imm_TypeEnum.Imm_S // Storexx
             case "0010011" => Imm_TypeEnum.Imm_I // xxI

@@ -36,8 +36,6 @@ class ysyx_23060198_ALU extends Module {
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
-      val Zero   = Output(Bool())   
-      val Less   = Output(Bool())
     })
   })
 
@@ -64,7 +62,6 @@ class ysyx_23060198_ALU extends Module {
   }
 
   // ALU Adder
-  val Sub_Add_ex = Wire(SInt(32.W))
   val src_A      = Wire(UInt(32.W))
   val src_B      = Wire(UInt(32.W))
 
@@ -75,28 +72,14 @@ class ysyx_23060198_ALU extends Module {
   ))
 
   src_B := MuxLookup(io.IDU_2_EXU.bits.ALUBsrc, 0.U)(Seq(
-      ALUBSrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
-      ALUBSrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
-      ALUBSrc_IMM -> io.IDU_2_EXU.bits.Imm,
-      ALUBSrc_4   -> 4.U,
+      ALUBsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
+      ALUBsrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
+      ALUBsrc_IMM -> io.IDU_2_EXU.bits.Imm,
+      ALUBsrc_4   -> 4.U,
   ))
 
-  Sub_Add_ex := Sub_Add.asSInt
-
-  val R_B = Wire(UInt(32.W))
-  R_B := (src_B ^ Sub_Add_ex.asUInt) +% Sub_Add
-
-  val add_result = Wire(UInt(33.W))
-  add_result := src_A +& Mux(Sub_Add, ~src_B, src_B) +& Sub_Add
-
-  val Carry    = Wire(Bool())
   val adder    = Wire(UInt(32.W))
-  val Overflow = Wire(Bool())
-  val Zero     = Wire(Bool())
-  Carry    := add_result(32)
-  adder    := add_result(31, 0)
-  Overflow := (src_A(31) & R_B(31) & !adder(31)) | (!src_A(31) & !R_B(31) & adder(31))
-  Zero     := adder === 0.U
+  adder := src_A + Mux(Sub_Add, ~src_B, src_B) + Sub_Add
 
   // ALU BarrelShifter
 
@@ -108,13 +91,10 @@ class ysyx_23060198_ALU extends Module {
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U) {
-    Less := !Carry
-  }.elsewhen(src_B === "h80000000".U && Sub_Add) {
-    // 数学上来说，一个负数的相反数不可能是负数，但是二进制补码可就要例外了，所以这里要特判一下
-    Less := N
-  }.otherwise {
-    Less := adder(31) ^ Overflow
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U){
+    Less := src_A.asUInt < src_B.asUInt
+  }.otherwise{
+    Less := src_A.asSInt < src_B.asSInt
   }
 
   val Result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(
@@ -135,8 +115,6 @@ class ysyx_23060198_ALU extends Module {
   )
   
   io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
-  io.out.bits.Zero          := RegEnable(Zero , comunication_succeed) 
-  io.out.bits.Less          := RegEnable(Less, comunication_succeed) 
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

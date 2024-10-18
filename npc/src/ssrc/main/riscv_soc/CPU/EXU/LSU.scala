@@ -135,13 +135,7 @@ class ysyx_23060198_LSU extends Module{
     }.otherwise{
         io.AXI.wdata.bits.strb   := "b1111".U
     }
-    // io.AXI.wdata.bits.strb   := MuxLookup(io.IDU_2_EXU.bits.MemOp, "b1111".U)(Seq(
-    //     MemOp_1BU -> "b0001".U,
-    //     MemOp_1BS -> "b0001".U,
-    //     MemOp_2BU -> "b0011".U,
-    //     MemOp_2BS -> "b0011".U,
-    //     MemOp_4BU -> "b1111".U,
-    // ))
+    
     io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
         MemOp_1BU -> 0.U,
         MemOp_1BS -> 0.U,
@@ -157,33 +151,20 @@ class ysyx_23060198_LSU extends Module{
         MemOp_4BU -> 2.U,
     ))
 
-    val u_mem_rd = Wire(UInt(32.W))
-    val s_mem_rd = Wire(SInt(32.W))
-
     val AXI_rdata = Wire(UInt(32.W))
     AXI_rdata := (io.AXI.rdata.bits.data >> (io.AXI.araddr.bits.addr(1,0) << 3.U))(31, 0)
 
-    u_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> (AXI_rdata(7,0).asUInt),
-        MemOp_1BS -> (AXI_rdata(7,0).asUInt),
-        MemOp_2BU -> (AXI_rdata(15,0).asUInt),
-        MemOp_2BS -> (AXI_rdata(15,0).asUInt),
-        MemOp_4BU -> (AXI_rdata(31,0).asUInt),
-    ))
-    
-    s_mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.S)(Seq(
-        MemOp_1BU -> (AXI_rdata(7,0)).asSInt,
-        MemOp_1BS -> (AXI_rdata(7,0)).asSInt,
-        MemOp_2BU -> (AXI_rdata(15,0)).asSInt,
-        MemOp_2BS -> (AXI_rdata(15,0)).asSInt,
-        MemOp_4BU -> (AXI_rdata(31,0)).asSInt,
+    val mem_rd = Wire(Bits(32.W))
+
+    mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
+        MemOp_1BU -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
+        MemOp_1BS -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
+        MemOp_2BU -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
+        MemOp_2BS -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
+        MemOp_4BU -> AXI_rdata(31,0).asUInt,
     ))
 
-    when(io.IDU_2_EXU.bits.MemOp === MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_4BU){
-        io.out.bits.Mem_rdata := u_mem_rd
-    }.otherwise{
-        io.out.bits.Mem_rdata := s_mem_rd.asUInt
-    }
+    io.out.bits.Mem_rdata := mem_rd
 
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)

@@ -20,16 +20,16 @@ object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
     def chiselType = Imm_TypeEnum()
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
-            case "0000011" => BitPat(Imm_TypeEnum.Imm_I) // Loadxx
-            case "0100011" => BitPat(Imm_TypeEnum.Imm_S) // Storexx
-            case "0010011" => BitPat(Imm_TypeEnum.Imm_I) // xxI
-            case "0110111" => BitPat(Imm_TypeEnum.Imm_U) // LUI
-            case "0010111" => BitPat(Imm_TypeEnum.Imm_U) // AUIPC
-            case "1100011" => BitPat(Imm_TypeEnum.Imm_B) // Branchxx
-            case "1101111" => BitPat(Imm_TypeEnum.Imm_J) // JAL
-            case "1100111" => BitPat(Imm_TypeEnum.Imm_I) // JALR
-            case "1110011" => BitPat(Imm_TypeEnum.Imm_I) // CSRRx
-            case _ => BitPat.dontCare(Imm_width)
+            case "0000011" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_I)) // Loadxx
+            case "0100011" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_S)) // Storexx
+            case "0010011" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_I)) // xxI
+            case "0110111" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_U)) // LUI
+            case "0010111" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_U)) // AUIPC
+            case "1100011" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_B)) // Branchxx
+            case "1101111" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_J)) // JAL
+            case "1100111" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_I)) // JALR
+            case "1110011" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_I)) // CSRRx
+            case _ => BitPat.dontCare(Imm_TypeEnum.getWidth.W)
         }
     }
 }

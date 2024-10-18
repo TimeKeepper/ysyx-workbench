@@ -189,7 +189,7 @@ object ALUctrField extends DecodeField[InstructionPattern, UInt] {
     }
 }
 
-object csr_ctrField extends DecodeFieldext[InstructionPattern, UInt] {
+object csr_ctrField extends DecodeField[InstructionPattern, UInt] {
     def name: String = "csr_ctr"
     def chiselType = CSR_Type
     def genTable(op: InstructionPattern): BitPat = {

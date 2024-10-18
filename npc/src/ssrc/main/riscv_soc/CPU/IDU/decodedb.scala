@@ -160,7 +160,6 @@ object ALUctrField extends DecodeField[InstructionPattern, UInt] {
             case ("0100000", "101", "0110011") => BitPat(ALUctr_SRA) // SRA // logical
 
             case (_, "000", "0010011") => BitPat(ALUctr_ADD) // ADDI
-            case (_, "000", "0010011") => BitPat(ALUctr_SUB) // SUBI
             case (_, "100", "0010011") => BitPat(ALUctr_XOR) // XORI
             case (_, "110", "0010011") => BitPat(ALUctr_OR ) // ORI
             case (_, "111", "0010011") => BitPat(ALUctr_AND) // ANDI

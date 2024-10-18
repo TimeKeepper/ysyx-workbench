@@ -193,8 +193,8 @@ class ysyx_23060198_IDU extends Module{
     val ctrlSignals = ListLookup(io.IFU_2_IDU.bits.data, Decode.default, Decode.map)
 
     val possiblePattern = Seq(
-       InstructionPattern(opcode = BitPat("b0000011")), // Loadxx
-       InstructionPattern(opcode = BitPat("b0100011")), // Storexx
+       InstructionPattern(opcode = BitPat("b0000011"), func3 = BitPat.dontCare(3)), // Loadxx
+       InstructionPattern(opcode = BitPat("b0100011"), func3 = BitPat.dontCare(3)), // Storexx
        InstructionPattern(opcode = BitPat("b0110011")), // Rtype
        InstructionPattern(opcode = BitPat("b0010011")), // xxI
        InstructionPattern(opcode = BitPat("b0110111")), // LUI
@@ -203,11 +203,6 @@ class ysyx_23060198_IDU extends Module{
        InstructionPattern(opcode = BitPat("b1101111")), // JAL
        InstructionPattern(opcode = BitPat("b1100111")), // JALR
        InstructionPattern(opcode = BitPat("b1110011")), // CSRRx
-       InstructionPattern(func3  = BitPat("b000"), opcode = BitPat.dontCare(7)), 
-       InstructionPattern(func3  = BitPat("b001"), opcode = BitPat.dontCare(7)), 
-       InstructionPattern(func3  = BitPat("b010"), opcode = BitPat.dontCare(7)), 
-       InstructionPattern(func3  = BitPat("b100"), opcode = BitPat.dontCare(7)), 
-       InstructionPattern(func3  = BitPat("b101"), opcode = BitPat.dontCare(7)), 
     )
 
     val allFields = Seq(

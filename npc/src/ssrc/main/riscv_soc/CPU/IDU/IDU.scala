@@ -157,12 +157,12 @@ object MemOpField extends DecodeField[InstructionPattern, UInt]{
     def name: String = "MemOp"
     def chiselType = MemOp_Type
     def genTable(op: InstructionPattern): BitPat = {
-        (op.func3.rawString, op.func7.rawString, op.opcode.rawString) match {
-            case (_, _, "000") => BitPat(MemOp_1BS)
-            case (_, _, "001") => BitPat(MemOp_2BS)
-            case (_, _, "010") => BitPat(MemOp_4BU)
-            case (_, _, "100") => BitPat(MemOp_1BU)
-            case (_, _, "101") => BitPat(MemOp_2BU)
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, "000", _) => BitPat(MemOp_1BS)
+            case (_, "001", _) => BitPat(MemOp_2BS)
+            case (_, "010", _) => BitPat(MemOp_4BU)
+            case (_, "100", _) => BitPat(MemOp_1BU)
+            case (_, "101", _) => BitPat(MemOp_2BU)
             case (_, _, _)     => BitPat.dontCare(MemOp_width)
         }
     }

@@ -137,8 +137,47 @@ object ALUBsrcField extends DecodeField[InstructionPattern, UInt] {
             case (_, _, "1101111") => BitPat(ALUBsrc_4)  // JAL
             case (_, "000", "1100111") => BitPat(ALUBsrc_4) // JALR
             case (_, _, "0110111") => BitPat(ALUBsrc_IMM) // LUI
-            case (_, _, "1110011") => BitPat(ALUBsrc_RS1)
+            case (_, _, "1110011") => BitPat(ALUBsrc_RS1) // CSRRx
             case (_, _, _) => BitPat.dontCare(PCBsrc_width)
+        }
+    }
+}
+
+object ALUctrField extends DecodeField[InstructionPattern, UInt] {
+    def name: String = "ALUctr"
+    def chiselType = ALUctr_Type
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case ("0000000", "000", "0110011") => BitPat(ALUctr_ADD) // ADD
+            case ("0100000", "000", "0110011") => BitPat(ALUctr_SUB) // SUB
+            case ("0000000", "100", "0110011") => BitPat(ALUctr_XOR) // XOR
+            case ("0000000", "110", "0110011") => BitPat(ALUctr_OR ) // OR
+            case ("0000000", "111", "0110011") => BitPat(ALUctr_AND) // AND
+            case ("0000000", "010", "0110011") => BitPat(ALUctr_Less_S) // SLT
+            case ("0000000", "011", "0110011") => BitPat(ALUctr_Less_U) // SLTU
+            case ("0000000", "001", "0110011") => BitPat(ALUctr_SLL) // SLL
+            case ("0000000", "101", "0110011") => BitPat(ALUctr_SRL) // SRL
+            case ("0100000", "101", "0110011") => BitPat(ALUctr_SRA) // SRA // logical
+
+            case ("0000000", "000", "0010011") => BitPat(ALUctr_ADD) // ADDI
+            case ("0100000", "000", "0010011") => BitPat(ALUctr_SUB) // SUBI
+            case ("0000000", "100", "0010011") => BitPat(ALUctr_XOR) // XORI
+            case ("0000000", "110", "0010011") => BitPat(ALUctr_OR ) // ORI
+            case ("0000000", "111", "0010011") => BitPat(ALUctr_AND) // ANDI
+            case ("0000000", "010", "0010011") => BitPat(ALUctr_Less_S) // SLTI
+            case ("0000000", "011", "0010011") => BitPat(ALUctr_Less_U) // SLTUI
+            case ("0000000", "001", "0010011") => BitPat(ALUctr_SLL) // SLLI
+            case ("0000000", "101", "0010011") => BitPat(ALUctr_SRL) // SRLI
+            case ("0100000", "101", "0010011") => BitPat(ALUctr_SRA) // SRAI // logical I
+
+            case (_, _, "0010011") => BitPat(ALUBsrc_IMM) // xxI
+            case (_, _, "1100011") => BitPat(ALUBsrc_RS2) // Branch
+            case (_, _, "0010111") => BitPat(ALUctr_ADD)  // AUIPC
+            case (_, _, "1101111") => BitPat(ALUctr_ADD)  // JAL
+            case (_, "000", "1100111") => BitPat(ALUctr_ADD) // JALR
+            case (_, _, "0110111") => BitPat(ALUctr_B) // LUI
+            case (_, _, "1110011") => BitPat(ALUBsrc_RS1) // CSRRx
+            case (_, _, _) => BitPat.dontCare(ALUctr_width)
         }
     }
 }
@@ -153,6 +192,7 @@ object my_fooldecodedb {
         MemOpField,
         ALUAsrcField,
         ALUBsrcField,
+        ALUctrField,
     )
 
     val possiblePattern = Seq(

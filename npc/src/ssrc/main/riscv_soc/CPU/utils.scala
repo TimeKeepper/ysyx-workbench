@@ -73,18 +73,27 @@ object Instructions {
   def NOP    = "b00000000000000000000000000010011"
 }
 
+object Imm_TypeEnum extends ChiselEnum {
+  val Imm_I,    //I型指令
+      Imm_U,    //U型指令
+      Imm_S,    //S型指令
+      Imm_B,    //B型指令
+      Imm_J     //J型指令
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
   // ExtOp
-  def Imm_width  = 3
-  def Imm_Type   = UInt(Imm_width.W)
-  def Imm_I       = 0.U(Imm_width.W) //I型指令
-  def Imm_U       = 1.U(Imm_width.W) //U型指令
-  def Imm_S       = 2.U(Imm_width.W) //S型指令
-  def Imm_B       = 3.U(Imm_width.W) //B型指令
-  def Imm_J       = 4.U(Imm_width.W) //J型指令
+  // def Imm_width  = 3
+  // def Imm_Type   = UInt(Imm_width.W)
+  // def Imm_I       = 0.U(Imm_width.W) //I型指令
+  // def Imm_U       = 1.U(Imm_width.W) //U型指令
+  // def Imm_S       = 2.U(Imm_width.W) //S型指令
+  // def Imm_B       = 3.U(Imm_width.W) //B型指令
+  // def Imm_J       = 4.U(Imm_width.W) //J型指令
 
   // Branch
   def Bran_width= 3

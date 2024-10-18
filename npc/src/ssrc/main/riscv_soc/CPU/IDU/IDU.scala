@@ -118,7 +118,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(decodeResult(MemOpField),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(0),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(decodeResult(ALUAsrcField),         comunication_succeed) 
     io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(1),         comunication_succeed) 
     io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(2),         comunication_succeed) 
     io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(3),         comunication_succeed) 

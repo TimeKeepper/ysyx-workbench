@@ -99,12 +99,12 @@ object signal_value {
   def Bran_Jcsr = 7.U(Bran_width.W) //CSR跳转
 
   // Branch sub signal
-  def PCAsrc_width  = 2.W
-  def PCAsrc_Type = UInt(PCAsrc_width)
-  def PCAsrc_Imm  = 0.U(PCAsrc_width) //立即数
-  def PCAsrc_0    = 1.U(PCAsrc_width) //立即数0
-  def PCAsrc_4    = 2.U(PCAsrc_width) //立即数4
-  def PCAsrc_csr  = 3.U(PCAsrc_width) //CSR寄存器
+  def PCAsrc_width  = 2
+  def PCAsrc_Type = UInt(PCAsrc_width.W)
+  def PCAsrc_Imm  = 0.U(PCAsrc_width.W) //立即数
+  def PCAsrc_0    = 1.U(PCAsrc_width.W) //立即数0
+  def PCAsrc_4    = 2.U(PCAsrc_width.W) //立即数4
+  def PCAsrc_csr  = 3.U(PCAsrc_width.W) //CSR寄存器
 
   def PCBsrc_width = 2.W
   def PCBsrc_Type = UInt(PCBsrc_width)

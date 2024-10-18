@@ -106,11 +106,11 @@ object signal_value {
   def PCAsrc_4    = 2.U(PCAsrc_width.W) //立即数4
   def PCAsrc_csr  = 3.U(PCAsrc_width.W) //CSR寄存器
 
-  def PCBsrc_width = 2.W
-  def PCBsrc_Type = UInt(PCBsrc_width)
-  def PCBsrc_gpr  = 0.U(PCBsrc_width) //GPR寄存器
-  def PCBsrc_pc   = 1.U(PCBsrc_width) //PC寄存器
-  def PCBsrc_0    = 2.U(PCBsrc_width) //立即数0
+  def PCBsrc_width = 2
+  def PCBsrc_Type = UInt(PCBsrc_width.W)
+  def PCBsrc_gpr  = 0.U(PCBsrc_width.W) //GPR寄存器
+  def PCBsrc_pc   = 1.U(PCBsrc_width.W) //PC寄存器
+  def PCBsrc_0    = 2.U(PCBsrc_width.W) //立即数0
 
   // MemOp
   def MemOp_width     = 3
@@ -122,43 +122,43 @@ object signal_value {
   def MemOp_4BU      = 4.U(MemOp_width.W) //4字节无符号
 
   // ALUAsrc
-  def ALUAsrc_width      = 2.W
-  def ALUAsrc_Type       = UInt(ALUAsrc_width)
-  def ALUAsrc_RS1        = 0.U(ALUAsrc_width) //寄存器资源1
-  def ALUAsrc_PC         = 1.U(ALUAsrc_width) //PC寄存器
-  def ALUAsrc_CSR        = 2.U(ALUAsrc_width) //CSR寄存器
+  def ALUAsrc_width      = 2
+  def ALUAsrc_Type       = UInt(ALUAsrc_width.W)
+  def ALUAsrc_RS1        = 0.U(ALUAsrc_width.W) //寄存器资源1
+  def ALUAsrc_PC         = 1.U(ALUAsrc_width.W) //PC寄存器
+  def ALUAsrc_CSR        = 2.U(ALUAsrc_width.W) //CSR寄存器
 
   // ALUBSrc
-  def ALUBSrc_width      = 2.W
-  def ALUBSrc_Type       = UInt(ALUBSrc_width)
-  def ALUBSrc_RS2        = 0.U(ALUBSrc_width) //寄存器资源2
-  def ALUBSrc_IMM        = 1.U(ALUBSrc_width) //立即数
-  def ALUBSrc_4          = 2.U(ALUBSrc_width) //立即数4
-  def ALUBSrc_RS1        = 3.U(ALUBSrc_width) //寄存器资源1
+  def ALUBSrc_width      = 2
+  def ALUBSrc_Type       = UInt(ALUBSrc_width.W)
+  def ALUBSrc_RS2        = 0.U(ALUBSrc_width.W) //寄存器资源2
+  def ALUBSrc_IMM        = 1.U(ALUBSrc_width.W) //立即数
+  def ALUBSrc_4          = 2.U(ALUBSrc_width.W) //立即数4
+  def ALUBSrc_RS1        = 3.U(ALUBSrc_width.W) //寄存器资源1
 
   // ALUctr
-  def ALUctr_width   = 4.W
-  def ALUctr_Type    = UInt(ALUctr_width)
-  def ALUctr_ADD     = 0.U(ALUctr_width) //加法
-  def ALUctr_SUB     = 1.U(ALUctr_width) //减法
-  def ALUctr_Less_U  = 2.U(ALUctr_width) //小于无符号
-  def ALUctr_Less_S  = 3.U(ALUctr_width) //小于
-  def ALUctr_A       = 4.U(ALUctr_width) //输出A
-  def ALUctr_B       = 5.U(ALUctr_width) //输出B
-  def ALUctr_SLL     = 6.U(ALUctr_width) //逻辑左移
-  def ALUctr_SRL     = 7.U(ALUctr_width) //逻辑右移
-  def ALUctr_SRA     = 8.U(ALUctr_width) //算术右移
-  def ALUctr_XOR     = 9.U(ALUctr_width) //异或
-  def ALUctr_OR      = 10.U(ALUctr_width) //或
-  def ALUctr_AND     = 11.U(ALUctr_width) //与
+  def ALUctr_width   = 4
+  def ALUctr_Type    = UInt(ALUctr_width.W)
+  def ALUctr_ADD     = 0.U(ALUctr_width.W) //加法
+  def ALUctr_SUB     = 1.U(ALUctr_width.W) //减法
+  def ALUctr_Less_U  = 2.U(ALUctr_width.W) //小于无符号
+  def ALUctr_Less_S  = 3.U(ALUctr_width.W) //小于
+  def ALUctr_A       = 4.U(ALUctr_width.W) //输出A
+  def ALUctr_B       = 5.U(ALUctr_width.W) //输出B
+  def ALUctr_SLL     = 6.U(ALUctr_width.W) //逻辑左移
+  def ALUctr_SRL     = 7.U(ALUctr_width.W) //逻辑右移
+  def ALUctr_SRA     = 8.U(ALUctr_width.W) //算术右移
+  def ALUctr_XOR     = 9.U(ALUctr_width.W) //异或
+  def ALUctr_OR      = 10.U(ALUctr_width.W) //或
+  def ALUctr_AND     = 11.U(ALUctr_width.W) //与
 
   // csr_ctr
-  def CSR_width = 2.W
-  def CSR_Type = UInt(CSR_width)
-  def CSR_N    = 0.U(CSR_width) // 非csr读写指令
-  def CSR_R1W0 = 1.U(CSR_width) // 不读写一， 目前只有 mret 符合
-  def CSR_R1W1 = 2.U(CSR_width) // 读写一
-  def CSR_R1W2 = 3.U(CSR_width) // 读一写二， 目前只有 ecall 符合
+  def CSR_width = 2
+  def CSR_Type = UInt(CSR_width.W)
+  def CSR_N    = 0.U(CSR_width.W) // 非csr读写指令
+  def CSR_R1W0 = 1.U(CSR_width.W) // 不读写一， 目前只有 mret 符合
+  def CSR_R1W1 = 2.U(CSR_width.W) // 读写一
+  def CSR_R1W2 = 3.U(CSR_width.W) // 读一写二， 目前只有 ecall 符合
 }
 
 object bus_state {

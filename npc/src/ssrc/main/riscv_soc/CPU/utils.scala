@@ -73,7 +73,7 @@ object Instructions {
   def NOP    = "b00000000000000000000000000010011"
 }
 
-object Imm_TypeEnum extends ChiselEnum with enum_2_BitPat {
+object Imm_TypeEnum extends ChiselEnum{
   val Imm_I,    //I型指令
       Imm_U,    //U型指令
       Imm_S,    //S型指令

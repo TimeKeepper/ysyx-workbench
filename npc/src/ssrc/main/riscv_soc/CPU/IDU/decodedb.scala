@@ -159,16 +159,16 @@ object ALUctrField extends DecodeField[InstructionPattern, UInt] {
             case ("0000000", "101", "0110011") => BitPat(ALUctr_SRL) // SRL
             case ("0100000", "101", "0110011") => BitPat(ALUctr_SRA) // SRA // logical
 
-            case ("0000000", "000", "0010011") => BitPat(ALUctr_ADD) // ADDI
-            case ("0100000", "000", "0010011") => BitPat(ALUctr_SUB) // SUBI
-            case ("0000000", "100", "0010011") => BitPat(ALUctr_XOR) // XORI
-            case ("0000000", "110", "0010011") => BitPat(ALUctr_OR ) // ORI
-            case ("0000000", "111", "0010011") => BitPat(ALUctr_AND) // ANDI
-            case ("0000000", "010", "0010011") => BitPat(ALUctr_Less_S) // SLTI
-            case ("0000000", "011", "0010011") => BitPat(ALUctr_Less_U) // SLTUI
-            case ("0000000", "001", "0010011") => BitPat(ALUctr_SLL) // SLLI
-            case ("0000000", "101", "0010011") => BitPat(ALUctr_SRL) // SRLI
-            case ("0100000", "101", "0010011") => BitPat(ALUctr_SRA) // SRAI // logical I
+            case (_, "000", "0010011") => BitPat(ALUctr_ADD) // ADDI
+            case (_, "000", "0010011") => BitPat(ALUctr_SUB) // SUBI
+            case (_, "100", "0010011") => BitPat(ALUctr_XOR) // XORI
+            case (_, "110", "0010011") => BitPat(ALUctr_OR ) // ORI
+            case (_, "111", "0010011") => BitPat(ALUctr_AND) // ANDI
+            case (_, "010", "0010011") => BitPat(ALUctr_Less_S) // SLTI
+            case (_, "011", "0010011") => BitPat(ALUctr_Less_U) // SLTUI
+            case (_, "001", "0010011") => BitPat(ALUctr_SLL) // SLLI
+            case (_, "101", "0010011") => BitPat(ALUctr_SRL) // SRLI
+            case (_, "101", "0010011") => BitPat(ALUctr_SRA) // SRAI // logical I
 
             case (_, "000", "1100011") => BitPat(ALUctr_SUB)    // BEQ 
             case (_, "001", "1100011") => BitPat(ALUctr_SUB)    // BNE 

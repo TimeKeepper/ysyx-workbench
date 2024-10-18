@@ -73,10 +73,6 @@ object Instructions {
   def NOP    = "b00000000000000000000000000010011"
 }
 
-trait enum_2_BitPat {
-  def toBitPat(Type: Any): UInt
-}
-
 object Imm_TypeEnum extends ChiselEnum with enum_2_BitPat {
   val Imm_I,    //I型指令
       Imm_U,    //U型指令
@@ -84,8 +80,6 @@ object Imm_TypeEnum extends ChiselEnum with enum_2_BitPat {
       Imm_B,    //B型指令
       Imm_J     //J型指令
       = Value
-  
-  def toBitPat(Type: Any): UInt = Type.litValue.U(Type.getWidth.W)
 }
 
 object signal_value {

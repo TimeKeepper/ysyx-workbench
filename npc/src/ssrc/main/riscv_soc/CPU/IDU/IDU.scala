@@ -7,65 +7,7 @@ import chisel3.util.experimental.decode._
 
 import signal_value._
 import bus_state._
-import Instructions._
 // riscv generating number(all meassge ALU and other thing needs) unit
-
-object Decode {
-  import signal_value._
-
-  import Instructions._
-
-  // format: off
-    val default =
-    //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp       ALUAsrc    ALUBsrc         ALUctr     csr_ctr 
-    //     |        |       |         |       |        |           |          |               |          |    
-    List(CSR_N)
-
-    val map = Array(
-        BitPat(LUI)     -> List(CSR_N    ),
-        BitPat(AUIPC)   -> List(CSR_N    ),
-        BitPat(ADDI)    -> List(CSR_N    ),
-        BitPat(SLTI)    -> List(CSR_N    ),
-        BitPat(SLTIU)   -> List(CSR_N    ),
-        BitPat(XORI)    -> List(CSR_N    ),
-        BitPat(ORI)     -> List(CSR_N    ),
-        BitPat(ANDI)    -> List(CSR_N    ),
-        BitPat(SLLI)    -> List(CSR_N    ),
-        BitPat(SRLI)    -> List(CSR_N    ),
-        BitPat(SRAI)    -> List(CSR_N    ),
-        BitPat(ADD)     -> List(CSR_N    ),
-        BitPat(SUB)     -> List(CSR_N    ),
-        BitPat(SLL)     -> List(CSR_N    ),
-        BitPat(SLT)     -> List(CSR_N    ),
-        BitPat(SLTU)    -> List(CSR_N    ),
-        BitPat(XOR)     -> List(CSR_N    ),
-        BitPat(SRL)     -> List(CSR_N    ),
-        BitPat(SRA)     -> List(CSR_N    ),
-        BitPat(OR)      -> List(CSR_N    ),
-        BitPat(AND)     -> List(CSR_N    ),
-        BitPat(JAL)     -> List(CSR_N    ),
-        BitPat(JALR)    -> List(CSR_N    ),
-        BitPat(BEQ)     -> List(CSR_N    ),
-        BitPat(BNE)     -> List(CSR_N    ),
-        BitPat(BLT)     -> List(CSR_N    ),
-        BitPat(BGE)     -> List(CSR_N    ),
-        BitPat(BLTU)    -> List(CSR_N    ),
-        BitPat(BGEU)    -> List(CSR_N    ),
-        BitPat(LB)      -> List(CSR_N    ),
-        BitPat(LH)      -> List(CSR_N    ),
-        BitPat(LW)      -> List(CSR_N    ),
-        BitPat(LBU)     -> List(CSR_N    ),
-        BitPat(LHU)     -> List(CSR_N    ),
-        BitPat(SB)      -> List(CSR_N    ),
-        BitPat(SH)      -> List(CSR_N    ),
-        BitPat(SW)      -> List(CSR_N    ),
-        BitPat(CSRRW)   -> List(CSR_R1W1 ),
-        BitPat(CSRRS)   -> List(CSR_R1W1 ),
-        BitPat(ECALL)   -> List(CSR_R1W2 ),
-        BitPat(MRET)    -> List(CSR_R1W0 )
-    )
-    // format: on
-}
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
@@ -88,8 +30,6 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.valid := state === s_wait_ready
     io.IFU_2_IDU.ready := state === s_wait_valid
     val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
-
-    val ctrlSignals = ListLookup(io.IFU_2_IDU.bits.data, Decode.default, Decode.map)
 
     val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)
     val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)

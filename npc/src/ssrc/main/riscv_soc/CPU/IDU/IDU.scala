@@ -194,9 +194,25 @@ class ysyx_23060198_IDU extends Module{
 
     val possiblePattern = Seq(
        InstructionPattern(opcode = BitPat("b0000011"), 
-        func3 = BitPat("b000"), func3 = BitPat("b001"), func3 = BitPat("b010"), func3 = BitPat("b100"), func3 = BitPat("b101")), // Loadxx
-       InstructionPattern(opcode = BitPat("b0100011")
-        func3 = BitPat("b000"), func3 = BitPat("b001"), func3 = BitPat("b010"), func3 = BitPat("b100"), func3 = BitPat("b101")), // Storexx
+        func3 = BitPat("b000")), // Loadxx
+       InstructionPattern(opcode = BitPat("b0000011"), 
+        func3 = BitPat("b001")),
+       InstructionPattern(opcode = BitPat("b0000011"), 
+        func3 = BitPat("b010")),
+       InstructionPattern(opcode = BitPat("b0000011"), 
+        func3 = BitPat("b100")),
+       InstructionPattern(opcode = BitPat("b0000011"), 
+        func3 = BitPat("b101")),
+       InstructionPattern(opcode = BitPat("b0100011"), 
+        func3 = BitPat("b000")),  // Storexx
+       InstructionPattern(opcode = BitPat("b0100011"), 
+        func3 = BitPat("b001")),
+       InstructionPattern(opcode = BitPat("b0100011"), 
+        func3 = BitPat("b010")),
+       InstructionPattern(opcode = BitPat("b0100011"), 
+        func3 = BitPat("b100")),
+       InstructionPattern(opcode = BitPat("b0100011"), 
+        func3 = BitPat("b101")),
        InstructionPattern(opcode = BitPat("b0110011")), // Rtype
        InstructionPattern(opcode = BitPat("b0010011")), // xxI
        InstructionPattern(opcode = BitPat("b0110111")), // LUI

@@ -170,13 +170,20 @@ object ALUctrField extends DecodeField[InstructionPattern, UInt] {
             case ("0000000", "101", "0010011") => BitPat(ALUctr_SRL) // SRLI
             case ("0100000", "101", "0010011") => BitPat(ALUctr_SRA) // SRAI // logical I
 
-            case (_, _, "0010011") => BitPat(ALUBsrc_IMM) // xxI
-            case (_, _, "1100011") => BitPat(ALUBsrc_RS2) // Branch
+            case (_, "000", "1100011") => BitPat(ALUctr_SUB)    // BEQ 
+            case (_, "001", "1100011") => BitPat(ALUctr_SUB)    // BNE 
+            case (_, "100", "1100011") => BitPat(ALUctr_Less_S) // BLT 
+            case (_, "101", "1100011") => BitPat(ALUctr_Less_S) // BGE 
+            case (_, "110", "1100011") => BitPat(ALUctr_Less_U) // BLTU
+            case (_, "111", "1100011") => BitPat(ALUctr_Less_U) // BGEU // Branchj
+
+            case (_, "001", "1110011") => BitPat(ALUctr_B) // CSRRW
+            case (_, "010", "1110011") => BitPat(ALUctr_OR) // CSRRS // CSRRx
+
             case (_, _, "0010111") => BitPat(ALUctr_ADD)  // AUIPC
             case (_, _, "1101111") => BitPat(ALUctr_ADD)  // JAL
             case (_, "000", "1100111") => BitPat(ALUctr_ADD) // JALR
             case (_, _, "0110111") => BitPat(ALUctr_B) // LUI
-            case (_, _, "1110011") => BitPat(ALUBsrc_RS1) // CSRRx
             case (_, _, _) => BitPat.dontCare(ALUctr_width)
         }
     }

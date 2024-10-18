@@ -136,6 +136,7 @@ object ALUBsrcField extends DecodeField[InstructionPattern, UInt] {
             case (_, _, "0010111") => BitPat(ALUBsrc_IMM)  // AUIPC
             case (_, _, "1101111") => BitPat(ALUBsrc_IMM)  // JAL
             case (_, "000", "1100111") => BitPat(ALUBsrc_IMM) // JALR
+            case (_, _, "0110111") => BitPat(ALUBsrc_IMM) // LUI
             case (_, _, "1110011") => BitPat(ALUBsrc_RS1)
             case (_, _, _) => BitPat.dontCare(PCBsrc_width)
         }

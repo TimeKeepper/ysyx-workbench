@@ -5,6 +5,7 @@ import chisel3.util._
 import chisel3.util.BitPat
 import chisel3.util.experimental.decode._
 
+import signal_value._
 
 case class InstructionPattern(
     val func7: BitPat = BitPat.dontCare(7),
@@ -116,7 +117,7 @@ object my_fooldecodedb {
         MemWrField,
         MemOpField,
     )
-    
+
     val possiblePattern = Seq(
         // Loads
         InstructionPattern(

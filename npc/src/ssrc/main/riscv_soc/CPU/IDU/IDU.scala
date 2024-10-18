@@ -72,9 +72,7 @@ case class InstructionPattern(
     val func3: BitPat = BitPat.dontCare(3),
     val opcode: BitPat
 ) extends DecodePattern {
-    def bitPat: BitPat =  pattern
-    val genPattern = 
-        func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
+    def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
 object ImmField extends DecodeField[InstructionPattern, UInt] {
@@ -195,8 +193,10 @@ class ysyx_23060198_IDU extends Module{
     val ctrlSignals = ListLookup(io.IFU_2_IDU.bits.data, Decode.default, Decode.map)
 
     val possiblePattern = Seq(
-       InstructionPattern(opcode = BitPat("b0000011"), func3 = BitPat.dontCare(3)), // Loadxx
-       InstructionPattern(opcode = BitPat("b0100011"), func3 = BitPat.dontCare(3)), // Storexx
+       InstructionPattern(opcode = BitPat("b0000011"), 
+        func3 = BitPat("b000"), func3 = BitPat("b001"), func3 = BitPat("b010"), func3 = BitPat("b100"), func3 = BitPat("b101")), // Loadxx
+       InstructionPattern(opcode = BitPat("b0100011")
+        func3 = BitPat("b000"), func3 = BitPat("b001"), func3 = BitPat("b010"), func3 = BitPat("b100"), func3 = BitPat("b101")), // Storexx
        InstructionPattern(opcode = BitPat("b0110011")), // Rtype
        InstructionPattern(opcode = BitPat("b0010011")), // xxI
        InstructionPattern(opcode = BitPat("b0110111")), // LUI

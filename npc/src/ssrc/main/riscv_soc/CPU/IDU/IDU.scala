@@ -203,11 +203,11 @@ class ysyx_23060198_IDU extends Module{
        InstructionPattern(opcode = BitPat("b1101111")), // JAL
        InstructionPattern(opcode = BitPat("b1100111")), // JALR
        InstructionPattern(opcode = BitPat("b1110011")), // CSRRx
-       InstructionPattern(func3  = BitPat("b000"), opcode = BitPat.dongCare(7)), 
-       InstructionPattern(func3  = BitPat("b001"), opcode = BitPat.dongCare(7)), 
-       InstructionPattern(func3  = BitPat("b010"), opcode = BitPat.dongCare(7)), 
-       InstructionPattern(func3  = BitPat("b100"), opcode = BitPat.dongCare(7)), 
-       InstructionPattern(func3  = BitPat("b101"), opcode = BitPat.dongCare(7)), 
+       InstructionPattern(func3  = BitPat("b000"), opcode = BitPat.dontCare(7)), 
+       InstructionPattern(func3  = BitPat("b001"), opcode = BitPat.dontCare(7)), 
+       InstructionPattern(func3  = BitPat("b010"), opcode = BitPat.dontCare(7)), 
+       InstructionPattern(func3  = BitPat("b100"), opcode = BitPat.dontCare(7)), 
+       InstructionPattern(func3  = BitPat("b101"), opcode = BitPat.dontCare(7)), 
     )
 
     val allFields = Seq(

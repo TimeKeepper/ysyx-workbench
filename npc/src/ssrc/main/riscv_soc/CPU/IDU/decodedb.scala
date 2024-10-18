@@ -113,9 +113,9 @@ object ALUAsrcField extends DecodeField[InstructionPattern, UInt] {
     def chiselType = ALUASrc_Type
     def genTable(op: InstructionPattern): BitPat = {
         (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, _, "b0110011") => BitPat(ALUASrc_RS1) // logical
-            case (_, _, "b0010011") => BitPat(ALUASrc_RS1) // xxI
-            case (_, _, "b1100011") => BitPat(ALUASrc_RS1) // Branch
+            case (_, _, "b0110011") => BitPat(ALUAsrc_RS1) // logical
+            case (_, _, "b0010011") => BitPat(ALUAsrc_RS1) // xxI
+            case (_, _, "b1100011") => BitPat(ALUAsrc_RS1) // Branch
             case (_, _, "b0010111") => BitPat(ALUAsrc_PC)  // AUIPC
             case (_, _, "b1101111") => BitPat(ALUAsrc_PC)  // JA:
             case (_, "b000", "b1100111") => BitPat(ALUAsrc_PC) // JALR

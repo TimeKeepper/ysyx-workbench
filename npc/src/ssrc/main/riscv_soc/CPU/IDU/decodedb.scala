@@ -183,7 +183,22 @@ object ALUctrField extends DecodeField[InstructionPattern, UInt] {
             case (_, _, "1101111") => BitPat(ALUctr_ADD)  // JAL
             case (_, "000", "1100111") => BitPat(ALUctr_ADD) // JALR
             case (_, _, "0110111") => BitPat(ALUctr_B) // LUI
+
             case (_, _, _) => BitPat.dontCare(ALUctr_width)
+        }
+    }
+}
+
+object csr_ctrField extends DecodeFieldext[InstructionPattern, UInt] {
+    def name: String = "csr_ctr"
+    def chiselType = CSR_Type
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, "001", "1110011") => BitPat(CSR_R1W1) // CSRRW
+            case (_, "010", "1110011") => BitPat(CSR_R1W1) // CSRRS
+            case ("0000000", "000", "1110011") => BitPat(CSR_R1W2) // ECALL
+            case ("0011000", "000", "1110011") => BitPat(CSR_R1W0) // MRET // CSRRx
+            case (_, _, _) => BitPat(CSR_N)
         }
     }
 }
@@ -199,6 +214,7 @@ object my_fooldecodedb {
         ALUAsrcField,
         ALUBsrcField,
         ALUctrField,
+        csr_ctrField,
     )
 
     val possiblePattern = Seq(

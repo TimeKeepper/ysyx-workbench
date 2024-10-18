@@ -107,7 +107,7 @@ object RegWrFiled extends BoolDecodeField[InstructionPattern] {
             case "1100011" => BitPat(N)
             case "1101111" => BitPat(Y)
             case "1100111" => BitPat(Y)
-            case "1110011" => BitPat(N)
+            case "1110011" => if (op.func3 != BitPat("b000")) BitPat(Y) else BitPat(N)
             case _ => BitPat.dontCare(1)
         }
     }
@@ -157,13 +157,13 @@ object MemOpField extends DecodeField[InstructionPattern, UInt]{
     def name: String = "MemOp"
     def chiselType = MemOp_Type
     def genTable(op: InstructionPattern): BitPat = {
-        op.func3.rawString match {
-            case "000" => BitPat(MemOp_1BS)
-            case "001" => BitPat(MemOp_2BS)
-            case "010" => BitPat(MemOp_4BU)
-            case "100" => BitPat(MemOp_1BU)
-            case "101" => BitPat(MemOp_2BU)
-            case _ => BitPat.dontCare(MemOp_width)
+        (op.func3.rawString, op.func7.rawString, op.opcode.rawString) match {
+            case (_, _, "000") => BitPat(MemOp_1BS)
+            case (_, _, "001") => BitPat(MemOp_2BS)
+            case (_, _, "010") => BitPat(MemOp_4BU)
+            case (_, _, "100") => BitPat(MemOp_1BU)
+            case (_, _, "101") => BitPat(MemOp_2BU)
+            case (_, _, _)     => BitPat.dontCare(MemOp_width)
         }
     }
 }

@@ -19,50 +19,50 @@ object Decode {
     val default =
     //   Extop     RegWr  Branch   MemtoReg  MemWr   MemOp       ALUAsrc    ALUBsrc         ALUctr     csr_ctr 
     //     |        |       |         |       |        |           |          |               |          |    
-    List(Bran_NJmp,   MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
+    List(ALUAsrc_RS1, ALUBSrc_RS2,  ALUctr_ADD,   CSR_N)
 
     val map = Array(
-        BitPat(LUI)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),
-        BitPat(AUIPC)   -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_PC,  ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
-        BitPat(ADDI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
-        BitPat(SLTI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_Less_S, CSR_N    ),
-        BitPat(SLTIU)   -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_Less_U, CSR_N    ),
-        BitPat(XORI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_XOR,    CSR_N    ),
-        BitPat(ORI)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_OR,     CSR_N    ),
-        BitPat(ANDI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_AND,    CSR_N    ),
-        BitPat(SLLI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_SLL,    CSR_N    ),
-        BitPat(SRLI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_SRL,    CSR_N    ),
-        BitPat(SRAI)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_SRA,    CSR_N    ),
-        BitPat(ADD)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_ADD,    CSR_N    ),
-        BitPat(SUB)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SUB,    CSR_N    ),
-        BitPat(SLL)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SLL,    CSR_N    ),
-        BitPat(SLT)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_S, CSR_N    ),
-        BitPat(SLTU)    -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_U, CSR_N    ),
-        BitPat(XOR)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_XOR,    CSR_N    ),
-        BitPat(SRL)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SRL,    CSR_N    ),
-        BitPat(SRA)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SRA,    CSR_N    ),
-        BitPat(OR)      -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_OR,     CSR_N    ),
-        BitPat(AND)     -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_AND,    CSR_N    ),
-        BitPat(JAL)     -> List(Bran_Jmp,  MemOp_1BS, ALUAsrc_PC,  ALUBSrc_4,   ALUctr_ADD,    CSR_N    ),
-        BitPat(JALR)    -> List(Bran_Jmpr, MemOp_1BS, ALUAsrc_PC,  ALUBSrc_4,   ALUctr_ADD,    CSR_N    ),
-        BitPat(BEQ)     -> List(Bran_Jeq,  MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SUB,    CSR_N    ),
-        BitPat(BNE)     -> List(Bran_Jne,  MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SUB,    CSR_N    ),
-        BitPat(BLT)     -> List(Bran_Jlt,  MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_S, CSR_N    ),
-        BitPat(BGE)     -> List(Bran_Jge,  MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_S, CSR_N    ),
-        BitPat(BLTU)    -> List(Bran_Jlt,  MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_U, CSR_N    ),
-        BitPat(BGEU)    -> List(Bran_Jge,  MemOp_1BS, ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_U, CSR_N    ),
-        BitPat(LB)      -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(LH)      -> List(Bran_NJmp, MemOp_2BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(LW)      -> List(Bran_NJmp, MemOp_4BU, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(LBU)     -> List(Bran_NJmp, MemOp_1BU, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(LHU)     -> List(Bran_NJmp, MemOp_2BU, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(SB)      -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(SH)      -> List(Bran_NJmp, MemOp_2BS, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(SW)      -> List(Bran_NJmp, MemOp_4BU, ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
-        BitPat(CSRRW)   -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_B,      CSR_R1W1 ),
-        BitPat(CSRRS)   -> List(Bran_NJmp, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_OR,     CSR_R1W1 ),
-        BitPat(ECALL)   -> List(Bran_Jcsr, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_ADD,    CSR_R1W2 ),
-        BitPat(MRET)    -> List(Bran_Jcsr, MemOp_1BS, ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_ADD,    CSR_R1W0 )
+        BitPat(LUI)     -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_B,      CSR_N    ),
+        BitPat(AUIPC)   -> List(ALUAsrc_PC,  ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
+        BitPat(ADDI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_ADD,    CSR_N    ),
+        BitPat(SLTI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_Less_S, CSR_N    ),
+        BitPat(SLTIU)   -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_Less_U, CSR_N    ),
+        BitPat(XORI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_XOR,    CSR_N    ),
+        BitPat(ORI)     -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_OR,     CSR_N    ),
+        BitPat(ANDI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_AND,    CSR_N    ),
+        BitPat(SLLI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_SLL,    CSR_N    ),
+        BitPat(SRLI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_SRL,    CSR_N    ),
+        BitPat(SRAI)    -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUctr_SRA,    CSR_N    ),
+        BitPat(ADD)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_ADD,    CSR_N    ),
+        BitPat(SUB)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SUB,    CSR_N    ),
+        BitPat(SLL)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SLL,    CSR_N    ),
+        BitPat(SLT)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_S, CSR_N    ),
+        BitPat(SLTU)    -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_U, CSR_N    ),
+        BitPat(XOR)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_XOR,    CSR_N    ),
+        BitPat(SRL)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SRL,    CSR_N    ),
+        BitPat(SRA)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SRA,    CSR_N    ),
+        BitPat(OR)      -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_OR,     CSR_N    ),
+        BitPat(AND)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_AND,    CSR_N    ),
+        BitPat(JAL)     -> List(ALUAsrc_PC,  ALUBSrc_4,   ALUctr_ADD,    CSR_N    ),
+        BitPat(JALR)    -> List(ALUAsrc_PC,  ALUBSrc_4,   ALUctr_ADD,    CSR_N    ),
+        BitPat(BEQ)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SUB,    CSR_N    ),
+        BitPat(BNE)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_SUB,    CSR_N    ),
+        BitPat(BLT)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_S, CSR_N    ),
+        BitPat(BGE)     -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_S, CSR_N    ),
+        BitPat(BLTU)    -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_U, CSR_N    ),
+        BitPat(BGEU)    -> List(ALUAsrc_RS1, ALUBSrc_RS2, ALUctr_Less_U, CSR_N    ),
+        BitPat(LB)      -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(LH)      -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(LW)      -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(LBU)     -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(LHU)     -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(SB)      -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(SH)      -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(SW)      -> List(ALUAsrc_RS1, ALUBSrc_IMM, ALUAsrc_RS1,   CSR_N    ),
+        BitPat(CSRRW)   -> List(ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_B,      CSR_R1W1 ),
+        BitPat(CSRRS)   -> List(ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_OR,     CSR_R1W1 ),
+        BitPat(ECALL)   -> List(ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_ADD,    CSR_R1W2 ),
+        BitPat(MRET)    -> List(ALUAsrc_CSR, ALUBSrc_RS1, ALUctr_ADD,    CSR_R1W0 )
     )
     // format: on
 }
@@ -104,7 +104,7 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val csr_raddr = MuxLookup(ctrlSignals(5), imm(11, 0))(
+    val csr_raddr = MuxLookup(ctrlSignals(3), imm(11, 0))(
         Seq(
             CSR_R1W0 -> "h341".U,
             CSR_R1W2 -> "h305".U,
@@ -118,10 +118,10 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),         comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(decodeResult(MemOpField),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(2),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(3),         comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(4),         comunication_succeed) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(5),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(ctrlSignals(0),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(ctrlSignals(1),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(ctrlSignals(2),         comunication_succeed) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(ctrlSignals(3),         comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 

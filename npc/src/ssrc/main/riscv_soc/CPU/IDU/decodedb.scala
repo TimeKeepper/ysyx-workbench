@@ -117,7 +117,7 @@ object ALUAsrcField extends DecodeField[InstructionPattern, UInt] {
             case (_, _, "b0010011") => BitPat(ALUAsrc_RS1) // xxI
             case (_, _, "b1100011") => BitPat(ALUAsrc_RS1) // Branch
             case (_, _, "b0010111") => BitPat(ALUAsrc_PC)  // AUIPC
-            case (_, _, "b1101111") => BitPat(ALUAsrc_PC)  // JA:
+            case (_, _, "b1101111") => BitPat(ALUAsrc_PC)  // JAL
             case (_, "b000", "b1100111") => BitPat(ALUAsrc_PC) // JALR
             case (_, _, "b1110011") => BitPat(ALUAsrc_CSR)
             case (_, _, _) => BitPat.dontCare(PCAsrc_width)
@@ -227,8 +227,6 @@ object my_fooldecodedb {
             opcode = BitPat("b0110111"), 
         ), // LUI  
         InstructionPattern(
-            func7  = BitPat("b???????"),
-            func3  = BitPat("b???"    ),
             opcode = BitPat("b0010111"), 
         ), // AUIPC
         

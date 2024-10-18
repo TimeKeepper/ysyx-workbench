@@ -29,7 +29,7 @@ object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
             case "1101111" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_J)) // JAL
             case "1100111" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_I)) // JALR
             case "1110011" => BitPat(Imm_TypeEnum.toBitPat(Imm_TypeEnum.Imm_I)) // CSRRx
-            case _ => BitPat.dontCare(Imm_TypeEnum.getWidth.W)
+            case _ => BitPat.dontCare(Imm_TypeEnum.getWidth)
         }
     }
 }

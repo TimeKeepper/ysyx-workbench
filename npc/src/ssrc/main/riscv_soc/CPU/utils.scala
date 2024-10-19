@@ -118,33 +118,41 @@ object ALUBsrc_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object ALUctr_TypeEnum extends ChiselEnum{
+  val ALUctr_ADD     ,    //加法
+      ALUctr_SUB     ,    //减法
+      ALUctr_Less_U  ,    //小于无符号
+      ALUctr_Less_S  ,    //小于
+      ALUctr_A       ,    //输出A
+      ALUctr_B       ,    //输出B
+      ALUctr_SLL     ,    //逻辑左移
+      ALUctr_SRL     ,    //逻辑右移
+      ALUctr_SRA     ,    //算术右移
+      ALUctr_XOR     ,    //异或
+      ALUctr_OR      ,    //或
+      ALUctr_AND          //与
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
-  // ALUBSrc
-  // def ALUBsrc_width      = 2
-  // def ALUBsrc_Type       = UInt(ALUBsrc_width.W)
-  // def ALUBsrc_RS2        = 0.U(ALUBsrc_width.W) //寄存器资源2
-  // def ALUBsrc_IMM        = 1.U(ALUBsrc_width.W) //立即数
-  // def ALUBsrc_4          = 2.U(ALUBsrc_width.W) //立即数4
-  // def ALUBsrc_RS1        = 3.U(ALUBsrc_width.W) //寄存器资源1
-
-  // ALUctr
-  def ALUctr_width   = 4
-  def ALUctr_Type    = UInt(ALUctr_width.W)
-  def ALUctr_ADD     = 0.U(ALUctr_width.W) //加法
-  def ALUctr_SUB     = 1.U(ALUctr_width.W) //减法
-  def ALUctr_Less_U  = 2.U(ALUctr_width.W) //小于无符号
-  def ALUctr_Less_S  = 3.U(ALUctr_width.W) //小于
-  def ALUctr_A       = 4.U(ALUctr_width.W) //输出A
-  def ALUctr_B       = 5.U(ALUctr_width.W) //输出B
-  def ALUctr_SLL     = 6.U(ALUctr_width.W) //逻辑左移
-  def ALUctr_SRL     = 7.U(ALUctr_width.W) //逻辑右移
-  def ALUctr_SRA     = 8.U(ALUctr_width.W) //算术右移
-  def ALUctr_XOR     = 9.U(ALUctr_width.W) //异或
-  def ALUctr_OR      = 10.U(ALUctr_width.W) //或
-  def ALUctr_AND     = 11.U(ALUctr_width.W) //与
+  // // ALUctr
+  // def ALUctr_width   = 4
+  // def ALUctr_Type    = UInt(ALUctr_width.W)
+  // def ALUctr_ADD     = 0.U(ALUctr_width.W) //加法
+  // def ALUctr_SUB     = 1.U(ALUctr_width.W) //减法
+  // def ALUctr_Less_U  = 2.U(ALUctr_width.W) //小于无符号
+  // def ALUctr_Less_S  = 3.U(ALUctr_width.W) //小于
+  // def ALUctr_A       = 4.U(ALUctr_width.W) //输出A
+  // def ALUctr_B       = 5.U(ALUctr_width.W) //输出B
+  // def ALUctr_SLL     = 6.U(ALUctr_width.W) //逻辑左移
+  // def ALUctr_SRL     = 7.U(ALUctr_width.W) //逻辑右移
+  // def ALUctr_SRA     = 8.U(ALUctr_width.W) //算术右移
+  // def ALUctr_XOR     = 9.U(ALUctr_width.W) //异或
+  // def ALUctr_OR      = 10.U(ALUctr_width.W) //或
+  // def ALUctr_AND     = 11.U(ALUctr_width.W) //与
 
   // csr_ctr
   def CSR_width = 2

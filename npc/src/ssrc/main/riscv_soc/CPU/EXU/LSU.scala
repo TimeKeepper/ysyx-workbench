@@ -119,14 +119,14 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.awaddr.bits.addr  <> io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
     io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
     
-    when(io.IDU_2_EXU.bits.MemOp === MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_1BS){
+    when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0001".U)(Seq(
             "b00".U -> "b0001".U,
             "b01".U -> "b0010".U,
             "b10".U -> "b0100".U,
             "b11".U -> "b1000".U,
         ))
-    }.elsewhen(io.IDU_2_EXU.bits.MemOp === MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_2BS){
+    }.elsewhen(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_2BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0011".U)(Seq(
             "b00".U -> "b0011".U,
             "b01".U -> "b0110".U,
@@ -137,18 +137,18 @@ class ysyx_23060198_LSU extends Module{
     }
     
     io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> 0.U,
-        MemOp_1BS -> 0.U,
-        MemOp_2BU -> 1.U,
-        MemOp_2BS -> 1.U,
-        MemOp_4BU -> 2.U,
+        MemOp_TypeEnum.MemOp_1BU -> 0.U,
+        MemOp_TypeEnum.MemOp_1BS -> 0.U,
+        MemOp_TypeEnum.MemOp_2BU -> 1.U,
+        MemOp_TypeEnum.MemOp_2BS -> 1.U,
+        MemOp_TypeEnum.MemOp_4BU -> 2.U,
     ))
     io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> 0.U,
-        MemOp_1BS -> 0.U,
-        MemOp_2BU -> 1.U,
-        MemOp_2BS -> 1.U,
-        MemOp_4BU -> 2.U,
+        MemOp_TypeEnum.MemOp_1BU -> 0.U,
+        MemOp_TypeEnum.MemOp_1BS -> 0.U,
+        MemOp_TypeEnum.MemOp_2BU -> 1.U,
+        MemOp_TypeEnum.MemOp_2BS -> 1.U,
+        MemOp_TypeEnum.MemOp_4BU -> 2.U,
     ))
 
     val AXI_rdata = Wire(UInt(32.W))

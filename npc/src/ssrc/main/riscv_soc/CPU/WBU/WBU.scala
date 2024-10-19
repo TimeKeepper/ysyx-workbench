@@ -13,17 +13,17 @@ class ysyx_23060198_WBU extends Module {
         val WBU_2_REG = Output(new BUS_WBU_2_REG)
     })
 
-    val state = RegInit(s_wait_ready)
+    val state = RegInit(bus_state.s_wait_ready)
 
-    state := MuxLookup(state, s_wait_valid)(
+    state := MuxLookup(state, bus_state.s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.EXU_2_WBU.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.WBU_2_IFU.ready, s_wait_valid, s_wait_ready),
+            bus_state.s_wait_valid -> Mux(io.EXU_2_WBU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
+            bus_state.s_wait_ready -> Mux(io.WBU_2_IFU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
         )
     )
 
-    io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
-    io.EXU_2_WBU.ready  := state === s_wait_valid
+    io.WBU_2_IFU.valid := state === bus_state.s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
+    io.EXU_2_WBU.ready  := state === bus_state.s_wait_valid
     
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
         io.WBU_2_REG.inst_valid := true.B

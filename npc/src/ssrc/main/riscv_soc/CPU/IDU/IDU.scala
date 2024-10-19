@@ -18,17 +18,17 @@ class ysyx_23060198_IDU extends Module{
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
 
-    val state = RegInit(s_wait_valid)
+    val state = RegInit(bus_state.s_wait_valid)
 
-    state := MuxLookup(state, s_wait_valid)(
+    state := MuxLookup(state, bus_state.s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.IFU_2_IDU.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.IDU_2_EXU.ready, s_wait_valid, s_wait_ready),
+            bus_state.s_wait_valid -> Mux(io.IFU_2_IDU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
+            bus_state.s_wait_ready -> Mux(io.IDU_2_EXU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
         )
     )
 
-    io.IDU_2_EXU.valid := state === s_wait_ready
-    io.IFU_2_IDU.ready := state === s_wait_valid
+    io.IDU_2_EXU.valid := state === bus_state.s_wait_ready
+    io.IFU_2_IDU.ready := state === bus_state.s_wait_valid
     val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
 
     val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)

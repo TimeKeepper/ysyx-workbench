@@ -147,6 +147,10 @@ object signal_value {
   def N = false.B
 }
 
-object bus_state {
-  val s_wait_valid :: s_wait_ready :: s_busy :: s_pipeline :: Nil = Enum(4)
+object bus_state extends ChiselEnum{
+  val s_wait_valid,
+      s_wait_ready,
+      s_busy,
+      s_pipeline
+      = Value
 }

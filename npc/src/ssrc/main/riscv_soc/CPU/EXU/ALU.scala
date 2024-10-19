@@ -72,10 +72,10 @@ class ysyx_23060198_ALU extends Module {
   ))
 
   src_B := MuxLookup(io.IDU_2_EXU.bits.ALUBsrc, 0.U)(Seq(
-      ALUBsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
-      ALUBsrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
-      ALUBsrc_IMM -> io.IDU_2_EXU.bits.Imm,
-      ALUBsrc_4   -> 4.U,
+      ALUBsrc_TypeEnum.ALUBsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
+      ALUBsrc_TypeEnum.ALUBsrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
+      ALUBsrc_TypeEnum.ALUBsrc_IMM -> io.IDU_2_EXU.bits.Imm,
+      ALUBsrc_TypeEnum.ALUBsrc_4   -> 4.U,
   ))
 
   val adder    = Wire(UInt(32.W))

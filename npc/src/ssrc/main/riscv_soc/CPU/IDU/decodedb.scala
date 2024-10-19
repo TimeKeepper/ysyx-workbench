@@ -48,7 +48,7 @@ object BranchField extends DecodeField[InstructionPattern, UInt] {
             case ("???", "1101111") => BitPat(Bran_TypeEnum.Bran_Jmp.litValue.U(Bran_TypeEnum.getWidth.W))
             case ("000", "1100111") => BitPat(Bran_TypeEnum.Bran_Jmpr.litValue.U(Bran_TypeEnum.getWidth.W))
             case ("000", "1110011") => BitPat(Bran_TypeEnum.Bran_Jcsr.litValue.U(Bran_TypeEnum.getWidth.W))
-            case (_, _) => BitPat(Bran_TypeEnum.getWidth)
+            case (_, _) => BitPat(Bran_TypeEnum.Bran_NJmp.litValue.U(Bran_TypeEnum.getWidth.W))
         }
     }
 }

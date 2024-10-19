@@ -145,14 +145,6 @@ object CSR_TypeEnum extends ChiselEnum{
 object signal_value {
   def Y = true.B
   def N = false.B
-
-  // // csr_ctr
-  // def CSR_width = 2
-  // def CSR_Type = UInt(CSR_width.W)
-  // def CSR_N    = 0.U(CSR_width.W) // 非csr读写指令
-  // def CSR_R1W0 = 1.U(CSR_width.W) // 不读写一， 目前只有 mret 符合
-  // def CSR_R1W1 = 2.U(CSR_width.W) // 读写一
-  // def CSR_R1W2 = 3.U(CSR_width.W) // 读一写二， 目前只有 ecall 符合
 }
 
 object bus_state {

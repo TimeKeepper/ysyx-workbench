@@ -94,29 +94,25 @@ object Bran_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object PCAsrc_Type_Enum extends ChiselEnum{
+  val PCAsrc_Imm,  //立即数
+      PCAsrc_0,    //立即数0
+      PCAsrc_4,    //立即数4
+      PCAsrc_csr   //CSR寄存器
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
-  // Branch
-  // def Bran_width= 3
-  // def Bran_Type = UInt(Bran_width.W)
-  // def Bran_NJmp = 0.U(Bran_width.W) //非跳转
-  // def Bran_Jmp  = 1.U(Bran_width.W) //无条件跳转
-  // def Bran_Jmpr = 2.U(Bran_width.W) //寄存器基址跳转
-  // def Bran_Jeq  = 3.U(Bran_width.W) //相等跳转
-  // def Bran_Jne  = 4.U(Bran_width.W) //不相等跳转
-  // def Bran_Jlt  = 5.U(Bran_width.W) //小于跳转
-  // def Bran_Jge  = 6.U(Bran_width.W) //大于等于跳转
-  // def Bran_Jcsr = 7.U(Bran_width.W) //CSR跳转
-
-  // Branch sub signal
-  def PCAsrc_width  = 2
-  def PCAsrc_Type = UInt(PCAsrc_width.W)
-  def PCAsrc_Imm  = 0.U(PCAsrc_width.W) //立即数
-  def PCAsrc_0    = 1.U(PCAsrc_width.W) //立即数0
-  def PCAsrc_4    = 2.U(PCAsrc_width.W) //立即数4
-  def PCAsrc_csr  = 3.U(PCAsrc_width.W) //CSR寄存器
+  // // Branch sub signal
+  // def PCAsrc_width  = 2
+  // def PCAsrc_Type = UInt(PCAsrc_width.W)
+  // def PCAsrc_Imm  = 0.U(PCAsrc_width.W) //立即数
+  // def PCAsrc_0    = 1.U(PCAsrc_width.W) //立即数0
+  // def PCAsrc_4    = 2.U(PCAsrc_width.W) //立即数4
+  // def PCAsrc_csr  = 3.U(PCAsrc_width.W) //CSR寄存器
 
   def PCBsrc_width = 2
   def PCBsrc_Type = UInt(PCBsrc_width.W)

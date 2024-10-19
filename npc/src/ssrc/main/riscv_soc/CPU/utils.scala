@@ -130,12 +130,12 @@ object signal_value {
   // def ALUAsrc_CSR        = 2.U(ALUAsrc_width.W) //CSR寄存器
 
   // ALUBSrc
-  def ALUBsrc_width      = 2
-  def ALUBsrc_Type       = UInt(ALUBsrc_width.W)
-  def ALUBsrc_RS2        = 0.U(ALUBsrc_width.W) //寄存器资源2
-  def ALUBsrc_IMM        = 1.U(ALUBsrc_width.W) //立即数
-  def ALUBsrc_4          = 2.U(ALUBsrc_width.W) //立即数4
-  def ALUBsrc_RS1        = 3.U(ALUBsrc_width.W) //寄存器资源1
+  // def ALUBsrc_width      = 2
+  // def ALUBsrc_Type       = UInt(ALUBsrc_width.W)
+  // def ALUBsrc_RS2        = 0.U(ALUBsrc_width.W) //寄存器资源2
+  // def ALUBsrc_IMM        = 1.U(ALUBsrc_width.W) //立即数
+  // def ALUBsrc_4          = 2.U(ALUBsrc_width.W) //立即数4
+  // def ALUBsrc_RS1        = 3.U(ALUBsrc_width.W) //寄存器资源1
 
   // ALUctr
   def ALUctr_width   = 4

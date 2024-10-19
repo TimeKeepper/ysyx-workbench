@@ -149,6 +149,20 @@ object ALUctrField extends DecodeField[InstructionPattern, ALUctr_TypeEnum.Type]
     }
 }
 
+object csr_ctrField extends DecodeField[InstructionPattern, CSR_TypeEnum.Type] {
+    def name: String = "csr_ctr"
+    def chiselType = CSR_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, "001", "1110011")          => BitPat(CSR_TypeEnum.CSR_R1W1.litValue.U(CSR_TypeEnum.getWidth.W)) // CSRRW
+            case (_, "010", "1110011")          => BitPat(CSR_TypeEnum.CSR_R1W1.litValue.U(CSR_TypeEnum.getWidth.W)) // CSRRS
+            case ("0000000", "000", "1110011")  => BitPat(CSR_TypeEnum.CSR_R1W2.litValue.U(CSR_TypeEnum.getWidth.W)) // ECALL
+            case ("0011000", "000", "1110011")  => BitPat(CSR_TypeEnum.CSR_R1W0.litValue.U(CSR_TypeEnum.getWidth.W)) // MRET // CSRRx
+            case (_, _, _)                      => BitPat(CSR_TypeEnum.CSR_N.litValue.U(CSR_TypeEnum.getWidth.W))
+        }
+    }
+}
+
 object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     def name: String = "RegWr"
     def genTable(op: InstructionPattern): BitPat = {
@@ -184,20 +198,6 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
         op.opcode.rawString match {
             case "0100011" => BitPat(Y)
             case _ => BitPat(N)
-        }
-    }
-}
-
-object csr_ctrField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "csr_ctr"
-    def chiselType = CSR_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, "001", "1110011") => BitPat(CSR_R1W1) // CSRRW
-            case (_, "010", "1110011") => BitPat(CSR_R1W1) // CSRRS
-            case ("0000000", "000", "1110011") => BitPat(CSR_R1W2) // ECALL
-            case ("0011000", "000", "1110011") => BitPat(CSR_R1W0) // MRET // CSRRx
-            case (_, _, _) => BitPat(CSR_N)
         }
     }
 }

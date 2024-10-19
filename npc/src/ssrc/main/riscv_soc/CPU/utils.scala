@@ -134,33 +134,25 @@ object ALUctr_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object CSR_TypeEnum extends ChiselEnum{
+  val CSR_N   ,    // 非csr读写指令
+      CSR_R1W0,    // 不读写一， 目前只有 mret 符合
+      CSR_R1W1,    // 读写一
+      CSR_R1W2     // 读一写二， 目前只有 ecall 符合
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
-  // // ALUctr
-  // def ALUctr_width   = 4
-  // def ALUctr_Type    = UInt(ALUctr_width.W)
-  // def ALUctr_ADD     = 0.U(ALUctr_width.W) //加法
-  // def ALUctr_SUB     = 1.U(ALUctr_width.W) //减法
-  // def ALUctr_Less_U  = 2.U(ALUctr_width.W) //小于无符号
-  // def ALUctr_Less_S  = 3.U(ALUctr_width.W) //小于
-  // def ALUctr_A       = 4.U(ALUctr_width.W) //输出A
-  // def ALUctr_B       = 5.U(ALUctr_width.W) //输出B
-  // def ALUctr_SLL     = 6.U(ALUctr_width.W) //逻辑左移
-  // def ALUctr_SRL     = 7.U(ALUctr_width.W) //逻辑右移
-  // def ALUctr_SRA     = 8.U(ALUctr_width.W) //算术右移
-  // def ALUctr_XOR     = 9.U(ALUctr_width.W) //异或
-  // def ALUctr_OR      = 10.U(ALUctr_width.W) //或
-  // def ALUctr_AND     = 11.U(ALUctr_width.W) //与
-
-  // csr_ctr
-  def CSR_width = 2
-  def CSR_Type = UInt(CSR_width.W)
-  def CSR_N    = 0.U(CSR_width.W) // 非csr读写指令
-  def CSR_R1W0 = 1.U(CSR_width.W) // 不读写一， 目前只有 mret 符合
-  def CSR_R1W1 = 2.U(CSR_width.W) // 读写一
-  def CSR_R1W2 = 3.U(CSR_width.W) // 读一写二， 目前只有 ecall 符合
+  // // csr_ctr
+  // def CSR_width = 2
+  // def CSR_Type = UInt(CSR_width.W)
+  // def CSR_N    = 0.U(CSR_width.W) // 非csr读写指令
+  // def CSR_R1W0 = 1.U(CSR_width.W) // 不读写一， 目前只有 mret 符合
+  // def CSR_R1W1 = 2.U(CSR_width.W) // 读写一
+  // def CSR_R1W2 = 3.U(CSR_width.W) // 读一写二， 目前只有 ecall 符合
 }
 
 object bus_state {

@@ -110,6 +110,14 @@ object ALUAsrc_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object ALUBsrc_TypeEnum extends ChiselEnum{
+  val ALUBsrc_RS2,  //寄存器资源2
+      ALUBsrc_IMM,  //立即数
+      ALUBsrc_4  ,  //立即数4
+      ALUBsrc_RS1   //寄存器资源1
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B

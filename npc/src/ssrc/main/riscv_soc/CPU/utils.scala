@@ -94,31 +94,9 @@ object Bran_TypeEnum extends ChiselEnum{
       = Value
 }
 
-object PCAsrc_Type_Enum extends ChiselEnum{
-  val PCAsrc_Imm,  //立即数
-      PCAsrc_0,    //立即数0
-      PCAsrc_4,    //立即数4
-      PCAsrc_csr   //CSR寄存器
-      = Value
-}
-
 object signal_value {
   def Y = true.B
   def N = false.B
-
-  // // Branch sub signal
-  // def PCAsrc_width  = 2
-  // def PCAsrc_Type = UInt(PCAsrc_width.W)
-  // def PCAsrc_Imm  = 0.U(PCAsrc_width.W) //立即数
-  // def PCAsrc_0    = 1.U(PCAsrc_width.W) //立即数0
-  // def PCAsrc_4    = 2.U(PCAsrc_width.W) //立即数4
-  // def PCAsrc_csr  = 3.U(PCAsrc_width.W) //CSR寄存器
-
-  def PCBsrc_width = 2
-  def PCBsrc_Type = UInt(PCBsrc_width.W)
-  def PCBsrc_gpr  = 0.U(PCBsrc_width.W) //GPR寄存器
-  def PCBsrc_pc   = 1.U(PCBsrc_width.W) //PC寄存器
-  def PCBsrc_0    = 2.U(PCBsrc_width.W) //立即数0
 
   // MemOp
   def MemOp_width     = 3

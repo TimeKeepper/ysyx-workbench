@@ -82,30 +82,33 @@ object Imm_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object Bran_TypeEnum extends ChiselEnum{
+  val Bran_NJmp,   //非跳转
+      Bran_Jmp,    //无条件跳转
+      Bran_Jmpr,   //寄存器基址跳转
+      Bran_Jeq,    //相等跳转
+      Bran_Jne,    //不相等跳转
+      Bran_Jlt,    //小于跳转
+      Bran_Jge,    //大于等于跳转
+      Bran_Jcsr    //CSR跳转
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
-  // ExtOp
-  // def Imm_width  = 3
-  // def Imm_Type   = UInt(Imm_width.W)
-  // def Imm_I       = 0.U(Imm_width.W) //I型指令
-  // def Imm_U       = 1.U(Imm_width.W) //U型指令
-  // def Imm_S       = 2.U(Imm_width.W) //S型指令
-  // def Imm_B       = 3.U(Imm_width.W) //B型指令
-  // def Imm_J       = 4.U(Imm_width.W) //J型指令
-
   // Branch
-  def Bran_width= 3
-  def Bran_Type = UInt(Bran_width.W)
-  def Bran_NJmp = 0.U(Bran_width.W) //非跳转
-  def Bran_Jmp  = 1.U(Bran_width.W) //无条件跳转
-  def Bran_Jmpr = 2.U(Bran_width.W) //寄存器基址跳转
-  def Bran_Jeq  = 3.U(Bran_width.W) //相等跳转
-  def Bran_Jne  = 4.U(Bran_width.W) //不相等跳转
-  def Bran_Jlt  = 5.U(Bran_width.W) //小于跳转
-  def Bran_Jge  = 6.U(Bran_width.W) //大于等于跳转
-  def Bran_Jcsr = 7.U(Bran_width.W) //CSR跳转
+  // def Bran_width= 3
+  // def Bran_Type = UInt(Bran_width.W)
+  // def Bran_NJmp = 0.U(Bran_width.W) //非跳转
+  // def Bran_Jmp  = 1.U(Bran_width.W) //无条件跳转
+  // def Bran_Jmpr = 2.U(Bran_width.W) //寄存器基址跳转
+  // def Bran_Jeq  = 3.U(Bran_width.W) //相等跳转
+  // def Bran_Jne  = 4.U(Bran_width.W) //不相等跳转
+  // def Bran_Jlt  = 5.U(Bran_width.W) //小于跳转
+  // def Bran_Jge  = 6.U(Bran_width.W) //大于等于跳转
+  // def Bran_Jcsr = 7.U(Bran_width.W) //CSR跳转
 
   // Branch sub signal
   def PCAsrc_width  = 2

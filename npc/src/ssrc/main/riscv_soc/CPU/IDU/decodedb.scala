@@ -34,6 +34,26 @@ object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
     }
 }
 
+object BranchField extends DecodeField[InstructionPattern, UInt] {
+    def name: String = "Branch"
+    def chiselType = Bran_Type
+    
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func3.rawString, op.opcode.rawString) match {
+            case ("000", "1100011") => BitPat(Bran_TypeEnum.Bran_Jeq.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("001", "1100011") => BitPat(Bran_TypeEnum.Bran_Jne.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("100", "1100011") => BitPat(Bran_TypeEnum.Bran_Jlt.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("101", "1100011") => BitPat(Bran_TypeEnum.Bran_Jge.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("110", "1100011") => BitPat(Bran_TypeEnum.Bran_Jlt.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("111", "1100011") => BitPat(Bran_TypeEnum.Bran_Jge.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("???", "1101111") => BitPat(Bran_TypeEnum.Bran_Jmp.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("000", "1100111") => BitPat(Bran_TypeEnum.Bran_Jmpr.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("000", "1110011") => BitPat(Bran_TypeEnum.Bran_Jcsr.litValue.U(Bran_TypeEnum.getWidth.W))
+            case (_, _) => BitPat(Bran_TypeEnum.getWidth)
+        }
+    }
+}
+
 object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     def name: String = "RegWr"
     def genTable(op: InstructionPattern): BitPat = {
@@ -49,26 +69,6 @@ object RegWrFiled extends BoolDecodeField[InstructionPattern] {
             case "1100111" => BitPat(Y)
             case "1110011" => if (op.func3 != BitPat("b000")) BitPat(Y) else BitPat(N)
             case _ => BitPat.dontCare(1)
-        }
-    }
-}
-
-object BranchField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "Branch"
-    def chiselType = Bran_Type
-    
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func3.rawString, op.opcode.rawString) match {
-            case ("000", "1100011") => BitPat(Bran_Jeq)
-            case ("001", "1100011") => BitPat(Bran_Jne)
-            case ("100", "1100011") => BitPat(Bran_Jlt)
-            case ("101", "1100011") => BitPat(Bran_Jge)
-            case ("110", "1100011") => BitPat(Bran_Jlt)
-            case ("111", "1100011") => BitPat(Bran_Jge)
-            case ("???", "1101111") => BitPat(Bran_Jmp)
-            case ("000", "1100111") => BitPat(Bran_Jmpr)
-            case ("000", "1110011") => BitPat(Bran_Jcsr)
-            case (_, _) => BitPat(Bran_NJmp)
         }
     }
 }

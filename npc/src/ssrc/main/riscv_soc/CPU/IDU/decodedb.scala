@@ -34,7 +34,7 @@ object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
     }
 }
 
-object BranchField extends DecodeField[InstructionPattern, UInt] {
+object BranchField extends DecodeField[InstructionPattern, Bran_TypeEnum.Type] {
     def name: String = "Branch"
     def chiselType = Bran_TypeEnum()
     def genTable(op: InstructionPattern): BitPat = {

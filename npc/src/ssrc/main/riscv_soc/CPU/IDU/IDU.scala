@@ -34,6 +34,8 @@ class ysyx_23060198_IDU extends Module{
     val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)
     val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
 
+    Imm_TypeEnum.all.foreach(println)
+
     val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(
             Imm_TypeEnum.Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),

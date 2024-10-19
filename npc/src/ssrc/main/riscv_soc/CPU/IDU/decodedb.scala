@@ -119,7 +119,7 @@ object ALUAsrcField extends DecodeField[InstructionPattern, UInt] {
             case (_, _, "1101111") => BitPat(ALUAsrc_PC)  // JAL
             case (_, "000", "1100111") => BitPat(ALUAsrc_PC) // JALR
             case (_, _, "1110011") => BitPat(ALUAsrc_CSR)
-            case (_, _, _) => BitPat.dontCare(PCAsrc_width)
+            case (_, _, _) => BitPat.dontCare(ALUAsrc_width)
         }
     }
 }
@@ -137,7 +137,7 @@ object ALUBsrcField extends DecodeField[InstructionPattern, UInt] {
             case (_, "000", "1100111") => BitPat(ALUBsrc_4) // JALR
             case (_, _, "0110111") => BitPat(ALUBsrc_IMM) // LUI
             case (_, _, "1110011") => BitPat(ALUBsrc_RS1) // CSRRx
-            case (_, _, _) => BitPat.dontCare(PCBsrc_width)
+            case (_, _, _) => BitPat.dontCare(ALUBsrc_width)
         }
     }
 }

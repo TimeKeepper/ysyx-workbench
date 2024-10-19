@@ -36,8 +36,7 @@ object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
 
 object BranchField extends DecodeField[InstructionPattern, UInt] {
     def name: String = "Branch"
-    def chiselType = Bran_Type
-    
+    def chiselType = Bran_TypeEnum()
     def genTable(op: InstructionPattern): BitPat = {
         (op.func3.rawString, op.opcode.rawString) match {
             case ("000", "1100011") => BitPat(Bran_TypeEnum.Bran_Jeq.litValue.U(Bran_TypeEnum.getWidth.W))

@@ -122,13 +122,6 @@ object signal_value {
   def Y = true.B
   def N = false.B
 
-  // // ALUAsrc
-  // def ALUAsrc_width      = 2
-  // def ALUAsrc_Type       = UInt(ALUAsrc_width.W)
-  // def ALUAsrc_RS1        = 0.U(ALUAsrc_width.W) //寄存器资源1
-  // def ALUAsrc_PC         = 1.U(ALUAsrc_width.W) //PC寄存器
-  // def ALUAsrc_CSR        = 2.U(ALUAsrc_width.W) //CSR寄存器
-
   // ALUBSrc
   // def ALUBsrc_width      = 2
   // def ALUBsrc_Type       = UInt(ALUBsrc_width.W)

@@ -53,6 +53,21 @@ object BranchField extends DecodeField[InstructionPattern, Bran_TypeEnum.Type] {
     }
 }
 
+object MemOpField extends DecodeField[InstructionPattern, MemOp_TypeEnum.Type]{
+    def name: String = "MemOp"
+    def chiselType = MemOp_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, "000", _) => BitPat(MemOp_TypeEnum.MemOp_1BS.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "001", _) => BitPat(MemOp_TypeEnum.MemOp_2BS.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "010", _) => BitPat(MemOp_TypeEnum.MemOp_4BU.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "100", _) => BitPat(MemOp_TypeEnum.MemOp_1BU.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "101", _) => BitPat(MemOp_TypeEnum.MemOp_2BU.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, _, _)     => BitPat.dontCare(MemOp_TypeEnum.getWidth)
+        }
+    }
+}
+
 object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     def name: String = "RegWr"
     def genTable(op: InstructionPattern): BitPat = {
@@ -88,21 +103,6 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
         op.opcode.rawString match {
             case "0100011" => BitPat(Y)
             case _ => BitPat(N)
-        }
-    }
-}
-
-object MemOpField extends DecodeField[InstructionPattern, UInt]{
-    def name: String = "MemOp"
-    def chiselType = MemOp_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, "000", _) => BitPat(MemOp_1BS)
-            case (_, "001", _) => BitPat(MemOp_2BS)
-            case (_, "010", _) => BitPat(MemOp_4BU)
-            case (_, "100", _) => BitPat(MemOp_1BU)
-            case (_, "101", _) => BitPat(MemOp_2BU)
-            case (_, _, _)     => BitPat.dontCare(MemOp_width)
         }
     }
 }

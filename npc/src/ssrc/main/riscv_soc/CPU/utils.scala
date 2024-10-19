@@ -94,18 +94,27 @@ object Bran_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object MemOp_TypeEnum extends ChiselEnum{
+  val MemOp_1BU,
+      MemOp_1BS,
+      MemOp_2BU,
+      MemOp_2BS,
+      MemOp_4BU
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
-  // MemOp
-  def MemOp_width     = 3
-  def MemOp_Type     = UInt(MemOp_width.W)
-  def MemOp_1BU      = 0.U(MemOp_width.W) //1字节无符号
-  def MemOp_1BS      = 1.U(MemOp_width.W) //1字节有符号
-  def MemOp_2BU      = 2.U(MemOp_width.W) //2字节无符号
-  def MemOp_2BS      = 3.U(MemOp_width.W) //2字节有符号
-  def MemOp_4BU      = 4.U(MemOp_width.W) //4字节无符号
+  // // MemOp
+  // def MemOp_width     = 3
+  // def MemOp_Type     = UInt(MemOp_width.W)
+  // def MemOp_1BU      = 0.U(MemOp_width.W) //1字节无符号
+  // def MemOp_1BS      = 1.U(MemOp_width.W) //1字节有符号
+  // def MemOp_2BU      = 2.U(MemOp_width.W) //2字节无符号
+  // def MemOp_2BS      = 3.U(MemOp_width.W) //2字节有符号
+  // def MemOp_4BU      = 4.U(MemOp_width.W) //4字节无符号
 
   // ALUAsrc
   def ALUAsrc_width      = 2

@@ -103,25 +103,23 @@ object MemOp_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object ALUAsrc_TypeEnum extends ChiselEnum{
+  val ALUAsrc_RS1, //寄存器资源1
+      ALUAsrc_PC , //PC寄存器
+      ALUAsrc_CSR  //CSR寄存器
+      = Value
+}
+
 object signal_value {
   def Y = true.B
   def N = false.B
 
-  // // MemOp
-  // def MemOp_width     = 3
-  // def MemOp_Type     = UInt(MemOp_width.W)
-  // def MemOp_1BU      = 0.U(MemOp_width.W) //1字节无符号
-  // def MemOp_1BS      = 1.U(MemOp_width.W) //1字节有符号
-  // def MemOp_2BU      = 2.U(MemOp_width.W) //2字节无符号
-  // def MemOp_2BS      = 3.U(MemOp_width.W) //2字节有符号
-  // def MemOp_4BU      = 4.U(MemOp_width.W) //4字节无符号
-
-  // ALUAsrc
-  def ALUAsrc_width      = 2
-  def ALUAsrc_Type       = UInt(ALUAsrc_width.W)
-  def ALUAsrc_RS1        = 0.U(ALUAsrc_width.W) //寄存器资源1
-  def ALUAsrc_PC         = 1.U(ALUAsrc_width.W) //PC寄存器
-  def ALUAsrc_CSR        = 2.U(ALUAsrc_width.W) //CSR寄存器
+  // // ALUAsrc
+  // def ALUAsrc_width      = 2
+  // def ALUAsrc_Type       = UInt(ALUAsrc_width.W)
+  // def ALUAsrc_RS1        = 0.U(ALUAsrc_width.W) //寄存器资源1
+  // def ALUAsrc_PC         = 1.U(ALUAsrc_width.W) //PC寄存器
+  // def ALUAsrc_CSR        = 2.U(ALUAsrc_width.W) //CSR寄存器
 
   // ALUBSrc
   def ALUBsrc_width      = 2

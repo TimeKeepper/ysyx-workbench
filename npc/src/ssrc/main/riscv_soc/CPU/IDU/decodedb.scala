@@ -68,6 +68,23 @@ object MemOpField extends DecodeField[InstructionPattern, MemOp_TypeEnum.Type]{
     }
 }
 
+object ALUAsrcField extends DecodeField[InstructionPattern, ALUAsrc_TypeEnum.Type] {
+    def name: String = "ALUAsrc"
+    def chiselType = ALUAsrc_Type
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, _, "0110011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // logical
+            case (_, _, "0010011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // xxI
+            case (_, _, "1100011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // Branch
+            case (_, _, "0010111")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC.litValue.U(ALUAsrc_TypeEnum.getWidth.W))  // AUIPC
+            case (_, _, "1101111")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC.litValue.U(ALUAsrc_TypeEnum.getWidth.W))  // JAL
+            case (_, "000", "1100111")  => BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // JALR
+            case (_, _, "1110011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR.litValue.U(ALUAsrc_TypeEnum.getWidth.W))
+            case (_, _, _) => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
+        }
+    }
+}
+
 object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     def name: String = "RegWr"
     def genTable(op: InstructionPattern): BitPat = {
@@ -103,23 +120,6 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
         op.opcode.rawString match {
             case "0100011" => BitPat(Y)
             case _ => BitPat(N)
-        }
-    }
-}
-
-object ALUAsrcField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "ALUAsrc"
-    def chiselType = ALUAsrc_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, _, "0110011") => BitPat(ALUAsrc_RS1) // logical
-            case (_, _, "0010011") => BitPat(ALUAsrc_RS1) // xxI
-            case (_, _, "1100011") => BitPat(ALUAsrc_RS1) // Branch
-            case (_, _, "0010111") => BitPat(ALUAsrc_PC)  // AUIPC
-            case (_, _, "1101111") => BitPat(ALUAsrc_PC)  // JAL
-            case (_, "000", "1100111") => BitPat(ALUAsrc_PC) // JALR
-            case (_, _, "1110011") => BitPat(ALUAsrc_CSR)
-            case (_, _, _) => BitPat.dontCare(ALUAsrc_width)
         }
     }
 }

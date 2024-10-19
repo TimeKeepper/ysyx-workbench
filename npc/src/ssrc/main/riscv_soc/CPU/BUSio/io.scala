@@ -31,7 +31,7 @@ class BUS_IDU_2_EXU extends Bundle{
     val Branch   = Bran_TypeEnum()
     val MemtoReg = Bool()
     val MemWr    = Bool()
-    val MemOp    = MemOp_Type
+    val MemOp    = MemOp_TypeEnum()
     val ALUAsrc  = ALUAsrc_Type
     val ALUBsrc  = ALUBsrc_Type
     val ALUctr   = ALUctr_Type

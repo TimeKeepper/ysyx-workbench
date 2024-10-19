@@ -70,7 +70,7 @@ object MemOpField extends DecodeField[InstructionPattern, MemOp_TypeEnum.Type]{
 
 object ALUAsrcField extends DecodeField[InstructionPattern, ALUAsrc_TypeEnum.Type] {
     def name: String = "ALUAsrc"
-    def chiselType = ALUAsrc_Type
+    def chiselType = ALUAsrc_TypeEnum()
     def genTable(op: InstructionPattern): BitPat = {
         (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
             case (_, _, "0110011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // logical

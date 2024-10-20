@@ -10,6 +10,10 @@ import signal_value._
 import bus_state._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
+case class rvInstructionPattern(val inst: rvdecoderdb.instruction) extends DecodePattern {
+    override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -34,6 +38,8 @@ class ysyx_23060198_IDU extends Module{
 
     val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)
     val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
+
+    val instTable = rvdecoderdb.fromFile.instructions(os.pwd / "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
     val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(

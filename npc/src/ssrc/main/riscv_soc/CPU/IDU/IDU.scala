@@ -20,12 +20,12 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
     override def genTable(inst: rvInstructionPattern): BitPat = {
         val immType = inst.inst.args
             .map(_.name match {
-                case "imm12"                 => Imm_TypeEnum.imm_I
-                case "imm12hi" | "imm12lo"   => Imm_TypeEnum.imm_S
-                case "bimm12hi" | "bimm12lo" => Imm_TypeEnum.imm_B
-                case "imm20"                 => Imm_TypeEnum.imm_U
-                case "jimm20"                => Imm_TypeEnum.imm_J
-                case "shamtw"                => Imm_TypeEnum.imm_I
+                case "imm12"                 => Imm_TypeEnum.Imm_I
+                case "imm12hi" | "imm12lo"   => Imm_TypeEnum.Imm_S
+                case "bimm12hi" | "bimm12lo" => Imm_TypeEnum.Imm_B
+                case "imm20"                 => Imm_TypeEnum.Imm_U
+                case "jimm20"                => Imm_TypeEnum.Imm_J
+                case "shamtw"                => Imm_TypeEnum.Imm_I
             })
         
         BitPat(immType.litValue.U((immType.getWidth.W)))

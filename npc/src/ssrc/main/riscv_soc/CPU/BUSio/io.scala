@@ -27,7 +27,6 @@ class BUS_REG_2_IDU extends Bundle{
 }
 
 class BUS_IDU_2_EXU extends Bundle{
-    val RegWr    = Bool()
     val Branch   = Bran_TypeEnum()
     val MemtoReg = Bool()
     val MemWr    = Bool()
@@ -39,7 +38,7 @@ class BUS_IDU_2_EXU extends Bundle{
     val Imm      = UInt(32.W)
     val GPR_Adata = UInt(32.W)
     val GPR_Bdata = UInt(32.W)
-    val GPR_waddr = UInt(5.W)
+    val GPR_waddr = UInt(4.W)
     val PC       = UInt(32.W)
     val CSR_rdata = UInt(32.W)
 }
@@ -52,13 +51,12 @@ class BUS_REG_2_EXU extends Bundle{
 }
 
 class BUS_EXU_2_WBU extends Bundle{
-    val RegWr    = Bool()
     val Branch   = Bran_TypeEnum()
     val Jmp_Pc   = UInt(32.W)
     val MemtoReg = Bool()
     val csr_ctr  = CSR_TypeEnum()
     val CSR_waddr= UInt(12.W)
-    val GPR_waddr = UInt(5.W)
+    val GPR_waddr = UInt(4.W)
     val PC       = UInt(32.W)
     val CSR_rdata = UInt(32.W)
     val Result   = UInt(32.W)
@@ -68,9 +66,8 @@ class BUS_EXU_2_WBU extends Bundle{
 class BUS_WBU_2_REG extends Bundle{
     val inst_valid= Bool()
     val Next_Pc   = UInt(32.W)
-    val GPR_waddr = UInt(5.W)
+    val GPR_waddr = UInt(4.W)
     val GPR_wdata = UInt(32.W)
-    val GPR_wen   = Bool()
     val CSR_ctr   = CSR_TypeEnum()
     val CSR_waddra= UInt(12.W)
     val CSR_waddrb= UInt(12.W)

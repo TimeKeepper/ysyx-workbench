@@ -1,6 +1,7 @@
 *.*
 *
 !*/
+!src/ssrc/main/rvdecoderdb
 !Makefile
 !*.mk
 !*.scala

@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.BitPat
 import chisel3.util.experimental.decode._
+import org.chipsalliance.rvdecoderdb
 
 import signal_value._
 import bus_state._
@@ -51,21 +52,22 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
+    val gpr_waddr = Mux(decodeResult(RegWrFiled), io.IFU_2_IDU.bits.data(10, 7), 0.U(4.W))
+
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    io.IDU_2_EXU.bits.RegWr        <> RegEnable(decodeResult(RegWrFiled),       comunication_succeed) 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(decodeResult(BranchField),      comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),    comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),       comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(decodeResult(MemOpField),       comunication_succeed) 
     io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(decodeResult(ALUAsrcField),     comunication_succeed) 
     io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(decodeResult(ALUBsrcField),     comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(decodeResult(ALUctrField),         comunication_succeed) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(decodeResult(csr_ctrField),         comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(decodeResult(ALUctrField),      comunication_succeed) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(decodeResult(csr_ctrField),     comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 
-    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(io.IFU_2_IDU.bits.data(11, 7), comunication_succeed) 
+    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr, comunication_succeed) 
     io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
     io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,  comunication_succeed) 
 }

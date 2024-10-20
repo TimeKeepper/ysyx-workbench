@@ -67,7 +67,7 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
     print(instList.map(_.inst.args))
-    val rvdecoderTable = new DecoderTable(instList)
+    // val rvdecoderTable = new DecoderTable(instList)
 
     val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(

@@ -18,8 +18,8 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        val immType = i.inst.args.
-            map(_.name match{
+        val immType = i.inst.args
+            .map(_.name match{
                 case "imm12"                 => Imm_TypeEnum.Imm_I
                 case "shamtw"                => Imm_TypeEnum.Imm_I
                 case "imm12hi" | "imm12lo"   => Imm_TypeEnum.Imm_S

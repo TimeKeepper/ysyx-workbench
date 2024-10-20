@@ -39,7 +39,7 @@ class ysyx_23060198_IDU extends Module{
     val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)
     val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
 
-    val instTable = rvdecoderdb.fromFile.instructions(os.pwd / "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
+    val instTable = rvdecoderdb.fromFile.instructions(os.pwd / os.up / os.up / "src" / "ssrc" / "main" /  "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
     val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(

@@ -79,6 +79,7 @@ object Imm_TypeEnum extends ChiselEnum{
       Imm_S,    //S型指令
       Imm_B,    //B型指令
       Imm_J     //J型指令
+      Imm_None  //未知类型
       = Value
 }
 

@@ -55,14 +55,14 @@ class ysyx_23060198_IDU extends Module{
     val rv32iTargetSets = Set("rv_i", "rv32_i")
     val rvzicsrTargetSets = Set("rv_zicsr")
     val rv32iInstList = instTable
-        .fliter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
-        .fliter(instr => !rv32iExceptInstructions.contains(instr.name))
-        .fliter(_.pseudoFrom.isEmpty)
+        .filter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
+        .filter(instr => !rv32iExceptInstructions.contains(instr.name))
+        .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
     val rvzicsrInstList = instTable
-        .fliter(instr => rvzicsrTargetSets.contains(instr.instructionSet.name))
-        .fliter(_.pseudoFrom.isEmpty)
+        .filter(instr => rvzicsrTargetSets.contains(instr.instructionSet.name))
+        .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList

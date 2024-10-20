@@ -27,7 +27,6 @@ class BUS_REG_2_IDU extends Bundle{
 }
 
 class BUS_IDU_2_EXU extends Bundle{
-    val RegWr    = Bool()
     val Branch   = Bran_TypeEnum()
     val MemtoReg = Bool()
     val MemWr    = Bool()
@@ -52,7 +51,6 @@ class BUS_REG_2_EXU extends Bundle{
 }
 
 class BUS_EXU_2_WBU extends Bundle{
-    val RegWr    = Bool()
     val Branch   = Bran_TypeEnum()
     val Jmp_Pc   = UInt(32.W)
     val MemtoReg = Bool()

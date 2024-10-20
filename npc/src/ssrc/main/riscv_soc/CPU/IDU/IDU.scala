@@ -55,7 +55,6 @@ class ysyx_23060198_IDU extends Module{
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    io.IDU_2_EXU.bits.RegWr        <> RegEnable(decodeResult(RegWrFiled),       comunication_succeed) 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(decodeResult(BranchField),      comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),    comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),       comunication_succeed) 

@@ -15,21 +15,150 @@ case class InstructionPattern(
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
-object ImmField extends DecodeField[InstructionPattern, UInt] {
+object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
     def name: String = "imm"
-    def chiselType = Imm_Type
+    def chiselType = Imm_TypeEnum()
     def genTable(op: InstructionPattern): BitPat = {
         op.opcode.rawString match {
-            case "0000011" => BitPat(Imm_I) // Loadxx
-            case "0100011" => BitPat(Imm_S) // Storexx
-            case "0010011" => BitPat(Imm_I) // xxI
-            case "0110111" => BitPat(Imm_U) // LUI
-            case "0010111" => BitPat(Imm_U) // AUIPC
-            case "1100011" => BitPat(Imm_B) // Branchxx
-            case "1101111" => BitPat(Imm_J) // JAL
-            case "1100111" => BitPat(Imm_I) // JALR
-            case "1110011" => BitPat(Imm_I) // CSRRx
-            case _ => BitPat.dontCare(Imm_width)
+            case "0000011" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // Loadxx
+            case "0100011" => BitPat(Imm_TypeEnum.Imm_S.litValue.U(Imm_TypeEnum.getWidth.W)) // Storexx
+            case "0010011" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // xxI
+            case "0110111" => BitPat(Imm_TypeEnum.Imm_U.litValue.U(Imm_TypeEnum.getWidth.W)) // LUI
+            case "0010111" => BitPat(Imm_TypeEnum.Imm_U.litValue.U(Imm_TypeEnum.getWidth.W)) // AUIPC
+            case "1100011" => BitPat(Imm_TypeEnum.Imm_B.litValue.U(Imm_TypeEnum.getWidth.W)) // Branchxx
+            case "1101111" => BitPat(Imm_TypeEnum.Imm_J.litValue.U(Imm_TypeEnum.getWidth.W)) // JAL
+            case "1100111" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // JALR
+            case "1110011" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // CSRRx
+            case _ => BitPat.dontCare(Imm_TypeEnum.getWidth)
+        }
+    }
+}
+
+object BranchField extends DecodeField[InstructionPattern, Bran_TypeEnum.Type] {
+    def name: String = "Branch"
+    def chiselType = Bran_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func3.rawString, op.opcode.rawString) match {
+            case ("000", "1100011") => BitPat(Bran_TypeEnum.Bran_Jeq.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("001", "1100011") => BitPat(Bran_TypeEnum.Bran_Jne.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("100", "1100011") => BitPat(Bran_TypeEnum.Bran_Jlt.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("101", "1100011") => BitPat(Bran_TypeEnum.Bran_Jge.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("110", "1100011") => BitPat(Bran_TypeEnum.Bran_Jlt.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("111", "1100011") => BitPat(Bran_TypeEnum.Bran_Jge.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("???", "1101111") => BitPat(Bran_TypeEnum.Bran_Jmp.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("000", "1100111") => BitPat(Bran_TypeEnum.Bran_Jmpr.litValue.U(Bran_TypeEnum.getWidth.W))
+            case ("000", "1110011") => BitPat(Bran_TypeEnum.Bran_Jcsr.litValue.U(Bran_TypeEnum.getWidth.W))
+            case (_, _) => BitPat(Bran_TypeEnum.Bran_NJmp.litValue.U(Bran_TypeEnum.getWidth.W))
+        }
+    }
+}
+
+object MemOpField extends DecodeField[InstructionPattern, MemOp_TypeEnum.Type]{
+    def name: String = "MemOp"
+    def chiselType = MemOp_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, "000", _) => BitPat(MemOp_TypeEnum.MemOp_1BS.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "001", _) => BitPat(MemOp_TypeEnum.MemOp_2BS.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "010", _) => BitPat(MemOp_TypeEnum.MemOp_4BU.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "100", _) => BitPat(MemOp_TypeEnum.MemOp_1BU.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, "101", _) => BitPat(MemOp_TypeEnum.MemOp_2BU.litValue.U(MemOp_TypeEnum.getWidth.W))
+            case (_, _, _)     => BitPat.dontCare(MemOp_TypeEnum.getWidth)
+        }
+    }
+}
+
+object ALUAsrcField extends DecodeField[InstructionPattern, ALUAsrc_TypeEnum.Type] {
+    def name: String = "ALUAsrc"
+    def chiselType = ALUAsrc_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, _, "0110011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // logical
+            case (_, _, "0010011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // xxI
+            case (_, _, "1100011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // Branch
+            case (_, _, "0010111")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC.litValue.U(ALUAsrc_TypeEnum.getWidth.W))  // AUIPC
+            case (_, _, "1101111")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC.litValue.U(ALUAsrc_TypeEnum.getWidth.W))  // JAL
+            case (_, "000", "1100111")  => BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC.litValue.U(ALUAsrc_TypeEnum.getWidth.W)) // JALR
+            case (_, _, "1110011")      => BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR.litValue.U(ALUAsrc_TypeEnum.getWidth.W))
+            case (_, _, _) => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
+        }
+    }
+}
+
+object ALUBsrcField extends DecodeField[InstructionPattern, ALUBsrc_TypeEnum.Type] {
+    def name: String = "ALUBsrc"
+    def chiselType = ALUBsrc_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, _, "0110011")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS2.litValue.U(ALUBsrc_TypeEnum.getWidth.W)) // logical
+            case (_, _, "0010011")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM.litValue.U(ALUBsrc_TypeEnum.getWidth.W)) // xxI
+            case (_, _, "1100011")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS2.litValue.U(ALUBsrc_TypeEnum.getWidth.W)) // Branch
+            case (_, _, "0010111")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM.litValue.U(ALUBsrc_TypeEnum.getWidth.W))  // AUIPC
+            case (_, _, "1101111")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_4.litValue.U(ALUBsrc_TypeEnum.getWidth.W))  // JAL
+            case (_, "000", "1100111")  => BitPat(ALUBsrc_TypeEnum.ALUBsrc_4.litValue.U(ALUBsrc_TypeEnum.getWidth.W)) // JALR
+            case (_, _, "0110111")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM.litValue.U(ALUBsrc_TypeEnum.getWidth.W)) // LUI
+            case (_, _, "1110011")      => BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS1.litValue.U(ALUBsrc_TypeEnum.getWidth.W)) // CSRRx
+            case (_, _, _) => BitPat.dontCare(ALUBsrc_TypeEnum.getWidth)
+        }
+    }
+}
+
+object ALUctrField extends DecodeField[InstructionPattern, ALUctr_TypeEnum.Type] {
+    def name: String = "ALUctr"
+    def chiselType = ALUctr_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case ("0000000", "000", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_ADD.litValue.U(ALUctr_TypeEnum.getWidth.W)) // ADD
+            case ("0100000", "000", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_SUB.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SUB
+            case ("0000000", "100", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_XOR.litValue.U(ALUctr_TypeEnum.getWidth.W)) // XOR
+            case ("0000000", "110", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_OR.litValue.U(ALUctr_TypeEnum.getWidth.W)) // OR
+            case ("0000000", "111", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_AND.litValue.U(ALUctr_TypeEnum.getWidth.W)) // AND
+            case ("0000000", "010", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_Less_S.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SLT
+            case ("0000000", "011", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_Less_U.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SLTU
+            case ("0000000", "001", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_SLL.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SLL
+            case ("0000000", "101", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_SRL.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SRL
+            case ("0100000", "101", "0110011")  => BitPat(ALUctr_TypeEnum.ALUctr_SRA.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SRA // logical
+
+            case (_, "000", "0010011")          => BitPat(ALUctr_TypeEnum.ALUctr_ADD.litValue.U(ALUctr_TypeEnum.getWidth.W)) // ADDI
+            case (_, "100", "0010011")          => BitPat(ALUctr_TypeEnum.ALUctr_XOR.litValue.U(ALUctr_TypeEnum.getWidth.W)) // XORI
+            case (_, "110", "0010011")          => BitPat(ALUctr_TypeEnum.ALUctr_OR.litValue.U(ALUctr_TypeEnum.getWidth.W)) // ORI
+            case (_, "111", "0010011")          => BitPat(ALUctr_TypeEnum.ALUctr_AND.litValue.U(ALUctr_TypeEnum.getWidth.W)) // ANDI
+            case (_, "010", "0010011")          => BitPat(ALUctr_TypeEnum.ALUctr_Less_S.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SLTI
+            case (_, "011", "0010011")          => BitPat(ALUctr_TypeEnum.ALUctr_Less_U.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SLTUI
+            case ("0000000", "001", "0010011")  => BitPat(ALUctr_TypeEnum.ALUctr_SLL.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SLLI
+            case ("0000000", "101", "0010011")  => BitPat(ALUctr_TypeEnum.ALUctr_SRL.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SRLI
+            case ("0100000", "101", "0010011")  => BitPat(ALUctr_TypeEnum.ALUctr_SRA.litValue.U(ALUctr_TypeEnum.getWidth.W)) // SRAI // logical I
+
+            case (_, "000", "1100011")          => BitPat(ALUctr_TypeEnum.ALUctr_SUB.litValue.U(ALUctr_TypeEnum.getWidth.W))    // BEQ 
+            case (_, "001", "1100011")          => BitPat(ALUctr_TypeEnum.ALUctr_SUB.litValue.U(ALUctr_TypeEnum.getWidth.W))    // BNE 
+            case (_, "100", "1100011")          => BitPat(ALUctr_TypeEnum.ALUctr_Less_S.litValue.U(ALUctr_TypeEnum.getWidth.W)) // BLT 
+            case (_, "101", "1100011")          => BitPat(ALUctr_TypeEnum.ALUctr_Less_S.litValue.U(ALUctr_TypeEnum.getWidth.W)) // BGE 
+            case (_, "110", "1100011")          => BitPat(ALUctr_TypeEnum.ALUctr_Less_U.litValue.U(ALUctr_TypeEnum.getWidth.W)) // BLTU
+            case (_, "111", "1100011")          => BitPat(ALUctr_TypeEnum.ALUctr_Less_U.litValue.U(ALUctr_TypeEnum.getWidth.W)) // BGEU // Branchj
+
+            case (_, "001", "1110011")          => BitPat(ALUctr_TypeEnum.ALUctr_B.litValue.U(ALUctr_TypeEnum.getWidth.W)) // CSRRW
+            case (_, "010", "1110011")          => BitPat(ALUctr_TypeEnum.ALUctr_OR.litValue.U(ALUctr_TypeEnum.getWidth.W)) // CSRRS // CSRRx
+
+            case (_, _, "0010111")              => BitPat(ALUctr_TypeEnum.ALUctr_ADD.litValue.U(ALUctr_TypeEnum.getWidth.W))  // AUIPC
+            case (_, _, "1101111")              => BitPat(ALUctr_TypeEnum.ALUctr_ADD.litValue.U(ALUctr_TypeEnum.getWidth.W))  // JAL
+            case (_, "000", "1100111")          => BitPat(ALUctr_TypeEnum.ALUctr_ADD.litValue.U(ALUctr_TypeEnum.getWidth.W)) // JALR
+            case (_, _, "0110111")              => BitPat(ALUctr_TypeEnum.ALUctr_B.litValue.U(ALUctr_TypeEnum.getWidth.W)) // LUI
+
+            case (_, _, _) => BitPat.dontCare(ALUctr_TypeEnum.getWidth)
+        }
+    }
+}
+
+object csr_ctrField extends DecodeField[InstructionPattern, CSR_TypeEnum.Type] {
+    def name: String = "csr_ctr"
+    def chiselType = CSR_TypeEnum()
+    def genTable(op: InstructionPattern): BitPat = {
+        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
+            case (_, "001", "1110011")          => BitPat(CSR_TypeEnum.CSR_R1W1.litValue.U(CSR_TypeEnum.getWidth.W)) // CSRRW
+            case (_, "010", "1110011")          => BitPat(CSR_TypeEnum.CSR_R1W1.litValue.U(CSR_TypeEnum.getWidth.W)) // CSRRS
+            case ("0000000", "000", "1110011")  => BitPat(CSR_TypeEnum.CSR_R1W2.litValue.U(CSR_TypeEnum.getWidth.W)) // ECALL
+            case ("0011000", "000", "1110011")  => BitPat(CSR_TypeEnum.CSR_R1W0.litValue.U(CSR_TypeEnum.getWidth.W)) // MRET // CSRRx
+            case (_, _, _)                      => BitPat(CSR_TypeEnum.CSR_N.litValue.U(CSR_TypeEnum.getWidth.W))
         }
     }
 }
@@ -53,26 +182,6 @@ object RegWrFiled extends BoolDecodeField[InstructionPattern] {
     }
 }
 
-object BranchField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "Branch"
-    def chiselType = Bran_Type
-    
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func3.rawString, op.opcode.rawString) match {
-            case ("000", "1100011") => BitPat(Bran_Jeq)
-            case ("001", "1100011") => BitPat(Bran_Jne)
-            case ("100", "1100011") => BitPat(Bran_Jlt)
-            case ("101", "1100011") => BitPat(Bran_Jge)
-            case ("110", "1100011") => BitPat(Bran_Jlt)
-            case ("111", "1100011") => BitPat(Bran_Jge)
-            case ("???", "1101111") => BitPat(Bran_Jmp)
-            case ("000", "1100111") => BitPat(Bran_Jmpr)
-            case ("000", "1110011") => BitPat(Bran_Jcsr)
-            case (_, _) => BitPat(Bran_NJmp)
-        }
-    }
-}
-
 object MemtoRegField extends BoolDecodeField[InstructionPattern] {
     def name: String = "MemtoReg"
     def genTable(op: InstructionPattern): BitPat = {
@@ -89,116 +198,6 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
         op.opcode.rawString match {
             case "0100011" => BitPat(Y)
             case _ => BitPat(N)
-        }
-    }
-}
-
-object MemOpField extends DecodeField[InstructionPattern, UInt]{
-    def name: String = "MemOp"
-    def chiselType = MemOp_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, "000", _) => BitPat(MemOp_1BS)
-            case (_, "001", _) => BitPat(MemOp_2BS)
-            case (_, "010", _) => BitPat(MemOp_4BU)
-            case (_, "100", _) => BitPat(MemOp_1BU)
-            case (_, "101", _) => BitPat(MemOp_2BU)
-            case (_, _, _)     => BitPat.dontCare(MemOp_width)
-        }
-    }
-}
-
-object ALUAsrcField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "ALUAsrc"
-    def chiselType = ALUAsrc_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, _, "0110011") => BitPat(ALUAsrc_RS1) // logical
-            case (_, _, "0010011") => BitPat(ALUAsrc_RS1) // xxI
-            case (_, _, "1100011") => BitPat(ALUAsrc_RS1) // Branch
-            case (_, _, "0010111") => BitPat(ALUAsrc_PC)  // AUIPC
-            case (_, _, "1101111") => BitPat(ALUAsrc_PC)  // JAL
-            case (_, "000", "1100111") => BitPat(ALUAsrc_PC) // JALR
-            case (_, _, "1110011") => BitPat(ALUAsrc_CSR)
-            case (_, _, _) => BitPat.dontCare(PCAsrc_width)
-        }
-    }
-}
-
-object ALUBsrcField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "ALUBsrc"
-    def chiselType = ALUBsrc_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, _, "0110011") => BitPat(ALUBsrc_RS2) // logical
-            case (_, _, "0010011") => BitPat(ALUBsrc_IMM) // xxI
-            case (_, _, "1100011") => BitPat(ALUBsrc_RS2) // Branch
-            case (_, _, "0010111") => BitPat(ALUBsrc_IMM)  // AUIPC
-            case (_, _, "1101111") => BitPat(ALUBsrc_4)  // JAL
-            case (_, "000", "1100111") => BitPat(ALUBsrc_4) // JALR
-            case (_, _, "0110111") => BitPat(ALUBsrc_IMM) // LUI
-            case (_, _, "1110011") => BitPat(ALUBsrc_RS1) // CSRRx
-            case (_, _, _) => BitPat.dontCare(PCBsrc_width)
-        }
-    }
-}
-
-object ALUctrField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "ALUctr"
-    def chiselType = ALUctr_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case ("0000000", "000", "0110011") => BitPat(ALUctr_ADD) // ADD
-            case ("0100000", "000", "0110011") => BitPat(ALUctr_SUB) // SUB
-            case ("0000000", "100", "0110011") => BitPat(ALUctr_XOR) // XOR
-            case ("0000000", "110", "0110011") => BitPat(ALUctr_OR ) // OR
-            case ("0000000", "111", "0110011") => BitPat(ALUctr_AND) // AND
-            case ("0000000", "010", "0110011") => BitPat(ALUctr_Less_S) // SLT
-            case ("0000000", "011", "0110011") => BitPat(ALUctr_Less_U) // SLTU
-            case ("0000000", "001", "0110011") => BitPat(ALUctr_SLL) // SLL
-            case ("0000000", "101", "0110011") => BitPat(ALUctr_SRL) // SRL
-            case ("0100000", "101", "0110011") => BitPat(ALUctr_SRA) // SRA // logical
-
-            case (_, "000", "0010011") => BitPat(ALUctr_ADD) // ADDI
-            case (_, "100", "0010011") => BitPat(ALUctr_XOR) // XORI
-            case (_, "110", "0010011") => BitPat(ALUctr_OR ) // ORI
-            case (_, "111", "0010011") => BitPat(ALUctr_AND) // ANDI
-            case (_, "010", "0010011") => BitPat(ALUctr_Less_S) // SLTI
-            case (_, "011", "0010011") => BitPat(ALUctr_Less_U) // SLTUI
-            case ("0000000", "001", "0010011") => BitPat(ALUctr_SLL) // SLLI
-            case ("0000000", "101", "0010011") => BitPat(ALUctr_SRL) // SRLI
-            case ("0100000", "101", "0010011") => BitPat(ALUctr_SRA) // SRAI // logical I
-
-            case (_, "000", "1100011") => BitPat(ALUctr_SUB)    // BEQ 
-            case (_, "001", "1100011") => BitPat(ALUctr_SUB)    // BNE 
-            case (_, "100", "1100011") => BitPat(ALUctr_Less_S) // BLT 
-            case (_, "101", "1100011") => BitPat(ALUctr_Less_S) // BGE 
-            case (_, "110", "1100011") => BitPat(ALUctr_Less_U) // BLTU
-            case (_, "111", "1100011") => BitPat(ALUctr_Less_U) // BGEU // Branchj
-
-            case (_, "001", "1110011") => BitPat(ALUctr_B) // CSRRW
-            case (_, "010", "1110011") => BitPat(ALUctr_OR) // CSRRS // CSRRx
-
-            case (_, _, "0010111") => BitPat(ALUctr_ADD)  // AUIPC
-            case (_, _, "1101111") => BitPat(ALUctr_ADD)  // JAL
-            case (_, "000", "1100111") => BitPat(ALUctr_ADD) // JALR
-            case (_, _, "0110111") => BitPat(ALUctr_B) // LUI
-
-            case (_, _, _) => BitPat.dontCare(ALUctr_width)
-        }
-    }
-}
-
-object csr_ctrField extends DecodeField[InstructionPattern, UInt] {
-    def name: String = "csr_ctr"
-    def chiselType = CSR_Type
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, "001", "1110011") => BitPat(CSR_R1W1) // CSRRW
-            case (_, "010", "1110011") => BitPat(CSR_R1W1) // CSRRS
-            case ("0000000", "000", "1110011") => BitPat(CSR_R1W2) // ECALL
-            case ("0011000", "000", "1110011") => BitPat(CSR_R1W0) // MRET // CSRRx
-            case (_, _, _) => BitPat(CSR_N)
         }
     }
 }

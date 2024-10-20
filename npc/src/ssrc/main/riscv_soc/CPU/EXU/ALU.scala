@@ -39,23 +39,23 @@ class ysyx_23060198_ALU extends Module {
     })
   })
 
-  val state = RegInit(s_wait_valid)
+  val state = RegInit(bus_state.s_wait_valid)
 
-  state := MuxLookup(state, s_wait_valid)(
+  state := MuxLookup(state, bus_state.s_wait_valid)(
       Seq(
-          s_wait_valid -> Mux(io.IDU_2_EXU.valid,  s_wait_ready, s_wait_valid),
-          s_wait_ready -> Mux(io.out.ready, s_wait_valid, s_wait_ready),
+          bus_state.s_wait_valid -> Mux(io.IDU_2_EXU.valid,  bus_state.s_wait_ready, bus_state.s_wait_valid),
+          bus_state.s_wait_ready -> Mux(io.out.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
       )
   )
 
-  io.out.valid := state === s_wait_ready
-  io.IDU_2_EXU.ready  := state === s_wait_valid
+  io.out.valid := state === bus_state.s_wait_ready
+  io.IDU_2_EXU.ready  := state === bus_state.s_wait_valid
   val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
   val Sub_Add = Wire(Bool())
 
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_ADD) {
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_TypeEnum.ALUctr_ADD) {
     Sub_Add := N
   }.otherwise {
     Sub_Add := Y
@@ -66,16 +66,16 @@ class ysyx_23060198_ALU extends Module {
   val src_B      = Wire(UInt(32.W))
 
   src_A := MuxLookup(io.IDU_2_EXU.bits.ALUAsrc, 0.U)(Seq(
-      ALUAsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
-      ALUAsrc_PC  -> io.IDU_2_EXU.bits.PC,
-      ALUAsrc_CSR -> io.IDU_2_EXU.bits.CSR_rdata,
+      ALUAsrc_TypeEnum.ALUAsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
+      ALUAsrc_TypeEnum.ALUAsrc_PC  -> io.IDU_2_EXU.bits.PC,
+      ALUAsrc_TypeEnum.ALUAsrc_CSR -> io.IDU_2_EXU.bits.CSR_rdata,
   ))
 
   src_B := MuxLookup(io.IDU_2_EXU.bits.ALUBsrc, 0.U)(Seq(
-      ALUBsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
-      ALUBsrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
-      ALUBsrc_IMM -> io.IDU_2_EXU.bits.Imm,
-      ALUBsrc_4   -> 4.U,
+      ALUBsrc_TypeEnum.ALUBsrc_RS1 -> io.IDU_2_EXU.bits.GPR_Adata,
+      ALUBsrc_TypeEnum.ALUBsrc_RS2 -> io.IDU_2_EXU.bits.GPR_Bdata,
+      ALUBsrc_TypeEnum.ALUBsrc_IMM -> io.IDU_2_EXU.bits.Imm,
+      ALUBsrc_TypeEnum.ALUBsrc_4   -> 4.U,
   ))
 
   val adder    = Wire(UInt(32.W))
@@ -84,14 +84,14 @@ class ysyx_23060198_ALU extends Module {
   // ALU BarrelShifter
 
   val shifter_result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(Seq(
-    ALUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
-    ALUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
-    ALUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
+    ALUctr_TypeEnum.ALUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
+    ALUctr_TypeEnum.ALUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
+    ALUctr_TypeEnum.ALUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
   ))
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_Less_U){
+  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_TypeEnum.ALUctr_Less_U){
     Less := src_A.asUInt < src_B.asUInt
   }.otherwise{
     Less := src_A.asSInt < src_B.asSInt
@@ -99,18 +99,18 @@ class ysyx_23060198_ALU extends Module {
 
   val Result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(
     Seq(
-      ALUctr_ADD -> adder,
-      ALUctr_SUB -> adder,
-      ALUctr_Less_U -> Cat(0.U(31.W), Less),
-      ALUctr_Less_S -> Cat(0.U(31.W), Less),
-      ALUctr_A -> src_A,
-      ALUctr_B -> src_B,
-      ALUctr_SLL -> shifter_result,
-      ALUctr_SRL -> shifter_result,
-      ALUctr_SRA -> shifter_result,
-      ALUctr_XOR -> (src_A ^ src_B),
-      ALUctr_OR -> (src_A | src_B),
-      ALUctr_AND -> (src_A & src_B)
+      ALUctr_TypeEnum.ALUctr_ADD -> adder,
+      ALUctr_TypeEnum.ALUctr_SUB -> adder,
+      ALUctr_TypeEnum.ALUctr_Less_U -> Cat(0.U(31.W), Less),
+      ALUctr_TypeEnum.ALUctr_Less_S -> Cat(0.U(31.W), Less),
+      ALUctr_TypeEnum.ALUctr_A -> src_A,
+      ALUctr_TypeEnum.ALUctr_B -> src_B,
+      ALUctr_TypeEnum.ALUctr_SLL -> shifter_result,
+      ALUctr_TypeEnum.ALUctr_SRL -> shifter_result,
+      ALUctr_TypeEnum.ALUctr_SRA -> shifter_result,
+      ALUctr_TypeEnum.ALUctr_XOR -> (src_A ^ src_B),
+      ALUctr_TypeEnum.ALUctr_OR -> (src_A | src_B),
+      ALUctr_TypeEnum.ALUctr_AND -> (src_A & src_B)
     )
   )
   

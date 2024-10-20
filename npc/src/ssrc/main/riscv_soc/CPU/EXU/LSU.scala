@@ -119,14 +119,14 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.awaddr.bits.addr  <> io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
     io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
     
-    when(io.IDU_2_EXU.bits.MemOp === MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_1BS){
+    when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0001".U)(Seq(
             "b00".U -> "b0001".U,
             "b01".U -> "b0010".U,
             "b10".U -> "b0100".U,
             "b11".U -> "b1000".U,
         ))
-    }.elsewhen(io.IDU_2_EXU.bits.MemOp === MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_2BS){
+    }.elsewhen(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_2BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0011".U)(Seq(
             "b00".U -> "b0011".U,
             "b01".U -> "b0110".U,
@@ -137,18 +137,18 @@ class ysyx_23060198_LSU extends Module{
     }
     
     io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> 0.U,
-        MemOp_1BS -> 0.U,
-        MemOp_2BU -> 1.U,
-        MemOp_2BS -> 1.U,
-        MemOp_4BU -> 2.U,
+        MemOp_TypeEnum.MemOp_1BU -> 0.U,
+        MemOp_TypeEnum.MemOp_1BS -> 0.U,
+        MemOp_TypeEnum.MemOp_2BU -> 1.U,
+        MemOp_TypeEnum.MemOp_2BS -> 1.U,
+        MemOp_TypeEnum.MemOp_4BU -> 2.U,
     ))
     io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> 0.U,
-        MemOp_1BS -> 0.U,
-        MemOp_2BU -> 1.U,
-        MemOp_2BS -> 1.U,
-        MemOp_4BU -> 2.U,
+        MemOp_TypeEnum.MemOp_1BU -> 0.U,
+        MemOp_TypeEnum.MemOp_1BS -> 0.U,
+        MemOp_TypeEnum.MemOp_2BU -> 1.U,
+        MemOp_TypeEnum.MemOp_2BS -> 1.U,
+        MemOp_TypeEnum.MemOp_4BU -> 2.U,
     ))
 
     val AXI_rdata = Wire(UInt(32.W))
@@ -157,11 +157,11 @@ class ysyx_23060198_LSU extends Module{
     val mem_rd = Wire(Bits(32.W))
 
     mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_1BU -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
-        MemOp_1BS -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
-        MemOp_2BU -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
-        MemOp_2BS -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
-        MemOp_4BU -> AXI_rdata(31,0).asUInt,
+        MemOp_TypeEnum.MemOp_1BU -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
+        MemOp_TypeEnum.MemOp_1BS -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
+        MemOp_TypeEnum.MemOp_2BU -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
+        MemOp_TypeEnum.MemOp_2BS -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
+        MemOp_TypeEnum.MemOp_4BU -> AXI_rdata(31,0).asUInt,
     ))
 
     io.out.bits.Mem_rdata := mem_rd

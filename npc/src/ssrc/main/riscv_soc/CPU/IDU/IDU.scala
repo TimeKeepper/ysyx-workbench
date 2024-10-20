@@ -18,17 +18,17 @@ class ysyx_23060198_IDU extends Module{
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
 
-    val state = RegInit(s_wait_valid)
+    val state = RegInit(bus_state.s_wait_valid)
 
-    state := MuxLookup(state, s_wait_valid)(
+    state := MuxLookup(state, bus_state.s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.IFU_2_IDU.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.IDU_2_EXU.ready, s_wait_valid, s_wait_ready),
+            bus_state.s_wait_valid -> Mux(io.IFU_2_IDU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
+            bus_state.s_wait_ready -> Mux(io.IDU_2_EXU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
         )
     )
 
-    io.IDU_2_EXU.valid := state === s_wait_ready
-    io.IFU_2_IDU.ready := state === s_wait_valid
+    io.IDU_2_EXU.valid := state === bus_state.s_wait_ready
+    io.IFU_2_IDU.ready := state === bus_state.s_wait_valid
     val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
 
     val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)
@@ -36,18 +36,18 @@ class ysyx_23060198_IDU extends Module{
 
     val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(
-            Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
-            Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
-            Imm_S -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),
-            Imm_B -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(7), io.IFU_2_IDU.bits.data(30, 25), io.IFU_2_IDU.bits.data(11, 8), 0.U(1.W)),
-            Imm_J -> Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W)),
+            Imm_TypeEnum.Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
+            Imm_TypeEnum.Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
+            Imm_TypeEnum.Imm_S -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),
+            Imm_TypeEnum.Imm_B -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(7), io.IFU_2_IDU.bits.data(30, 25), io.IFU_2_IDU.bits.data(11, 8), 0.U(1.W)),
+            Imm_TypeEnum.Imm_J -> Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W)),
         )
     )
 
     val csr_raddr = MuxLookup(decodeResult(csr_ctrField), imm(11, 0))(
         Seq(
-            CSR_R1W0 -> "h341".U,
-            CSR_R1W2 -> "h305".U,
+            CSR_TypeEnum.CSR_R1W0 -> "h341".U,
+            CSR_TypeEnum.CSR_R1W2 -> "h305".U,
         )
     )
 

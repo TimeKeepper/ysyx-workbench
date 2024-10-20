@@ -13,17 +13,17 @@ class ysyx_23060198_WBU extends Module {
         val WBU_2_REG = Output(new BUS_WBU_2_REG)
     })
 
-    val state = RegInit(s_wait_ready)
+    val state = RegInit(bus_state.s_wait_ready)
 
-    state := MuxLookup(state, s_wait_valid)(
+    state := MuxLookup(state, bus_state.s_wait_valid)(
         Seq(
-            s_wait_valid -> Mux(io.EXU_2_WBU.valid, s_wait_ready, s_wait_valid),
-            s_wait_ready -> Mux(io.WBU_2_IFU.ready, s_wait_valid, s_wait_ready),
+            bus_state.s_wait_valid -> Mux(io.EXU_2_WBU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
+            bus_state.s_wait_ready -> Mux(io.WBU_2_IFU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
         )
     )
 
-    io.WBU_2_IFU.valid := state === s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
-    io.EXU_2_WBU.ready  := state === s_wait_valid
+    io.WBU_2_IFU.valid := state === bus_state.s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
+    io.EXU_2_WBU.ready  := state === bus_state.s_wait_valid
     
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
         io.WBU_2_REG.inst_valid := true.B
@@ -34,24 +34,24 @@ class ysyx_23060198_WBU extends Module {
     val Default_Next_Pc = io.EXU_2_WBU.bits.PC + 4.U
 
     val Next_Pc = MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.Jmp_Pc)(Seq(
-        Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Result === 0.U, io.EXU_2_WBU.bits.Jmp_Pc, Default_Next_Pc),
-        Bran_Jne -> Mux(io.EXU_2_WBU.bits.Result === 0.U, Default_Next_Pc, io.EXU_2_WBU.bits.Jmp_Pc),
-        Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Result(0), io.EXU_2_WBU.bits.Jmp_Pc, Default_Next_Pc),
-        Bran_Jge -> Mux(io.EXU_2_WBU.bits.Result(0), Default_Next_Pc, io.EXU_2_WBU.bits.Jmp_Pc),
-        Bran_NJmp -> Default_Next_Pc,
+        Bran_TypeEnum.Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Result === 0.U, io.EXU_2_WBU.bits.Jmp_Pc, Default_Next_Pc),
+        Bran_TypeEnum.Bran_Jne -> Mux(io.EXU_2_WBU.bits.Result === 0.U, Default_Next_Pc, io.EXU_2_WBU.bits.Jmp_Pc),
+        Bran_TypeEnum.Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Result(0), io.EXU_2_WBU.bits.Jmp_Pc, Default_Next_Pc),
+        Bran_TypeEnum.Bran_Jge -> Mux(io.EXU_2_WBU.bits.Result(0), Default_Next_Pc, io.EXU_2_WBU.bits.Jmp_Pc),
+        Bran_TypeEnum.Bran_NJmp -> Default_Next_Pc,
     ))
 
     val GPR_wdata = MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
         Y  -> io.EXU_2_WBU.bits.Mem_rdata,
-        N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR_rdata),
+        N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_TypeEnum.CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR_rdata),
     ))
 
     val CSR_waddra = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.CSR_waddr)(Seq(
-        CSR_R1W2 -> "h341".U
+        CSR_TypeEnum.CSR_R1W2 -> "h341".U
     ))
 
     val CSR_wdataa = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
-        CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
+        CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
 
     io.WBU_2_REG.Next_Pc       := Next_Pc

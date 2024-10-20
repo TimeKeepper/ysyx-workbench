@@ -28,7 +28,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
                 case "jimm20"                => Imm_TypeEnum.Imm_J
                 case _                       => Imm_TypeEnum.Imm_None
             })
-            .filterNot(_ == ImmTypeEnum.Imm_None)
+            .filterNot(_ == Imm_TypeEnum.Imm_None)
             .headOption
             .getOrElse(Imm_TypeEnum.Imm_None)
 

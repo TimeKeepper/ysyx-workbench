@@ -51,7 +51,7 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val gpr_waddr = Mux(decodeResult(RegWrFiled), io.IFU_2_IDU.bits.data(11, 7), 0.U)
+    val gpr_waddr = Mux(decodeResult(RegWrFiled), io.IFU_2_IDU.bits.data(10, 7), 0.U(4.W))
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 

@@ -68,7 +68,6 @@ class BUS_WBU_2_REG extends Bundle{
     val Next_Pc   = UInt(32.W)
     val GPR_waddr = UInt(5.W)
     val GPR_wdata = UInt(32.W)
-    val GPR_wen   = Bool()
     val CSR_ctr   = CSR_TypeEnum()
     val CSR_waddra= UInt(12.W)
     val CSR_waddrb= UInt(12.W)

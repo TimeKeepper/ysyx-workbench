@@ -80,8 +80,9 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
     val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field))
+    val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
-    val imm = MuxLookup(rvdecoderTable, 0.U)(
+    val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(
             Imm_TypeEnum.Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
             Imm_TypeEnum.Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),

@@ -14,14 +14,14 @@ case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends Decod
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
-object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
-    override def name: String = "imm"
-    override def chiselType = Imm_TypeEnum()
-    override def genTable(inst: rvInstructionPattern): BiaPat = {
-        val immType = inst.inst.args
-            .map(_.name)
-    }
-}
+// object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
+//     override def name: String = "imm"
+//     override def chiselType = Imm_TypeEnum()
+//     override def genTable(inst: rvInstructionPattern): BiaPat = {
+//         val immType = inst.inst.args
+//             .map(_.name)
+//     }
+// }
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{

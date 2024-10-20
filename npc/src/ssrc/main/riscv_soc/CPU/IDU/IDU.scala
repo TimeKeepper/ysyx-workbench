@@ -14,14 +14,23 @@ case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends Decod
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
-// object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
-//     override def name: String = "imm"
-//     override def chiselType = Imm_TypeEnum()
-//     override def genTable(inst: rvInstructionPattern): BiaPat = {
-//         val immType = inst.inst.args
-//             .map(_.name)
-//     }
-// }
+object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
+    override def name: String = "imm"
+    override def chiselType = Imm_TypeEnum()
+    override def genTable(inst: rvInstructionPattern): BiaPat = {
+        val immType = inst.inst.args
+            .map(_.name match {
+                case "imm12"                 => ImmTypeEnum.imm_I
+                case "imm12hi" | "imm12lo"   => ImmTypeEnum.imm_S
+                case "bimm12hi" | "bimm12lo" => ImmTypeEnum.imm_B
+                case "imm20"                 => ImmTypeEnum.imm_U
+                case "jimm20"                => ImmTypeEnum.imm_J
+                case "shamtw"                => ImmTypeEnum.imm_I
+            })
+        
+        BitPat(immType.litValue.U((immType.getWidth.W)))
+    }
+}
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
@@ -67,9 +76,9 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
     print(instList.map(_.inst.args))
-    // val rvdecoderTable = new DecoderTable(instList)
+    val rvdecoderTable = new DecoderTable(instList, Seq(Imm_Field))
 
-    val imm = MuxLookup(decodeResult(ImmField), 0.U)(
+    val imm = MuxLookup(rvdecoderTable(Imm_Field), 0.U)(
         Seq(
             Imm_TypeEnum.Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
             Imm_TypeEnum.Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),

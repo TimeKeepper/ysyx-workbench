@@ -14,6 +14,15 @@ case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends Decod
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
+object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
+    override def name: String = "imm"
+    override def chiselType = Imm_TypeEnum()
+    override def genTable(inst: rvInstructionPattern): BiaPat = {
+        val immType = inst.inst.args
+            .map(_.name)
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -40,6 +49,25 @@ class ysyx_23060198_IDU extends Module{
     val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
 
     val instTable = rvdecoderdb.fromFile.instructions(os.pwd / os.up / os.up / "src" / "ssrc" / "main" /  "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
+
+    val rv32iExceptInstructions = 
+        Set("sbreak", "scall", "pause", "fence.tso", "fence", "slli_rv32", "srli_rv32", "srai_rv32")
+    val rv32iTargetSets = Set("rv_i", "rv32_i")
+    val rvzicsrTargetSets = Set("rv_zicsr")
+    val rv32iInstList = instTable
+        .fliter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
+        .fliter(instr => !rv32iExceptInstructions.contains(instr.name))
+        .fliter(_.pseudoFrom.isEmpty)
+        .map(rvInstructionPattern(_))
+        .toSeq
+    val rvzicsrInstList = instTable
+        .fliter(instr => rvzicsrTargetSets.contains(instr.instructionSet.name))
+        .fliter(_.pseudoFrom.isEmpty)
+        .map(rvInstructionPattern(_))
+        .toSeq
+    val instList = rv32iInstList ++ rvzicsrInstList
+    print(instList.map(_.inst.args))
+    val rvdecoderTable = new DecoderTable(instList)
 
     val imm = MuxLookup(decodeResult(ImmField), 0.U)(
         Seq(

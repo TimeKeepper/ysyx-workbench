@@ -15,10 +15,6 @@ case class InstructionPattern(
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
-// def Get_BitPat(val Enum: Any): BitPat = {
-//     BitPat(Enum.litValue.U(Enum.getWidth.W))
-// }
-
 object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
     def name: String = "imm"
     def chiselType = Imm_TypeEnum()
@@ -207,6 +203,10 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
 }
 
 object my_fooldecodedb {
+    def Get_BitPat(Enum: Any): BitPat = {
+        BitPat(Enum.litValue.U(Enum.getWidth.W))
+    }
+
     val allFields = Seq(
         ImmField,
         RegWrFiled,

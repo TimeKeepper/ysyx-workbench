@@ -20,7 +20,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.args
             .map(_.name match{
-                case "imm12" | "shamtw" | "csr"     => BitPat(Imm_TypeEnum.Imm_I.litValue.U((Imm_TypeEnum.Imm_I.getWidth).W))
+                case "imm12" | "shamtw" | "csr"     => my_fooldecodedb.Get_BitPat(Imm_TypeEnum.Imm_I)
                 case "imm12hi" | "imm12lo"          => BitPat(Imm_TypeEnum.Imm_S.litValue.U((Imm_TypeEnum.Imm_S.getWidth).W))
                 case "bimm12hi" | "bimm12lo"        => BitPat(Imm_TypeEnum.Imm_B.litValue.U((Imm_TypeEnum.Imm_B.getWidth).W))
                 case "imm20"                        => BitPat(Imm_TypeEnum.Imm_U.litValue.U((Imm_TypeEnum.Imm_U.getWidth).W))
@@ -41,9 +41,6 @@ class ysyx_23060198_IDU extends Module{
         val IDU_2_EXU     = Decoupled(Output(new BUS_IDU_2_EXU))
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
-    def getType[T: TypeTag](obj: T) = typeOf[T]
-
-    println(getType(Imm_TypeEnum.Imm_I))
 
     val state = RegInit(bus_state.s_wait_valid)
 

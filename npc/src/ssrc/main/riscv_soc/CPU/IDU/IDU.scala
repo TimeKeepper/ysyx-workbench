@@ -116,7 +116,7 @@ object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Ty
     }
 }
 
-object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type] with DecodeAPi {
+object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type] with DecodeAPI {
     override def name: String = "csr_ctr"
     override def chiselType = CSR_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
@@ -186,7 +186,7 @@ class ysyx_23060198_IDU extends Module{
     val instList = rviInstList ++ rv32iInstList ++ rvzicsrInstList
     print(instList)
 
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field, csr_ctr_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -217,7 +217,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(rvdecoderResult(ALUAsrc_Field),     comunication_succeed) 
     io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(rvdecoderResult(ALUBsrc_Field),     comunication_succeed) 
     io.IDU_2_EXU.bits.ALUctr       <> RegEnable(rvdecoderResult(ALUctr_Field),      comunication_succeed) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(decodeResult(csr_ctrField),     comunication_succeed) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 

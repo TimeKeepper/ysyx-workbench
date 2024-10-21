@@ -202,6 +202,12 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
     }
 }
 
+trait DecodeAPI {
+    def Get_BitPat[T <: Data](Enum: T): BitPat = {
+        BitPat(Enum.litValue.U(Enum.getWidth.W))
+    }
+}
+
 object my_fooldecodedb {
     val allFields = Seq(
         ImmField,

@@ -30,7 +30,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .filterNot(_ == None)
             .headOption
 
-        print(immType_test.litValue.U((immType_test.getWidth).W))
+        print(Imm_TypeEnum.Imm_I.getWidth)
 
         val immType = i.inst.args
             .map(_.name match{

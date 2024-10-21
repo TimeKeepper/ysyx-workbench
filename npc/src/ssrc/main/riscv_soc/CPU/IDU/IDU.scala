@@ -110,6 +110,7 @@ object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Ty
             case "sll" | "slli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SLL)
             case "srl" | "srli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRL)
             case "sra" | "srai" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRA)
+            case "csrrw" | "lui" => Get_BitPat(ALUctr_TypeEnum.ALUctr_B)
             case _ => BitPat.dontCare(ALUctr_TypeEnum.getWidth)
         }
     }

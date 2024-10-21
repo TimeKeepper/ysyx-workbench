@@ -116,6 +116,20 @@ object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Ty
     }
 }
 
+object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type] with DecodeAPi {
+    override def name: String = "csr_ctr"
+    override def chiselType = CSR_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "ecall" => Get_BitPat(CSR_TypeEnum.CSR_R1W2)
+            case "mret"  => Get_BitPat(CSR_TypeEnum.CSR_R1W0)
+            case _       => i.inst.args.map(_.toString).collectFirst {
+                case "csr" => Get_BitPat(CSR_TypeEnum.CSR_R1W1)
+            }.getOrElse(BitPat.dontCare(CSR_TypeEnum.getWidth))
+        }
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -147,6 +161,7 @@ class ysyx_23060198_IDU extends Module{
         Set("sbreak", "scall", "pause", "fence.tso", "fence", "slli_rv32", "srli_rv32", "srai_rv32")
     val rviTargetSets = Set("rv_i")
     val rv32iTargetSets = Set("rv32_i")
+    val rvsysTargetSets = Set("rv_system")
     val rvzicsrTargetSets = Set("rv_zicsr")
 
     val rviInstList = instTable
@@ -158,6 +173,10 @@ class ysyx_23060198_IDU extends Module{
     val rv32iInstList = instTable
         .filter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
         .filter(instr => !rv32iExceptInstructions.contains(instr.name))
+        .map(rvInstructionPattern(_))
+    val rvsysInstList = instTable
+        .filter(instr => rvsysTargetSets.contains(instr.instructionSet.name))
+        .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
     val rvzicsrInstList = instTable
         .filter(instr => rvzicsrTargetSets.contains(instr.instructionSet.name))

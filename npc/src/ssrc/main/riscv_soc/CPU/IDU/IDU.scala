@@ -125,7 +125,7 @@ object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type
             case "mret"  => Get_BitPat(CSR_TypeEnum.CSR_R1W0)
             case _       => i.inst.args.map(_.toString).collectFirst {
                 case "csr" => Get_BitPat(CSR_TypeEnum.CSR_R1W1)
-            }.getOrElse(BitPat.dontCare(CSR_TypeEnum.getWidth))
+            }.getOrElse(Get_BitPat(CSR_TypeEnum.CSR_N))
         }
     }
 }

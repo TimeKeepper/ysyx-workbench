@@ -208,7 +208,7 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val csr_raddr = MuxLookup(decodeResult(csr_ctrField), imm(11, 0))(
+    val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), imm(11, 0))(
         Seq(
             CSR_TypeEnum.CSR_R1W0 -> "h341".U,
             CSR_TypeEnum.CSR_R1W2 -> "h305".U,

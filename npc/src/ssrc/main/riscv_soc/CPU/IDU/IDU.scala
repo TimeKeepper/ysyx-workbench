@@ -155,7 +155,7 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val rvzicsrInstList = instTable
         .filter(instr => rvzicsrTargetSets.contains(instr.instructionSet.name))
-        .filter(_.pseudoFrom.isEmpty)
+        .filter(_.pseudoFrom.isEmpty | _.pseudoFrom.get.name == "rv64_i")
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList

@@ -30,7 +30,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .filterNot(_ == None)
             .headOption
 
-        print(Imm_TypeEnum.Imm_I.getWidth)
+        println(classOf(Imm_TypeEnum.Imm_I))
 
         val immType = i.inst.args
             .map(_.name match{
@@ -44,6 +44,8 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .filterNot(_ == Imm_TypeEnum.Imm_None)
             .headOption
             .getOrElse(Imm_TypeEnum.Imm_None)
+
+        println(immType.litValue.U((immType.getWidth).W))
 
         BitPat(immType.litValue.U((immType.getWidth).W))
     }

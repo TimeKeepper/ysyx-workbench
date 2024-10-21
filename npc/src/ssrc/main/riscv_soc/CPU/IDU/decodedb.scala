@@ -15,44 +15,6 @@ case class InstructionPattern(
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
-object ImmField extends DecodeField[InstructionPattern, Imm_TypeEnum.Type] {
-    def name: String = "imm"
-    def chiselType = Imm_TypeEnum()
-    def genTable(op: InstructionPattern): BitPat = {
-        op.opcode.rawString match {
-            case "0000011" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // Loadxx
-            case "0100011" => BitPat(Imm_TypeEnum.Imm_S.litValue.U(Imm_TypeEnum.getWidth.W)) // Storexx
-            case "0010011" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // xxI
-            case "0110111" => BitPat(Imm_TypeEnum.Imm_U.litValue.U(Imm_TypeEnum.getWidth.W)) // LUI
-            case "0010111" => BitPat(Imm_TypeEnum.Imm_U.litValue.U(Imm_TypeEnum.getWidth.W)) // AUIPC
-            case "1100011" => BitPat(Imm_TypeEnum.Imm_B.litValue.U(Imm_TypeEnum.getWidth.W)) // Branchxx
-            case "1101111" => BitPat(Imm_TypeEnum.Imm_J.litValue.U(Imm_TypeEnum.getWidth.W)) // JAL
-            case "1100111" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // JALR
-            case "1110011" => BitPat(Imm_TypeEnum.Imm_I.litValue.U(Imm_TypeEnum.getWidth.W)) // CSRRx
-            case _ => BitPat.dontCare(Imm_TypeEnum.getWidth)
-        }
-    }
-}
-
-object BranchField extends DecodeField[InstructionPattern, Bran_TypeEnum.Type] {
-    def name: String = "Branch"
-    def chiselType = Bran_TypeEnum()
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func3.rawString, op.opcode.rawString) match {
-            case ("000", "1100011") => BitPat(Bran_TypeEnum.Bran_Jeq.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("001", "1100011") => BitPat(Bran_TypeEnum.Bran_Jne.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("100", "1100011") => BitPat(Bran_TypeEnum.Bran_Jlt.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("101", "1100011") => BitPat(Bran_TypeEnum.Bran_Jge.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("110", "1100011") => BitPat(Bran_TypeEnum.Bran_Jlt.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("111", "1100011") => BitPat(Bran_TypeEnum.Bran_Jge.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("???", "1101111") => BitPat(Bran_TypeEnum.Bran_Jmp.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("000", "1100111") => BitPat(Bran_TypeEnum.Bran_Jmpr.litValue.U(Bran_TypeEnum.getWidth.W))
-            case ("000", "1110011") => BitPat(Bran_TypeEnum.Bran_Jcsr.litValue.U(Bran_TypeEnum.getWidth.W))
-            case (_, _) => BitPat(Bran_TypeEnum.Bran_NJmp.litValue.U(Bran_TypeEnum.getWidth.W))
-        }
-    }
-}
-
 object MemOpField extends DecodeField[InstructionPattern, MemOp_TypeEnum.Type]{
     def name: String = "MemOp"
     def chiselType = MemOp_TypeEnum()
@@ -210,9 +172,7 @@ trait DecodeAPI {
 
 object my_fooldecodedb {
     val allFields = Seq(
-        ImmField,
         RegWrFiled,
-        BranchField,
         MemtoRegField,
         MemWrField,
         MemOpField,

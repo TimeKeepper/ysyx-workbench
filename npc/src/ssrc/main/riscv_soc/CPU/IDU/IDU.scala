@@ -95,6 +95,26 @@ object ALUBsrc_Field extends DecodeField[rvInstructionPattern, ALUBsrc_TypeEnum.
     }
 }
 
+object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "ALUctr"
+    override def chiselType = ALUctr_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "add" | "addi" | "auipc" | "jal" | "jalr" => Get_BitPat(ALUctr_TypeEnum.ALUctr_ADD)
+            case "sub" | "beq" | "bne" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SUB)
+            case "xor" | "xori" => Get_BitPat(ALUctr_TypeEnum.ALUctr_XOR)
+            case "or" | "ori" | "csrrs" => Get_BitPat(ALUctr_TypeEnum.ALUctr_OR)
+            case "and" | "andi" => Get_BitPat(ALUctr_TypeEnum.ALUctr_AND)
+            case "slt" | "slti" | "blt" | "bge" => Get_BitPat(ALUctr_TypeEnum.ALUctr_Less_S)
+            case "sltu" | "sltui" | "bltu" | "bgeu" => Get_BitPat(ALUctr_TypeEnum.ALUctr_Less_U)
+            case "sll" | "slli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SLL)
+            case "srl" | "srli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRL)
+            case "sra" | "srai" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRA)
+            case _ => BitPat.dontCare(ALUctr_TypeEnum.getWidth)
+        }
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -138,7 +158,7 @@ class ysyx_23060198_IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -168,7 +188,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       comunication_succeed) 
     io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(rvdecoderResult(ALUAsrc_Field),     comunication_succeed) 
     io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(rvdecoderResult(ALUBsrc_Field),     comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(decodeResult(ALUctrField),      comunication_succeed) 
+    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(rvdecoderTable(ALUctr_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(decodeResult(csr_ctrField),     comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 

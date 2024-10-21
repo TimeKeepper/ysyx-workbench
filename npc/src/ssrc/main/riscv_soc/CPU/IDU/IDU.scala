@@ -14,7 +14,7 @@ case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends Decod
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
-object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] with  DecodeAPI{
+object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] with DecodeAPI{
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
@@ -33,7 +33,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] wi
     }
 }
 
-object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] with  DecodeAPI {
+object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] with DecodeAPI {
     override def name: String = "branch"
     override def chiselType = Bran_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
@@ -49,6 +49,24 @@ object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] 
             case "ecall"    => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
             case "mret"     => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
             case _          => Get_BitPat(Bran_TypeEnum.Bran_NJmp)
+        }
+    }
+}
+
+object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "memop"
+    override def chiselType = MemOp_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "lb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "lh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "lw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case "lbu"      => Get_BitPat(MemOp_TypeEnum.MemOp_1BU)
+            case "lhu"      => Get_BitPat(MemOp_TypeEnum.MemOp_2BU)
+            case "sb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "sh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "sw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case _          => BitPat.dontCare(MemOp_TypeEnum.getWidth)
         }
     }
 }
@@ -96,7 +114,7 @@ class ysyx_23060198_IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -123,7 +141,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),    comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),       comunication_succeed) 
-    io.IDU_2_EXU.bits.MemOp        <> RegEnable(decodeResult(MemOpField),       comunication_succeed) 
+    io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       comunication_succeed) 
     io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(decodeResult(ALUAsrcField),     comunication_succeed) 
     io.IDU_2_EXU.bits.ALUBsrc      <> RegEnable(decodeResult(ALUBsrcField),     comunication_succeed) 
     io.IDU_2_EXU.bits.ALUctr       <> RegEnable(decodeResult(ALUctrField),      comunication_succeed) 

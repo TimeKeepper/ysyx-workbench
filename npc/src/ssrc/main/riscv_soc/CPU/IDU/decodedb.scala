@@ -79,7 +79,6 @@ object my_fooldecodedb {
         RegWrFiled,
         MemtoRegField,
         MemWrField,
-        ALUctrField,
         csr_ctrField,
     )
 

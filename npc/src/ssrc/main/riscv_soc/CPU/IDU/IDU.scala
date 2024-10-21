@@ -87,7 +87,7 @@ object ALUBsrc_Field extends DecodeField[rvInstructionPattern, ALUBsrc_TypeEnum.
         i.inst.args.map(_.toString).collectFirst {
             case "rs2" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS2)
             case "imm12" | "imm20" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM)
-            case "csr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_CSR)
+            case "csr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS1)
         }.getOrElse(BitPat.dontCare(ALUBsrc_TypeEnum.getWidth))
     }
 }

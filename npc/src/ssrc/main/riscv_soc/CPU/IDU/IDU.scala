@@ -25,13 +25,13 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
                 case "bimm12hi" | "bimm12lo"        => Imm_TypeEnum.Imm_B
                 case "imm20"                        => Imm_TypeEnum.Imm_U
                 case "jimm20"                       => Imm_TypeEnum.Imm_J
-                case _                              => Imm_TypeEnum.Imm_None
+                case _                              => None
             })
-            .filterNot(_ == Imm_TypeEnum.Imm_None)
+            .filterNot(_ == None)
             .headOption
-            .getOrElse(Imm_TypeEnum.Imm_None)
+            .getOrElse(None)
 
-        BitPat(immType.litValue.U((immType.getWidth).W))
+        BitPat(if(immType != None) immType.litValue.U((immType.getWidth).W) else BitPat.dontCare(Imm_TypeEnum.getWidth))
     }
 }
 

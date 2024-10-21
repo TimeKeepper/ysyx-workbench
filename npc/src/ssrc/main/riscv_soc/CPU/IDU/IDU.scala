@@ -27,8 +27,8 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
                 case "jimm20"                       => Imm_TypeEnum.Imm_J
                 case _                              => None
             })
-            .filterNot(_ == None)
             .headOption
+            .getOrElse(None)
 
         val imm_Match = if(immType_test == None) BitPat.dontCare(Imm_TypeEnum.getWidth) else immType_test.litValue.U((Imm_TypeEnum.getWidth).W)
 

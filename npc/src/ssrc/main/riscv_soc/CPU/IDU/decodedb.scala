@@ -203,7 +203,7 @@ object MemWrField extends BoolDecodeField[InstructionPattern] {
 }
 
 object my_fooldecodedb {
-    def Get_BitPat(Enum: ChiselEnum): BitPat = {
+    def Get_BitPat(Enum: ChiselEnum.Type): BitPat = {
         BitPat(Enum.litValue.U(Enum.getWidth.W))
     }
 

@@ -14,17 +14,17 @@ case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends Decod
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
-object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
+object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] with  DecodeAPI{
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.args
             .map(_.name match{
-                case "imm12" | "shamtw" | "csr"     => my_fooldecodedb.Get_BitPat(Imm_TypeEnum.Imm_I)
-                case "imm12hi" | "imm12lo"          => BitPat(Imm_TypeEnum.Imm_S.litValue.U((Imm_TypeEnum.Imm_S.getWidth).W))
-                case "bimm12hi" | "bimm12lo"        => BitPat(Imm_TypeEnum.Imm_B.litValue.U((Imm_TypeEnum.Imm_B.getWidth).W))
-                case "imm20"                        => BitPat(Imm_TypeEnum.Imm_U.litValue.U((Imm_TypeEnum.Imm_U.getWidth).W))
-                case "jimm20"                       => BitPat(Imm_TypeEnum.Imm_J.litValue.U((Imm_TypeEnum.Imm_J.getWidth).W))
+                case "imm12" | "shamtw" | "csr"     => Get_BitPat(Imm_TypeEnum.Imm_I)
+                case "imm12hi" | "imm12lo"          => Get_BitPat(Imm_TypeEnum.Imm_S)
+                case "bimm12hi" | "bimm12lo"        => Get_BitPat(Imm_TypeEnum.Imm_B)
+                case "imm20"                        => Get_BitPat(Imm_TypeEnum.Imm_U)
+                case "jimm20"                       => Get_BitPat(Imm_TypeEnum.Imm_J)
                 case _                              => BitPat.dontCare(Imm_TypeEnum.getWidth)
             })
             .filterNot(_ == BitPat.dontCare(Imm_TypeEnum.getWidth))
@@ -32,6 +32,16 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .getOrElse(BitPat.dontCare(Imm_TypeEnum.getWidth))
     }
 }
+
+// object Branch_Field extends DecodeField[rvInstructionPattern, Branch_TypeEnum.Type] {
+//     override def name: String = "branch"
+//     override def chiselType = Branch_TypeEnum()
+//     override def genTable(i: rvInstructionPattern): BitPat = {
+//         i.inst.name match {
+//             case "beq" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jeq)
+//         }
+//     }
+// }
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{

@@ -46,7 +46,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .headOption
             .getOrElse(Imm_TypeEnum.Imm_None)
 
-        immType_1.map {
+        immType_1 match {
             case None => BitPat.dontCare(Imm_TypeEnum.getWidth)
             case _ => BitPat(_.litValue.U((immType.getWidth).W))
         }

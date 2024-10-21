@@ -126,6 +126,17 @@ object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Ty
     }
 }
 
+object MemtoReg_Field extends DecodeField[rvInstructionPattern, MemtoReg_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "MemtoReg"
+    override def chiselType = MemtoReg_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "lb" | "lh" | "lw" | "lbu" | "lhu" => Get_BitPat(MemtoReg_TypeEnum.MemtoReg_Yes)
+            case _ => BitPat(MemtoReg_TypeEnum.MemtoReg_No)
+        }
+    }
+}
+
 object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type] with DecodeAPI {
     override def name: String = "csr_ctr"
     override def chiselType = CSR_TypeEnum()
@@ -195,7 +206,7 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field, csr_ctr_Field, RegWr_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field, csr_ctr_Field, RegWr_Field, MemtoReg_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -220,7 +231,7 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 
-    io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),    comunication_succeed) 
+    io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(rvdecoderResult(MemtoReg_Field),    comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),       comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       comunication_succeed) 
     io.IDU_2_EXU.bits.ALUAsrc      <> RegEnable(rvdecoderResult(ALUAsrc_Field),     comunication_succeed) 

@@ -15,25 +15,6 @@ case class InstructionPattern(
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
-object RegWrFiled extends BoolDecodeField[InstructionPattern] {
-    def name: String = "RegWr"
-    def genTable(op: InstructionPattern): BitPat = {
-        op.opcode.rawString match {
-            case "0000011" => BitPat(Y) 
-            case "0100011" => BitPat(N)
-            case "0110011" => BitPat(Y)
-            case "0010011" => BitPat(Y)
-            case "0110111" => BitPat(Y)
-            case "0010111" => BitPat(Y)
-            case "1100011" => BitPat(N)
-            case "1101111" => BitPat(Y)
-            case "1100111" => BitPat(Y)
-            case "1110011" => if (op.func3 != BitPat("b000")) BitPat(Y) else BitPat(N)
-            case _ => BitPat.dontCare(1)
-        }
-    }
-}
-
 object MemtoRegField extends BoolDecodeField[InstructionPattern] {
     def name: String = "MemtoReg"
     def genTable(op: InstructionPattern): BitPat = {

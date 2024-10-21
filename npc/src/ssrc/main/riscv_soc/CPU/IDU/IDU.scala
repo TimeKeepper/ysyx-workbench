@@ -11,7 +11,6 @@ import bus_state._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
 case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends DecodePattern {
-    println(inst.toString())
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
@@ -72,15 +71,18 @@ object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type
     }
 }
 
-// object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.Type] with DecodeAPI {
-//     override def name: String = "ALUAsrc"
-//     override def chiselType = ALUAsrc_TypeEnum()
-//     override def genTable(i: rvInstructionPattern): BitPat = {
-//         i.inst.name match {
-
-//         }
-//     }
-// }
+object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "ALUAsrc"
+    override def chiselType = ALUAsrc_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.args.collectFirst {
+            case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_rs1)
+        }.getOrElse(i.inst.name match {
+            case "auipc" | "jal" | "jalr" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
+            case _ => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
+        })
+    }
+}
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
@@ -125,7 +127,7 @@ class ysyx_23060198_IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(

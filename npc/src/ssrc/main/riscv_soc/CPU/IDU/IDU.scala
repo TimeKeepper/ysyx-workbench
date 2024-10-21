@@ -38,17 +38,14 @@ object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] 
     override def chiselType = Bran_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "beq"      => Get_BitPat(Bran_TypeEnum.Bran_Jeq)
-            case "bne"      => Get_BitPat(Bran_TypeEnum.Bran_Jne)
-            case "blt"      => Get_BitPat(Bran_TypeEnum.Bran_Jlt)
-            case "bge"      => Get_BitPat(Bran_TypeEnum.Bran_Jge)
-            case "bltu"     => Get_BitPat(Bran_TypeEnum.Bran_Jlt)
-            case "bgeu"     => Get_BitPat(Bran_TypeEnum.Bran_Jge)
-            case "jal"      => Get_BitPat(Bran_TypeEnum.Bran_Jmp)
-            case "jalr"     => Get_BitPat(Bran_TypeEnum.Bran_Jmpr)
-            case "ecall"    => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
-            case "mret"     => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
-            case _          => Get_BitPat(Bran_TypeEnum.Bran_NJmp)
+            case "beq"              => Get_BitPat(Bran_TypeEnum.Bran_Jeq)
+            case "bne"              => Get_BitPat(Bran_TypeEnum.Bran_Jne)
+            case "blt" | "bltu"     => Get_BitPat(Bran_TypeEnum.Bran_Jlt)
+            case "bge" | "bgeu"     => Get_BitPat(Bran_TypeEnum.Bran_Jge)
+            case "jal"              => Get_BitPat(Bran_TypeEnum.Bran_Jmp)
+            case "jalr"             => Get_BitPat(Bran_TypeEnum.Bran_Jmpr)
+            case "ecall" | "mret"   => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
+            case _                  => Get_BitPat(Bran_TypeEnum.Bran_NJmp)
         }
     }
 }

@@ -70,19 +70,13 @@ object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.
     override def name: String = "ALUAsrc"
     override def chiselType = ALUAsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        // i.inst.args.map(_.toString).collectFirst {
-        //     case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
-        // }.getOrElse(i.inst.name match {
-        //     case "auipc" | "jal" | "jalr" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
-        //     case _ => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
-        // })
         i.inst.name match {
-            case    "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or"  | "and" |
-                    "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
-            case    "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu"     => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
             case    "jal" | "jalr" | "auipc"                            => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
             case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
-            case    _                                                   => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
+            case _ => i.inst.args.map(_.toString).collectFirst {
+                case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
+                case _     => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
+            }
         }
     }
 }

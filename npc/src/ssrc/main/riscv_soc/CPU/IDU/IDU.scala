@@ -46,7 +46,7 @@ object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] 
             case "bgeu"=> Get_BitPat(Bran_TypeEnum.Bran_Jge)
             case "jal" => Get_BitPat(Bran_TypeEnum.Bran_Jmp)
             case "jalr"=> Get_BitPat(Bran_TypeEnum.Bran_Jmpr)
-            case _     => Get_BitPat(Bran_TypeEnum.Bran_None)
+            case _     => Get_BitPat(Bran_TypeEnum.Bran_Njmp)
         }
     }
 }

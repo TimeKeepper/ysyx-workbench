@@ -18,7 +18,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        val immType = i.inst.args
+        val immType_1 = i.inst.args
             .map(_.name match{
                 case "imm12" | "shamtw" | "csr"     => Imm_TypeEnum.Imm_I
                 case "imm12hi" | "imm12lo"          => Imm_TypeEnum.Imm_S
@@ -30,6 +30,21 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .filterNot(_ == None)
             .headOption
             .getOrElse(None)
+
+        print(immType_1)
+            
+        val immType = i.inst.args
+            .map(_.name match{
+                case "imm12" | "shamtw" | "csr"     => Imm_TypeEnum.Imm_I
+                case "imm12hi" | "imm12lo"          => Imm_TypeEnum.Imm_S
+                case "bimm12hi" | "bimm12lo"        => Imm_TypeEnum.Imm_B
+                case "imm20"                        => Imm_TypeEnum.Imm_U
+                case "jimm20"                       => Imm_TypeEnum.Imm_J
+                case _                              => Imm_TypeEnum.Imm_None
+            })
+            .filterNot(_ == Imm_TypeEnum.Imm_None)
+            .headOption
+            .getOrElse(Imm_TypeEnum.Imm_None)
 
             print(classOf(immType))
 

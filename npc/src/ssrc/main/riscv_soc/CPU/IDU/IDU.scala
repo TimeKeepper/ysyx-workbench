@@ -85,10 +85,10 @@ object ALUBsrc_Field extends DecodeField[rvInstructionPattern, ALUBsrc_TypeEnum.
     override def chiselType = ALUBsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.args.map(_.toString).collectFirst {
-            case "rs2" => Get_BitPat(ALUBSrc_TypeEnum.ALUBsrc_RS2)
-            case "imm12" | "imm20" => Get_BitPat(ALUBSrc_TypeEnum.ALUBsrc_IMM)
-            case "csr" => Get_BitPat(ALUBSrc_TypeEnum.ALUBsrc_CSR)
-        }.getOrElse(BitPat.dontCare(ALUBSrc_TypeEnum.getWidth))
+            case "rs2" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS2)
+            case "imm12" | "imm20" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM)
+            case "csr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_CSR)
+        }.getOrElse(BitPat.dontCare(ALUBsrc_TypeEnum.getWidth))
     }
 }
 

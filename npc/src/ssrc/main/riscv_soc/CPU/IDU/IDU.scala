@@ -32,7 +32,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .getOrElse(None)
 
         if(immType_test == None) BitPat.dontCare(Imm_TypeEnum.getWidth) 
-        else BitPat(immType_test.litValue.U((Imm_TypeEnum.getWidth).W))
+        else BitPat(immType_test)
     }
 }
 

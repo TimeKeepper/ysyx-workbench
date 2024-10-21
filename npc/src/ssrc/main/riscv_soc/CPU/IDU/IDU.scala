@@ -30,6 +30,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             .headOption
             .getOrElse(None)
 
+        println(immType_test)
         val imm_Match = if(immType_test == None) BitPat.dontCare(Imm_TypeEnum.getWidth) else immType_test.litValue.U((Imm_TypeEnum.getWidth).W)
 
         val immType = i.inst.args

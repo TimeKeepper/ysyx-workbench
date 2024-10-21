@@ -18,18 +18,26 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] wi
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.args
-            .map(_.name match{
-                case "imm12" | "shamtw" | "csr"     => Get_BitPat(Imm_TypeEnum.Imm_I)
-                case "imm12hi" | "imm12lo"          => Get_BitPat(Imm_TypeEnum.Imm_S)
-                case "bimm12hi" | "bimm12lo"        => Get_BitPat(Imm_TypeEnum.Imm_B)
-                case "imm20"                        => Get_BitPat(Imm_TypeEnum.Imm_U)
-                case "jimm20"                       => Get_BitPat(Imm_TypeEnum.Imm_J)
-                case _                              => BitPat.dontCare(Imm_TypeEnum.getWidth)
-            })
-            .filterNot(_ == BitPat.dontCare(Imm_TypeEnum.getWidth))
-            .headOption
-            .getOrElse(BitPat.dontCare(Imm_TypeEnum.getWidth))
+        // i.inst.args
+        //     .map(_.name match{
+        //         case "imm12" | "shamtw" | "csr"     => Get_BitPat(Imm_TypeEnum.Imm_I)
+        //         case "imm12hi" | "imm12lo"          => Get_BitPat(Imm_TypeEnum.Imm_S)
+        //         case "bimm12hi" | "bimm12lo"        => Get_BitPat(Imm_TypeEnum.Imm_B)
+        //         case "imm20"                        => Get_BitPat(Imm_TypeEnum.Imm_U)
+        //         case "jimm20"                       => Get_BitPat(Imm_TypeEnum.Imm_J)
+        //         case _                              => BitPat.dontCare(Imm_TypeEnum.getWidth)
+        //     })
+        //     .filterNot(_ == BitPat.dontCare(Imm_TypeEnum.getWidth))
+        //     .headOption
+        //     .getOrElse(BitPat.dontCare(Imm_TypeEnum.getWidth))
+        i.inst match {
+            case _ if i.inst.is_I => Get_BitPat(Imm_TypeEnum.Imm_I)
+            case _ if i.inst.is_S => Get_BitPat(Imm_TypeEnum.Imm_S)
+            case _ if i.inst.is_B => Get_BitPat(Imm_TypeEnum.Imm_B)
+            case _ if i.inst.is_U => Get_BitPat(Imm_TypeEnum.Imm_U)
+            case _ if i.inst.is_J => Get_BitPat(Imm_TypeEnum.Imm_J)
+            case _ => BitPat.dontCare(Imm_TypeEnum.getWidth)
+        }
     }
 }
 
@@ -38,14 +46,17 @@ object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] 
     override def chiselType = Bran_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "beq"              => Get_BitPat(Bran_TypeEnum.Bran_Jeq)
-            case "bne"              => Get_BitPat(Bran_TypeEnum.Bran_Jne)
-            case "blt" | "bltu"     => Get_BitPat(Bran_TypeEnum.Bran_Jlt)
-            case "bge" | "bgeu"     => Get_BitPat(Bran_TypeEnum.Bran_Jge)
-            case "jal"              => Get_BitPat(Bran_TypeEnum.Bran_Jmp)
-            case "jalr"             => Get_BitPat(Bran_TypeEnum.Bran_Jmpr)
-            case "ecall" | "mret"   => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
-            case _                  => Get_BitPat(Bran_TypeEnum.Bran_NJmp)
+            case "beq"      => Get_BitPat(Bran_TypeEnum.Bran_Jeq)
+            case "bne"      => Get_BitPat(Bran_TypeEnum.Bran_Jne)
+            case "blt"      => Get_BitPat(Bran_TypeEnum.Bran_Jlt)
+            case "bge"      => Get_BitPat(Bran_TypeEnum.Bran_Jge)
+            case "bltu"     => Get_BitPat(Bran_TypeEnum.Bran_Jlt)
+            case "bgeu"     => Get_BitPat(Bran_TypeEnum.Bran_Jge)
+            case "jal"      => Get_BitPat(Bran_TypeEnum.Bran_Jmp)
+            case "jalr"     => Get_BitPat(Bran_TypeEnum.Bran_Jmpr)
+            case "ecall"    => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
+            case "mret"     => Get_BitPat(Bran_TypeEnum.Bran_Jcsr)
+            case _          => Get_BitPat(Bran_TypeEnum.Bran_NJmp)
         }
     }
 }
@@ -67,6 +78,16 @@ object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type
         }
     }
 }
+
+// object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.Type] with DecodeAPI {
+//     override def name: String = "ALUAsrc"
+//     override def chiselType = ALUAsrc_TypeEnum()
+//     override def genTable(i: rvInstructionPattern): BitPat = {
+//         i.inst.name match {
+
+//         }
+//     }
+// }
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{

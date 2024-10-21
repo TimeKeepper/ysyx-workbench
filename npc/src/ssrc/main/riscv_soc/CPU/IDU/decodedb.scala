@@ -15,21 +15,6 @@ case class InstructionPattern(
     def bitPat: BitPat = func7 ## BitPat.dontCare(10) ## func3 ## BitPat.dontCare(5) ## opcode
 }
 
-object MemOpField extends DecodeField[InstructionPattern, MemOp_TypeEnum.Type]{
-    def name: String = "MemOp"
-    def chiselType = MemOp_TypeEnum()
-    def genTable(op: InstructionPattern): BitPat = {
-        (op.func7.rawString, op.func3.rawString, op.opcode.rawString) match {
-            case (_, "000", _) => BitPat(MemOp_TypeEnum.MemOp_1BS.litValue.U(MemOp_TypeEnum.getWidth.W))
-            case (_, "001", _) => BitPat(MemOp_TypeEnum.MemOp_2BS.litValue.U(MemOp_TypeEnum.getWidth.W))
-            case (_, "010", _) => BitPat(MemOp_TypeEnum.MemOp_4BU.litValue.U(MemOp_TypeEnum.getWidth.W))
-            case (_, "100", _) => BitPat(MemOp_TypeEnum.MemOp_1BU.litValue.U(MemOp_TypeEnum.getWidth.W))
-            case (_, "101", _) => BitPat(MemOp_TypeEnum.MemOp_2BU.litValue.U(MemOp_TypeEnum.getWidth.W))
-            case (_, _, _)     => BitPat.dontCare(MemOp_TypeEnum.getWidth)
-        }
-    }
-}
-
 object ALUAsrcField extends DecodeField[InstructionPattern, ALUAsrc_TypeEnum.Type] {
     def name: String = "ALUAsrc"
     def chiselType = ALUAsrc_TypeEnum()
@@ -175,7 +160,6 @@ object my_fooldecodedb {
         RegWrFiled,
         MemtoRegField,
         MemWrField,
-        MemOpField,
         ALUAsrcField,
         ALUBsrcField,
         ALUctrField,

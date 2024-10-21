@@ -66,6 +66,16 @@ object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type
     }
 }
 
+object RegWr_Field extends DecodeField[rvInstructionPattern, RegWr_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "regwr"
+    override def chiselType = RegWr_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.args.map(_.toString).collectFirst {
+            case "rd" => Get_BitPat(RegWr_TypeEnum.RegWr_Yes)
+        }.getOrElse(Get_BitPat(RegWr_TypeEnum.RegWr_No))
+    }
+}
+
 object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.Type] with DecodeAPI {
     override def name: String = "ALUAsrc"
     override def chiselType = ALUAsrc_TypeEnum()
@@ -184,9 +194,8 @@ class ysyx_23060198_IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
-    print(instList)
 
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field, csr_ctr_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field, csr_ctr_Field, RegWr_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -206,7 +215,7 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val gpr_waddr = Mux(decodeResult(RegWrFiled), io.IFU_2_IDU.bits.data(10, 7), 0.U(4.W))
+    val gpr_waddr = Mux(rvdecoderResult(RegWrFiled) == RegWr_TypeEnum.RegWr_Yes, io.IFU_2_IDU.bits.data(10, 7), 0.U(4.W))
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 

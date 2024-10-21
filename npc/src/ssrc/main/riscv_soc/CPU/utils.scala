@@ -78,8 +78,7 @@ object Imm_TypeEnum extends ChiselEnum{
       Imm_U,    //U型指令
       Imm_S,    //S型指令
       Imm_B,    //B型指令
-      Imm_J,    //J型指令
-      Imm_None  //未知类型
+      Imm_J     //J型指令
       = Value
 }
 
@@ -101,12 +100,6 @@ object MemOp_TypeEnum extends ChiselEnum{
       MemOp_2BU,
       MemOp_2BS,
       MemOp_4BU
-      = Value
-}
-
-object RegWr_TypeEnum extends ChiselEnum{
-  val RegWr_No,
-      RegWr_Yes
       = Value
 }
 
@@ -138,18 +131,6 @@ object ALUctr_TypeEnum extends ChiselEnum{
       ALUctr_XOR     ,    //异或
       ALUctr_OR      ,    //或
       ALUctr_AND          //与
-      = Value
-}
-
-object MemtoReg_TypeEnum extends ChiselEnum{
-  val MemtoReg_No,
-      MemtoReg_Yes
-      = Value
-}
-
-object MemWr_TypeEnum extends ChiselEnum{
-  val MemWr_No,
-      MemWr_Yes
       = Value
 }
 

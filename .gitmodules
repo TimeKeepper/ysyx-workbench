@@ -19,6 +19,3 @@
 [submodule "chisel-tutorial/chisel-lab"]
 	path = chisel-tutorial/chisel-lab
 	url = git@github.com:schoeberl/chisel-lab.git
-[submodule "npc/src/ssrc/main/rvdecoderdb"]
-	path = npc/src/ssrc/main/rvdecoderdb
-	url = git@github.com:chipsalliance/rvdecoderdb.git

@@ -75,8 +75,7 @@ object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.
             case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
-                case _     => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
-            }
+            }.getOrElse(BitPat.dontCare(ALUAsrc_TypeEnum.getWidth))
         }
     }
 }

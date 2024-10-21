@@ -25,23 +25,31 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] wi
                 case "bimm12hi" | "bimm12lo"        => Get_BitPat(Imm_TypeEnum.Imm_B)
                 case "imm20"                        => Get_BitPat(Imm_TypeEnum.Imm_U)
                 case "jimm20"                       => Get_BitPat(Imm_TypeEnum.Imm_J)
-                case _                              => None
+                case _                              => BitPat.dontCare(Imm_TypeEnum.getWidth)
             })
-            .filterNot(_ == None)
+            .filterNot(_ == BitPat.dontCare(Imm_TypeEnum.getWidth))
             .headOption
             .getOrElse(BitPat.dontCare(Imm_TypeEnum.getWidth))
     }
 }
 
-// object Branch_Field extends DecodeField[rvInstructionPattern, Branch_TypeEnum.Type] {
-//     override def name: String = "branch"
-//     override def chiselType = Branch_TypeEnum()
-//     override def genTable(i: rvInstructionPattern): BitPat = {
-//         i.inst.name match {
-//             case "beq" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jeq)
-//         }
-//     }
-// }
+object Branch_Field extends DecodeField[rvInstructionPattern, Branch_TypeEnum.Type] with  DecodeAPI {
+    override def name: String = "branch"
+    override def chiselType = Branch_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "beq" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jeq)
+            case "bne" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jne)
+            case "blt" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jlt)
+            case "bge" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jge)
+            case "bltu"=> my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jlt)
+            case "bgeu"=> my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jge)
+            case "jal" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jmp)
+            case "jalr"=> my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jmpr)
+            case _    => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_None)
+        }
+    }
+}
 
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
@@ -86,7 +94,7 @@ class ysyx_23060198_IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Branch_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -110,7 +118,7 @@ class ysyx_23060198_IDU extends Module{
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    io.IDU_2_EXU.bits.Branch       <> RegEnable(decodeResult(BranchField),      comunication_succeed) 
+    io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(BranchField),      comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(decodeResult(MemtoRegField),    comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(decodeResult(MemWrField),       comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(decodeResult(MemOpField),       comunication_succeed) 

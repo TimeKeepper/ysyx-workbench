@@ -132,7 +132,7 @@ object MemtoReg_Field extends DecodeField[rvInstructionPattern, MemtoReg_TypeEnu
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
             case "lb" | "lh" | "lw" | "lbu" | "lhu" => Get_BitPat(MemtoReg_TypeEnum.MemtoReg_Yes)
-            case _ => BitPat(MemtoReg_TypeEnum.MemtoReg_No)
+            case _ => Get_BitPat(MemtoReg_TypeEnum.MemtoReg_No)
         }
     }
 }

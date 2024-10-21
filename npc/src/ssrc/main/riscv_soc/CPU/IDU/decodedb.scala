@@ -43,7 +43,6 @@ trait DecodeAPI {
 
 object my_fooldecodedb {
     val allFields = Seq(
-        RegWrFiled,
         MemtoRegField,
         MemWrField,
     )

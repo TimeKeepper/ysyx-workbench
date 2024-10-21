@@ -150,7 +150,6 @@ class ysyx_23060198_IDU extends Module{
     val rv32iInstList = instTable
         .filter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
         .filter(instr => !rv32iExceptInstructions.contains(instr.name))
-        .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
     val rvzicsrInstList = instTable
@@ -159,6 +158,7 @@ class ysyx_23060198_IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val instList = rv32iInstList ++ rvzicsrInstList
+    println(instList)
     val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 

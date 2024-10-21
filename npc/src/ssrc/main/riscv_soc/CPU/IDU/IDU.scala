@@ -41,6 +41,9 @@ class ysyx_23060198_IDU extends Module{
         val IDU_2_EXU     = Decoupled(Output(new BUS_IDU_2_EXU))
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
+    def getType[T: TypeTag](obj: T) = typeOf[T]
+
+    println(getType(Imm_TypeEnum.Imm_I))
 
     val state = RegInit(bus_state.s_wait_valid)
 

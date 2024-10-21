@@ -18,21 +18,18 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        val immType_test  = i.inst.args
+        i.inst.args
             .map(_.name match{
-                case "imm12" | "shamtw" | "csr"     => Imm_TypeEnum.Imm_I.litValue.U((Imm_TypeEnum.getWidth).W)
-                case "imm12hi" | "imm12lo"          => Imm_TypeEnum.Imm_S.litValue.U((Imm_TypeEnum.getWidth).W)
-                case "bimm12hi" | "bimm12lo"        => Imm_TypeEnum.Imm_B.litValue.U((Imm_TypeEnum.getWidth).W)
-                case "imm20"                        => Imm_TypeEnum.Imm_U.litValue.U((Imm_TypeEnum.getWidth).W)
-                case "jimm20"                       => Imm_TypeEnum.Imm_J.litValue.U((Imm_TypeEnum.getWidth).W)
-                case _                              => None
+                case "imm12" | "shamtw" | "csr"     => BitPat(Imm_TypeEnum.Imm_I.litValue.U((Imm_TypeEnum.getWidth).W))
+                case "imm12hi" | "imm12lo"          => BitPat(Imm_TypeEnum.Imm_S.litValue.U((Imm_TypeEnum.getWidth).W))
+                case "bimm12hi" | "bimm12lo"        => BitPat(Imm_TypeEnum.Imm_B.litValue.U((Imm_TypeEnum.getWidth).W))
+                case "imm20"                        => BitPat(Imm_TypeEnum.Imm_U.litValue.U((Imm_TypeEnum.getWidth).W))
+                case "jimm20"                       => BitPat(Imm_TypeEnum.Imm_J.litValue.U((Imm_TypeEnum.getWidth).W))
+                case _                              => BitPat.dontCare(Imm_TypeEnum.getWidth)
             })
-            .filterNot(_ == None)
+            .filterNot(_ == BitPat.dontCare(Imm_TypeEnum.getWidth))
             .headOption
-            .getOrElse(None)
-
-        if(immType_test == None) BitPat.dontCare(Imm_TypeEnum.getWidth) 
-        else BitPat(immType_test)
+            .getOrElse(BitPat.dontCare(Imm_TypeEnum.getWidth))
     }
 }
 

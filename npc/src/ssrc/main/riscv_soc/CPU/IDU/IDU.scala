@@ -75,7 +75,7 @@ object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.
     override def name: String = "ALUAsrc"
     override def chiselType = ALUAsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.args.toString.collectFirst {
+        i.inst.args.name.collectFirst {
             case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_rs1)
         }.getOrElse(i.inst.name match {
             case "auipc" | "jal" | "jalr" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)

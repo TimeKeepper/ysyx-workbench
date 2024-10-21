@@ -85,7 +85,7 @@ object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.
             case    "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "srl" | "sra" | "or"  | "and" |
                     "addi" | "slti" | "sltiu" | "xori" | "ori" | "andi" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
             case    "beq" | "bne" | "blt" | "bge" | "bltu" | "bgeu"     => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
-            case    "jdl" | "jalr" | "auipc"                            => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
+            case    "jal" | "jalr" | "auipc"                            => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
             case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
             case    _                                                   => BitPat.dontCare(ALUAsrc_TypeEnum.getWidth)
         }

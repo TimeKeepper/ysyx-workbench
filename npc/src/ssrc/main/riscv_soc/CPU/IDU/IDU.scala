@@ -145,21 +145,28 @@ class ysyx_23060198_IDU extends Module{
 
     val rv32iExceptInstructions = 
         Set("sbreak", "scall", "pause", "fence.tso", "fence", "slli_rv32", "srli_rv32", "srai_rv32")
-    val rv32iTargetSets = Set("rv_i", "rv32_i")
+    val rviTargetSets = Set("rv_i")
+    val rv32iTargetSets = Set("rv32_i")
     val rvzicsrTargetSets = Set("rv_zicsr")
-    val rv32iInstList = instTable
-        .filter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
+
+    val rviInstList = instTable
+        .filter(instr => rviTargetSets.contains(instr.instructionSet.name))
         .filter(instr => !rv32iExceptInstructions.contains(instr.name))
         .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
+    val rv32iInstList = instTable
+        .filter(instr => rv32iTargetSets.contains(instr.instructionSet.name))
+        .filter(instr => !rv32iExceptInstructions.contains(instr.name))
+        .map(rvInstructionPattern(_))
     val rvzicsrInstList = instTable
         .filter(instr => rvzicsrTargetSets.contains(instr.instructionSet.name))
-        .filter((_.pseudoFrom.isEmpty) | (_.pseudoFrom.get.name == "rv64_i"))
+        .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
-    val instList = rv32iInstList ++ rvzicsrInstList
+    val instList = rviInstList ++ rv32iInstList ++ rvzicsrInstList
     print(instList)
+
     val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, ALUctr_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 

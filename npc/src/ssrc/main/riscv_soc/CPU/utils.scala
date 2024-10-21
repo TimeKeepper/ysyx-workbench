@@ -103,6 +103,12 @@ object MemOp_TypeEnum extends ChiselEnum{
       = Value
 }
 
+object RegWr_TypeEnum extends ChiselEnum{
+  val RegWr_No,
+      RegWr_Yes
+      = Value
+}
+
 object ALUAsrc_TypeEnum extends ChiselEnum{
   val ALUAsrc_RS1, //寄存器资源1
       ALUAsrc_PC , //PC寄存器
@@ -131,6 +137,18 @@ object ALUctr_TypeEnum extends ChiselEnum{
       ALUctr_XOR     ,    //异或
       ALUctr_OR      ,    //或
       ALUctr_AND          //与
+      = Value
+}
+
+object MemtoReg_TypeEnum extends ChiselEnum{
+  val MemtoReg_No,
+      MemtoReg_Yes
+      = Value
+}
+
+object MemWr_TypeEnum extends ChiselEnum{
+  val MemWr_No,
+      MemWr_Yes
       = Value
 }
 

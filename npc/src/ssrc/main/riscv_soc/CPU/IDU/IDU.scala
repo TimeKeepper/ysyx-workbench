@@ -35,18 +35,18 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
         if(immType_test == None) BitPat.dontCare(Imm_TypeEnum.getWidth) 
         else BitPat(immType_test.litValue.U((Imm_TypeEnum.getWidth).W))
 
-        val immType = i.inst.args
-            .map(_.name match{
-                case "imm12" | "shamtw" | "csr"     => Imm_TypeEnum.Imm_I
-                case "imm12hi" | "imm12lo"          => Imm_TypeEnum.Imm_S
-                case "bimm12hi" | "bimm12lo"        => Imm_TypeEnum.Imm_B
-                case "imm20"                        => Imm_TypeEnum.Imm_U
-                case "jimm20"                       => Imm_TypeEnum.Imm_J
-                case _                              => Imm_TypeEnum.Imm_None
-            })
-            .filterNot(_ == Imm_TypeEnum.Imm_None)
-            .headOption
-            .getOrElse(Imm_TypeEnum.Imm_None)
+        // val immType = i.inst.args
+        //     .map(_.name match{
+        //         case "imm12" | "shamtw" | "csr"     => Imm_TypeEnum.Imm_I
+        //         case "imm12hi" | "imm12lo"          => Imm_TypeEnum.Imm_S
+        //         case "bimm12hi" | "bimm12lo"        => Imm_TypeEnum.Imm_B
+        //         case "imm20"                        => Imm_TypeEnum.Imm_U
+        //         case "jimm20"                       => Imm_TypeEnum.Imm_J
+        //         case _                              => Imm_TypeEnum.Imm_None
+        //     })
+        //     .filterNot(_ == Imm_TypeEnum.Imm_None)
+        //     .headOption
+        //     .getOrElse(Imm_TypeEnum.Imm_None)
 
     }
 }

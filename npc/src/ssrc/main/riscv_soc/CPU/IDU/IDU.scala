@@ -38,15 +38,15 @@ object Branch_Field extends DecodeField[rvInstructionPattern, Branch_TypeEnum.Ty
     override def chiselType = Branch_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "beq" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jeq)
-            case "bne" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jne)
-            case "blt" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jlt)
-            case "bge" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jge)
-            case "bltu"=> my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jlt)
-            case "bgeu"=> my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jge)
-            case "jal" => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jmp)
-            case "jalr"=> my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_Jmpr)
-            case _    => my_fooldecodedb.Get_BitPat(Branch_TypeEnum.Bran_None)
+            case "beq" => Get_BitPat(Branch_TypeEnum.Bran_Jeq)
+            case "bne" => Get_BitPat(Branch_TypeEnum.Bran_Jne)
+            case "blt" => Get_BitPat(Branch_TypeEnum.Bran_Jlt)
+            case "bge" => Get_BitPat(Branch_TypeEnum.Bran_Jge)
+            case "bltu"=> Get_BitPat(Branch_TypeEnum.Bran_Jlt)
+            case "bgeu"=> Get_BitPat(Branch_TypeEnum.Bran_Jge)
+            case "jal" => Get_BitPat(Branch_TypeEnum.Bran_Jmp)
+            case "jalr"=> Get_BitPat(Branch_TypeEnum.Bran_Jmpr)
+            case _     => Get_BitPat(Branch_TypeEnum.Bran_None)
         }
     }
 }

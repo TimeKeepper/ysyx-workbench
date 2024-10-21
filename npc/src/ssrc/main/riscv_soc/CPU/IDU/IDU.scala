@@ -24,8 +24,7 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] wi
             case "bimm12hi" | "bimm12lo"        => Get_BitPat(Imm_TypeEnum.Imm_B)
             case "imm20"                        => Get_BitPat(Imm_TypeEnum.Imm_U)
             case "jimm20"                       => Get_BitPat(Imm_TypeEnum.Imm_J)
-            case _                              => BitPat.dontCare(Imm_TypeEnum.getWidth)
-        }
+        }.getOrElse(BitPat.dontCare(Imm_TypeEnum.getWidth))
     }
 }
 

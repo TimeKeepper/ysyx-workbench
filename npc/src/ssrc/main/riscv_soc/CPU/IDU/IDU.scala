@@ -190,9 +190,6 @@ class ysyx_23060198_IDU extends Module{
     io.IFU_2_IDU.ready := state === bus_state.s_wait_valid
     val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
 
-    val decodeTable = new DecodeTable(my_fooldecodedb.possiblePattern, my_fooldecodedb.allFields)
-    val decodeResult = decodeTable.decode(io.IFU_2_IDU.bits.data)
-
     val instTable = rvdecoderdb.fromFile.instructions(os.pwd / os.up / os.up / "src" / "ssrc" / "main" /  "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
     val rv32iExceptInstructions = 

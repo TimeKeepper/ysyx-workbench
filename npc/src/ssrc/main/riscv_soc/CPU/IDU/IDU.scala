@@ -29,7 +29,6 @@ object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] {
             })
             .filterNot(_ == None)
             .headOption
-            .getOrElse(Imm_TypeEnum.Imm_None)
 
         print(immType_test)
 

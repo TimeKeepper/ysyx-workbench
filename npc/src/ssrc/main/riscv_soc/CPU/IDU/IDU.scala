@@ -14,6 +14,12 @@ case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends Decod
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
 }
 
+trait DecodeAPI {
+    def Get_BitPat[T <: Data](Enum: T): BitPat = {
+        BitPat(Enum.litValue.U(Enum.getWidth.W))
+    }
+}
+
 object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] with  DecodeAPI{
     override def name: String = "imm"
     override def chiselType = Imm_TypeEnum()

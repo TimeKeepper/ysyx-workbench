@@ -120,7 +120,10 @@ class ysyx_23060198_ALU extends Module {
     Bran_TypeEnum.Bran_Jeq -> Mux(src_A === src_B, true.B, false.B),
     Bran_TypeEnum.Bran_Jne -> Mux(src_A =/= src_B, true.B, false.B),
     Bran_TypeEnum.Bran_Jlt -> Mux(Less, true.B, false.B),
-    Bran_TypeEnum.Bran_Jge -> Mux(!Less, true.B, false.B)
+    Bran_TypeEnum.Bran_Jge -> Mux(!Less, true.B, false.B),
+    Bran_TypeEnum.Bran_Jmp -> true.B,
+    Bran_TypeEnum.Bran_Jmpr -> true.B,
+    Bran_TypeEnum.Bran_jcsr -> true.B
   ))
 
   val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(

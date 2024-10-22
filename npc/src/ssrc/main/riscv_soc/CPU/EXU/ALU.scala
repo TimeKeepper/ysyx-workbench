@@ -133,9 +133,9 @@ class ysyx_23060198_ALU extends Module {
 
   val Ano = Mux(is_jmp, Jmp_Pc, io.IDU_2_EXU.bits.CSR_rdata)
   
+  io.out.bits.is_jmp        := is_jmp
   io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
   io.out.bits.Ano           := RegEnable(Ano, comunication_succeed)
-  io.out.bits.is_jmp        := RegEnable(is_jmp, comunication_succeed)
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

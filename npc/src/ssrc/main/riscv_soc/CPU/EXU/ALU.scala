@@ -99,8 +99,8 @@ class ysyx_23060198_ALU extends Module {
 
   val Result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(
     Seq(
-      ALUctr_TypeEnum.ALUctr_ADD -> (src_A + src_B),
-      ALUctr_TypeEnum.ALUctr_SUB -> (src_A - src_B),
+      ALUctr_TypeEnum.ALUctr_ADD -> adder,
+      ALUctr_TypeEnum.ALUctr_SUB -> adder,
       ALUctr_TypeEnum.ALUctr_Less_U -> Cat(0.U(31.W), Less),
       ALUctr_TypeEnum.ALUctr_Less_S -> Cat(0.U(31.W), Less),
       ALUctr_TypeEnum.ALUctr_A -> src_A,

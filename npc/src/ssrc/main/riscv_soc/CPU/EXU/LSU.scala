@@ -169,7 +169,7 @@ class ysyx_23060198_LSU extends Module{
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
-        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.EXU_B
+        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock

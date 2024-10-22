@@ -116,7 +116,7 @@ class ysyx_23060198_ALU extends Module {
     )
   )
   
-  val is_jmp := MuxLookup(io.IDU_2_EXU.bits.Branch, false.B)(Seq(
+  val is_jmp = MuxLookup(io.IDU_2_EXU.bits.Branch, false.B)(Seq(
     Bran_TypeEnum.Bran_Jeq -> Mux(src_A === src_B, true.B, false.B),
     Bran_TypeEnum.Bran_Jne -> Mux(src_A =/= src_B, true.B, false.B),
     Bran_TypeEnum.Bran_Jlt -> Mux(Less, true.B, false.B),

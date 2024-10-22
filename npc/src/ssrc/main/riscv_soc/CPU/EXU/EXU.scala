@@ -66,6 +66,6 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC, communication_succeed)
     io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata, communication_succeed)
     io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
-    io.EXU_2_WBU.bits.Next_PC       := alu.io.out.bits.Next_PC
+    io.EXU_2_WBU.bits.Next_PC       := RegEnable(Next_PC, communication_succeed)
     io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
 }

@@ -128,7 +128,7 @@ class ysyx_23060198_ALU extends Module {
       Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
   ))
 
-  val Ano = Mux(io.out.is_jmp, Jmp_Pc, io.IDU_2_EXU.bits.CSR_rdata)
+  val Ano = Mux(is_jmp, Jmp_Pc, io.IDU_2_EXU.bits.CSR_rdata)
   
   io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
   io.out.bits.Ano           := RegEnable(Ano, comunication_succeed)

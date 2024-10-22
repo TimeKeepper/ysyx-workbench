@@ -40,9 +40,9 @@ class ysyx_23060198_WBU extends Module {
         CSR_TypeEnum.CSR_R1W2 -> "h341".U
     ))
 
-    val CSR_wdataa = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
-        CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
-    ))
+    // val CSR_wdataa = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
+    //     CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
+    // ))
 
     io.WBU_2_REG.Next_Pc       := io.EXU_2_WBU.bits.Next_PC
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr
@@ -50,6 +50,6 @@ class ysyx_23060198_WBU extends Module {
     io.WBU_2_REG.CSR_ctr       <> io.EXU_2_WBU.bits.csr_ctr
     io.WBU_2_REG.CSR_waddra    := CSR_waddra
     io.WBU_2_REG.CSR_waddrb    := "h342".U
-    io.WBU_2_REG.CSR_wdataa    := CSR_wdataa
+    io.WBU_2_REG.CSR_wdataa    := io.EXU_2_WBU.bits.Result
     io.WBU_2_REG.CSR_wdatab    := 11.U
 }

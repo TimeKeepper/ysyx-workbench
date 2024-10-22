@@ -51,7 +51,6 @@ class BUS_REG_2_EXU extends Bundle{
 }
 
 class BUS_EXU_2_WBU extends Bundle{
-    val Branch   = Bran_TypeEnum()
     val MemtoReg = Bool()
     val csr_ctr  = CSR_TypeEnum()
     val CSR_waddr= UInt(12.W)

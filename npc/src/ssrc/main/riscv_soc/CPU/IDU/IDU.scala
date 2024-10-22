@@ -87,8 +87,8 @@ object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.
     override def chiselType = ALUAsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case    "jal" | "jalr" | "auipc" | "ecall"        => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
-            case    "csrrw" | "csrrs"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
+            case    "jal" | "jalr" | "auipc"                            => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
+            case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
             }.getOrElse(BitPat.dontCare(ALUAsrc_TypeEnum.getWidth))
@@ -127,7 +127,6 @@ object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Ty
             case "srl" | "srli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRL)
             case "sra" | "srai" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRA)
             case "csrrw" | "lui" => Get_BitPat(ALUctr_TypeEnum.ALUctr_B)
-            case "ecall" => Get_BitPat(ALUctr_TypeEnum.ALUctr_A)
             case _ => BitPat.dontCare(ALUctr_TypeEnum.getWidth)
         }
     }

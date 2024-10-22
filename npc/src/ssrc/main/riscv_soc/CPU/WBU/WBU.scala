@@ -30,22 +30,36 @@ class ysyx_23060198_WBU extends Module {
     }.otherwise{
         io.WBU_2_REG.inst_valid := false.B
     }
+    
+    val Default_Next_Pc = io.EXU_2_WBU.bits.PC + 4.U
+
+    val Next_Pc = MuxLookup(io.EXU_2_WBU.bits.Branch, io.EXU_2_WBU.bits.Jmp_Pc)(Seq(
+        Bran_TypeEnum.Bran_Jeq -> Mux(io.EXU_2_WBU.bits.Result === 0.U, io.EXU_2_WBU.bits.Jmp_Pc, Default_Next_Pc),
+        Bran_TypeEnum.Bran_Jne -> Mux(io.EXU_2_WBU.bits.Result === 0.U, Default_Next_Pc, io.EXU_2_WBU.bits.Jmp_Pc),
+        Bran_TypeEnum.Bran_Jlt -> Mux(io.EXU_2_WBU.bits.Result(0), io.EXU_2_WBU.bits.Jmp_Pc, Default_Next_Pc),
+        Bran_TypeEnum.Bran_Jge -> Mux(io.EXU_2_WBU.bits.Result(0), Default_Next_Pc, io.EXU_2_WBU.bits.Jmp_Pc),
+        Bran_TypeEnum.Bran_NJmp -> Default_Next_Pc,
+    ))
 
     val GPR_wdata = MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
         Y  -> io.EXU_2_WBU.bits.Mem_rdata,
-        N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_TypeEnum.CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR),
+        N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_TypeEnum.CSR_N, io.EXU_2_WBU.bits.Result, io.EXU_2_WBU.bits.CSR_rdata),
     ))
 
     val CSR_waddra = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.CSR_waddr)(Seq(
         CSR_TypeEnum.CSR_R1W2 -> "h341".U
     ))
 
-    io.WBU_2_REG.Next_Pc       := io.EXU_2_WBU.bits.Next_PC
+    val CSR_wdataa = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
+        CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
+    ))
+
+    io.WBU_2_REG.Next_Pc       := Next_Pc
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr
     io.WBU_2_REG.GPR_wdata     := GPR_wdata
     io.WBU_2_REG.CSR_ctr       <> io.EXU_2_WBU.bits.csr_ctr
     io.WBU_2_REG.CSR_waddra    := CSR_waddra
     io.WBU_2_REG.CSR_waddrb    := "h342".U
-    io.WBU_2_REG.CSR_wdataa    := io.EXU_2_WBU.bits.Result
+    io.WBU_2_REG.CSR_wdataa    := CSR_wdataa
     io.WBU_2_REG.CSR_wdatab    := 11.U
 }

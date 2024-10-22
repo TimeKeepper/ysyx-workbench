@@ -36,7 +36,6 @@ class ysyx_23060198_ALU extends Module {
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
-      val is_jmp = Output(Bool())
     })
   })
 
@@ -115,14 +114,6 @@ class ysyx_23060198_ALU extends Module {
     )
   )
   
-  val is_jmp = MuxLookup(io.IDU_2_EXU.bits.Branch, false.B)(Seq(
-    Bran_TypeEnum.Bran_Jeq -> Mux(src_A === src_B, true.B, false.B),
-    Bran_TypeEnum.Bran_Jne -> Mux(src_A =/= src_B, true.B, false.B),
-    Bran_TypeEnum.Bran_Jlt -> Mux(Less, true.B, false.B),
-    Bran_TypeEnum.Bran_Jge -> Mux(!Less, true.B, false.B)
-  ))
-  
-  io.out.bits.is_jmp        := is_jmp
   io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
 
   if(Config.DPIC_on){

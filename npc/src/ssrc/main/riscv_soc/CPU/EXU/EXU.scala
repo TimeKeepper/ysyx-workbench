@@ -54,7 +54,7 @@ class ysyx_23060198_EXU extends Module {
         Bran_TypeEnum.Bran_Jne -> Mux(is_jmp, default_NextPC, bran_NextPC),
         Bran_TypeEnum.Bran_Jlt -> Mux(is_jmp, bran_NextPC, default_NextPC),
         Bran_TypeEnum.Bran_Jge -> Mux(is_jmp, default_NextPC, bran_NextPC),
-        Bran_TypeEnum.Bran_Jmp -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
+        Bran_TypeEnum.Bran_Jmp -> io.IDU_2_EXU.bits.Imm,
         Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
         Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
     ))

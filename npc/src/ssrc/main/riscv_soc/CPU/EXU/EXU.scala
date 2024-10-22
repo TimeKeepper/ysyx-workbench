@@ -46,6 +46,18 @@ class ysyx_23060198_EXU extends Module {
     lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
     lsu.io.AXI <> io.AXI
 
+    val default_NextPC = io.IDU_2_EXU.bits.PC + 4.U
+    val bran_NextPC = io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm
+
+    val Next_PC = MuxLookup(io.IDU_2_EXU.bits.Branch, default_NextPC)(Seq(
+        Bran_TypeEnum.Bran_Jeq -> Mux(is_jmp, bran_NextPC, default_NextPC),
+        Bran_TypeEnum.Bran_Jne -> Mux(is_jmp, default_NextPC, bran_NextPC),
+        Bran_TypeEnum.Bran_Jlt -> Mux(is_jmp, bran_NextPC, default_NextPC),
+        Bran_TypeEnum.Bran_Jge -> Mux(is_jmp, default_NextPC, bran_NextPC),
+        Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
+        Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
+    ))
+
     io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch, communication_succeed)
     io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.MemtoReg, communication_succeed)
     io.EXU_2_WBU.bits.csr_ctr       := RegEnable(io.IDU_2_EXU.bits.csr_ctr, communication_succeed)
@@ -53,8 +65,7 @@ class ysyx_23060198_EXU extends Module {
     io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr, communication_succeed)
     io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC, communication_succeed)
     io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata, communication_succeed)
-    io.EXU_2_WBU.bits.is_jmp        := RegEnable(is_jmp, communication_succeed)
     io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
-    io.EXU_2_WBU.bits.Ano           := alu.io.out.bits.Ano
+    io.EXU_2_WBU.bits.Next_PC       := alu.io.out.bits.Next_PC
     io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
 }

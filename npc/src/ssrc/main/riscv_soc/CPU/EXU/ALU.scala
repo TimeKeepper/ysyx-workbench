@@ -36,7 +36,6 @@ class ysyx_23060198_ALU extends Module {
 
     val out = Decoupled(new Bundle{
       val Result = Output(UInt(32.W)) 
-      val Ano = Output(UInt(32.W))
       val is_jmp = Output(Bool())
     })
   })
@@ -120,22 +119,11 @@ class ysyx_23060198_ALU extends Module {
     Bran_TypeEnum.Bran_Jeq -> Mux(src_A === src_B, true.B, false.B),
     Bran_TypeEnum.Bran_Jne -> Mux(src_A =/= src_B, true.B, false.B),
     Bran_TypeEnum.Bran_Jlt -> Mux(Less, true.B, false.B),
-    Bran_TypeEnum.Bran_Jge -> Mux(!Less, true.B, false.B),
-    Bran_TypeEnum.Bran_Jmp -> true.B,
-    Bran_TypeEnum.Bran_Jmpr -> true.B,
-    Bran_TypeEnum.Bran_Jcsr -> true.B
+    Bran_TypeEnum.Bran_Jge -> Mux(!Less, true.B, false.B)
   ))
-
-  val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
-      Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
-      Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
-  ))
-
-  val Ano = Mux(is_jmp, Jmp_Pc, io.IDU_2_EXU.bits.CSR_rdata)
   
   io.out.bits.is_jmp        := is_jmp
   io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
-  io.out.bits.Ano           := RegEnable(Ano, comunication_succeed)
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

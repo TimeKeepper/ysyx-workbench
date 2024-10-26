@@ -148,10 +148,10 @@ class ysyx_23060198_LSU extends Module{
         EXUctr_TypeEnum.EXUctr_ST_4BU -> 2.U,
     ))
     io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
-        EXUctr_TypeEnum.EXUctr_LD_1BS -> 0.U,
         EXUctr_TypeEnum.EXUctr_LD_1BU -> 0.U,
-        EXUctr_TypeEnum.EXUctr_LD_2BS -> 1.U,
+        EXUctr_TypeEnum.EXUctr_LD_1BS -> 0.U,
         EXUctr_TypeEnum.EXUctr_LD_2BU -> 1.U,
+        EXUctr_TypeEnum.EXUctr_LD_2BS -> 1.U,
         EXUctr_TypeEnum.EXUctr_LD_4BU -> 2.U,
     ))
 
@@ -161,10 +161,10 @@ class ysyx_23060198_LSU extends Module{
     val mem_rd = Wire(Bits(32.W))
 
     mem_rd := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
-        EXUctr_TypeEnum.EXUctr_LD_1BS -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
-        EXUctr_TypeEnum.EXUctr_LD_1BU -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
-        EXUctr_TypeEnum.EXUctr_LD_2BS -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
-        EXUctr_TypeEnum.EXUctr_LD_2BU -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
+        EXUctr_TypeEnum.EXUctr_LD_1BU -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
+        EXUctr_TypeEnum.EXUctr_LD_1BS -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
+        EXUctr_TypeEnum.EXUctr_LD_2BU -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
+        EXUctr_TypeEnum.EXUctr_LD_2BS -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
         EXUctr_TypeEnum.EXUctr_LD_4BU -> AXI_rdata(31,0).asUInt,
     ))
 

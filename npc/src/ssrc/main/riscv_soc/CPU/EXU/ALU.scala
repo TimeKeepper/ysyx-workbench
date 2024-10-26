@@ -55,7 +55,7 @@ class ysyx_23060198_ALU extends Module {
   // ALU operation
   val Sub_Add = Wire(Bool())
 
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_TypeEnum.ALUctr_ADD) {
+  when(io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_ADD) {
     Sub_Add := N
   }.otherwise {
     Sub_Add := Y
@@ -70,34 +70,34 @@ class ysyx_23060198_ALU extends Module {
 
   // ALU BarrelShifter
 
-  val shifter_result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(Seq(
-    ALUctr_TypeEnum.ALUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
-    ALUctr_TypeEnum.ALUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
-    ALUctr_TypeEnum.ALUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
+  val shifter_result = MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
+    EXUctr_TypeEnum.EXUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
+    EXUctr_TypeEnum.EXUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
+    EXUctr_TypeEnum.EXUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
   ))
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_TypeEnum.ALUctr_Less_U){
+  when(io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_Less_U){
     Less := src_A.asUInt < src_B.asUInt
   }.otherwise{
     Less := src_A.asSInt < src_B.asSInt
   }
 
-  val Result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(
+  val Result = MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(
     Seq(
-      ALUctr_TypeEnum.ALUctr_ADD -> adder,
-      ALUctr_TypeEnum.ALUctr_SUB -> adder,
-      ALUctr_TypeEnum.ALUctr_Less_U -> Cat(0.U(31.W), Less),
-      ALUctr_TypeEnum.ALUctr_Less_S -> Cat(0.U(31.W), Less),
-      ALUctr_TypeEnum.ALUctr_A -> src_A,
-      ALUctr_TypeEnum.ALUctr_B -> src_B,
-      ALUctr_TypeEnum.ALUctr_SLL -> shifter_result,
-      ALUctr_TypeEnum.ALUctr_SRL -> shifter_result,
-      ALUctr_TypeEnum.ALUctr_SRA -> shifter_result,
-      ALUctr_TypeEnum.ALUctr_XOR -> (src_A ^ src_B),
-      ALUctr_TypeEnum.ALUctr_OR -> (src_A | src_B),
-      ALUctr_TypeEnum.ALUctr_AND -> (src_A & src_B)
+      EXUctr_TypeEnum.EXUctr_ADD -> adder,
+      EXUctr_TypeEnum.EXUctr_SUB -> adder,
+      EXUctr_TypeEnum.EXUctr_Less_U -> Cat(0.U(31.W), Less),
+      EXUctr_TypeEnum.EXUctr_Less_S -> Cat(0.U(31.W), Less),
+      EXUctr_TypeEnum.EXUctr_A -> src_A,
+      EXUctr_TypeEnum.EXUctr_B -> src_B,
+      EXUctr_TypeEnum.EXUctr_SLL -> shifter_result,
+      EXUctr_TypeEnum.EXUctr_SRL -> shifter_result,
+      EXUctr_TypeEnum.EXUctr_SRA -> shifter_result,
+      EXUctr_TypeEnum.EXUctr_XOR -> (src_A ^ src_B),
+      EXUctr_TypeEnum.EXUctr_OR -> (src_A | src_B),
+      EXUctr_TypeEnum.EXUctr_AND -> (src_A & src_B)
     )
   )
   

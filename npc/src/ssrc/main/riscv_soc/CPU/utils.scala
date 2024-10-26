@@ -124,19 +124,19 @@ object ALUBsrc_TypeEnum extends ChiselEnum{
       = Value
 }
 
-object ALUctr_TypeEnum extends ChiselEnum{
-  val ALUctr_ADD     ,    //加法
-      ALUctr_SUB     ,    //减法
-      ALUctr_Less_U  ,    //小于无符号
-      ALUctr_Less_S  ,    //小于
-      ALUctr_A       ,    //输出A
-      ALUctr_B       ,    //输出B
-      ALUctr_SLL     ,    //逻辑左移
-      ALUctr_SRL     ,    //逻辑右移
-      ALUctr_SRA     ,    //算术右移
-      ALUctr_XOR     ,    //异或
-      ALUctr_OR      ,    //或
-      ALUctr_AND          //与
+object EXUctr_TypeEnum extends ChiselEnum{
+  val EXUctr_ADD     ,    //加法
+      EXUctr_SUB     ,    //减法
+      EXUctr_Less_U  ,    //小于无符号
+      EXUctr_Less_S  ,    //小于
+      EXUctr_A       ,    //输出A
+      EXUctr_B       ,    //输出B
+      EXUctr_SLL     ,    //逻辑左移
+      EXUctr_SRL     ,    //逻辑右移
+      EXUctr_SRA     ,    //算术右移
+      EXUctr_XOR     ,    //异或
+      EXUctr_OR      ,    //或
+      EXUctr_AND          //与
       = Value
 }
 

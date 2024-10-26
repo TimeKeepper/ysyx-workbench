@@ -111,23 +111,23 @@ object ALUBsrc_Field extends DecodeField[rvInstructionPattern, ALUBsrc_TypeEnum.
     }
 }
 
-object ALUctr_Field extends DecodeField[rvInstructionPattern, ALUctr_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "ALUctr"
-    override def chiselType = ALUctr_TypeEnum()
+object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "EXUctr"
+    override def chiselType = EXUctr_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "add" | "addi" | "auipc" | "jal" | "jalr" => Get_BitPat(ALUctr_TypeEnum.ALUctr_ADD)
-            case "sub" | "beq" | "bne" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SUB)
-            case "xor" | "xori" => Get_BitPat(ALUctr_TypeEnum.ALUctr_XOR)
-            case "or" | "ori" | "csrrs" => Get_BitPat(ALUctr_TypeEnum.ALUctr_OR)
-            case "and" | "andi" => Get_BitPat(ALUctr_TypeEnum.ALUctr_AND)
-            case "slt" | "slti" | "blt" | "bge" => Get_BitPat(ALUctr_TypeEnum.ALUctr_Less_S)
-            case "sltu" | "sltui" | "bltu" | "bgeu" => Get_BitPat(ALUctr_TypeEnum.ALUctr_Less_U)
-            case "sll" | "slli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SLL)
-            case "srl" | "srli" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRL)
-            case "sra" | "srai" => Get_BitPat(ALUctr_TypeEnum.ALUctr_SRA)
-            case "csrrw" | "lui" => Get_BitPat(ALUctr_TypeEnum.ALUctr_B)
-            case _ => BitPat.dontCare(ALUctr_TypeEnum.getWidth)
+            case "add" | "addi" | "auipc" | "jal" | "jalr" => Get_BitPat(EXUctr_TypeEnum.EXUctr_ADD)
+            case "sub" | "beq" | "bne" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SUB)
+            case "xor" | "xori" => Get_BitPat(EXUctr_TypeEnum.EXUctr_XOR)
+            case "or" | "ori" | "csrrs" => Get_BitPat(EXUctr_TypeEnum.EXUctr_OR)
+            case "and" | "andi" => Get_BitPat(EXUctr_TypeEnum.EXUctr_AND)
+            case "slt" | "slti" | "blt" | "bge" => Get_BitPat(EXUctr_TypeEnum.EXUctr_Less_S)
+            case "sltu" | "sltui" | "bltu" | "bgeu" => Get_BitPat(EXUctr_TypeEnum.EXUctr_Less_U)
+            case "sll" | "slli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SLL)
+            case "srl" | "srli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRL)
+            case "sra" | "srai" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRA)
+            case "csrrw" | "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_B)
+            case _ => BitPat.dontCare(EXUctr_TypeEnum.getWidth)
         }
     }
 }
@@ -245,23 +245,23 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
     val EXU_A = MuxLookup(rvdecoderResult(ALUAsrc_Field), 0.U)(Seq(
-        ALUAsrc_TypeEnum.ALUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUAsrc_TypeEnum.ALUAsrc_PC  -> io.REG_2_IDU.PC,
-        ALUAsrc_TypeEnum.ALUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
+        EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.REG_2_IDU.PC,
+        EXUAsrc_TypeEnum.EXUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
     val EXU_B = MuxLookup(rvdecoderResult(ALUBsrc_Field), 0.U)(Seq(
-        ALUBsrc_TypeEnum.ALUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUBsrc_TypeEnum.ALUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
-        ALUBsrc_TypeEnum.ALUBsrc_IMM -> imm,
-        ALUBsrc_TypeEnum.ALUBsrc_4   -> 4.U,
+        EXUBsrc_TypeEnum.EXUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        EXUBsrc_TypeEnum.EXUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
+        EXUBsrc_TypeEnum.EXUBsrc_IMM -> imm,
+        EXUBsrc_TypeEnum.EXUBsrc_4   -> 4.U,
     ))
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.MemtoReg     <> RegEnable(rvdecoderResult(MemtoReg_Field),    comunication_succeed) 
     io.IDU_2_EXU.bits.MemWr        <> RegEnable(rvdecoderResult(MemWr_Field),       comunication_succeed) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       comunication_succeed) 
-    io.IDU_2_EXU.bits.ALUctr       <> RegEnable(rvdecoderResult(ALUctr_Field),      comunication_succeed) 
+    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.EXU_A        <> RegEnable(EXU_A,                 comunication_succeed) 
     io.IDU_2_EXU.bits.EXU_B        <> RegEnable(EXU_B,                 comunication_succeed) 
     io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     comunication_succeed) 

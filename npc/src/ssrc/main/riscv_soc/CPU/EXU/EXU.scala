@@ -20,8 +20,7 @@ class ysyx_23060198_EXU extends Module {
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)
 
-    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_S ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_U ||
+    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD ||
          io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST){
 
         alu.io.IDU_2_EXU.valid := false.B

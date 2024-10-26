@@ -109,8 +109,7 @@ object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Ty
             case "srl" | "srli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRL)
             case "sra" | "srai" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRA)
             case "csrrw" | "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_B)
-            case "lb" | "lh" | "lw"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_S)
-            case "lbu" | "lhu" => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_U)
+            case "lb" | "lh" | "lw" | "lbu" | "lhu"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD)
             case "sb" | "sh" | "sw"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_ST)
             case _ => BitPat.dontCare(EXUctr_TypeEnum.getWidth)
         }

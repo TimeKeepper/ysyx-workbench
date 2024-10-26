@@ -245,16 +245,16 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
     val EXU_A = MuxLookup(rvdecoderResult(ALUAsrc_Field), 0.U)(Seq(
-        ALUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUAsrc_TypeEnum.EXUAsrc_PC  -> io.REG_2_IDU.PC,
-        ALUAsrc_TypeEnum.EXUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
+        ALUAsrc_TypeEnum.ALUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        ALUAsrc_TypeEnum.ALUAsrc_PC  -> io.REG_2_IDU.PC,
+        ALUAsrc_TypeEnum.ALUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
     val EXU_B = MuxLookup(rvdecoderResult(ALUBsrc_Field), 0.U)(Seq(
-        ALUBsrc_TypeEnum.EXUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUBsrc_TypeEnum.EXUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
-        ALUBsrc_TypeEnum.EXUBsrc_IMM -> imm,
-        ALUBsrc_TypeEnum.EXUBsrc_4   -> 4.U,
+        ALUBsrc_TypeEnum.ALUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        ALUBsrc_TypeEnum.ALUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
+        ALUBsrc_TypeEnum.ALUBsrc_IMM -> imm,
+        ALUBsrc_TypeEnum.ALUBsrc_4   -> 4.U,
     ))
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 

@@ -78,7 +78,7 @@ class ysyx_23060198_ALU extends Module {
 
   // other ALU outputs
   val Less = Wire(Bool())
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_TypeEnum.ALUctr_Less_U){
+  when(io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_Less_U){
     Less := src_A.asUInt < src_B.asUInt
   }.otherwise{
     Less := src_A.asSInt < src_B.asSInt

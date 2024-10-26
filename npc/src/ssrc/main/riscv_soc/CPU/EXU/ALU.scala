@@ -55,7 +55,7 @@ class ysyx_23060198_ALU extends Module {
   // ALU operation
   val Sub_Add = Wire(Bool())
 
-  when(io.IDU_2_EXU.bits.EXUctr === ALUctr_TypeEnum.ALUctr_ADD) {
+  when(io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_ADD) {
     Sub_Add := N
   }.otherwise {
     Sub_Add := Y

@@ -5,6 +5,9 @@ object Elaborate extends App {
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
       "disallowLocalVariables",
       "disallowPackedArrays",
+      "automatic",
+      "disallowLocalVariables",
+      "disallowPackedArrays",
       "locationInfoStyle=wrapInAtSquareBracket"
     ).reduce(_ + "," + _)
   )

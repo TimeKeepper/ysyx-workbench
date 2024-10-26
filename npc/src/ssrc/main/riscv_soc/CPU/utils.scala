@@ -137,26 +137,9 @@ object EXUctr_TypeEnum extends ChiselEnum{
       EXUctr_XOR     ,    //异或
       EXUctr_OR      ,    //或
       EXUctr_AND     ,    //与
-      EXUctr_LD_1BU  ,    //1字节加载无符号
-      EXUctr_LD_1BS  ,    //1字节加载
-      EXUctr_LD_2BU  ,    //2字节加载无符号
-      EXUctr_LD_2BS  ,    //2字节加载
-      EXUctr_LD_4BU  ,    //4字节加载无符号
-      EXUctr_ST_1BS  ,    //1字节存储无符号
-      EXUctr_ST_2BS  ,    //2字节存储无符号
-      EXUctr_ST_4BU       //4字节存储无符号
-      = Value
-}
-
-object MemtoReg_TypeEnum extends ChiselEnum{
-  val MemtoReg_No,
-      MemtoReg_Yes
-      = Value
-}
-
-object MemWr_TypeEnum extends ChiselEnum{
-  val MemWr_No,
-      MemWr_Yes
+      EXUctr_LD_S  ,    //1字节加载无符号
+      EXUctr_LD_U  ,    //1字节加载无符号
+      EXYctr_ST
       = Value
 }
 

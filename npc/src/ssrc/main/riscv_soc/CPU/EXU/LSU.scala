@@ -142,19 +142,17 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.wdata.bits.strb   := "b1111".U
     }
     
-    io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_TypeEnum.MemOp_1BU -> 0.U,
-        MemOp_TypeEnum.MemOp_1BS -> 0.U,
-        MemOp_TypeEnum.MemOp_2BU -> 1.U,
-        MemOp_TypeEnum.MemOp_2BS -> 1.U,
-        MemOp_TypeEnum.MemOp_4BU -> 2.U,
+    io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
+        EXUctr_TypeEnum.EXUctr_ST_1BS -> 0.U,
+        EXUctr_TypeEnum.EXUctr_ST_2BS -> 1.U,
+        EXUctr_TypeEnum.EXUctr_ST_4BU -> 2.U,
     ))
-    io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
-        MemOp_TypeEnum.MemOp_1BU -> 0.U,
-        MemOp_TypeEnum.MemOp_1BS -> 0.U,
-        MemOp_TypeEnum.MemOp_2BU -> 1.U,
-        MemOp_TypeEnum.MemOp_2BS -> 1.U,
-        MemOp_TypeEnum.MemOp_4BU -> 2.U,
+    io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
+        EXUctr_TypeEnum.EXUctr_LD_1BS -> 0.U,
+        EXUctr_TypeEnum.EXUctr_LD_1BU -> 0.U,
+        EXUctr_TypeEnum.EXUctr_LD_2BS -> 1.U,
+        EXUctr_TypeEnum.EXUctr_LD_2BU -> 1.U,
+        EXUctr_TypeEnum.EXUctr_LD_4BU -> 2.U,
     ))
 
     val AXI_rdata = Wire(UInt(32.W))

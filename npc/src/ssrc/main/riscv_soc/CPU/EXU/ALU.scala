@@ -55,7 +55,7 @@ class ysyx_23060198_ALU extends Module {
   // ALU operation
   val Sub_Add = Wire(Bool())
 
-  when(io.IDU_2_EXU.bits.ALUctr === ALUctr_TypeEnum.ALUctr_ADD) {
+  when(io.IDU_2_EXU.bits.EXUctr === ALUctr_TypeEnum.ALUctr_ADD) {
     Sub_Add := N
   }.otherwise {
     Sub_Add := Y
@@ -70,10 +70,10 @@ class ysyx_23060198_ALU extends Module {
 
   // ALU BarrelShifter
 
-  val shifter_result = MuxLookup(io.IDU_2_EXU.bits.ALUctr, 0.U)(Seq(
-    ALUctr_TypeEnum.ALUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
-    ALUctr_TypeEnum.ALUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
-    ALUctr_TypeEnum.ALUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
+  val shifter_result = MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
+    EXUctr_TypeEnum.EXUctr_SLL -> (src_A << src_B(4, 0))(31, 0),
+    EXUctr_TypeEnum.EXUctr_SRL -> (src_A >> src_B(4, 0))(31, 0),
+    EXUctr_TypeEnum.EXUctr_SRA -> (src_A.asSInt >> src_B(4, 0))(31, 0)
   ))
 
   // other ALU outputs

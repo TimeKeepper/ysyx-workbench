@@ -122,9 +122,14 @@ object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type
     override def chiselType = MemOp_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "lb" | "lbu" | "sb"        => Get_BitPat(MemOp_TypeEnum.MemOp_1B)
-            case "lh" | "lhu" | "sh"        => Get_BitPat(MemOp_TypeEnum.MemOp_2B)
-            case "lw" | "sw"                => Get_BitPat(MemOp_TypeEnum.MemOp_4B)
+            case "lb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "lh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "lw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case "lbu"      => Get_BitPat(MemOp_TypeEnum.MemOp_1BU)
+            case "lhu"      => Get_BitPat(MemOp_TypeEnum.MemOp_2BU)
+            case "sb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "sh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "sw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
             case _          => BitPat.dontCare(MemOp_TypeEnum.getWidth)
         }
     }

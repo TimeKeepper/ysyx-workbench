@@ -142,9 +142,9 @@ object EXUctr_TypeEnum extends ChiselEnum{
       EXUctr_LD_2BU  ,    //2字节加载无符号
       EXUctr_LD_2BS  ,    //2字节加载
       EXUctr_LD_4BU  ,    //4字节加载无符号
-      EXUctr_SD_1BS  ,    //1字节存储无符号
-      EXUctr_SD_2BS  ,    //2字节存储无符号
-      EXUctr_SD_4BU       //4字节存储无符号
+      EXUctr_ST_1BS  ,    //1字节存储无符号
+      EXUctr_ST_2BS  ,    //2字节存储无符号
+      EXUctr_ST_4BU       //4字节存储无符号
       = Value
 }
 

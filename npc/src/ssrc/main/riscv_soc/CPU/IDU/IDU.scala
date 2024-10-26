@@ -122,46 +122,6 @@ object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Ty
     }
 }
 
-object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "memop"
-    override def chiselType = MemOp_TypeEnum()
-    override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.name match {
-            case "lb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
-            case "lh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
-            case "lw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
-            case "lbu"      => Get_BitPat(MemOp_TypeEnum.MemOp_1BU)
-            case "lhu"      => Get_BitPat(MemOp_TypeEnum.MemOp_2BU)
-            case "sb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
-            case "sh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
-            case "sw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
-            case _          => BitPat.dontCare(MemOp_TypeEnum.getWidth)
-        }
-    }
-}
-
-object MemtoReg_Field extends DecodeField[rvInstructionPattern, MemtoReg_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "MemtoReg"
-    override def chiselType = MemtoReg_TypeEnum()
-    override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.name match {
-            case "lb" | "lh" | "lw" | "lbu" | "lhu" => Get_BitPat(MemtoReg_TypeEnum.MemtoReg_Yes)
-            case _ => Get_BitPat(MemtoReg_TypeEnum.MemtoReg_No)
-        }
-    }
-}
-
-object MemWr_Field extends DecodeField[rvInstructionPattern, MemWr_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "MemWr"
-    override def chiselType = MemWr_TypeEnum()
-    override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.name match {
-            case "sb" | "sh" | "sw" => Get_BitPat(MemWr_TypeEnum.MemWr_Yes)
-            case _ => Get_BitPat(MemWr_TypeEnum.MemWr_No)
-        }
-    }
-}
-
 object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type] with DecodeAPI {
     override def name: String = "csr_ctr"
     override def chiselType = CSR_TypeEnum()
@@ -228,7 +188,7 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, MemOp_Field, ALUAsrc_Field, ALUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemtoReg_Field, MemWr_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, ALUAsrc_Field, ALUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(

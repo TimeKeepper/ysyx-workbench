@@ -139,7 +139,7 @@ object EXUctr_TypeEnum extends ChiselEnum{
       EXUctr_AND     ,    //与
       EXUctr_LD_S  ,    //1字节加载无符号
       EXUctr_LD_U  ,    //1字节加载无符号
-      EXYctr_ST
+      EXUctr_ST
       = Value
 }
 

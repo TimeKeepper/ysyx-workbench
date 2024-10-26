@@ -62,7 +62,9 @@ class ysyx_23060198_LSU extends Module{
 
     val state_write = RegInit(s_idle)
 
-    when(io.IDU_2_EXU.bits.MemWr) {
+    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_1BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_2BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_4BU) {
         io.AXI.araddr.valid   := false.B
         io.AXI.rdata.ready    := false.B
         io.AXI.awaddr.valid   <> io.IDU_2_EXU.valid
@@ -97,7 +99,11 @@ class ysyx_23060198_LSU extends Module{
         }.otherwise{
             io.IDU_2_EXU.ready := false.B
         }
-    }.elsewhen(io.IDU_2_EXU.bits.MemtoReg) {
+    }.elsewhen(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_4BU ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BU ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BU) {
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B

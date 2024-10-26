@@ -54,24 +54,6 @@ object Bran_Field extends DecodeField[rvInstructionPattern, Bran_TypeEnum.Type] 
     }
 }
 
-object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "memop"
-    override def chiselType = MemOp_TypeEnum()
-    override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.name match {
-            case "lb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
-            case "lh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
-            case "lw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
-            case "lbu"      => Get_BitPat(MemOp_TypeEnum.MemOp_1BU)
-            case "lhu"      => Get_BitPat(MemOp_TypeEnum.MemOp_2BU)
-            case "sb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
-            case "sh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
-            case "sw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
-            case _          => BitPat.dontCare(MemOp_TypeEnum.getWidth)
-        }
-    }
-}
-
 object RegWr_Field extends DecodeField[rvInstructionPattern, RegWr_TypeEnum.Type] with DecodeAPI {
     override def name: String = "regwr"
     override def chiselType = RegWr_TypeEnum()
@@ -127,7 +109,33 @@ object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Ty
             case "srl" | "srli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRL)
             case "sra" | "srai" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRA)
             case "csrrw" | "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_B)
+            case "lb"  => Get_BitPat(EXUctr_LD_1BS)
+            case "lh"  => Get_BitPat(EXUctr_LD_2BS)
+            case "lw"  => Get_BitPat(EXUctr_LD_4BU)
+            case "lbu" => Get_BitPat(EXUctr_LD_1BU)
+            case "lhu" => Get_BitPat(EXUctr_LD_2BU)
+            case "sb"  => Get_BitPat(EXUctr_ST_1BS)
+            case "sh"  => Get_BitPat(EXUctr_ST_2BS)
+            case "sw"  => Get_BitPat(EXUctr_ST_4BU)
             case _ => BitPat.dontCare(EXUctr_TypeEnum.getWidth)
+        }
+    }
+}
+
+object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "memop"
+    override def chiselType = MemOp_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "lb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "lh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "lw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case "lbu"      => Get_BitPat(MemOp_TypeEnum.MemOp_1BU)
+            case "lhu"      => Get_BitPat(MemOp_TypeEnum.MemOp_2BU)
+            case "sb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "sh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "sw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case _          => BitPat.dontCare(MemOp_TypeEnum.getWidth)
         }
     }
 }

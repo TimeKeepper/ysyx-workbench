@@ -136,7 +136,15 @@ object EXUctr_TypeEnum extends ChiselEnum{
       EXUctr_SRA     ,    //算术右移
       EXUctr_XOR     ,    //异或
       EXUctr_OR      ,    //或
-      EXUctr_AND          //与
+      EXUctr_AND     ,    //与
+      EXUctr_LD_1BU  ,    //1字节加载无符号
+      EXUctr_LD_1BS  ,    //1字节加载
+      EXUctr_LD_2BU  ,    //2字节加载无符号
+      EXUctr_LD_2BS  ,    //2字节加载
+      EXUctr_LD_4BU  ,    //4字节加载无符号
+      EXUctr_SD_1BS  ,    //1字节存储无符号
+      EXUctr_SD_2BS  ,    //2字节存储无符号
+      EXUctr_SD_4BU       //4字节存储无符号
       = Value
 }
 

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-image_array = cv2.imread('test2.png')
+image_array = cv2.imread('test3.jpg')
 
 image_array = cv2.resize(image_array, (200, 200))
 
@@ -20,7 +20,7 @@ rgb = np.zeros(height * width, dtype=np.uint32)
 for i in range(height * width):
     rgb[i] = ((r[i] >> 4) << 8) | ((g[i] >> 4) << 4) | (b[i] >> 4)
 
-with open('test2.coe', 'w') as f:
+with open('test3.coe', 'w') as f:
     f.write("memory_initialization_radix=16;\n")
     f.write("memory_initialization_vector=\n")
     for i in range(len(rgb)):

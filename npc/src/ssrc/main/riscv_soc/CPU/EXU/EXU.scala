@@ -20,15 +20,15 @@ class ysyx_23060198_EXU extends Module {
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)
 
-    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_LD_1BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_LD_2BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_LD_4BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_LD_1BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_LD_2BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_ST_1BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_ST_2BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_ST_4BU ){
-            
+    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_4BU ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BU ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BU ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_1BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_2BS ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_4BU ){
+
         alu.io.IDU_2_EXU.valid := false.B
         alu.io.out.ready := false.B
         io.IDU_2_EXU.ready <> lsu.io.IDU_2_EXU.ready

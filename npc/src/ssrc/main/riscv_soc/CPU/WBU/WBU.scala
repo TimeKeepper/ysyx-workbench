@@ -43,7 +43,7 @@ class ysyx_23060198_WBU extends Module {
 
     val GPR_wdata = MuxLookup(io.EXU_2_WBU.bits.MemtoReg, io.EXU_2_WBU.bits.Result)(Seq(
         Y  -> io.EXU_2_WBU.bits.Mem_rdata,
-        N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_TypeEnum.CSR_N, Mux(io.EXU_2_WBU.bits.Branch === Bran_TypeEnum.Bran_Jmpr, Default_Next_Pc, io.EXU_2_WBU.bits.Result), io.EXU_2_WBU.bits.CSR_rdata),
+        N  -> Mux(io.EXU_2_WBU.bits.csr_ctr === CSR_TypeEnum.CSR_N, Mux(io.EXU_2_WBU.bits.Branch === Bran_TypeEnum.Bran_Jmpr || io.EXU_2_WBU.bits.Branch === Bran_TypeEnum.Bran_Jmp, Default_Next_Pc, io.EXU_2_WBU.bits.Result), io.EXU_2_WBU.bits.CSR_rdata),
     ))
 
     val CSR_waddra = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.CSR_waddr)(Seq(

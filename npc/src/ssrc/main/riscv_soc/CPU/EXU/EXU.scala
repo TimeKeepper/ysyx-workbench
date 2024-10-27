@@ -20,14 +20,8 @@ class ysyx_23060198_EXU extends Module {
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)
 
-    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_4BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_1BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_2BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_4BU ){
+    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD ||
+         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST){
 
         alu.io.IDU_2_EXU.valid := false.B
         alu.io.out.ready := false.B
@@ -52,17 +46,13 @@ class ysyx_23060198_EXU extends Module {
     lsu.io.AXI <> io.AXI
     
     val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
-        Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm),
+        Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm),
         Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
     ))
 
     io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch, communication_succeed)
     io.EXU_2_WBU.bits.Jmp_Pc        := RegEnable(Jmp_Pc, communication_succeed)
-    io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BS ||
-                                                 io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BS ||
-                                                 io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_4BU ||
-                                                 io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BU ||
-                                                 io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BU, communication_succeed)
+    io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD, communication_succeed)
     io.EXU_2_WBU.bits.csr_ctr       := RegEnable(io.IDU_2_EXU.bits.csr_ctr, communication_succeed)
     io.EXU_2_WBU.bits.CSR_waddr     := RegEnable(io.IDU_2_EXU.bits.Imm(11, 0), communication_succeed)
     io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr, communication_succeed)

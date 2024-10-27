@@ -28,13 +28,12 @@ class BUS_REG_2_IDU extends Bundle{
 
 class BUS_IDU_2_EXU extends Bundle{
     val Branch   = Bran_TypeEnum()
+    val MemOp    = MemOp_TypeEnum()
     val EXU_A    = UInt(32.W)
     val EXU_B    = UInt(32.W)
     val EXUctr   = EXUctr_TypeEnum()
-    val csr_ctr  = CSR_TypeEnum()
+    val csr_ctr  = CSR_TypeEnum() 
     val Imm      = UInt(32.W)
-    val GPR_Adata = UInt(32.W)
-    val GPR_Bdata = UInt(32.W)
     val GPR_waddr = UInt(4.W)
     val PC       = UInt(32.W)
     val CSR_rdata = UInt(32.W)

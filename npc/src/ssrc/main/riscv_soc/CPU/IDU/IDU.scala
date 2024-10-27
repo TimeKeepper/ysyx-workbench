@@ -64,32 +64,28 @@ object RegWr_Field extends DecodeField[rvInstructionPattern, RegWr_TypeEnum.Type
     }
 }
 
-object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "ALUAsrc"
-    override def chiselType = ALUAsrc_TypeEnum()
+object EXUAsrc_Field extends DecodeField[rvInstructionPattern, EXUAsrc_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "EXUAsrc"
+    override def chiselType = EXUAsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case    "jal" | "jalr" | "auipc"                            => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
-            case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
+            case "auipc"                            => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_PC)
             case _ => i.inst.args.map(_.toString).collectFirst {
-                case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
-            }.getOrElse(BitPat.dontCare(ALUAsrc_TypeEnum.getWidth))
+                case "rs1" => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_RS1)
+            }.getOrElse(BitPat.dontCare(EXUAsrc_TypeEnum.getWidth))
         }
     }
 }
 
-object ALUBsrc_Field extends DecodeField[rvInstructionPattern, ALUBsrc_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "ALUBsrc"
-    override def chiselType = ALUBsrc_TypeEnum()
+object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "EXUBsrc"
+    override def chiselType = EXUBsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.name match {
-            case "jal" | "jalr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_4)
-            case _ => i.inst.args.map(_.toString).collectFirst {
-                case "rs2" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS2)
-                case "imm12" | "imm20" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM)
-                case "csr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS1)
-            }.getOrElse(BitPat.dontCare(ALUBsrc_TypeEnum.getWidth))
-        }
+        i.inst.args.map(_.toString).collectFirst {
+            case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
+            case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
+            case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
+        }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
     }
 }
 
@@ -108,16 +104,29 @@ object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Ty
             case "sll" | "slli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SLL)
             case "srl" | "srli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRL)
             case "sra" | "srai" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRA)
-            case "csrrw" | "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_B)
-            case "lb"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_1BS)
-            case "lh"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_2BS)
-            case "lw"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_4BU)
-            case "lbu" => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_1BU)
-            case "lhu" => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD_2BU)
-            case "sb"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_ST_1BS)
-            case "sh"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_ST_2BS)
-            case "sw"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_ST_4BU)
+            case "csrrw"=> Get_BitPat(EXUctr_TypeEnum.EXUctr_A)
+            case "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_B)
+            case "lb" | "lh" | "lw" | "lbu" | "lhu"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD)
+            case "sb" | "sh" | "sw"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_ST)
             case _ => BitPat.dontCare(EXUctr_TypeEnum.getWidth)
+        }
+    }
+}
+
+object MemOp_Field extends DecodeField[rvInstructionPattern, MemOp_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "memop"
+    override def chiselType = MemOp_TypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "lb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "lh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "lw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case "lbu"      => Get_BitPat(MemOp_TypeEnum.MemOp_1BU)
+            case "lhu"      => Get_BitPat(MemOp_TypeEnum.MemOp_2BU)
+            case "sb"       => Get_BitPat(MemOp_TypeEnum.MemOp_1BS)
+            case "sh"       => Get_BitPat(MemOp_TypeEnum.MemOp_2BS)
+            case "sw"       => Get_BitPat(MemOp_TypeEnum.MemOp_4BU)
+            case _          => BitPat.dontCare(MemOp_TypeEnum.getWidth)
         }
     }
 }
@@ -188,7 +197,7 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, ALUAsrc_Field, ALUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field))
+    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field))
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
@@ -212,27 +221,24 @@ class ysyx_23060198_IDU extends Module{
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    val EXU_A = MuxLookup(rvdecoderResult(ALUAsrc_Field), 0.U)(Seq(
-        ALUAsrc_TypeEnum.ALUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUAsrc_TypeEnum.ALUAsrc_PC  -> io.REG_2_IDU.PC,
-        ALUAsrc_TypeEnum.ALUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
+    val EXU_A = MuxLookup(rvdecoderResult(EXUAsrc_Field), 0.U)(Seq(
+        EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.REG_2_IDU.PC,
     ))
 
-    val EXU_B = MuxLookup(rvdecoderResult(ALUBsrc_Field), 0.U)(Seq(
-        ALUBsrc_TypeEnum.ALUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUBsrc_TypeEnum.ALUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
-        ALUBsrc_TypeEnum.ALUBsrc_IMM -> imm,
-        ALUBsrc_TypeEnum.ALUBsrc_4   -> 4.U,
+    val EXU_B = MuxLookup(rvdecoderResult(EXUBsrc_Field), 0.U)(Seq(
+        EXUBsrc_TypeEnum.EXUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
+        EXUBsrc_TypeEnum.EXUBsrc_IMM -> imm,
+        EXUBsrc_TypeEnum.EXUBsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 
-    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      comunication_succeed) 
+    io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.EXU_A        <> RegEnable(EXU_A,                 comunication_succeed) 
     io.IDU_2_EXU.bits.EXU_B        <> RegEnable(EXU_B,                 comunication_succeed) 
+    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
-    io.IDU_2_EXU.bits.GPR_Adata    <> RegEnable(io.REG_2_IDU.GPR_Adata,  comunication_succeed) 
-    io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr, comunication_succeed) 
     io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
     io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,  comunication_succeed) 

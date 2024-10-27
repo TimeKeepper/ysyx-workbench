@@ -62,9 +62,7 @@ class ysyx_23060198_LSU extends Module{
 
     val state_write = RegInit(s_idle)
 
-    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_1BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_2BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_4BU) {
+    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST) {
         io.AXI.araddr.valid   := false.B
         io.AXI.rdata.ready    := false.B
         io.AXI.awaddr.valid   <> io.IDU_2_EXU.valid
@@ -99,11 +97,7 @@ class ysyx_23060198_LSU extends Module{
         }.otherwise{
             io.IDU_2_EXU.ready := false.B
         }
-    }.elsewhen(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BS ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_4BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BU ||
-         io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BU) {
+    }.elsewhen(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD) {
         io.AXI.awaddr.valid   := false.B
         io.AXI.wdata.valid    := false.B
         io.AXI.bresp.ready    := false.B
@@ -121,18 +115,18 @@ class ysyx_23060198_LSU extends Module{
         io.out.valid          <> false.B
     }
 
-    io.AXI.araddr.bits.addr  <> io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
-    io.AXI.awaddr.bits.addr  <> io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
-    io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
+    io.AXI.araddr.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+    io.AXI.awaddr.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+    io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.EXU_B << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
     
-    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BU || io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_1BS || io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_1BS){
+    when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0001".U)(Seq(
             "b00".U -> "b0001".U,
             "b01".U -> "b0010".U,
             "b10".U -> "b0100".U,
             "b11".U -> "b1000".U,
         ))
-    }.elsewhen(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BU || io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD_2BS || io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST_2BS){
+    }.elsewhen(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_2BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_2BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0011".U)(Seq(
             "b00".U -> "b0011".U,
             "b01".U -> "b0110".U,
@@ -142,17 +136,19 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.wdata.bits.strb   := "b1111".U
     }
     
-    io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
-        EXUctr_TypeEnum.EXUctr_ST_1BS -> 0.U,
-        EXUctr_TypeEnum.EXUctr_ST_2BS -> 1.U,
-        EXUctr_TypeEnum.EXUctr_ST_4BU -> 2.U,
+    io.AXI.awaddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
+        MemOp_TypeEnum.MemOp_1BU -> 0.U,
+        MemOp_TypeEnum.MemOp_1BS -> 0.U,
+        MemOp_TypeEnum.MemOp_2BU -> 1.U,
+        MemOp_TypeEnum.MemOp_2BS -> 1.U,
+        MemOp_TypeEnum.MemOp_4BU -> 2.U,
     ))
-    io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
-        EXUctr_TypeEnum.EXUctr_LD_1BU -> 0.U,
-        EXUctr_TypeEnum.EXUctr_LD_1BS -> 0.U,
-        EXUctr_TypeEnum.EXUctr_LD_2BU -> 1.U,
-        EXUctr_TypeEnum.EXUctr_LD_2BS -> 1.U,
-        EXUctr_TypeEnum.EXUctr_LD_4BU -> 2.U,
+    io.AXI.araddr.bits.size  := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
+        MemOp_TypeEnum.MemOp_1BU -> 0.U,
+        MemOp_TypeEnum.MemOp_1BS -> 0.U,
+        MemOp_TypeEnum.MemOp_2BU -> 1.U,
+        MemOp_TypeEnum.MemOp_2BS -> 1.U,
+        MemOp_TypeEnum.MemOp_4BU -> 2.U,
     ))
 
     val AXI_rdata = Wire(UInt(32.W))
@@ -160,12 +156,12 @@ class ysyx_23060198_LSU extends Module{
 
     val mem_rd = Wire(Bits(32.W))
 
-    mem_rd := MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(Seq(
-        EXUctr_TypeEnum.EXUctr_LD_1BU -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
-        EXUctr_TypeEnum.EXUctr_LD_1BS -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
-        EXUctr_TypeEnum.EXUctr_LD_2BU -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
-        EXUctr_TypeEnum.EXUctr_LD_2BS -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
-        EXUctr_TypeEnum.EXUctr_LD_4BU -> AXI_rdata(31,0).asUInt,
+    mem_rd := MuxLookup(io.IDU_2_EXU.bits.MemOp, 0.U)(Seq(
+        MemOp_TypeEnum.MemOp_1BU -> Cat(Fill(24, 0.U), AXI_rdata(7,0)),
+        MemOp_TypeEnum.MemOp_1BS -> Cat(Fill(24, AXI_rdata(7)), AXI_rdata(7,0)),
+        MemOp_TypeEnum.MemOp_2BU -> Cat(Fill(16, 0.U), AXI_rdata(15,0)),
+        MemOp_TypeEnum.MemOp_2BS -> Cat(Fill(16, AXI_rdata(15)), AXI_rdata(15,0)),
+        MemOp_TypeEnum.MemOp_4BU -> AXI_rdata(31,0).asUInt,
     ))
 
     io.out.bits.Mem_rdata := mem_rd
@@ -173,7 +169,7 @@ class ysyx_23060198_LSU extends Module{
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.araddr.valid || io.AXI.awaddr.valid
-        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.GPR_Adata + io.IDU_2_EXU.bits.Imm
+        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock

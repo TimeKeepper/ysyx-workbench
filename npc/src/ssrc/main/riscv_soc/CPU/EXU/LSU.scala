@@ -117,7 +117,7 @@ class ysyx_23060198_LSU extends Module{
 
     io.AXI.araddr.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
     io.AXI.awaddr.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
-    io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.GPR_Bdata << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
+    io.AXI.wdata.bits.data   <> (io.IDU_2_EXU.bits.EXU_B << (io.AXI.awaddr.bits.addr(1,0) << 3.U))(31, 0)
     
     when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
         io.AXI.wdata.bits.strb   := MuxLookup(io.AXI.awaddr.bits.addr(1,0), "b0001".U)(Seq(

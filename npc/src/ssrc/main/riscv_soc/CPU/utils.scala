@@ -118,7 +118,6 @@ object EXUAsrc_TypeEnum extends ChiselEnum{
 object EXUBsrc_TypeEnum extends ChiselEnum{
   val EXUBsrc_RS2,  //寄存器资源2
       EXUBsrc_IMM,  //立即数
-      EXUBsrc_4  ,  //立即数4
       EXUBsrc_CSR  //CSR寄存器
       = Value
 }

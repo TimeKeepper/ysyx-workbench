@@ -81,13 +81,11 @@ object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.
     override def name: String = "EXUBsrc"
     override def chiselType = EXUBsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.name match {
-            case _ => i.inst.args.map(_.toString).collectFirst {
-                case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
-                case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
-                case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
-            }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
-        }
+        i.inst.args.map(_.toString).collectFirst {
+            case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
+            case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
+            case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
+        }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
     }
 }
 

@@ -64,31 +64,31 @@ object RegWr_Field extends DecodeField[rvInstructionPattern, RegWr_TypeEnum.Type
     }
 }
 
-object ALUAsrc_Field extends DecodeField[rvInstructionPattern, ALUAsrc_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "ALUAsrc"
-    override def chiselType = ALUAsrc_TypeEnum()
+object EXUAsrc_Field extends DecodeField[rvInstructionPattern, EXUAsrc_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "EXUAsrc"
+    override def chiselType = EXUAsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case    "jal" | "jalr" | "auipc"                            => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_PC)
-            case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_CSR)
+            case    "jal" | "jalr" | "auipc"                            => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_PC)
+            case    "csrrw" | "csrrs" | "ecall"                         => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_CSR)
             case _ => i.inst.args.map(_.toString).collectFirst {
-                case "rs1" => Get_BitPat(ALUAsrc_TypeEnum.ALUAsrc_RS1)
-            }.getOrElse(BitPat.dontCare(ALUAsrc_TypeEnum.getWidth))
+                case "rs1" => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_RS1)
+            }.getOrElse(BitPat.dontCare(EXUAsrc_TypeEnum.getWidth))
         }
     }
 }
 
-object ALUBsrc_Field extends DecodeField[rvInstructionPattern, ALUBsrc_TypeEnum.Type] with DecodeAPI {
-    override def name: String = "ALUBsrc"
-    override def chiselType = ALUBsrc_TypeEnum()
+object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.Type] with DecodeAPI {
+    override def name: String = "EXUBsrc"
+    override def chiselType = EXUBsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "jal" | "jalr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_4)
+            case "jal" | "jalr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_4)
             case _ => i.inst.args.map(_.toString).collectFirst {
-                case "rs2" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS2)
-                case "imm12" | "imm20" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_IMM)
-                case "csr" => Get_BitPat(ALUBsrc_TypeEnum.ALUBsrc_RS1)
-            }.getOrElse(BitPat.dontCare(ALUBsrc_TypeEnum.getWidth))
+                case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
+                case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
+                case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS1)
+            }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
         }
     }
 }
@@ -224,17 +224,17 @@ class ysyx_23060198_IDU extends Module{
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    val EXU_A = MuxLookup(rvdecoderResult(ALUAsrc_Field), 0.U)(Seq(
-        ALUAsrc_TypeEnum.ALUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUAsrc_TypeEnum.ALUAsrc_PC  -> io.REG_2_IDU.PC,
-        ALUAsrc_TypeEnum.ALUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
+    val EXU_A = MuxLookup(rvdecoderResult(EXUAsrc_Field), 0.U)(Seq(
+        EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.REG_2_IDU.PC,
+        EXUAsrc_TypeEnum.EXUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
-    val EXU_B = MuxLookup(rvdecoderResult(ALUBsrc_Field), 0.U)(Seq(
-        ALUBsrc_TypeEnum.ALUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        ALUBsrc_TypeEnum.ALUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
-        ALUBsrc_TypeEnum.ALUBsrc_IMM -> imm,
-        ALUBsrc_TypeEnum.ALUBsrc_4   -> 4.U,
+    val EXU_B = MuxLookup(rvdecoderResult(EXUBsrc_Field), 0.U)(Seq(
+        EXUBsrc_TypeEnum.EXUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
+        EXUBsrc_TypeEnum.EXUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
+        EXUBsrc_TypeEnum.EXUBsrc_IMM -> imm,
+        EXUBsrc_TypeEnum.EXUBsrc_4   -> 4.U,
     ))
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 

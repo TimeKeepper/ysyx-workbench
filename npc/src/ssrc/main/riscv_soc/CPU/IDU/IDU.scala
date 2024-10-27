@@ -243,7 +243,6 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      comunication_succeed) 
     io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     comunication_succeed) 
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
-    io.IDU_2_EXU.bits.GPR_Bdata    <> RegEnable(io.REG_2_IDU.GPR_Bdata,  comunication_succeed) 
     io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr, comunication_succeed) 
     io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
     io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,  comunication_succeed) 

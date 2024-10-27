@@ -226,14 +226,13 @@ class ysyx_23060198_IDU extends Module{
     val EXU_A = MuxLookup(rvdecoderResult(EXUAsrc_Field), 0.U)(Seq(
         EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
         EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.REG_2_IDU.PC,
-        EXUAsrc_TypeEnum.EXUAsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
     val EXU_B = MuxLookup(rvdecoderResult(EXUBsrc_Field), 0.U)(Seq(
-        EXUBsrc_TypeEnum.EXUBsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
         EXUBsrc_TypeEnum.EXUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
         EXUBsrc_TypeEnum.EXUBsrc_IMM -> imm,
         EXUBsrc_TypeEnum.EXUBsrc_4   -> 4.U,
+        EXUBsrc_TypeEnum.EXUBsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 

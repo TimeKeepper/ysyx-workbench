@@ -69,7 +69,7 @@ object EXUAsrc_Field extends DecodeField[rvInstructionPattern, EXUAsrc_TypeEnum.
     override def chiselType = EXUAsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case    "jal" | "auipc"                            => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_PC)
+            case "auipc"                            => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_PC)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs1" => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_RS1)
             }.getOrElse(BitPat.dontCare(EXUAsrc_TypeEnum.getWidth))
@@ -82,7 +82,6 @@ object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.
     override def chiselType = EXUBsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "jal" | "jalr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_4)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
                 case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)

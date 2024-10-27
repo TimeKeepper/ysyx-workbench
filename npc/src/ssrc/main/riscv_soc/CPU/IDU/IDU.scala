@@ -70,7 +70,6 @@ object EXUAsrc_Field extends DecodeField[rvInstructionPattern, EXUAsrc_TypeEnum.
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
             case    "jal" | "jalr" | "auipc"                            => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_PC)
-            case    "csrrw" | "csrrs"                         => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_CSR)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs1" => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_RS1)
             }.getOrElse(BitPat.dontCare(EXUAsrc_TypeEnum.getWidth))
@@ -87,7 +86,7 @@ object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
                 case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
-                case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS1)
+                case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
             }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
         }
     }
@@ -108,7 +107,7 @@ object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Ty
             case "sll" | "slli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SLL)
             case "srl" | "srli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRL)
             case "sra" | "srai" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRA)
-            case "csrrw" | "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_B)
+            case "csrrw" | "lui" => Get_BitPat(EXUctr_TypeEnum.EXUctr_A)
             case "lb" | "lh" | "lw" | "lbu" | "lhu"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_LD)
             case "sb" | "sh" | "sw"  => Get_BitPat(EXUctr_TypeEnum.EXUctr_ST)
             case _ => BitPat.dontCare(EXUctr_TypeEnum.getWidth)

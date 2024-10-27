@@ -7,9 +7,10 @@ import chisel3.experimental.Analog
 class ps2mouse extends BlackBox {
     val io = IO(new Bundle{
         val clock = Input(Clock())
-        val reset = Input(Reset())
+        val reset = Input(Bool())
         val ps2_clk = Analog(1.W)
         val ps2_data = Analog(1.W)
-        val is_left_click = Output(Bool())
+        val REn = Output(Bool())
+        val mouse_data = Output(UInt(24.W))
     })
 }

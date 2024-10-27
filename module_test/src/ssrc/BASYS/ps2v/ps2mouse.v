@@ -3,12 +3,13 @@ module ps2mouse(
     input reset,
     inout ps2_clk,
     inout ps2_data,
-    output is_left_click
+    output REn,
+    output reg [23 : 0] mouse_data
 );
 
     wire EnU1;
     wire read_en;
-    wire [23:0] mouse_data;
+    wire [23:0] data;
     ps2_init_funcmod U1(
         .CLOCK(clock),
         .RESET(reset),
@@ -23,19 +24,18 @@ module ps2mouse(
         .PS2_DAT(ps2_data), 
         .iEn(EnU1),     
         .oTrig(read_en),
-        .oData(mouse_data)   
+        .oData(data)   
     );  
-
-    reg is_left_click_reg;
 
     always@(posedge clock or posedge reset) begin
         if(reset) begin
-            is_left_click_reg <= 0;
+            mouse_data <= 0;
         end else begin
-            is_left_click_reg <= mouse_data[0];
+            if(read_en)
+                mouse_data <= data;
         end
     end
 
-    assign is_left_click = (is_left_click_reg == 1'b0) && (mouse_data[0] == 1'b1);
+    assign REn = read_en;
 
 endmodule

@@ -10,7 +10,7 @@ SOC_VSRC_DIR = $(SOC_DIR)/perip
 SOC_UART_DIR = $(SOC_DIR)/perip/uart16550/rtl
 SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl
 
-VSRC_DIR = $(BUILD_DIR)/vsrc
+VSRC_DIR = $(BUILD_DIR)
 CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 AUTOCONFIG = $(abspath ./include/generated)

@@ -7,6 +7,7 @@ BUILD_DIR = ./build
 SRC_DIR = ${NPC_HOME}/src
 SOC_DIR = $(YSYXSOC_HOME)
 SOC_VSRC_DIR = $(SOC_DIR)/perip
+SOC_BUS = $(SOC_DIR)/build/ysyxSoCFull.v
 SOC_UART_DIR = $(SOC_DIR)/perip/uart16550/rtl
 SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl
 
@@ -18,7 +19,7 @@ AUTOCONFIG = $(abspath ./include/generated)
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/ysyx_23060198.sv
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 VSRC += $(shell find $(abspath $(SOC_VSRC_DIR)) -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
-VSRC += $(shell find $(abspath $(SOC_DIR))/build -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
+VSRC += $(abspath $(SOC_BUS))
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 HSRC = $(shell find $(abspath $(HEAD_DIR)) -name "*.h" -or -name "*.hpp")
 HSRC += $(shell find $(abspath $(AUTOCONFIG)) -name "*.h" -or -name "*.hpp")

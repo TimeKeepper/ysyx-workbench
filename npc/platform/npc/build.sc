@@ -8,7 +8,7 @@ import mill.scalalib._
 // support BSP
 import mill.bsp._
 
-import $file.`os.up`.`rocket-chip`.dependencies.hardfloat.common
+import $file.`..`.`rocket-chip`.dependencies.hardfloat.common
 
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false

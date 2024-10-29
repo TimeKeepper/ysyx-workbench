@@ -11,7 +11,7 @@ import mill.bsp._
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false
   def dependencyPath = os.pwd
-  def rocketchipPath = os.pwd / os.up / os.up / os.up / ysyxSoC / rocket-chip
+  def rocketchipPath = os.pwd / os.up / os.up / os.up / "ysyxSoC" /" rocket-chip"
   def dependencyPath = rocketchipPath / "dependencies"
   def diplomacyPath = rocketchipPath / "diplomacy" / "diplomacy"
   override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc"

@@ -27,7 +27,8 @@ object playground extends SbtModule with ScalafmtModule { m =>
     super.sources() ++ Seq(
       PathRef(socPath), 
       PathRef(rvdecoderdbPath), 
-      PathRef(dependencyPath)
+      PathRef(dependencyPath),
+      PathRef(rocketsrcPath)
     )
   }
   override def ivyDeps = Agg(

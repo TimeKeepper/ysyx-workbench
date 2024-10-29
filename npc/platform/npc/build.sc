@@ -10,7 +10,7 @@ import mill.bsp._
 
 val pathtest = os.pwd / os.up / os.up
 
-import $file.`pathtest`.`src`.`ssrc`.`main`.`rocket-chip`.dependencies.hardfloat.common
+import $file.{pathtest}.`src`.`ssrc`.`main`.`rocket-chip`.dependencies.hardfloat.common
 
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false

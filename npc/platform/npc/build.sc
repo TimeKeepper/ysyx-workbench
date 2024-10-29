@@ -10,7 +10,10 @@ import mill.bsp._
 
 // import $file.`..`.`..`.`src`.`ssrc`.`main`.`rocket-chip`.dependencies.hardfloat.common
 // import $file.`home`.`wenjiu`.`ysyx-workbench`.`npc`.`src`.`ssrc`.`main`.`rocket-chip`.`dependencies`.`hardfloat`.`common`
-import $file.common
+import $file.hardfloat_common
+import $file.cde_common
+import $file.diplomacy_common
+import $file.rocket_common
 
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false

@@ -59,6 +59,7 @@ clean:
 	$(MAKE) -C $(PLATFORM_PATH) clean
 
 perf:
+	$(MAKE) PLATFORM=core
 	$(MAKE) -C $(CORE_PATH) perf
 
 test:

@@ -16,7 +16,7 @@ object playground extends SbtModule with ScalafmtModule { m =>
   def rvdecoderdbPath = millSourcePath / "rvdecoderdb"
   def rocketchipPath = millSourcePath / "rocket-chip"
   def rocketdepPath = rocketchipPath / "dependencies"
-  def diplomacyPath = rocketchipPath / "diplomacy"
+  def diplomacyPath = rocketchipPath / "diplomacy" / "diplomacy"
   def rocketsrcPath = rocketchipPath / "src" / "main" / "scala"
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(
@@ -30,7 +30,7 @@ object playground extends SbtModule with ScalafmtModule { m =>
       PathRef(socPath), 
       PathRef(rvdecoderdbPath), 
       PathRef(dependencyPath),
-      PathRef(rocketsrcPath)
+      PathRef(diplomacyPath)
     )
   }
   override def ivyDeps = Agg(

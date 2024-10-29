@@ -32,15 +32,15 @@ endif
 $(V_FILE_GEN): $(SSRC)
 	$(MAKE) verilog
 
+default:
+	$(MAKE) -C $(PLATFORM_PATH)
+
 verilog:
 	$(call git_commit, "generate verilog")
 	# mkdir -p $(BUILD_DIR)
 	mill -i $(PRJ).runMain config.Elaborate$(PLATFORM) --target-dir $(VSRC_DIR)
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(V_FILE_GEN)
 	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
-
-default:
-	$(MAKE) -C $(PLATFORM_PATH)
 
 sim: $(V_FILE_GEN)
 	$(MAKE) -C $(PLATFORM_PATH) sim AGGS=$(AGRS) IMG=$(IMG) EXTRA_DEFILE=$(EXTRA_DEFILE)
@@ -58,6 +58,7 @@ perf:
 	$(MAKE) -C $(CORE_PATH) perf
 
 test:
+	$(MAKE) PLATFORM=npc
 	$(MAKE) -C $(CORE_PATH) test
 
 .PHONY: default sim gdb menuconfig clean perf test verilog

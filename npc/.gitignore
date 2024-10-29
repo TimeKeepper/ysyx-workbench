@@ -1,6 +1,7 @@
 *.*
 *
 !*/
+!/src/ssrc/**
 !Makefile
 !*.mk
 !*.scala

@@ -2,7 +2,7 @@ package riscv_cpu
 
 import chisel3._
 import chisel3.util._
-// import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.diplomacy._
 
 import config._
  

@@ -1,6 +1,3 @@
-*.*
-*
-!*/
 !Makefile
 !*.mk
 !*.scala
@@ -18,10 +15,7 @@
 !*.py
 !*.sdc
 build/
-include/config
-include/generated
-platform/npc/include
-platform/ysyxsoc/include
+**/compile_commands.json
 
 # mill
 out/

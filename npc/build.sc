@@ -10,7 +10,7 @@ import mill.bsp._
 
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false
-  def dependencyPath = os.pwd
+  def dependencyPath = os.pwd / "platform"
   override def millSourcePath = os.pwd / "src" / "ssrc"
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(

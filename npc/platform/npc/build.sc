@@ -14,10 +14,15 @@ object playground extends SbtModule with ScalafmtModule { m =>
   override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc" / "main"
   def socPath = millSourcePath / "riscv_soc"
   def rvdecoderdbPath = millSourcePath / "rvdecoderdb"
+
   def rocketchipPath = millSourcePath / "rocket-chip"
+
   def rocketdepPath = rocketchipPath / "dependencies"
-  def diplomacyPath = rocketchipPath / "diplomacy" / "diplomacy"
+  def diplomacyPath = rocketdepPath / "diplomacy" / "diplomacy" / "src"
+  def hardflowPath = rocketdepPath / "hardfloat" / "hardfloat" / "src"
+  def cdePath = rocketdepPath / "cde" / "cde" / "src"
   def rocketsrcPath = rocketchipPath / "src" / "main" / "scala"
+
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(
     "-language:reflectiveCalls",
@@ -30,7 +35,11 @@ object playground extends SbtModule with ScalafmtModule { m =>
       PathRef(socPath), 
       PathRef(rvdecoderdbPath), 
       PathRef(dependencyPath),
-      PathRef(diplomacyPath)
+
+      PathRef(diplomacyPath),
+      PathRef(hardflowPath),
+      PathRef(cdePath),
+      PathRef(rocketsrcPath),
     )
   }
   override def ivyDeps = Agg(

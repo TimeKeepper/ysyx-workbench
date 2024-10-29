@@ -11,14 +11,10 @@ SOC_UART_DIR = $(SOC_DIR)/perip/uart16550/rtl
 SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl
 
 VSRC_DIR = $(BUILD_DIR)/vsrc
-SSRC_DIR = $(SRC_DIR)/ssrc
 CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 AUTOCONFIG = $(abspath ./include/generated)
 
-SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
-SSRC += $(shell find $(abspath $(YSYXSOC_HOME)) -name "*.scala")
-SSRC += $(shell find $(abspath ./) -name "*.scala")
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/ysyx_23060198.sv
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 VSRC += $(shell find $(abspath $(SOC_VSRC_DIR)) -name "*.v") # 将ysyxSOC/perip下所有v文件加入路径
@@ -68,10 +64,6 @@ V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
 
 -include $(NPC_HOME)/../Makefile
 
-verilog:
-	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(V_FILE_GEN)
-	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
-
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/csrc/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
@@ -95,9 +87,6 @@ endif
 CXXFLAGS += -g -DTRACE
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
-
-$(DESIGN_FILE): $(SSRC)
-	$(MAKE) verilog
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)

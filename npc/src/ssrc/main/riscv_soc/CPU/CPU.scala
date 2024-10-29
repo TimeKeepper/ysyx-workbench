@@ -3,7 +3,6 @@ package riscv_cpu
 import chisel3._
 import chisel3.util._
 // import freechips.rocketchip.diplomacy._
-
 import config._
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{

@@ -12,6 +12,8 @@ object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false
   def dependencyPath = os.pwd
   def rocketchipPath = os.pwd / os.up / os.up / os.up / ysyxSoC / rocket-chip
+  def dependencyPath = rocketchipPath / "dependencies"
+  def diplomacyPath = rocketchipPath / "diplomacy" / "diplomacy"
   override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc"
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(
@@ -21,7 +23,7 @@ object playground extends SbtModule with ScalafmtModule { m =>
     "-Xcheckinit"
   )
   override def sources = T.sources {
-    super.sources() ++ Seq(PathRef(millSourcePath / "main"), PathRef(dependencyPath), PathRef(rocketchipPath / "src"))
+    super.sources() ++ Seq(PathRef(millSourcePath / "main"), PathRef(dependencyPath), PathRef(rocketchipPath / "src"), PathRef(diplomacyPath / "src"))
   }
   override def ivyDeps = Agg(
     if (useChisel3) ivy"edu.berkeley.cs::chisel3:3.6.0" else

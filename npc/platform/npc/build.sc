@@ -8,28 +8,10 @@ import mill.scalalib._
 // support BSP
 import mill.bsp._
 
-// import $file.`..`.`..`.`src`.`ssrc`.`main`.`rocket-chip`.dependencies.hardfloat.common
-// import $file.`home`.`wenjiu`.`ysyx-workbench`.`npc`.`src`.`ssrc`.`main`.`rocket-chip`.`dependencies`.`hardfloat`.`common`
-import $file.hardfloat_common
-import $file.cde_common
-import $file.diplomacy_common
-import $file.rocket_common
-
 object playground extends SbtModule with ScalafmtModule { m =>
   val useChisel3 = false
   def dependencyPath = os.pwd
-  override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc" / "main"
-  def socPath = millSourcePath / "riscv_soc"
-  def rvdecoderdbPath = millSourcePath / "rvdecoderdb"
-
-  def rocketchipPath = millSourcePath / "rocket-chip"
-
-  def rocketdepPath = rocketchipPath / "dependencies"
-  def diplomacyPath = rocketdepPath / "diplomacy" / "diplomacy" / "src"
-  def hardflowPath = rocketdepPath / "hardfloat" / "hardfloat" / "src"
-  def cdePath = rocketdepPath / "cde" / "cde" / "src"
-  def rocketsrcPath = rocketchipPath / "src" / "main" / "scala"
-
+  override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc"
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(
     "-language:reflectiveCalls",
@@ -38,18 +20,8 @@ object playground extends SbtModule with ScalafmtModule { m =>
     "-Xcheckinit"
   )
   override def sources = T.sources {
-    super.sources() ++ Seq(
-      PathRef(socPath), 
-      PathRef(rvdecoderdbPath), 
-      PathRef(dependencyPath),
-
-      PathRef(diplomacyPath),
-      PathRef(hardflowPath),
-      PathRef(cdePath),
-      PathRef(rocketsrcPath),
-    )
+    super.sources() ++ Seq(PathRef(millSourcePath / "main"), PathRef(dependencyPath))
   }
-
   override def ivyDeps = Agg(
     if (useChisel3) ivy"edu.berkeley.cs::chisel3:3.6.0" else
     ivy"org.chipsalliance::chisel:7.0.0-M1"

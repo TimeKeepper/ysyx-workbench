@@ -14,6 +14,8 @@ object playground extends SbtModule with ScalafmtModule { m =>
   override def millSourcePath = os.pwd / os.up / os.up / "src" / "ssrc" / "main"
   def socPath = millSourcePath / "riscv_soc"
   def rvdecoderdbPath = millSourcePath / "rvdecoderdb"
+  def rocketchipPath = millSourcePath / "rocket-chip"
+  def rocketsrcPath = rocketchipPath / "src" / "main" / "scala"
   override def scalaVersion = "2.13.12"
   override def scalacOptions = Seq(
     "-language:reflectiveCalls",
@@ -22,7 +24,8 @@ object playground extends SbtModule with ScalafmtModule { m =>
     "-Xcheckinit"
   )
   override def sources = T.sources {
-    super.sources() ++ Seq(PathRef(socPath), PathRef(rvdecoderdbPath), PathRef(dependencyPath))
+    super.sources() ++ Seq(PathRef(socPath))
+    super.sources() ++ Seq(PathRef(rvdecoderdbPath), PathRef(dependencyPath))
   }
   override def ivyDeps = Agg(
     if (useChisel3) ivy"edu.berkeley.cs::chisel3:3.6.0" else

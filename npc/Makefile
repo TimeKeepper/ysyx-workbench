@@ -1,3 +1,5 @@
+PRJ = playground
+
 PLATFORM ?= ysyxsoc
 PLATFORM_PATH = $(NPC_HOME)/platform/$(PLATFORM)
 CORE_PATH = $(NPC_HOME)/platform/core
@@ -8,10 +10,35 @@ IMG ?=
 
 EXTRA_DEFILE ?= 
 
+BUILD_DIR = ./platform/$(PLATFORM)/build
+VSRC_DIR = $(BUILD_DIR)/vsrc
+V_FILE_GEN ?= $(VSRC_DIR)/ysyx_23060198.sv
+
+SRC_DIR = ${NPC_HOME}/src
+SSRC_DIR = $(SRC_DIR)/ssrc
+
+SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
+
+ifeq ($(PLATFORM), ysyxsoc)
+	V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
+	SSRC += $(shell find $(abspath $(YSYXSOC_HOME)) -name "*.scala")
+	SSRC += $(shell find $(abspath ./) -name "*.scala")
+endif
+
+$(V_FILE_GEN): $(SSRC)
+	$(MAKE) verilog
+
+verilog:
+	$(call git_commit, "generate verilog")
+	# mkdir -p $(BUILD_DIR)
+	mill -i $(PRJ).runMain config.Elaborate --target-dir $(VSRC_DIR)
+	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(V_FILE_GEN)
+	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
+
 default:
 	$(MAKE) -C $(PLATFORM_PATH)
 
-sim:
+sim: $(V_FILE_GEN)
 	$(MAKE) -C $(PLATFORM_PATH) sim AGGS=$(AGRS) IMG=$(IMG) EXTRA_DEFILE=$(EXTRA_DEFILE)
 
 gdb:
@@ -29,4 +56,4 @@ perf:
 test:
 	$(MAKE) -C $(CORE_PATH) test
 
-.PHONY: default sim gdb menuconfig clean perf test
+.PHONY: default sim gdb menuconfig clean perf test verilog

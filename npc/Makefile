@@ -26,6 +26,10 @@ ifeq ($(PLATFORM), ysyxsoc)
 else
 ifeq ($(PLATFORM), npc)
 	V_FILE_GEN = $(VSRC_DIR)/top.sv
+else
+ifeq ($(PLATFORM), core)
+	V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
+endif
 endif
 endif
 

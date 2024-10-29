@@ -35,3 +35,23 @@ object Elaboratenpc extends App {
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new npc.top(), args, firtoolOptions)
 }
+
+object Elaboratecore extends App {
+  val firtoolOptions = Array(
+    "--lowering-options=" + List(
+      // make yosys happy
+      // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
+      "disallowLocalVariables",
+      "disallowPackedArrays",
+      "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket"
+    ).reduce(_ + "," + _)
+  )
+  
+  Config.Reset_Vector = "h80000000".U(32.W)
+  Config.setDPIC(false)
+
+  circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)
+}
+

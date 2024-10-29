@@ -2,7 +2,7 @@ package config
 
 import chisel3._
 
-object Elaborate extends App {
+object Elaborateysyxsoc extends App {
   val firtoolOptions = Array(
     "--lowering-options=" + List(
       // make yosys happy
@@ -13,7 +13,25 @@ object Elaborate extends App {
     ).reduce(_ + "," + _)
   )
   
-  Config.setDPIC(false)
+  Config.Reset_Vector = "h30000000".U(32.W)
+  Config.setDPIC(true)
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)
+}
+
+object Elaboratenpc extends App {
+  val firtoolOptions = Array(
+    "--lowering-options=" + List(
+      // make yosys happy
+      // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
+      "disallowLocalVariables",
+      "disallowPackedArrays",
+      "locationInfoStyle=wrapInAtSquareBracket"
+    ).reduce(_ + "," + _)
+  )
+  
+  Config.Reset_Vector = "h80000000".U(32.W)
+  Config.setDPIC(true)
+
+  circt.stage.ChiselStage.emitSystemVerilogFile(new npc.top(), args, firtoolOptions)
 }

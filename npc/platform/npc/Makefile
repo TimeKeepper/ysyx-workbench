@@ -76,9 +76,6 @@ LDFLAGS += -lreadline -ldl -pie -lelf
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
-$(DESIGN_FILE): $(SSRC)
-	$(MAKE) verilog
-
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	$(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing\

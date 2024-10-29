@@ -10,9 +10,9 @@ IMG ?=
 
 EXTRA_DEFILE ?= 
 
-BUILD_DIR = ./platform/$(PLATFORM)/build
+BUILD_DIR = $(PLATFORM_PATH)/build
 VSRC_DIR = $(BUILD_DIR)/vsrc
-V_FILE_GEN ?= $(VSRC_DIR)/ysyx_23060198.sv
+V_FILE_GEN ?= 
 
 SRC_DIR = ${NPC_HOME}/src
 SSRC_DIR = $(SRC_DIR)/ssrc
@@ -23,6 +23,10 @@ ifeq ($(PLATFORM), ysyxsoc)
 	V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
 	SSRC += $(shell find $(abspath $(YSYXSOC_HOME)) -name "*.scala")
 	SSRC += $(shell find $(abspath ./) -name "*.scala")
+else
+ifeq ($(PLATFORM), npc)
+	V_FILE_GEN = $(VSRC_DIR)/top.sv
+endif
 endif
 
 $(V_FILE_GEN): $(SSRC)
@@ -31,7 +35,7 @@ $(V_FILE_GEN): $(SSRC)
 verilog:
 	$(call git_commit, "generate verilog")
 	# mkdir -p $(BUILD_DIR)
-	mill -i $(PRJ).runMain config.Elaborate --target-dir $(VSRC_DIR)
+	mill -i $(PRJ).runMain config.Elaborate$(PLATFORM) --target-dir $(VSRC_DIR)
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(V_FILE_GEN)
 	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
 

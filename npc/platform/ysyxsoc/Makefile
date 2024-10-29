@@ -71,7 +71,8 @@ V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
 verilog:
 	$(call git_commit, "generate verilog")
 	# mkdir -p $(BUILD_DIR)
-	mill -h ../ -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
+	# cd ..
+	mill -i $(PRJ).runMain Elaborate --target-dir $(VSRC_DIR)
 	sed -i -e 's/_\(aw\|ar\|w\|r\|b\)_\(\|bits_\)/_\1/g' $(V_FILE_GEN)
 	sed -i '/firrtl_black_box_resource_files.f/, $$d' $(V_FILE_GEN)
 

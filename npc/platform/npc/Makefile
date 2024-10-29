@@ -6,7 +6,7 @@ BUILD_DIR = ./build
 
 SRC_DIR = ${NPC_HOME}/src
 
-VSRC_DIR = $(BUILD_DIR)/vsrc
+VSRC_DIR = $(BUILD_DIR)
 CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 AUTOCONFIG = $(abspath ./include/generated)

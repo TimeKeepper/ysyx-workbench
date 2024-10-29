@@ -24,7 +24,11 @@ object playground extends SbtModule with ScalafmtModule { m =>
     "-Xcheckinit"
   )
   override def sources = T.sources {
-    super.sources() ++ Seq(PathRef(socPath), PathRef(rvdecoderdbPath), PathRef(dependencyPath))
+    super.sources() ++ Seq(
+      PathRef(socPath), 
+      PathRef(rvdecoderdbPath), 
+      PathRef(dependencyPath)
+    )
   }
   override def ivyDeps = Agg(
     if (useChisel3) ivy"edu.berkeley.cs::chisel3:3.6.0" else

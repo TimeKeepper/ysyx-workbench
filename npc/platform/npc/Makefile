@@ -6,14 +6,11 @@ BUILD_DIR = ./build
 
 SRC_DIR = ${NPC_HOME}/src
 
-VSRC_DIR = $(BUILD_DIR)/vsrc
-SSRC_DIR = $(SRC_DIR)/ssrc
+VSRC_DIR = $(BUILD_DIR)
 CSRC_DIR = $(SRC_DIR)/csrc
 HEAD_DIR = $(abspath $(CSRC_DIR)/include)
 AUTOCONFIG = $(abspath ./include/generated)
 
-SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
-SSRC += $(shell find $(abspath ./) -name "*.scala")
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/top.sv
 VSRC = $(shell find $(abspath $(VSRC_DIR)) -name "*.v" -or -name "*.sv")
 CSRC = $(shell find $(abspath $(CSRC_DIR)) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
@@ -31,25 +28,16 @@ OBJ_DIR = $(BUILD_DIR)/obj_dir
 BVSRC_DIR = $(BUILD_DIR)/vsrc
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
-all: default
 default: $(BIN)
+all: default
 
 $(shell mkdir -p $(BUILD_DIR))
 $(shell mkdir -p $(BVSRC_DIR))
 
-help:
-	mill -i $(PRJ).runMain Elaborate --help
-
-reformat:
-	mill -i __.reformat
-
-checkformat:
-	mill -i __.checkFormat
-
 clean:
 	-rm -rf $(BUILD_DIR)
 
-.PHONY: test verilog help reformat checkformat clean
+.PHONY: all default clean
 
 -include $(NPC_HOME)/../Makefile
 
@@ -75,9 +63,6 @@ LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
-
-$(DESIGN_FILE): $(SSRC)
-	$(MAKE) verilog
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)

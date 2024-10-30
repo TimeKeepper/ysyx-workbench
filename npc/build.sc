@@ -91,7 +91,10 @@ trait NPC extends npcModule with HasThisChisel {
   override def millSourcePath = os.pwd
   def rocketModule = rocketchip
   override def sources = T.sources {
-    super.sources() ++ Seq(PathRef(millSourcePath / "src"))
+    super.sources() ++ Seq(
+      PathRef(millSourcePath / "src"),
+      PathRef(millSourcePath / "platform")  
+    )
   }
 }
 

@@ -6,6 +6,11 @@ import chisel3.util.BitPat
 import chisel3.util.experimental.decode._
 import org.chipsalliance.rvdecoderdb
 
+import freechips.rocketchip.diplomacy._
+import org.chipsalliance.cde.config.Parameters
+import freechips.rocketchip.subsystem._
+import freechips.rocketchip.util._
+
 import signal_value._
 import bus_state._
 // riscv generating number(all meassge ALU and other thing needs) unit

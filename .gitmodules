@@ -19,3 +19,6 @@
 [submodule "chisel-tutorial/chisel-lab"]
 	path = chisel-tutorial/chisel-lab
 	url = git@github.com:schoeberl/chisel-lab.git
+[submodule "npc/rocket-chip"]
+	path = npc/rocket-chip
+	url = git@github.com:TimeKeepper/rocket-chip.git

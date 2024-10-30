@@ -1,4 +1,4 @@
-PRJ = playground
+PRJ = npc
 
 PLATFORM ?= ysyxsoc
 PLATFORM_PATH = $(NPC_HOME)/platform/$(PLATFORM)

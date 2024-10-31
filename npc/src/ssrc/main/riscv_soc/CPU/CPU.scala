@@ -4,6 +4,12 @@ import chisel3._
 import chisel3.util._
 
 import config._
+
+import org.chipsalliance.cde.config.Parameters
+import freechips.rocketchip.subsystem._
+import freechips.rocketchip.amba.axi4._
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.util._
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
@@ -48,10 +54,14 @@ class AXI_BRIDGE extends BlackBox with HasBlackBoxInline{
   """.stripMargin)
 }
 
+object CPUAXI4BundleParameters {
+  def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
+}
+
 class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
-    val master = new FIX_AXI_BUS_Master
-    val slave  = new FIX_AXI_BUS_Slave
+    val master = AXI4Bundle(CPUAXI4BundleParameters())
+    val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
     val interrupt = Input(Bool())
   })
   
@@ -87,37 +97,8 @@ class ysyx_23060198 extends Module {
   REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
   // bus AXI Interconnect
-  io.master.awready <> AXI_Interconnect.io.AXI.awaddr.ready
-  io.master.awvalid <> AXI_Interconnect.io.AXI.awaddr.valid
-  io.master.awaddr  <> AXI_Interconnect.io.AXI.awaddr.bits.addr
-  io.master.awid    := 0.U
-  io.master.awlen   := 0.U
-  io.master.awsize  <> AXI_Interconnect.io.AXI.awaddr.bits.size
-  io.master.awburst := 0.U
-
-  io.master.wready <> AXI_Interconnect.io.AXI.wdata.ready
-  io.master.wvalid <> AXI_Interconnect.io.AXI.wdata.valid
-  io.master.wdata  <> AXI_Interconnect.io.AXI.wdata.bits.data
-  io.master.wstrb   <> AXI_Interconnect.io.AXI.wdata.bits.strb
-  io.master.wlast         := 0.U
-
-  io.master.bready <> AXI_Interconnect.io.AXI.bresp.ready
-  io.master.bvalid <> AXI_Interconnect.io.AXI.bresp.valid
-  io.master.bresp  <> AXI_Interconnect.io.AXI.bresp.bits.bresp
-  // io.master.bid    
-
-  io.master.arready <> AXI_Interconnect.io.AXI.araddr.ready
-  io.master.arvalid <> AXI_Interconnect.io.AXI.araddr.valid
-  io.master.araddr  <> AXI_Interconnect.io.AXI.araddr.bits.addr
-  io.master.arid    := 0.U
-  io.master.arlen   := 0.U
-  io.master.arsize  := AXI_Interconnect.io.AXI.araddr.bits.size
-  io.master.arburst := 0.U
-
-  io.master.rready <> AXI_Interconnect.io.AXI.rdata.ready
-  io.master.rvalid <> AXI_Interconnect.io.AXI.rdata.valid
-  io.master.rresp  <> AXI_Interconnect.io.AXI.rdata.bits.resp
-  AXI_Interconnect.io.AXI.rdata.bits.data := io.master.rdata
+  io.master <> AXI_Interconnect.io.AXI
+  AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
 
   AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
   AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
@@ -142,7 +123,7 @@ class ysyx_23060198 extends Module {
 
     val axi_bridge = Module(new AXI_BRIDGE)
     axi_bridge.io.clock := clock
-    axi_bridge.io.rresp := io.master.rresp
-    axi_bridge.io.bresp := io.master.bresp
+    axi_bridge.io.rresp := io.master.r.bits.resp
+    axi_bridge.io.bresp := io.master.b.bits.resp
   }
 }

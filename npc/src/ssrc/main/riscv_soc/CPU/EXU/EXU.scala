@@ -6,6 +6,12 @@ import chisel3.util._
 import signal_value._
 import bus_state._
 
+import org.chipsalliance.cde.config.Parameters
+import freechips.rocketchip.subsystem._
+import freechips.rocketchip.amba.axi4._
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.util._
+
 // riscv excution unit
 
 class ysyx_23060198_EXU extends Module {
@@ -15,7 +21,7 @@ class ysyx_23060198_EXU extends Module {
         val REG_2_EXU = Input(new BUS_REG_2_EXU)
 
         val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
-        val AXI = new AXI_Master
+        val AXI = AXI4Bundle(CPUAXI4BundleParameters())
     })
     val alu = Module(new ysyx_23060198_ALU)
     val lsu = Module(new ysyx_23060198_LSU)

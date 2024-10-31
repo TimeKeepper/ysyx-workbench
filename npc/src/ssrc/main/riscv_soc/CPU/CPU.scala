@@ -140,3 +140,16 @@ class ysyx_23060198Full extends Module {
   io.slave <> cpu.io.slave
   io.interrupt <> cpu.io.interrupt
 }
+
+class ysyx_23060198Top extends Module {
+  val io = IO(new Bundle {
+    val master = AXI4Bundle(CPUAXI4BundleParameters())
+    val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
+    val interrupt = Input(Bool())
+  })
+  
+  val cpu = Module(new ysyx_23060198Full)
+  cpu.io.master <> io.master
+  io.slave <> cpu.io.slave
+  io.interrupt <> cpu.io.interrupt
+}

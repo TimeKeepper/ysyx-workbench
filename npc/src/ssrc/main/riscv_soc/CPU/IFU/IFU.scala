@@ -74,43 +74,46 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val REG_2_IFU = Input(new BUS_REG_2_IFU)
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
             val IFU_2_REG = Output(new BUS_IFU_2_REG)
-            val AXI = AXI4Bundle(CPUAXI4BundleParameters())
         })
+        val AXI = Wire(new AXI4Bundle(CPUAXI4BundleParameters()))
 
-        io.WBU_2_IFU.ready <> io.AXI.ar.ready
-        io.WBU_2_IFU.valid <> io.AXI.ar.valid
-        io.REG_2_IFU.Next_PC <> io.AXI.ar.bits.addr
-        io.AXI.ar.bits.size  <> 2.U
-        io.AXI.ar.bits.id    := 0.U
-        io.AXI.ar.bits.len   := 0.U
-        io.AXI.ar.bits.burst := 0.U
-        io.AXI.ar.bits.lock  := 0.U
-        io.AXI.ar.bits.cache := 0.U
-        io.AXI.ar.bits.prot  := 0.U
-        io.AXI.ar.bits.qos   := 0.U
+        val (master, _) = masterNode.out(0)
+        master <> AXI
 
-        io.IFU_2_IDU.ready <> io.AXI.r.ready
-        io.IFU_2_IDU.valid <> io.AXI.r.valid
-        io.IFU_2_IDU.bits.data <> io.AXI.r.bits.data
+        io.WBU_2_IFU.ready <> AXI.ar.ready
+        io.WBU_2_IFU.valid <> AXI.ar.valid
+        io.REG_2_IFU.Next_PC <> AXI.ar.bits.addr
+        AXI.ar.bits.size  := 2.U
+        AXI.ar.bits.id    := 0.U
+        AXI.ar.bits.len   := 0.U
+        AXI.ar.bits.burst := 0.U
+        AXI.ar.bits.lock  := 0.U
+        AXI.ar.bits.cache := 0.U
+        AXI.ar.bits.prot  := 0.U
+        AXI.ar.bits.qos   := 0.U
 
-        io.IFU_2_REG.GPR_Aaddr <> io.AXI.r.bits.data(19, 15)
-        io.IFU_2_REG.GPR_Baddr <> io.AXI.r.bits.data(24, 20)
+        io.IFU_2_IDU.ready <> AXI.r.ready
+        io.IFU_2_IDU.valid <> AXI.r.valid
+        io.IFU_2_IDU.bits.data <> AXI.r.bits.data
 
-        io.AXI.aw.valid := false.B
-        io.AXI.aw.bits.addr := 0.U
-        io.AXI.aw.bits.size := 0.U
-        io.AXI.aw.bits.id    := 0.U
-        io.AXI.aw.bits.len   := 0.U
-        io.AXI.aw.bits.burst := 0.U
-        io.AXI.aw.bits.lock  := 0.U
-        io.AXI.aw.bits.cache := 0.U
-        io.AXI.aw.bits.prot  := 0.U
-        io.AXI.aw.bits.qos   := 0.U
-        io.AXI.w.valid := false.B
-        io.AXI.w.bits.data := 0.U
-        io.AXI.w.bits.strb := 0.U
-        io.AXI.w.bits.last  := 0.U
-        io.AXI.b.ready := false.B
+        io.IFU_2_REG.GPR_Aaddr <> AXI.r.bits.data(19, 15)
+        io.IFU_2_REG.GPR_Baddr <> AXI.r.bits.data(24, 20)
+
+        AXI.aw.valid := false.B
+        AXI.aw.bits.addr := 0.U
+        AXI.aw.bits.size := 0.U
+        AXI.aw.bits.id    := 0.U
+        AXI.aw.bits.len   := 0.U
+        AXI.aw.bits.burst := 0.U
+        AXI.aw.bits.lock  := 0.U
+        AXI.aw.bits.cache := 0.U
+        AXI.aw.bits.prot  := 0.U
+        AXI.aw.bits.qos   := 0.U
+        AXI.w.valid := false.B
+        AXI.w.bits.data := 0.U
+        AXI.w.bits.strb := 0.U
+        AXI.w.bits.last  := 0.U
+        AXI.b.ready := false.B
 
         if(Config.DPIC_on){
             val trace = Module(new IFU_TRACE)

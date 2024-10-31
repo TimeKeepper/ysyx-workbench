@@ -77,6 +77,8 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val IFU_2_REG = Output(new BUS_IFU_2_REG)
             val AXI = AXI4Bundle(CPUAXI4BundleParameters())
         })
+        // val (master, _) = masterNode.out(0)
+        // master <> io.AXI
 
         io.WBU_2_IFU.ready <> io.AXI.ar.ready
         io.WBU_2_IFU.valid <> io.AXI.ar.valid

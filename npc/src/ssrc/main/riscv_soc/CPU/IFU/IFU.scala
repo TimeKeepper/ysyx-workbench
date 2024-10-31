@@ -5,6 +5,12 @@ import chisel3.util._
 
 import config._
 
+import org.chipsalliance.cde.config.Parameters
+import freechips.rocketchip.subsystem._
+import freechips.rocketchip.amba.axi4._
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.util._
+
 class IFU_TRACE extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
         val clock = Input(Clock())
@@ -61,28 +67,43 @@ class ysyx_23060198_IFU extends Module {
         val REG_2_IFU = Input(new BUS_REG_2_IFU)
         val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
         val IFU_2_REG = Output(new BUS_IFU_2_REG)
-        val AXI = new AXI_Master
+        val AXI = AXI4Bundle(CPUAXI4BundleParameters())
     })
 
-    io.WBU_2_IFU.ready <> io.AXI.araddr.ready
-    io.WBU_2_IFU.valid <> io.AXI.araddr.valid
-    io.REG_2_IFU.Next_PC <> io.AXI.araddr.bits.addr
-    io.AXI.araddr.bits.size <> 2.U
+    io.WBU_2_IFU.ready <> io.AXI.ar.ready
+    io.WBU_2_IFU.valid <> io.AXI.ar.valid
+    io.REG_2_IFU.Next_PC <> io.AXI.ar.bits.addr
+    io.AXI.ar.bits.size  <> 2.U
+    io.AXI.ar.bits.id    := 0.U
+    io.AXI.ar.bits.len   := 0.U
+    io.AXI.ar.bits.burst := 0.U
+    io.AXI.ar.bits.lock  := 0.U
+    io.AXI.ar.bits.cache := 0.U
+    io.AXI.ar.bits.prot  := 0.U
+    io.AXI.ar.bits.qos   := 0.U
 
-    io.IFU_2_IDU.ready <> io.AXI.rdata.ready
-    io.IFU_2_IDU.valid <> io.AXI.rdata.valid
-    io.IFU_2_IDU.bits.data <> io.AXI.rdata.bits.data
+    io.IFU_2_IDU.ready <> io.AXI.r.ready
+    io.IFU_2_IDU.valid <> io.AXI.r.valid
+    io.IFU_2_IDU.bits.data <> io.AXI.r.bits.data
 
-    io.IFU_2_REG.GPR_Aaddr <> io.AXI.rdata.bits.data(19, 15)
-    io.IFU_2_REG.GPR_Baddr <> io.AXI.rdata.bits.data(24, 20)
+    io.IFU_2_REG.GPR_Aaddr <> io.AXI.r.bits.data(19, 15)
+    io.IFU_2_REG.GPR_Baddr <> io.AXI.r.bits.data(24, 20)
 
-    io.AXI.awaddr.valid := false.B
-    io.AXI.awaddr.bits.addr := 0.U
-    io.AXI.awaddr.bits.size := 0.U
-    io.AXI.wdata.valid := false.B
-    io.AXI.wdata.bits.data := 0.U
-    io.AXI.wdata.bits.strb := 0.U
-    io.AXI.bresp.ready := false.B
+    io.AXI.aw.valid := false.B
+    io.AXI.aw.bits.addr := 0.U
+    io.AXI.aw.bits.size := 0.U
+    io.AXI.aw.bits.id    := 0.U
+    io.AXI.aw.bits.len   := 0.U
+    io.AXI.aw.bits.burst := 0.U
+    io.AXI.aw.bits.lock  := 0.U
+    io.AXI.aw.bits.cache := 0.U
+    io.AXI.aw.bits.prot  := 0.U
+    io.AXI.aw.bits.qos   := 0.U
+    io.AXI.w.valid := false.B
+    io.AXI.w.bits.data := 0.U
+    io.AXI.w.bits.strb := 0.U
+    io.AXI.w.bits.last  := 0.U
+    io.AXI.b.ready := false.B
 
     if(Config.DPIC_on){
         val trace = Module(new IFU_TRACE)

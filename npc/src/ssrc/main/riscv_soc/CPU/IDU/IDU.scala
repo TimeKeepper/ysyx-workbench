@@ -15,6 +15,7 @@ import signal_value._
 import bus_state._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
+
 trait DecodeAPI {
     def Get_BitPat[T <: Data](Enum: T): BitPat = {
         BitPat(Enum.litValue.U(Enum.getWidth.W))

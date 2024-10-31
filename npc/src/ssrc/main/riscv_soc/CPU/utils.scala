@@ -5,7 +5,24 @@ import chisel3.util._
 
 import chisel3.util.BitPat
 
+import freechips.rocketchip.subsystem._
+import org.chipsalliance.cde.config.{Field, Parameters}
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.tilelink._
+import freechips.rocketchip.util._
+import freechips.rocketchip.devices.tilelink._
+import freechips.rocketchip.amba.axi4._
+import freechips.rocketchip.system._
+
 // total instruction num: 35
+
+object ChipLinkParam {
+  // Must have a cacheable address sapce.
+  val mem  = AddressSet(0xc0000000L, 0x40000000L - 1)
+  val mmio = AddressSet(0x40000000L, 0x40000000L - 1)
+  val allSpace = Seq(mem, mmio)
+  val idBits = 4
+}
 
 object Instructions {
   // Loads

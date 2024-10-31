@@ -10,6 +10,9 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
+import org.chipsalliance.cde.config.{Parameters, Config}
+import freechips.rocketchip.system._
+import freechips.rocketchip.diplomacy.LazyModule
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
@@ -128,28 +131,22 @@ class ysyx_23060198 extends Module {
   }
 }
 
-class ysyx_23060198Full extends Module {
-  val io = IO(new Bundle {
-    val master = AXI4Bundle(CPUAXI4BundleParameters())
-    val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
-    val interrupt = Input(Bool())
-  })
+class ysyx_23060198Full(implicit p: Parameters) extends LazyModule {
+  ElaborationArtefacts.add("graphml", graphML)
   
-  val cpu = Module(new ysyx_23060198)
-  cpu.io.master <> io.master
-  io.slave <> cpu.io.slave
-  io.interrupt <> cpu.io.interrupt
+  override lazy val module = new Impl
+  class Impl extends LazyModuleImp(this) with DontTouch {
+    val asic = Module(new ysyx_23060198)
+    asic.io.interrupt := false.B
+  }
 }
 
 class ysyx_23060198Top extends Module {
-  val io = IO(new Bundle {
-    val master = AXI4Bundle(CPUAXI4BundleParameters())
-    val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
-    val interrupt = Input(Bool())
-  })
+  implicit val config: Parameters = new Config(new Edge32BitConfig ++ new DefaultRV32Config)
   
-  val cpu = Module(new ysyx_23060198Full)
-  cpu.io.master <> io.master
-  io.slave <> cpu.io.slave
-  io.interrupt <> cpu.io.interrupt
+  val io = IO(new Bundle { })
+  val dut = LazyModule(new ysyx_23060198Full)
+  val mdut = Module(dut.module)
+  mdut.dontTouchPorts()
+  mdut.asic.io <> DontCare
 }

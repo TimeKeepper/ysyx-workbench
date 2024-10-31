@@ -61,92 +61,92 @@ object CPUAXI4BundleParameters {
   def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
 }
 
-class ysyx_23060198 extends Module {
-  val io = IO(new Bundle {
-    val master = AXI4Bundle(CPUAXI4BundleParameters())
-    val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
-    val interrupt = Input(Bool())
-  })
-  
-  val IFU             = Module(new ysyx_23060198_IFU)
-  val IDU             = Module(new ysyx_23060198_IDU)
-  val EXU             = Module(new ysyx_23060198_EXU)
-  val WBU             = Module(new ysyx_23060198_WBU)
-  val REG             = Module(new ysyx_23060198_REG) 
-  val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
-
-  // bus IFU -> IDU
-  IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
-
-  // bus IFU -> REG -> IDU without delay
-  IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
-  REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
-
-  // bus IDU -> EXU
-  IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
-
-  // bus IDU -> REG -> EXU without delay
-  IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
-  REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
-
-  // bus EXU -> WBU
-  EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
-
-  // bus WBU -> IFU
-  WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
-
-  // bus WBU -> REG -> IFU without delay
-  WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
-  REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
-
-  // bus AXI Interconnect
-  io.master <> AXI_Interconnect.io.AXI
-  AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
-
-  AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-  AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
-
-  AXI_Interconnect.io.IFU         <> IFU.io.AXI
-  AXI_Interconnect.io.LSU         <> EXU.io.AXI
-
-  io.slave <> DontCare
-  io.interrupt <> DontCare
-
-  if(Config.DPIC_on){
-    val INST_BRIDGE = Module(new INST_BRIDGE)
-    INST_BRIDGE.io.clock := clock
-
-    val comp_cache = RegInit(Bool(), false.B)
-    comp_cache := WBU.io.WBU_2_IFU.valid
-    when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
-      INST_BRIDGE.io.valid := true.B
-    }.otherwise {
-      INST_BRIDGE.io.valid := false.B
-    }
-
-    val axi_bridge = Module(new AXI_BRIDGE)
-    axi_bridge.io.clock := clock
-    axi_bridge.io.rresp := io.master.r.bits.resp
-    axi_bridge.io.bresp := io.master.b.bits.resp
-  }
-}
-
-class ysyx_23060198Full(implicit p: Parameters) extends LazyModule {
+class CPU(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
-  
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
-    val asic = Module(new ysyx_23060198)
-    asic.io.interrupt := false.B
+    val io = IO(new Bundle {
+      val master = AXI4Bundle(CPUAXI4BundleParameters())
+      val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
+      val interrupt = Input(Bool())
+    })
+    
+    val IFU             = Module(new ysyx_23060198_IFU)
+    val IDU             = Module(new ysyx_23060198_IDU)
+    val EXU             = Module(new ysyx_23060198_EXU)
+    val WBU             = Module(new ysyx_23060198_WBU)
+    val REG             = Module(new ysyx_23060198_REG) 
+    val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
+
+    // bus IFU -> IDU
+    IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
+
+    // bus IFU -> REG -> IDU without delay
+    IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
+    REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
+
+    // bus IDU -> EXU
+    IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
+
+    // bus IDU -> REG -> EXU without delay
+    IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
+    REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
+
+    // bus EXU -> WBU
+    EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
+
+    // bus WBU -> IFU
+    WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
+
+    // bus WBU -> REG -> IFU without delay
+    WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+    REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
+
+    // bus AXI Interconnect
+    io.master <> AXI_Interconnect.io.AXI
+    AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
+
+    AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
+    AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
+
+    AXI_Interconnect.io.IFU         <> IFU.io.AXI
+    AXI_Interconnect.io.LSU         <> EXU.io.AXI
+
+    io.slave <> DontCare
+    io.interrupt <> DontCare
+
+    if(Config.DPIC_on){
+      val INST_BRIDGE = Module(new INST_BRIDGE)
+      INST_BRIDGE.io.clock := clock
+
+      val comp_cache = RegInit(Bool(), false.B)
+      comp_cache := WBU.io.WBU_2_IFU.valid
+      when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
+        INST_BRIDGE.io.valid := true.B
+      }.otherwise {
+        INST_BRIDGE.io.valid := false.B
+      }
+
+      val axi_bridge = Module(new AXI_BRIDGE)
+      axi_bridge.io.clock := clock
+      axi_bridge.io.rresp := io.master.r.bits.resp
+      axi_bridge.io.bresp := io.master.b.bits.resp
+    }
   }
 }
 
-class ysyx_23060198Top extends Module {
+class ysyx_23060198 extends Module {
   implicit val config: Parameters = new Config(new Edge32BitConfig ++ new DefaultRV32Config)
   
-  val io = IO(new Bundle { })
-  val dut = LazyModule(new ysyx_23060198Full)
+  val io = IO(new Bundle {
+      val master = AXI4Bundle(CPUAXI4BundleParameters())
+      val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
+      val interrupt = Input(Bool()) 
+  })
+  val dut = LazyModule(new CPU)
   val mdut = Module(dut.module)
   mdut.dontTouchPorts()
-  mdut.asic.io <> DontCare
+  mdut.io.master <> io.master
+  io.slave <> mdut.io.slave
+  io.interrupt <> mdut.io.interrupt
 }

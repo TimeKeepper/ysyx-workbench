@@ -60,8 +60,8 @@ object CPUAXI4BundleParameters {
 
 class ysyx_23060198 extends Module {
   val io = IO(new Bundle {
-    val master = new AXI4Bundle(CPUAXI4BundleParameters())
-    val slave  = new FIX_AXI_BUS_Slave
+    val master = AXI4Bundle(CPUAXI4BundleParameters())
+    val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
     val interrupt = Input(Bool())
   })
   

@@ -98,44 +98,6 @@ class ysyx_23060198 extends Module {
 
   // bus AXI Interconnect
   io.master <> AXI_Interconnect.io.AXI
-  // io.master.aw.ready <> AXI_Interconnect.io.AXI.aw.ready
-  // io.master.aw.valid <> AXI_Interconnect.io.AXI.aw.valid
-  // io.master.aw.bits.addr  <> AXI_Interconnect.io.AXI.aw.bits.addr
-  // io.master.aw.bits.size  <> AXI_Interconnect.io.AXI.aw.bits.size
-  // io.master.aw.bits.id    := 0.U
-  // io.master.aw.bits.len   := 0.U
-  // io.master.aw.bits.burst := 0.U
-  // io.master.aw.bits.lock  := 0.U
-  // io.master.aw.bits.cache := 0.U
-  // io.master.aw.bits.prot  := 0.U
-  // io.master.aw.bits.qos   := 0.U
-
-  // io.master.w.ready <> AXI_Interconnect.io.AXI.w.ready
-  // io.master.w.valid <> AXI_Interconnect.io.AXI.w.valid
-  // io.master.w.bits.data  <> AXI_Interconnect.io.AXI.w.bits.data
-  // io.master.w.bits.strb   <> AXI_Interconnect.io.AXI.w.bits.strb
-  // io.master.w.bits.last         := 0.U
-
-  // io.master.b.ready <> AXI_Interconnect.io.AXI.b.ready
-  // io.master.b.valid <> AXI_Interconnect.io.AXI.b.valid
-  // io.master.b.bits.resp  <> AXI_Interconnect.io.AXI.b.bits.resp
-  // // io.master.bid    
-
-  // io.master.ar.ready <> AXI_Interconnect.io.AXI.ar.ready
-  // io.master.ar.valid <> AXI_Interconnect.io.AXI.ar.valid
-  // io.master.ar.bits.addr  <> AXI_Interconnect.io.AXI.ar.bits.addr
-  // io.master.ar.bits.size  := AXI_Interconnect.io.AXI.ar.bits.size
-  // io.master.ar.bits.id    := 0.U
-  // io.master.ar.bits.len   := 0.U
-  // io.master.ar.bits.burst := 0.U
-  // io.master.ar.bits.lock  := 0.U
-  // io.master.ar.bits.cache := 0.U
-  // io.master.ar.bits.prot  := 0.U
-  // io.master.ar.bits.qos   := 0.U
-
-  // io.master.r.ready <> AXI_Interconnect.io.AXI.r.ready
-  // io.master.r.valid <> AXI_Interconnect.io.AXI.r.valid
-  // io.master.r.bits.resp  <> AXI_Interconnect.io.AXI.r.bits.resp
   AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
 
   AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid

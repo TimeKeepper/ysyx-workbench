@@ -10,6 +10,9 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
+import org.chipsalliance.cde.config.{Parameters, Config}
+import freechips.rocketchip.system._
+import freechips.rocketchip.diplomacy.LazyModule
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
@@ -59,13 +62,16 @@ object CPUAXI4BundleParameters {
 }
 
 class ysyx_23060198 extends Module {
+  implicit val config: Parameters = new Config(new Edge32BitConfig ++ new DefaultRV32Config)
+  // val xbar = AXI4Xbar()
   val io = IO(new Bundle {
     val master = AXI4Bundle(CPUAXI4BundleParameters())
     val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
     val interrupt = Input(Bool())
   })
   
-  val IFU             = Module(new ysyx_23060198_IFU)
+  val LazyIFU         = LazyModule(new ysyx_23060198_IFU(idBits = ChipLinkParam.idBits))
+  val IFU             = Module(LazyIFU.module)
   val IDU             = Module(new ysyx_23060198_IDU)
   val EXU             = Module(new ysyx_23060198_EXU)
   val WBU             = Module(new ysyx_23060198_WBU)

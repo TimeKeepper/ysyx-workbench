@@ -61,8 +61,29 @@ object CPUAXI4BundleParameters {
   def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
 }
 
-class CPU(implicit p: Parameters) extends LazyModule {
+class AXI_test(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
+  val beatBytes = 4
+  val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
+    Seq(AXI4SlaveParameters(
+        address       = address,
+        executable    = true,
+        supportsWrite = TransferSizes.none,
+        supportsRead  = TransferSizes(1, beatBytes),
+        interleavedId = Some(0))
+    ),
+    beatBytes  = beatBytes)))
+    lazy val module = new Impl
+    class Impl extends LazyModuleImp(this) {
+      val (in, _) = node.in(0)
+      val Out = IO(Output(new AXI4Bundle(CPUAXI4BundleParameters())))
+      Out <> in
+    }
+}
+
+class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
+  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits))
+  val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits))
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
     val io = IO(new Bundle {
@@ -71,9 +92,9 @@ class CPU(implicit p: Parameters) extends LazyModule {
       val interrupt = Input(Bool())
     })
     
-    val IFU             = Module(new ysyx_23060198_IFU)
+    val IFU             = LazyIFU.module
     val IDU             = Module(new ysyx_23060198_IDU)
-    val EXU             = Module(new ysyx_23060198_EXU)
+    val EXU             = LazyEXU.module
     val WBU             = Module(new ysyx_23060198_WBU)
     val REG             = Module(new ysyx_23060198_REG) 
     val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
@@ -143,7 +164,7 @@ class ysyx_23060198 extends Module {
       val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
       val interrupt = Input(Bool()) 
   })
-  val dut = LazyModule(new CPU)
+  val dut = LazyModule(new CPU(idBits = ChipLinkParam.idBits))
   val mdut = Module(dut.module)
   mdut.dontTouchPorts()
   mdut.io.master <> io.master

@@ -63,11 +63,16 @@ object CPUAXI4BundleParameters {
 
 class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
-    val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
-        AXI4MasterPortParameters(
-        masters = Seq(AXI4MasterParameters(
-            name = "cpu",
-            id   = IdRange(0, 1 << idBits))))).toSeq)
+  // val beatBytes = 4
+  // val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
+  //   Seq(AXI4SlaveParameters(
+  //       address       = Seq(AddressSet.everything),
+  //       executable    = true,
+  //       supportsWrite = TransferSizes(1, beatBytes),
+  //       supportsRead  = TransferSizes(1, beatBytes),
+  //       interleavedId = Some(0))
+  //   ),
+  //   beatBytes  = beatBytes)))
 
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {

@@ -108,7 +108,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val EXU             = LazyEXU.module
     val WBU             = Module(new ysyx_23060198_WBU)
     val REG             = Module(new ysyx_23060198_REG) 
-    val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
+    // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
     // bus IFU -> IDU
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
@@ -135,14 +135,15 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
     // bus AXI Interconnect
-    io.master <> AXI_Interconnect.io.AXI
-    AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
+    io.master <> node.in.head._1
+    // io.master <> AXI_Interconnect.io.AXI
+    // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
 
-    AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-    AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
+    // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
+    // AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
 
-    AXI_Interconnect.io.IFU         <> IFU.io.AXI
-    AXI_Interconnect.io.LSU         <> EXU.io.AXI
+    // AXI_Interconnect.io.IFU         <> IFU.io.AXI
+    // AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
     io.slave <> DontCare
     io.interrupt <> DontCare

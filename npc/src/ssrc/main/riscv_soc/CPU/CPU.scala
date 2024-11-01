@@ -95,7 +95,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     ),
     beatBytes  = beatBytes)))
 
-  val xbar = AXI4Xbar(arbitrationPolicy = TLArbiter.lowestIndexFirst)
+  val xbar = AXI4Xbar(arbitrationPolicy = TLArbiter.highestIndexFirst)
   xbar := LazyIFU.masterNode
   xbar := LazyEXU.masterNode
 

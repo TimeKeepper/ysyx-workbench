@@ -63,38 +63,6 @@ object CPUAXI4BundleParameters {
 
 class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
-
-  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
-  val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits))
-  val beatBytes = 4
-  val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
-    Seq(AXI4SlaveParameters(
-        address       = AddressSet.misaligned(0x10001000, 0x1000),
-        executable    = true,
-        supportsWrite = TransferSizes.none,
-        supportsRead  = TransferSizes(1, beatBytes),
-        interleavedId = Some(0))
-    ),
-    beatBytes  = beatBytes)))
-
-  val xbar = AXI4Xbar()
-  xbar := LazyEXU.masterNode
-  xbar := LazyIFU.masterNode
-
-  node := xbar
-  // val beatBytes = 4
-  // val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
-  //   Seq(AXI4SlaveParameters(
-  //       address       = AddressSet.misaligned(0x10001000, 0x1000),
-  //       executable    = true,
-  //       supportsWrite = TransferSizes(1, beatBytes),
-  //       supportsRead  = TransferSizes(1, beatBytes),
-  //       interleavedId = Some(0))
-  //   ),
-  //   beatBytes  = beatBytes)))
-
-
-
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
     val io = IO(new Bundle {
@@ -103,9 +71,9 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
       val interrupt = Input(Bool())
     })
     
-    val IFU             = LazyIFU.module
+    val IFU             = Module(new ysyx_23060198_IFU)
     val IDU             = Module(new ysyx_23060198_IDU)
-    val EXU             = LazyEXU.module
+    val EXU             = Module(new ysyx_23060198_EXU)
     val WBU             = Module(new ysyx_23060198_WBU)
     val REG             = Module(new ysyx_23060198_REG) 
     val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)

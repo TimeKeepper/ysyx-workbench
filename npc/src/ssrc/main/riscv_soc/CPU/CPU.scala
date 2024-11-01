@@ -13,10 +13,6 @@ import freechips.rocketchip.util._
 import org.chipsalliance.cde.config.{Parameters, Config}
 import freechips.rocketchip.system._
 import freechips.rocketchip.diplomacy.LazyModule
-import freechips.rocketchip.diplomacy.{AddressDecoder, AddressSet, BufferParams}
-import freechips.rocketchip.tilelink.{TLArbiter, TLXbar, TLFilter, TLFuzzer, TLToAXI4, TLRAMModel}
-import freechips.rocketchip.unittest.{UnitTest, UnitTestModule}
-import freechips.rocketchip.util.BundleField
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
@@ -68,26 +64,12 @@ object CPUAXI4BundleParameters {
 class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
 
-  val mmio = {
-    AddressSet.misaligned(0x10000000, 0x1000) ++ 
-    AddressSet.misaligned(0x10002000, 0x10) ++ 
-    AddressSet.misaligned(0x10011000, 0x8) ++ 
-    AddressSet.misaligned(0x21000000, 0x200000) ++ 
-    AddressSet.misaligned(0x10001000, 0x1000) ++ 
-    AddressSet.misaligned(0x30000000, 0x10000000) ++ 
-    AddressSet.misaligned(0x80000000L, 0x400000) ++
-    AddressSet.misaligned(0x20000000, 0x1000) ++ 
-    AddressSet.misaligned(0x2000000, 0x10000) ++
-    AddressSet.misaligned(0x0f000000, 0x2000) ++ 
-    AddressSet.misaligned(0xa0000000L, 0x2000000)
-  }
-
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits))
   val beatBytes = 4
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     Seq(AXI4SlaveParameters(
-        address       = mmio,
+        address       = AddressSet.misaligned(0x10001000, 0x1000),
         executable    = true,
         supportsWrite = TransferSizes.none,
         supportsRead  = TransferSizes(1, beatBytes),
@@ -95,9 +77,9 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     ),
     beatBytes  = beatBytes)))
 
-  val xbar = AXI4Xbar(arbitrationPolicy = TLArbiter.highestIndexFirst)
-  xbar := LazyIFU.masterNode
+  val xbar = AXI4Xbar()
   xbar := LazyEXU.masterNode
+  xbar := LazyIFU.masterNode
 
   node := xbar
   // val beatBytes = 4
@@ -126,7 +108,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val EXU             = LazyEXU.module
     val WBU             = Module(new ysyx_23060198_WBU)
     val REG             = Module(new ysyx_23060198_REG) 
-    // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
+    val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
     // bus IFU -> IDU
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
@@ -153,15 +135,14 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
     // bus AXI Interconnect
-    io.master <> node.in.head._1
-    // io.master <> AXI_Interconnect.io.AXI
-    // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
+    io.master <> AXI_Interconnect.io.AXI
+    AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
 
-    // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-    // AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
+    AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
+    AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
 
-    // AXI_Interconnect.io.IFU         <> IFU.io.AXI
-    // AXI_Interconnect.io.LSU         <> EXU.io.AXI
+    AXI_Interconnect.io.IFU         <> IFU.io.AXI
+    AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
     io.slave <> DontCare
     io.interrupt <> DontCare

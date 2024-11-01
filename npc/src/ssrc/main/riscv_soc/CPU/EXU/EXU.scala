@@ -28,11 +28,8 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val REG_2_EXU = Input(new BUS_REG_2_EXU)
 
             val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
-            // val AXI = AXI4Bundle(CPUAXI4BundleParameters())
+            val AXI = AXI4Bundle(CPUAXI4BundleParameters())
         })
-
-        val AXI = masterNode.out.head._1
-
         val alu = Module(new ysyx_23060198_ALU)
         val lsu = Module(new ysyx_23060198_LSU)
 
@@ -59,7 +56,7 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         alu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
 
         lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
-        lsu.io.AXI <> AXI
+        lsu.io.AXI <> io.AXI
         
         val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
             Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm),

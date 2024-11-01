@@ -64,12 +64,26 @@ object CPUAXI4BundleParameters {
 class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
 
+  val mmio = {
+    AddressSet.misaligned(0x10000000, 0x1000) ++ 
+    AddressSet.misaligned(0x10002000, 0x10) ++ 
+    AddressSet.misaligned(0x10011000, 0x8) ++ 
+    AddressSet.misaligned(0x21000000, 0x200000) ++ 
+    AddressSet.misaligned(0x10001000, 0x1000) ++ 
+    AddressSet.misaligned(0x30000000, 0x10000000) ++ 
+    AddressSet.misaligned(0x80000000L, 0x400000) ++
+    AddressSet.misaligned(0x20000000, 0x1000) ++ 
+    AddressSet.misaligned(0x2000000, 0x10000) ++
+    AddressSet.misaligned(0x0f000000, 0x2000) ++ 
+    AddressSet.misaligned(0xa0000000L, 0x2000000)
+  }
+
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits))
   val beatBytes = 4
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     Seq(AXI4SlaveParameters(
-        address       = AddressSet.misaligned(0x10001000, 0x1000),
+        address       = mmio,
         executable    = true,
         supportsWrite = TransferSizes.none,
         supportsRead  = TransferSizes(1, beatBytes),

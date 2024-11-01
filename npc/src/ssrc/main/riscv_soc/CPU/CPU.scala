@@ -69,13 +69,15 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   // val beatBytes = 4
   // val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
   //   Seq(AXI4SlaveParameters(
-  //       address       = Seq(AddressSet.everything),
+  //       address       = AddressSet.misaligned(0x10001000, 0x1000),
   //       executable    = true,
   //       supportsWrite = TransferSizes(1, beatBytes),
   //       supportsRead  = TransferSizes(1, beatBytes),
   //       interleavedId = Some(0))
   //   ),
   //   beatBytes  = beatBytes)))
+
+
 
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {

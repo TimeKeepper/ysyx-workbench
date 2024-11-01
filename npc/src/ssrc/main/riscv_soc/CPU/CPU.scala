@@ -13,6 +13,10 @@ import freechips.rocketchip.util._
 import org.chipsalliance.cde.config.{Parameters, Config}
 import freechips.rocketchip.system._
 import freechips.rocketchip.diplomacy.LazyModule
+import freechips.rocketchip.diplomacy.{AddressDecoder, AddressSet, BufferParams}
+import freechips.rocketchip.tilelink.{TLArbiter, TLXbar, TLFilter, TLFuzzer, TLToAXI4, TLRAMModel}
+import freechips.rocketchip.unittest.{UnitTest, UnitTestModule}
+import freechips.rocketchip.util.BundleField
  
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
@@ -91,7 +95,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     ),
     beatBytes  = beatBytes)))
 
-  val xbar = AXI4Xbar()
+  val xbar = AXI4Xbar(arbitrationPolicy = TLArbiter.lowestIndexFirst)
   xbar := LazyIFU.masterNode
   xbar := LazyEXU.masterNode
 

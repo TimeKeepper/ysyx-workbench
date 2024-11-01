@@ -66,6 +66,11 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits))
+  val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
+    AXI4MasterPortParameters(
+      masters = Seq(AXI4MasterParameters(
+        name = "cpu",
+        id   = IdRange(0, 1 << idBits))))).toSeq)
   // val beatBytes = 4
   // val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
   //   Seq(AXI4SlaveParameters(

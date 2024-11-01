@@ -66,16 +66,34 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits))
+  val beatBytes = 4
+  val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
+    Seq(AXI4SlaveParameters(
+        address       = AddressSet.misaligned(0x10001000, 0x1000),
+        executable    = true,
+        supportsWrite = TransferSizes.none,
+        supportsRead  = TransferSizes(1, beatBytes),
+        interleavedId = Some(0))
+    ),
+    beatBytes  = beatBytes)))
+
+  val xbar = AXI4Xbar()
+  xbar := LazyEXU.masterNode
+  xbar := LazyIFU.masterNode
+
+  node := xbar
   // val beatBytes = 4
   // val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
   //   Seq(AXI4SlaveParameters(
-  //       address       = Seq(AddressSet.everything),
+  //       address       = AddressSet.misaligned(0x10001000, 0x1000),
   //       executable    = true,
   //       supportsWrite = TransferSizes(1, beatBytes),
   //       supportsRead  = TransferSizes(1, beatBytes),
   //       interleavedId = Some(0))
   //   ),
   //   beatBytes  = beatBytes)))
+
+
 
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {

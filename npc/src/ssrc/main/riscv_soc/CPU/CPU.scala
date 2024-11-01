@@ -64,6 +64,7 @@ object CPUAXI4BundleParameters {
 class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
 
+  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits))
   // val beatBytes = 4
   // val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -84,7 +85,7 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
       val interrupt = Input(Bool())
     })
     
-    val IFU             = Module(new ysyx_23060198_IFU)
+    val IFU             = LazyIFU.module
     val IDU             = Module(new ysyx_23060198_IDU)
     val EXU             = LazyEXU.module
     val WBU             = Module(new ysyx_23060198_WBU)

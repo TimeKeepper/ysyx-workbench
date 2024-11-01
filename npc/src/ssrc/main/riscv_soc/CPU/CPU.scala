@@ -61,7 +61,7 @@ object CPUAXI4BundleParameters {
   def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
 }
 
-class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
+class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   ElaborationArtefacts.add("graphml", graphML)
 
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits))
@@ -175,7 +175,7 @@ class ysyx_23060198 extends Module {
       val slave  = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
       val interrupt = Input(Bool()) 
   })
-  val dut = LazyModule(new CPU(idBits = ChipLinkParam.idBits))
+  val dut = LazyModule(new riscv_CPU(idBits = ChipLinkParam.idBits))
   val mdut = Module(dut.module)
   mdut.dontTouchPorts()
   mdut.io.master <> io.master

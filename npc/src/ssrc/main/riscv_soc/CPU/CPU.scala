@@ -92,8 +92,8 @@ class CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     beatBytes  = beatBytes)))
 
   val xbar = AXI4Xbar()
-  xbar := LazyEXU.masterNode
   xbar := LazyIFU.masterNode
+  xbar := LazyEXU.masterNode
 
   node := xbar
   // val beatBytes = 4

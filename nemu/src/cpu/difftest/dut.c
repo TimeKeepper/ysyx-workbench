@@ -102,6 +102,14 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
   }
 }
 
+static void checkmems() {
+  uint32_t* buf = 0;
+  ref_difftest_memcpy(0x80030fe4, buf, 4, DIFFTEST_TO_DUT);
+  if(*(uint32_t*)guest_to_host(0x80030fe4) != *buf){
+    nemu_state.state = NEMU_STOP;
+  }
+}
+
 void difftest_step(vaddr_t pc, vaddr_t npc) {
   IFNDEF(CONFIG_DIFFTEST, return);
 

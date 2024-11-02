@@ -109,7 +109,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         AXI.w.valid := false.B
         AXI.w.bits.data := 0.U
         AXI.w.bits.strb := 0.U
-        AXI.w.bits.last  := 0.U
+        AXI.w.bits.last  := 1.U
         AXI.b.ready := false.B
 
         if(Config.DPIC_on){

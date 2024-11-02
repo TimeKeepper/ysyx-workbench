@@ -113,6 +113,7 @@ static void checkregs(CPU_State *ref, vaddr_t pc) {
 static void checkmems() {
   uint32_t* buf = 0;
   ref_difftest_memcpy(0x80030fe4, buf, 4, DIFFTEST_TO_DUT);
+  Log("checkmems: ref_value: 0x%08x, dut_value: 0x%08x", *(uint32_t*)guest_to_host(0x80030fe4), *buf);
   if(*(uint32_t*)guest_to_host(0x80030fe4) != *buf){
     npc_trap(1);
     npc_state.state = NPC_ABORT;

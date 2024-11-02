@@ -96,12 +96,12 @@ class SRAM(val LSFR_delay : UInt) extends Module {
     val bridge = Module(new sram_bridge)
     bridge.io.clock := clock
     bridge.io.read := state_r === s_busy && LSFRr === 0.U
-    bridge.io.r_addr  := io.AXI.araddr.bits.addr
+    bridge.io.r_addr  := RegEnable(io.AXI.araddr.bits.addr, io.AXI.araddr.valid && io.AXI.araddr.ready)
     io.AXI.rdata.bits.data := bridge.io.r_data
     io.AXI.rdata.bits.resp := "b0".U
 
     bridge.io.write := state_w === s_busy && LSFRw === 0.U
-    bridge.io.w_addr  := io.AXI.awaddr.bits.addr
+    bridge.io.w_addr  := RegEnable(io.AXI.awaddr.bits.addr, io.AXI.awaddr.valid && io.AXI.awaddr.ready)
     bridge.io.w_data  := io.AXI.wdata.bits.data
     bridge.io.w_strb  := io.AXI.wdata.bits.strb
     io.AXI.bresp.bits.bresp := "b0".U

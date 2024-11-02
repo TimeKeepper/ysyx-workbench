@@ -34,48 +34,61 @@ class UART_bridge extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
-class UART extends Module{
-    val io = IO(new Bundle {
-        val AXI = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
-    })
+class UART(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
+    val beatBytes = 4
+    val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
+        Seq(AXI4SlaveParameters(
+            address       = address,
+            executable    = false,
+            supportsWrite = TransferSizes(1, beatBytes),
+            supportsRead  = TransferSizes(1, beatBytes),
+            interleavedId = Some(0))
+        ),
+        beatBytes  = beatBytes)))
+        
+    lazy val module = new Impl
+    class Impl extends LazyModuleImp(this) {
 
-    io.AXI.ar.ready := false.B
-    io.AXI.r.valid  := false.B
-    io.AXI.r.bits.resp := 0.U
-    io.AXI.r.bits.data := 0.U
-    io.AXI.r.bits.last := true.B
+        val AXI = node.in(0)._1
 
-    io.AXI.r.bits.id := RegEnable(io.AXI.ar.bits.id, io.AXI.ar.fire)
-    io.AXI.b.bits.id := RegEnable(io.AXI.aw.bits.id, io.AXI.aw.fire)
+        AXI.ar.ready := false.B
+        AXI.r.valid  := false.B
+        AXI.r.bits.resp := 0.U
+        AXI.r.bits.data := 0.U
 
-    val s_idle :: s_wait_addr :: s_wait_data :: s_wait_resp :: Nil = Enum(4)
+        AXI.r.bits.id := RegEnable(AXI.ar.bits.id, AXI.ar.fire)
+        AXI.b.bits.id := RegEnable(AXI.aw.bits.id, AXI.aw.fire)
+        AXI.r.bits.last := true.B
 
-    val state_w = RegInit(s_idle)
-    val state_cache = RegInit(s_idle)
-    state_cache := state_w
-    
-    state_w := MuxLookup(state_w, s_wait_addr)(
-        Seq(
-            s_idle      -> Mux(io.AXI.aw.valid && io.AXI.w.valid, s_wait_resp, s_idle),
-            s_wait_addr -> Mux(io.AXI.aw.valid, s_wait_resp, s_wait_addr),
-            s_wait_data -> Mux(io.AXI.w.valid,  s_wait_resp, s_wait_data),
-            s_wait_resp -> Mux(io.AXI.b.ready, s_idle, s_wait_resp)
+        val s_idle :: s_wait_addr :: s_wait_data :: s_wait_resp :: Nil = Enum(4)
+
+        val state_w = RegInit(s_idle)
+        val state_cache = RegInit(s_idle)
+        state_cache := state_w
+        
+        state_w := MuxLookup(state_w, s_wait_addr)(
+            Seq(
+                s_idle      -> Mux(AXI.aw.valid && AXI.w.valid, s_wait_resp, s_idle),
+                s_wait_addr -> Mux(AXI.aw.valid, s_wait_resp, s_wait_addr),
+                s_wait_data -> Mux(AXI.w.valid,  s_wait_resp, s_wait_data),
+                s_wait_resp -> Mux(AXI.b.ready, s_idle, s_wait_resp)
+            )
         )
-    )
 
-    io.AXI.aw.ready := state_w === s_wait_addr || state_w === s_idle
-    io.AXI.w.ready  := state_w === s_wait_data || state_w === s_idle
-    io.AXI.b.valid  := state_w === s_wait_resp
-    io.AXI.b.bits.resp   := 0.U
+        AXI.aw.ready := state_w === s_wait_addr || state_w === s_idle
+        AXI.w.ready  := state_w === s_wait_data || state_w === s_idle
+        AXI.b.valid  := state_w === s_wait_resp
+        AXI.b.bits.resp   := 0.U
 
-    val Uart_bridge = Module(new UART_bridge)
+        val Uart_bridge = Module(new UART_bridge)
 
-    when(state_cache =/= s_wait_resp && state_w === s_wait_resp){
-        Uart_bridge.io.valid := true.B
-    }.otherwise{
-        Uart_bridge.io.valid := false.B
+        when(state_cache =/= s_wait_resp && state_w === s_wait_resp){
+            Uart_bridge.io.valid := true.B
+        }.otherwise{
+            Uart_bridge.io.valid := false.B
+        }
+
+        Uart_bridge.io.clock := clock
+        Uart_bridge.io.data := AXI.w.bits.data
     }
-
-    Uart_bridge.io.clock := clock
-    Uart_bridge.io.data := io.AXI.w.bits.data
 }

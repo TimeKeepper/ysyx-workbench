@@ -91,32 +91,7 @@ class top extends Module {
   SRAM.io.AXI <> Xbar.io.SRAM
   CLINT.io.AXI <> Xbar.io.CLINT
   
-  Xbar.io.AXI.araddr.ready <> CPU.io.master.ar.ready
-  Xbar.io.AXI.araddr.valid <> CPU.io.master.ar.valid
-  Xbar.io.AXI.araddr.bits.addr <> CPU.io.master.ar.bits.addr
-  Xbar.io.AXI.araddr.bits.size <> CPU.io.master.ar.bits.size
-
-  Xbar.io.AXI.rdata.ready  <> CPU.io.master.r.ready
-  Xbar.io.AXI.rdata.valid  <> CPU.io.master.r.valid
-  Xbar.io.AXI.rdata.bits.data  <> CPU.io.master.r.bits.data
-  Xbar.io.AXI.rdata.bits.resp  <> CPU.io.master.r.bits.resp
-
-  Xbar.io.AXI.awaddr.ready <> CPU.io.master.aw.ready
-  Xbar.io.AXI.awaddr.valid <> CPU.io.master.aw.valid
-  Xbar.io.AXI.awaddr.bits.addr <> CPU.io.master.aw.bits.addr
-  Xbar.io.AXI.awaddr.bits.size <> CPU.io.master.aw.bits.size
-
-  Xbar.io.AXI.wdata.ready  <> CPU.io.master.w.ready
-  Xbar.io.AXI.wdata.valid  <> CPU.io.master.w.valid
-  Xbar.io.AXI.wdata.bits.data  <> CPU.io.master.w.bits.data
-  Xbar.io.AXI.wdata.bits.strb  <> CPU.io.master.w.bits.strb
-
-  Xbar.io.AXI.bresp.ready  <> CPU.io.master.b.ready
-  Xbar.io.AXI.bresp.valid  <> CPU.io.master.b.valid
-  Xbar.io.AXI.bresp.bits.bresp  <> CPU.io.master.b.bits.resp
-  CPU.io.master.b.bits.id        := 0.U
-  CPU.io.master.r.bits.last      := 0.U
-  CPU.io.master.r.bits.id        := 0.U
+  Xbar.io.AXI <> CPU.io.master
 
   CPU.io.slave <> DontCare
   CPU.io.interrupt <> DontCare

@@ -78,7 +78,7 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.aw.bits.cache := 0.U
     io.AXI.aw.bits.prot  := 0.U
     io.AXI.aw.bits.qos   := 0.U
-    io.AXI.w.bits.last  := 0.U
+    io.AXI.w.bits.last  := 1.U
 
     val s_idle :: s_wait_addr :: s_wait_data :: Nil = Enum(3)
 

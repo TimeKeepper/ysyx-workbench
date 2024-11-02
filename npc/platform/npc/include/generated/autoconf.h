@@ -4,7 +4,6 @@
  * NPC Configuration Menu
  *
  */
-#define CONFIG_WTRACE 1
 #define CONFIG_ITRACE 1
 #define CONFIG_DIFFTEST 1
 #define CONFIG_LOAD_MEMORY_SIZE 0x8000000

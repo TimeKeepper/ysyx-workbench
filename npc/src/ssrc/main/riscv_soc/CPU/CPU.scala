@@ -239,23 +239,23 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     // AXI_Interconnect.io.IFU         <> IFU.io.AXI
     // AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
-    // if(Config.DPIC_on){
-    //   val INST_BRIDGE = Module(new INST_BRIDGE)
-    //   INST_BRIDGE.io.clock := clock
+    if(Config.DPIC_on){
+      val INST_BRIDGE = Module(new INST_BRIDGE)
+      INST_BRIDGE.io.clock := clock
 
-    //   val comp_cache = RegInit(Bool(), false.B)
-    //   comp_cache := WBU.io.WBU_2_IFU.valid
-    //   when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
-    //     INST_BRIDGE.io.valid := true.B
-    //   }.otherwise {
-    //     INST_BRIDGE.io.valid := false.B
-    //   }
+      val comp_cache = RegInit(Bool(), false.B)
+      comp_cache := WBU.io.WBU_2_IFU.valid
+      when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
+        INST_BRIDGE.io.valid := true.B
+      }.otherwise {
+        INST_BRIDGE.io.valid := false.B
+      }
 
-    //   val axi_bridge = Module(new AXI_BRIDGE)
-    //   axi_bridge.io.clock := clock
-    //   axi_bridge.io.rresp := node.in1(0)._1.r.bits.resp
-    //   axi_bridge.io.bresp := node.in1(0)._1.b.bits.resp
-    // }
+      // val axi_bridge = Module(new AXI_BRIDGE)
+      // axi_bridge.io.clock := clock
+      // axi_bridge.io.rresp := node.in1(0)._1.r.bits.resp
+      // axi_bridge.io.bresp := node.in1(0)._1.b.bits.resp
+    }
   }
 }
 

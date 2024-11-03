@@ -89,6 +89,6 @@ class UART(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         }
 
         Uart_bridge.io.clock := clock
-        Uart_bridge.io.data := AXI.w.bits.data
+        Uart_bridge.io.data := RegEnable(AXI.w.bits.data, AXI.w.valid && AXI.w.ready)
     }
 }

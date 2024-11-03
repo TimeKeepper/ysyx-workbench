@@ -124,7 +124,7 @@ class SRAM(address: Seq[AddressSet], LSFR_delay : UInt)(implicit p: Parameters) 
         bridge.io.write := state_w === s_busy && LSFRw === 0.U
         bridge.io.w_addr  := RegEnable(AXI.aw.bits.addr, AXI.aw.valid && AXI.aw.ready)
         bridge.io.w_data  := RegEnable(AXI.w.bits.data, AXI.w.valid && AXI.w.ready)
-        bridge.io.w_strb  := AXI.w.bits.strb
+        bridge.io.w_strb  := RegEnable(AXI.w.bits.strb, AXI.w.valid && AXI.w.ready)
         AXI.b.bits.resp := "b0".U
 
         val state_rcache = RegInit(s_wait_addr)

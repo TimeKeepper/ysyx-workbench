@@ -62,6 +62,9 @@ object CPUAXI4BundleParameters {
   def apply() = AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = ChipLinkParam.idBits)
 }
 
+import peripheral._
+import ram._
+
 class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val mmio = AddressSet.misaligned(0x10000000, 0x1000) ++
              AddressSet.misaligned(0x10002000, 0x10) ++
@@ -70,7 +73,6 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
              AddressSet.misaligned(0x10001000, 0x1000) ++
              AddressSet.misaligned(0x30000000, 0x10000000) ++
              AddressSet.misaligned(0x80000000L, 0x400000) ++
-             AddressSet.misaligned(0x2000000, 0x10000) ++
              AddressSet.misaligned(0x0f000000, 0x2000) ++
              AddressSet.misaligned(0xa0000000L, 0x2000000)
 
@@ -78,11 +80,14 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits-1))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits-1))
 
-  // val xbar_test = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
-  val xbar_test = AXI4Xbar()
-  xbar_test := LazyIFU.masterNode
-  xbar_test := LazyEXU.masterNode
+  val xbar = AXI4Xbar()
+  xbar := LazyIFU.masterNode
+  xbar := LazyEXU.masterNode
+
+  val lclint = LazyModule(new CLINT(AddressSet.misaligned(0x02000048L, 0x10)))
   
+  lclint.node := xbar
+
   val beatBytes = 4
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
     Seq(AXI4SlaveParameters(
@@ -94,7 +99,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     ),
     beatBytes  = beatBytes)))
 
-  node := xbar_test
+  node := xbar
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
     val io = IO(new Bundle {
@@ -134,15 +139,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
-    // bus AXI Interconnect
     io.master <> node.in(0)._1
-    // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
-
-    // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-    // AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
-
-    // AXI_Interconnect.io.IFU         <> IFU.io.AXI
-    // AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
     io.slave <> DontCare
     io.interrupt <> DontCare
@@ -166,9 +163,6 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     }
   }
 }
-
-import peripheral._
-import ram._
 class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
   ElaborationArtefacts.add("graphml", graphML)
@@ -178,11 +172,10 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val xbar = AXI4Xbar()
   xbar := LazyIFU.masterNode
   xbar := LazyEXU.masterNode
-  val beatBytes = 4
 
   val luart = LazyModule(new UART(AddressSet.misaligned(0x10000000, 0x1000)))
   val lclint = LazyModule(new CLINT(AddressSet.misaligned(0xa0000048L, 0x10)))
-  val lsram = LazyModule(new SRAM(AddressSet.misaligned(0x80000000L, 0x2000000), 1.U))
+  val lsram = LazyModule(new SRAM(AddressSet.misaligned(0x80000000L, 0x8000000), 1.U))
 
   luart.node := xbar
   lclint.node := xbar
@@ -221,16 +214,6 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
-    // bus AXI Interconnect
-    // io.master <> node.in(0)._1
-    // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
-
-    // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-    // AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
-
-    // AXI_Interconnect.io.IFU         <> IFU.io.AXI
-    // AXI_Interconnect.io.LSU         <> EXU.io.AXI
-
     if(Config.DPIC_on){
       val INST_BRIDGE = Module(new INST_BRIDGE)
       INST_BRIDGE.io.clock := clock
@@ -243,10 +226,6 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
         INST_BRIDGE.io.valid := false.B
       }
 
-      // val axi_bridge = Module(new AXI_BRIDGE)
-      // axi_bridge.io.clock := clock
-      // axi_bridge.io.rresp := node.in1(0)._1.r.bits.resp
-      // axi_bridge.io.bresp := node.in1(0)._1.b.bits.resp
     }
   }
 }

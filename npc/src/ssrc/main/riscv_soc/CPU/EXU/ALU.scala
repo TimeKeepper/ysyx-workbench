@@ -105,6 +105,6 @@ class ysyx_23060198_ALU extends Module {
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)
       ALU_PC.io.clock := clock
-      ALU_PC.io.valid := io.out.valid && io.out.ready && !reset.asBool
+      ALU_PC.io.valid := io.out.fire && !reset.asBool
   }
 }

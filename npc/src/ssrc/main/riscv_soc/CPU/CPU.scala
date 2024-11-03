@@ -173,7 +173,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
   val luart = LazyModule(new UART(AddressSet.misaligned(0x10000000, 0x1000)))
   val lclint = LazyModule(new CLINT(AddressSet.misaligned(0xa0000048L, 0x10)))
-  val lsram = LazyModule(new SRAM(AddressSet.misaligned(0x80000000L, 0x2000000), 1.U))
+  val lsram = LazyModule(new SRAM(AddressSet.misaligned(0x80000000L, 0x8000000), 1.U))
 
   luart.node := xbar
   lclint.node := xbar

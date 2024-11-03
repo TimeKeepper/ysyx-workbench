@@ -78,10 +78,9 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits-1))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits-1))
 
-  // val xbar_test = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
-  val xbar_test = AXI4Xbar()
-  xbar_test := LazyIFU.masterNode
-  xbar_test := LazyEXU.masterNode
+  val xbar = AXI4Xbar()
+  xbar := LazyIFU.masterNode
+  xbar := LazyEXU.masterNode
   
   val beatBytes = 4
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -94,7 +93,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     ),
     beatBytes  = beatBytes)))
 
-  node := xbar_test
+  node := xbar
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
     val io = IO(new Bundle {

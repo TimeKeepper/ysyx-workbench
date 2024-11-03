@@ -106,7 +106,7 @@ object EXUctr_Field extends DecodeField[rvInstructionPattern, EXUctr_TypeEnum.Ty
             case "or" | "ori" | "csrrs" => Get_BitPat(EXUctr_TypeEnum.EXUctr_OR)
             case "and" | "andi" => Get_BitPat(EXUctr_TypeEnum.EXUctr_AND)
             case "slt" | "slti" | "blt" | "bge" => Get_BitPat(EXUctr_TypeEnum.EXUctr_Less_S)
-            case "sltu" | "sltui" | "bltu" | "bgeu" => Get_BitPat(EXUctr_TypeEnum.EXUctr_Less_U)
+            case "sltu" | "sltiu" | "bltu" | "bgeu" => Get_BitPat(EXUctr_TypeEnum.EXUctr_Less_U)
             case "sll" | "slli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SLL)
             case "srl" | "srli" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRL)
             case "sra" | "srai" => Get_BitPat(EXUctr_TypeEnum.EXUctr_SRA)

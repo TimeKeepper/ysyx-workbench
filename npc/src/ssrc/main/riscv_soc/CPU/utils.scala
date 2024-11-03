@@ -128,7 +128,8 @@ object RegWr_TypeEnum extends ChiselEnum{
 
 object EXUAsrc_TypeEnum extends ChiselEnum{
   val EXUAsrc_RS1, //寄存器资源1
-      EXUAsrc_PC   //PC寄存器
+      EXUAsrc_PC,  //PC寄存器
+      EXUAsrc_addr
       = Value
 }
 

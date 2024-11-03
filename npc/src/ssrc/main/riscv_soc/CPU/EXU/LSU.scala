@@ -137,8 +137,8 @@ class ysyx_23060198_LSU extends Module{
         io.out.valid          <> false.B
     }
 
-    io.AXI.ar.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
-    io.AXI.aw.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+    io.AXI.ar.bits.addr  <> io.IDU_2_EXU.bits.EXU_A
+    io.AXI.aw.bits.addr  <> io.IDU_2_EXU.bits.EXU_A
     io.AXI.w.bits.data   <> (io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0)
     
     when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
@@ -191,7 +191,7 @@ class ysyx_23060198_LSU extends Module{
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.ar.valid || io.AXI.aw.valid
-        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock

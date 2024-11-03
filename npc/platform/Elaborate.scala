@@ -33,7 +33,7 @@ object Elaboratenpc extends App {
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setDPIC(true)
 
-  circt.stage.ChiselStage.emitSystemVerilogFile(new npc.top(), args, firtoolOptions)
+  circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.top(), args, firtoolOptions)
 }
 
 object Elaboratecore extends App {

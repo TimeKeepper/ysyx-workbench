@@ -64,21 +64,21 @@ class ysyx_23060198_LSU extends Module{
         val AXI = AXI4Bundle(CPUAXI4BundleParameters())
     })
     
-    io.AXI.ar.bits.id    := 0.U
+    io.AXI.ar.bits.id    := 1.U
     io.AXI.ar.bits.len   := 0.U
     io.AXI.ar.bits.burst := 0.U
     io.AXI.ar.bits.lock  := 0.U
     io.AXI.ar.bits.cache := 0.U
     io.AXI.ar.bits.prot  := 0.U
     io.AXI.ar.bits.qos   := 0.U
-    io.AXI.aw.bits.id    := 0.U
+    io.AXI.aw.bits.id    := 1.U
     io.AXI.aw.bits.len   := 0.U
     io.AXI.aw.bits.burst := 0.U
     io.AXI.aw.bits.lock  := 0.U
     io.AXI.aw.bits.cache := 0.U
     io.AXI.aw.bits.prot  := 0.U
     io.AXI.aw.bits.qos   := 0.U
-    io.AXI.w.bits.last  := 0.U
+    io.AXI.w.bits.last  := 1.U
 
     val s_idle :: s_wait_addr :: s_wait_data :: Nil = Enum(3)
 

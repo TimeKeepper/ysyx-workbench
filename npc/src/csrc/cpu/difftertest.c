@@ -109,6 +109,16 @@ static void checkregs(CPU_State *ref, vaddr_t pc) {
     npc_state.halt_pc = pc;
   }
 }
+
+static void checkmems() {
+  uint32_t* buf = (uint32_t*)malloc(4);
+  ref_difftest_memcpy(0x80030fe4, buf, 4, DIFFTEST_TO_DUT);
+  if(*(uint32_t*)guest_to_host(0x80030fe4) != *buf){
+    Log("checkmems: ref_value: 0x%08x, dut_value: 0x%08x", *(uint32_t*)guest_to_host(0x80030fe4), *buf);
+    npc_trap(1);
+    npc_state.state = NPC_ABORT;
+  }
+}
 #endif
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
@@ -141,6 +151,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
   checkregs(&ref_r, pc);
+  checkmems();
   #endif
 }
 // word_t paddr_read(paddr_t addr, int len);

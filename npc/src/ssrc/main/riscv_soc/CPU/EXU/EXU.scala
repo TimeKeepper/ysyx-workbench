@@ -15,11 +15,11 @@ import freechips.rocketchip.util._
 // riscv excution unit
 
 class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
-  val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
-    AXI4MasterPortParameters(
-      masters = Seq(AXI4MasterParameters(
-        name = "cpu",
-        id   = IdRange(0, 1 << idBits))))).toSeq)
+    val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
+        AXI4MasterPortParameters(
+        masters = Seq(AXI4MasterParameters(
+            name = "exu",
+            id   = IdRange(0, 1 << idBits))))).toSeq)
     lazy val module = new Impl
     class Impl extends LazyModuleImp(this) {
         val io = IO(new Bundle{
@@ -28,8 +28,11 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val REG_2_EXU = Input(new BUS_REG_2_EXU)
 
             val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
-            val AXI = AXI4Bundle(CPUAXI4BundleParameters())
         })
+        val AXI = Wire(AXI4Bundle(CPUAXI4BundleParameters()))
+        val (master, _) = masterNode.out(0)
+        master <> AXI
+
         val alu = Module(new ysyx_23060198_ALU)
         val lsu = Module(new ysyx_23060198_LSU)
 
@@ -56,7 +59,7 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         alu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
 
         lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
-        lsu.io.AXI <> io.AXI
+        lsu.io.AXI <> AXI
         
         val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
             Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm),

@@ -5,13 +5,13 @@
 #ifdef PLATFORM_NPC
 #include "Vtop.h"
 #include "Vtop___024root.h"
-#define DUT_PC top->rootp->top__DOT__CPU__DOT__dut__DOT__REG__DOT__pc
+#define DUT_PC top->rootp->top__DOT__dut__DOT__REG__DOT__pc
 #endif
 #ifdef PLATFORM_YSYXSOC
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull__Dpi.h"
 #include "VysyxSoCFull___024root.h"
-#define DUT_PC top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__REG__DOT__pc
+#define DUT_PC top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dut__DOT__REG__DOT__pc
 #endif
 #include "verilated_vcd_c.h"
 #include <cpu/cpu.h>

@@ -50,7 +50,6 @@ class ysyx_23060198_ALU extends Module {
 
   io.out.valid := state === bus_state.s_wait_ready
   io.IDU_2_EXU.ready  := state === bus_state.s_wait_valid
-  val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
   val Sub_Add = Wire(Bool())
@@ -86,22 +85,22 @@ class ysyx_23060198_ALU extends Module {
 
   val Result = MuxLookup(io.IDU_2_EXU.bits.EXUctr, 0.U)(
     Seq(
-      EXUctr_TypeEnum.EXUctr_ADD -> adder,
-      EXUctr_TypeEnum.EXUctr_SUB -> adder,
-      EXUctr_TypeEnum.EXUctr_Less_U -> Cat(0.U(31.W), Less),
-      EXUctr_TypeEnum.EXUctr_Less_S -> Cat(0.U(31.W), Less),
-      EXUctr_TypeEnum.EXUctr_A -> src_A,
-      EXUctr_TypeEnum.EXUctr_B -> src_B,
-      EXUctr_TypeEnum.EXUctr_SLL -> shifter_result,
-      EXUctr_TypeEnum.EXUctr_SRL -> shifter_result,
-      EXUctr_TypeEnum.EXUctr_SRA -> shifter_result,
-      EXUctr_TypeEnum.EXUctr_XOR -> (src_A ^ src_B),
-      EXUctr_TypeEnum.EXUctr_OR -> (src_A | src_B),
-      EXUctr_TypeEnum.EXUctr_AND -> (src_A & src_B)
+      EXUctr_TypeEnum.EXUctr_ADD      -> adder,
+      EXUctr_TypeEnum.EXUctr_SUB      -> adder,
+      EXUctr_TypeEnum.EXUctr_Less_U   -> Cat(0.U(31.W), Less),
+      EXUctr_TypeEnum.EXUctr_Less_S   -> Cat(0.U(31.W), Less),
+      EXUctr_TypeEnum.EXUctr_A        -> src_A,
+      EXUctr_TypeEnum.EXUctr_B        -> src_B,
+      EXUctr_TypeEnum.EXUctr_SLL      -> shifter_result,
+      EXUctr_TypeEnum.EXUctr_SRL      -> shifter_result,
+      EXUctr_TypeEnum.EXUctr_SRA      -> shifter_result,
+      EXUctr_TypeEnum.EXUctr_XOR      -> (src_A ^ src_B),
+      EXUctr_TypeEnum.EXUctr_OR       -> (src_A | src_B),
+      EXUctr_TypeEnum.EXUctr_AND      -> (src_A & src_B)
     )
   )
   
-  io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
+  io.out.bits.Result        := RegEnable(Result, io.IDU_2_EXU.fire) 
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

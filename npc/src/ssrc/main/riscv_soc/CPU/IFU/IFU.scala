@@ -116,13 +116,13 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val trace = Module(new IFU_TRACE)
 
             trace.io.clock := clock
-            trace.io.valid := io.IFU_2_IDU.valid && io.IFU_2_IDU.ready && !reset.asBool
+            trace.io.valid := io.IFU_2_IDU.fire && !reset.asBool
             trace.io.addr := io.REG_2_IFU.Next_PC
             trace.io.data := io.IFU_2_IDU.bits.data
 
             val IFU_PC = Module(new IFU_PC)
             IFU_PC.io.clock := clock
-            IFU_PC.io.valid := io.IFU_2_IDU.valid && io.IFU_2_IDU.ready && !reset.asBool
+            IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
         }
     }
 }

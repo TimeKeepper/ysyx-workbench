@@ -1,6 +1,7 @@
 package riscv_cpu
 
 import chisel3._
+import circt.stage.ChiselStage
 import chisel3.util._
 
 import config._
@@ -13,7 +14,7 @@ import freechips.rocketchip.util._
 import org.chipsalliance.cde.config.{Parameters, Config}
 import freechips.rocketchip.system._
 import freechips.rocketchip.diplomacy.LazyModule
- 
+
 class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock = Input(Clock())
@@ -77,9 +78,9 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits))
 
-  val xbar = AXI4Xbar()
-  xbar := LazyIFU.masterNode
-  xbar := LazyEXU.masterNode
+  val xbar_test = AXI4Xbar()
+  xbar_test := LazyIFU.masterNode
+  xbar_test := LazyEXU.masterNode
   
   val beatBytes = 4
   val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
@@ -92,7 +93,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     ),
     beatBytes  = beatBytes)))
 
-  node := xbar
+  node := xbar_test
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
     val io = IO(new Bundle {
@@ -259,7 +260,9 @@ class ysyx_23060198 extends Module {
   })
   val dut = LazyModule(new riscv_CPU(idBits = ChipLinkParam.idBits))
   val mdut = Module(dut.module)
+
   mdut.dontTouchPorts()
+  
   mdut.io.master <> io.master
   io.slave <> mdut.io.slave
   io.interrupt <> mdut.io.interrupt

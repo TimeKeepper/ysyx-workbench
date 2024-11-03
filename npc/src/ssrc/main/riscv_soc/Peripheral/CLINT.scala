@@ -58,12 +58,12 @@ class CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule
             mtime := mtime + 1.U
         }
 
-        val addr = RegEnable(AXI.ar.bits.addr, AXI.ar.fire)
+        val addr = RegEnable(AXI.ar.bits.addr(3, 0), AXI.ar.fire)
 
         AXI.r.bits.data := MuxLookup(addr, 0.U)(
             Seq(
-                "ha0000048".U -> mtime(31, 0),
-                "ha000004c".U -> mtime(63, 32)
+                "h8".U -> mtime(31, 0),
+                "hc".U -> mtime(63, 32)
             )
         )
 

@@ -50,7 +50,6 @@ class ysyx_23060198_ALU extends Module {
 
   io.out.valid := state === bus_state.s_wait_ready
   io.IDU_2_EXU.ready  := state === bus_state.s_wait_valid
-  val comunication_succeed = (io.IDU_2_EXU.valid && io.IDU_2_EXU.ready)
 
   // ALU operation
   val Sub_Add = Wire(Bool())
@@ -101,7 +100,7 @@ class ysyx_23060198_ALU extends Module {
     )
   )
   
-  io.out.bits.Result        := RegEnable(Result, comunication_succeed) 
+  io.out.bits.Result        := RegEnable(Result, io.IDU_2_EXU.fire) 
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

@@ -171,7 +171,6 @@ class ysyx_23060198_IDU extends Module{
 
     io.IDU_2_EXU.valid := state === bus_state.s_wait_ready
     io.IFU_2_IDU.ready := state === bus_state.s_wait_valid
-    val comunication_succeed = (io.IFU_2_IDU.valid && io.IFU_2_IDU.ready)
 
     val instTable = rvdecoderdb.fromFile.instructions(os.pwd / "src" / "ssrc" / "main" /  "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
@@ -238,14 +237,14 @@ class ysyx_23060198_IDU extends Module{
         EXUBsrc_TypeEnum.EXUBsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
-    io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),      comunication_succeed) 
-    io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),      comunication_succeed) 
-    io.IDU_2_EXU.bits.EXU_A        <> RegEnable(EXU_A,                 comunication_succeed) 
-    io.IDU_2_EXU.bits.EXU_B        <> RegEnable(EXU_B,                 comunication_succeed) 
-    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      comunication_succeed) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     comunication_succeed) 
-    io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                    comunication_succeed) 
-    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr, comunication_succeed) 
-    io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,         comunication_succeed) 
-    io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,  comunication_succeed) 
+    io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),        io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.EXU_A        <> RegEnable(EXU_A,                              io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.EXU_B        <> RegEnable(EXU_B,                              io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                                io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr,                          io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,                    io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,             io.IFU_2_IDU.fire) 
 }

@@ -75,26 +75,21 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
              AddressSet.misaligned(0xa0000000L, 0x2000000)
 
   ElaborationArtefacts.add("graphml", graphML)
-  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits-1))
-  val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits-1))
+  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits))
+  val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits))
 
   // val xbar_test = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
   val xbar_test = AXI4Xbar()
   xbar_test := LazyIFU.masterNode
   xbar_test := LazyEXU.masterNode
   
-  val beatBytes = 4
-  val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
-    Seq(AXI4SlaveParameters(
-        address       = mmio,
-        executable    = true,
-        supportsWrite = TransferSizes(1, beatBytes),
-        supportsRead  = TransferSizes(1, beatBytes),
-        interleavedId = Some(0))
-    ),
-    beatBytes  = beatBytes)))
+  val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
+    AXI4MasterPortParameters(
+      masters = Seq(AXI4MasterParameters(
+        name = "cpu",
+        id   = IdRange(0, 1 << idBits))))).toSeq)
 
-  node := xbar_test
+  masterNode := xbar_test
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
     val io = IO(new Bundle {
@@ -135,7 +130,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
     // bus AXI Interconnect
-    io.master <> node.in(0)._1
+    io.master <> masterNode.out(0)._1
     // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
 
     // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid

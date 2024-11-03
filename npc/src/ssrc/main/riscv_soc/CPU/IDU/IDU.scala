@@ -76,8 +76,6 @@ object EXUAsrc_Field extends DecodeField[rvInstructionPattern, EXUAsrc_TypeEnum.
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
             case "auipc"                            => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_PC)
-            case "lb" | "lh" | "lw" | "lbu" | "lhu" => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_addr)
-            case "sb" | "sh" | "sw"                 => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_addr)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs1" => Get_BitPat(EXUAsrc_TypeEnum.EXUAsrc_RS1)
             }.getOrElse(BitPat.dontCare(EXUAsrc_TypeEnum.getWidth))
@@ -231,7 +229,6 @@ class ysyx_23060198_IDU extends Module{
     val EXU_A = MuxLookup(rvdecoderResult(EXUAsrc_Field), 0.U)(Seq(
         EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
         EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.REG_2_IDU.PC,
-        EXUAsrc_TypeEnum.EXUAsrc_addr-> (io.REG_2_IDU.GPR_Adata + imm)
     ))
 
     val EXU_B = MuxLookup(rvdecoderResult(EXUBsrc_Field), 0.U)(Seq(

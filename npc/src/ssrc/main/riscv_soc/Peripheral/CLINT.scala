@@ -62,8 +62,8 @@ class CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule
 
         AXI.r.bits.data := MuxLookup(addr, 0.U)(
             Seq(
-                "ha0000048".U -> mtime(63, 32),
-                "ha000004c".U -> mtime(31, 0)
+                "ha0000048".U -> mtime(31, 0),
+                "ha000004c".U -> mtime(63, 32)
             )
         )
 

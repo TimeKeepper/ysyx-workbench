@@ -78,7 +78,8 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits))
 
-  val xbar_test = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
+  // val xbar_test = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
+  val xbar_test = AXI4Xbar()
   xbar_test := LazyIFU.masterNode
   xbar_test := LazyEXU.masterNode
   

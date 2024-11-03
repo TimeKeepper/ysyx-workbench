@@ -50,7 +50,7 @@ class CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule
         AXI.r.valid := (state === s_wait_ready)
 
         val mtime = RegInit(0.U(64.W))
-        val m_counter = RegInit(0.U(64.W))
+        val m_counter = RegInit(0.U(10.W))
 
         m_counter := m_counter + 1.U
         when(m_counter === 800.U){//目前npc能够跑到800MHz

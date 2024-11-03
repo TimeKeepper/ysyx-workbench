@@ -175,7 +175,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
   val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits))
   val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits))
 
-  val xbar = AXI4Xbar(maxFlightPerId = 3, awQueueDepth = 2)
+  val xbar = AXI4Xbar()
   xbar := LazyIFU.masterNode
   xbar := LazyEXU.masterNode
   val beatBytes = 4

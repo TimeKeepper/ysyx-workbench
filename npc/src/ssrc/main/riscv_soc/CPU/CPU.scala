@@ -134,15 +134,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
-    // bus AXI Interconnect
     io.master <> node.in(0)._1
-    // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
-
-    // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-    // AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
-
-    // AXI_Interconnect.io.IFU         <> IFU.io.AXI
-    // AXI_Interconnect.io.LSU         <> EXU.io.AXI
 
     io.slave <> DontCare
     io.interrupt <> DontCare
@@ -221,16 +213,6 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
-    // bus AXI Interconnect
-    // io.master <> node.in(0)._1
-    // AXI_Interconnect.io.AXI.r.bits.data := io.master.r.bits.data
-
-    // AXI_Interconnect.io.ls_resq := IFU.io.IFU_2_IDU.valid
-    // AXI_Interconnect.io.if_resq := EXU.io.EXU_2_WBU.valid
-
-    // AXI_Interconnect.io.IFU         <> IFU.io.AXI
-    // AXI_Interconnect.io.LSU         <> EXU.io.AXI
-
     if(Config.DPIC_on){
       val INST_BRIDGE = Module(new INST_BRIDGE)
       INST_BRIDGE.io.clock := clock
@@ -243,10 +225,6 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
         INST_BRIDGE.io.valid := false.B
       }
 
-      // val axi_bridge = Module(new AXI_BRIDGE)
-      // axi_bridge.io.clock := clock
-      // axi_bridge.io.rresp := node.in1(0)._1.r.bits.resp
-      // axi_bridge.io.bresp := node.in1(0)._1.b.bits.resp
     }
   }
 }

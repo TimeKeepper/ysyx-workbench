@@ -84,7 +84,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
   xbar := LazyIFU.masterNode
   xbar := LazyEXU.masterNode
 
-  val lclint = LazyModule(new CLINT(AddressSet.misaligned(0x02000048L, 0x10)))
+  val lclint = LazyModule(new CLINT(AddressSet.misaligned(0x02000048L, 0x10), 800.U))
   
   lclint.node := xbar
 
@@ -174,7 +174,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
   xbar := LazyEXU.masterNode
 
   val luart = LazyModule(new UART(AddressSet.misaligned(0x10000000, 0x1000)))
-  val lclint = LazyModule(new CLINT(AddressSet.misaligned(0xa0000048L, 0x10)))
+  val lclint = LazyModule(new CLINT(AddressSet.misaligned(0xa0000048L, 0x10), 800.U))
   val lsram = LazyModule(new SRAM(AddressSet.misaligned(0x80000000L, 0x8000000), 1.U))
 
   luart.node := xbar

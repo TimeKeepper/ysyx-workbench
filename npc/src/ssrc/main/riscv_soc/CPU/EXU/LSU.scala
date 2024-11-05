@@ -100,7 +100,7 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.r.ready    := false.B
         io.AXI.aw.valid   := Mux(state_write === bus_state.s_wait_valid, io.IDU_2_EXU.valid, false.B)
         io.AXI.w.valid    := Mux(state_write === bus_state.s_busy, io.IDU_2_EXU.valid, false.B)
-        io.IDU_2_EXU.ready := io.AXI.w.ready
+        io.IDU_2_EXU.ready := Mux(state_write === bus_state.s_busy, io.AXI.w.ready, false.B)
         io.AXI.b.ready    <> io.out.ready
         io.AXI.b.valid    <> io.out.valid
 

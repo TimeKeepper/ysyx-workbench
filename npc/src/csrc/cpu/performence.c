@@ -66,6 +66,7 @@ void watchpoint_catch(void){
 static uint32_t npc = RESET_VECTOR;
 
 extern "C" void pc_update(uint32_t n_npc){
+    Log("npc: %x", n_npc);
     npc = n_npc;
 }
 

@@ -61,7 +61,7 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         
         val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
             Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm),
-            Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.CSR_rdata)
+            Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.EXU_B)
         ))
 
         io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch,      io.IDU_2_EXU.fire)
@@ -71,7 +71,7 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.EXU_2_WBU.bits.CSR_waddr     := RegEnable(io.IDU_2_EXU.bits.Imm(11, 0),  io.IDU_2_EXU.fire)
         io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr,   io.IDU_2_EXU.fire)
         io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC,          io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.CSR_rdata,   io.IDU_2_EXU.fire)
+        io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.EXU_B,   io.IDU_2_EXU.fire)
         io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
         io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
     }

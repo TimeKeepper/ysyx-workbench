@@ -44,6 +44,24 @@ class REG_BRIDGE extends BlackBox with HasBlackBoxInline {
   """.stripMargin)
 }
 
+class PC_UPDATE extends BlackBox with HasBlackBoxInline {
+  val io = IO(new Bundle{
+    val PC = Input(UInt(32.W))
+  })
+  setInline("PC_UPDATE.v",
+  """module PC_UPDATE(
+    |    input [31:0] PC
+    |);
+    |import "DPI-C" function void pc_update(input int unsigned npc);
+    |
+    |always @(*) begin
+    |    pc_update(PC);
+    |end
+    |
+    |endmodule
+  """.stripMargin)
+}
+
 // riscv cpu register file
 
 class REG_output extends Bundle{
@@ -159,5 +177,8 @@ class ysyx_23060198_REG extends Module {
     bridge.io.new_CSRb := io.WBU_2_REG.CSR_wdatab
     bridge.io.GPR_waddr := io.WBU_2_REG.GPR_waddr
     bridge.io.new_GPR := io.WBU_2_REG.GPR_wdata
+
+    val pc_update = Module(new PC_UPDATE)
+    pc_update.io.PC := io.WBU_2_REG.Next_Pc
   }
 }

@@ -34,11 +34,11 @@ class IDU_PC extends BlackBox with HasBlackBoxInline {
     |
     |always @(posedge clock) begin
     |   if(valid) begin
-    |       IDU_finished({30{0}, iType});
+    |       IDU_finished({30'h0, iType});
     |   end
     |end
-    |
-    """)
+    |endmodule
+    """.stripMargin)
 }
 
 trait DecodeAPI {
@@ -240,17 +240,17 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    var allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
-
+    var allField = Seq(PC_Field, Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
+    
     val rvdecoderTable = new DecodeTable(instList, allField)
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
     
-    // if(Config.DPIC_on) {
-    //     val PerformenceCounter = Module(new IDU_PC)
-    //     PerformenceCounter.io.clock := clock
-    //     PerformenceCounter.io.valid := io.IDU_2_EXU.fire && !reset.asBool
-    //     PerformenceCounter.io.iType := rvdecoderResult(PC_Field)
-    // }
+    if(Config.DPIC_on) {
+        val PerformenceCounter = Module(new IDU_PC)
+        PerformenceCounter.io.clock := clock
+        PerformenceCounter.io.valid := io.IDU_2_EXU.fire && !reset.asBool
+        PerformenceCounter.io.iType := rvdecoderResult(PC_Field)
+    }
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(

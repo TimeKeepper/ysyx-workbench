@@ -17,7 +17,7 @@ extern "C" void ALU_finished() {
     ALU_pc++;
 }
 
-extern "C" void IDU_finished(uint64_t iType) {
+extern "C" void IDU_finished(uint32_t iType) {
     switch (iType) {
         case 0: i_LS ++; break;
         case 1: i_CSR ++; break;

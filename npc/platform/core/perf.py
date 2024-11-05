@@ -40,7 +40,7 @@ def ui():
     fig = plt.figure(figsize=(10, 8))
     gs = gridspec.GridSpec(2, 2, height_ratios=[1, 1])
 
-    ax1 = fig.add_subplot(gs[0, ;])
+    ax1 = fig.add_subplot(gs[0, :])
     ax1.barh(labels, a_cycle, color=colors)
     ax1.set_xlabel('average ccycle')
     ax1.set_ylabel('instruction type')

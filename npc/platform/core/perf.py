@@ -32,18 +32,25 @@ def ui():
 
     inst_nums = [i_LS, i_CSR, i_Cal]
     clk_nums = [c_LS, c_CSR, c_Cal]
+    a_cycle = [c_LS / i_LS, c_CSR / i_CSR, c_Cal / i_Cal]
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 5))
 
-    ax1.pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
-    ax1.set_title('Instruction Count')
+    axes(0, 0).barh(labels, a_cycle, color=colors)
+    axes[1, 0].set_xlabel('average ccycle')
+    axes[1, 0].set_ylabel('instruction type')
+    axes[1, 0].grid(axis='x', linestyle='--', alpha=0.7)
 
-    ax2.pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
-    ax2.set_title('Clock Count')
+    axes[1, 1].axis('off')
 
-    plt.axis('equal')
+    axes(1, 0).pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
+    axes(1, 0).set_title('Instruction Count')
+
+    axes(1, 1).pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
+    axes(1, 1).set_title('Clock Count')
+
     plt.tight_layout()
     plt.show()
 

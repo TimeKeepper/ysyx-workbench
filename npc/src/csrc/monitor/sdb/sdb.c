@@ -55,6 +55,44 @@ void sdb_exit() {
     #ifdef CONFIG_NVBOARD
     nvboard_quit();
     #endif
+
+    #if NAME==microbench
+    Log("Generating report...");
+    double ipc = (double)inst_cnt / (double)clk_cnt;
+
+    const char* npc_path = getenv("NPC_HOME");
+    char report_path[512];
+    FILE* report_file;
+
+    if(npc_path == NULL){
+        Log("NPC_HOME not set");
+        goto report_end;
+    }
+
+    snprintf(report_path, sizeof(report_path), "%s/platform/core/build/report.txt", npc_path);
+    report_file = fopen(report_path, "w");
+    
+    if(report_file == NULL){
+        Log("Failed to open report file");
+        goto report_end;
+    }
+
+    fprintf(report_file, "%lu\n", inst_cnt);
+    fprintf(report_file, "%lu\n", clk_cnt);
+    fprintf(report_file, "%lf\n", ipc);
+    fprintf(report_file, "%lu\n", IFU_pc);
+    fprintf(report_file, "%lu\n", LSU_pc);
+    fprintf(report_file, "%lu\n", ALU_pc);
+    fprintf(report_file, "%lu\n", i_LS);
+    fprintf(report_file, "%lu\n", i_CSR);
+    fprintf(report_file, "%lu\n", i_Cal);
+
+    fclose(report_file);
+
+    report_end: 
+    Log("Generated end");
+
+    #endif
 }
 
 void sdb_mainloop() {

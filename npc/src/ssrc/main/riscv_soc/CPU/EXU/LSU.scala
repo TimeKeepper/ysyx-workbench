@@ -119,8 +119,8 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.r.ready    <> io.out.ready
     }
 
-    io.AXI.ar.bits.addr  := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
-    io.AXI.aw.bits.addr  := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+    io.AXI.ar.bits.addr  := io.IDU_2_EXU.bits.EXU_A
+    io.AXI.aw.bits.addr  := io.IDU_2_EXU.bits.EXU_A
     io.AXI.w.bits.data   := RegEnable((io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0), io.AXI.aw.fire)
     
     when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){

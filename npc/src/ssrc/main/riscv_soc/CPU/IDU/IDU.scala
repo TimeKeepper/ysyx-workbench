@@ -21,7 +21,7 @@ class IDU_PC extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
         val valid = Input(Bool())
-        val iType  = Input(UInt(2.W))
+        val iType = Input(UInt(2.W))
     })
     setInline("IDU_PC.v",
     """module IDU_PC(
@@ -241,9 +241,19 @@ class ysyx_23060198_IDU extends Module{
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
     val allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
-    if(Config.DPIC_on) allField ++ Seq(PC_Field)
+
+    // if(Config.DPIC_on) allField ++ Seq(PC_Field)
+    print(allField)
+
     val rvdecoderTable = new DecodeTable(instList, allField)
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
+    
+    // if(Config.DPIC_on) {
+    //     val PerformenceCounter = Module(new IDU_PC)
+    //     PerformenceCounter.io.clock := clock
+    //     PerformenceCounter.io.valid := io.IDU_2_EXU.fire && !reset.asBool
+    //     PerformenceCounter.io.iType := rvdecoderResult(PC_Field)
+    // }
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(

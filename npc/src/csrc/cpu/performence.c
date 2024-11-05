@@ -5,6 +5,7 @@
 uint64_t IFU_pc = 0, LSU_pc = 0, ALU_pc = 0;
 
 uint64_t i_CSR = 0, i_LS = 0, i_Cal = 0;
+uint64_t c_CSR = 0, c_LS = 0, c_Cal = 0;
 
 uint64_t inst_cnt = 0;
 
@@ -22,12 +23,25 @@ extern "C" void ALU_finished() {
     ALU_pc++;
 }
 
+static uint32_t  l_iType = 0;
+
 extern "C" void IDU_finished(uint32_t iType) {
     switch (iType) {
         case 0: i_LS ++; break;
         case 1: i_CSR ++; break;
         case 2: i_Cal ++; break;
     }
+    l_iType = iType;
+}
+
+static void ID_clk(){
+    static uint64_t l_clk = 0;
+    switch (l_iType) {
+        case 0: c_LS += clk_cnt - l_clk; break;
+        case 1: c_CSR += clk_cnt - l_clk; break;
+        case 2: c_Cal += clk_cnt - l_clk; break;
+    }
+    l_clk = clk_cnt;
 }
 
 static void func_called_detect(){
@@ -83,4 +97,6 @@ extern "C" void inst_comp_update(){
     watchpoint_catch();          //检查watchpoint
 
     func_called_detect();   
+
+    ID_clk();
 }

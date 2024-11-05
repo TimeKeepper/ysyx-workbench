@@ -86,6 +86,9 @@ void sdb_exit() {
     fprintf(report_file, "%lu\n", i_LS);
     fprintf(report_file, "%lu\n", i_CSR);
     fprintf(report_file, "%lu\n", i_Cal);
+    fprintf(report_file, "%lu\n", c_LS);
+    fprintf(report_file, "%lu\n", c_CSR);
+    fprintf(report_file, "%lu\n", c_Cal);
 
     fclose(report_file);
 

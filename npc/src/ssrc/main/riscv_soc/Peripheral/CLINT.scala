@@ -10,7 +10,7 @@ import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 
-class CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
+class CLINT(address: Seq[AddressSet], Freq: UInt)(implicit p: Parameters) extends LazyModule {
     val beatBytes = 4
     val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
         Seq(AXI4SlaveParameters(
@@ -50,10 +50,10 @@ class CLINT(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule
         AXI.r.valid := (state === s_wait_ready)
 
         val mtime = RegInit(0.U(64.W))
-        val m_counter = RegInit(0.U(10.W))
+        val m_counter = RegInit(0.U(Freq.getWidth.W))
 
         m_counter := m_counter + 1.U
-        when(m_counter === 800.U){//目前npc能够跑到800MHz
+        when(m_counter === Freq){//目前npc能够跑到800MHz
             m_counter := 0.U
             mtime := mtime + 1.U
         }

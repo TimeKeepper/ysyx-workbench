@@ -60,23 +60,22 @@ class UART(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         AXI.b.bits.id := RegEnable(AXI.aw.bits.id, AXI.aw.fire)
         AXI.r.bits.last := true.B
 
-        val s_idle :: s_wait_addr :: s_wait_data :: s_wait_resp :: Nil = Enum(4)
+        val s_wait_addr :: s_wait_data :: s_wait_resp :: Nil = Enum(3)
 
-        val state_w = RegInit(s_idle)
-        val state_cache = RegInit(s_idle)
+        val state_w = RegInit(s_wait_addr)
+        val state_cache = RegInit(s_wait_addr)
         state_cache := state_w
         
         state_w := MuxLookup(state_w, s_wait_addr)(
             Seq(
-                s_idle      -> Mux(AXI.aw.valid && AXI.w.valid, s_wait_resp, s_idle),
-                s_wait_addr -> Mux(AXI.aw.valid, s_wait_resp, s_wait_addr),
-                s_wait_data -> Mux(AXI.w.valid,  s_wait_resp, s_wait_data),
-                s_wait_resp -> Mux(AXI.b.ready, s_idle, s_wait_resp)
+                s_wait_addr -> Mux(AXI.aw.fire, s_wait_data, s_wait_addr),
+                s_wait_data -> Mux(AXI.w.fire,  s_wait_resp, s_wait_data),
+                s_wait_resp -> Mux(AXI.b.fire,  s_wait_addr, s_wait_resp)
             )
         )
 
-        AXI.aw.ready := state_w === s_wait_addr || state_w === s_idle
-        AXI.w.ready  := state_w === s_wait_data || state_w === s_idle
+        AXI.aw.ready := state_w === s_wait_addr
+        AXI.w.ready  := state_w === s_wait_data
         AXI.b.valid  := state_w === s_wait_resp
         AXI.b.bits.resp   := 0.U
 

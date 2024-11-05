@@ -64,6 +64,7 @@ class ysyx_23060198_LSU extends Module{
         val AXI = AXI4Bundle(CPUAXI4BundleParameters())
     })
     
+    io.AXI.ar.valid      := false.B
     io.AXI.ar.bits.id    := 1.U
     io.AXI.ar.bits.len   := 0.U
     io.AXI.ar.bits.burst := 0.U
@@ -71,6 +72,10 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.ar.bits.cache := 0.U
     io.AXI.ar.bits.prot  := 0.U
     io.AXI.ar.bits.qos   := 0.U
+
+    io.AXI.r.ready       := false.B
+
+    io.AXI.aw.valid      := false.B
     io.AXI.aw.bits.id    := 1.U
     io.AXI.aw.bits.len   := 0.U
     io.AXI.aw.bits.burst := 0.U
@@ -78,47 +83,32 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.aw.bits.cache := 0.U
     io.AXI.aw.bits.prot  := 0.U
     io.AXI.aw.bits.qos   := 0.U
-    io.AXI.w.bits.last  := 1.U
 
-    val s_idle :: s_wait_addr :: s_wait_data :: Nil = Enum(3)
+    io.AXI.w.valid       := false.B
+    io.AXI.w.bits.last   := 1.U
 
-    val state_write = RegInit(s_idle)
+    io.AXI.b.ready       := false.B
+
+    io.IDU_2_EXU.ready   := false.B
+
+    io.out.valid         := false.B
 
     when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST) {
+        val state_write = RegInit(bus_state.s_wait_valid)
+
         io.AXI.ar.valid   := false.B
         io.AXI.r.ready    := false.B
-        io.AXI.aw.valid   <> io.IDU_2_EXU.valid
-        io.AXI.w.valid    := io.IDU_2_EXU.valid
+        io.AXI.aw.valid   := Mux(state_write === bus_state.s_wait_valid, io.IDU_2_EXU.valid, false.B)
+        io.AXI.w.valid    := Mux(state_write === bus_state.s_busy, true.B, false.B)
+        io.IDU_2_EXU.ready := io.AXI.aw.ready
         io.AXI.b.ready    <> io.out.ready
         io.AXI.b.valid    <> io.out.valid
 
-        when(state_write === s_idle) {
-            io.IDU_2_EXU.ready := io.AXI.aw.ready && io.AXI.w.ready
-
-            when(io.IDU_2_EXU.valid){
-                when(io.AXI.aw.ready && io.AXI.w.ready){
-                    state_write := s_idle
-                }.elsewhen(io.AXI.aw.ready && !io.AXI.w.ready){
-                    state_write := s_wait_data
-                }.elsewhen(!io.AXI.aw.ready && io.AXI.w.ready){
-                    state_write := s_wait_addr
-                }.otherwise{
-                    state_write := s_idle
-                }
-            }
-        }.elsewhen(state_write === s_wait_addr){
-            io.IDU_2_EXU.ready := io.AXI.aw.ready
-            when(io.IDU_2_EXU.valid && io.AXI.aw.ready){
-                state_write := s_idle
-            }
-        }.elsewhen(state_write === s_wait_data){
-            io.IDU_2_EXU.ready := io.AXI.w.ready
-            when(io.IDU_2_EXU.valid && io.AXI.w.ready){
-                state_write := s_idle
-            }
-        }.otherwise{
-            io.IDU_2_EXU.ready := false.B
-        }
+        state_write := MuxLookup(state_write, bus_state.s_wait_valid)(Seq(
+            bus_state.s_wait_valid -> Mux(io.AXI.aw.fire, bus_state.s_busy, bus_state.s_wait_valid),
+            bus_state.s_busy -> Mux(io.AXI.w.fire, bus_state.s_wait_ready, bus_state.s_busy),
+            bus_state.s_wait_ready -> Mux(io.AXI.b.fire, bus_state.s_wait_valid, bus_state.s_wait_ready)
+        ))
     }.elsewhen(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD) {
         io.AXI.aw.valid   := false.B
         io.AXI.w.valid    := false.B
@@ -127,19 +117,11 @@ class ysyx_23060198_LSU extends Module{
         io.AXI.ar.valid   <> io.IDU_2_EXU.valid
         io.AXI.r.valid    <> io.out.valid
         io.AXI.r.ready    <> io.out.ready
-    }.otherwise {
-        io.AXI.ar.valid   := false.B
-        io.AXI.r.ready    := false.B
-        io.AXI.aw.valid   := false.B
-        io.AXI.w.valid    := false.B
-        io.AXI.b.ready    := false.B
-        io.IDU_2_EXU.ready           <> false.B
-        io.out.valid          <> false.B
     }
 
-    io.AXI.ar.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
-    io.AXI.aw.bits.addr  <> io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
-    io.AXI.w.bits.data   <> (io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0)
+    io.AXI.ar.bits.addr  := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+    io.AXI.aw.bits.addr  := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
+    io.AXI.w.bits.data   := RegEnable((io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0), io.AXI.aw.fire)
     
     when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
         io.AXI.w.bits.strb   := MuxLookup(io.AXI.aw.bits.addr(1,0), "b0001".U)(Seq(

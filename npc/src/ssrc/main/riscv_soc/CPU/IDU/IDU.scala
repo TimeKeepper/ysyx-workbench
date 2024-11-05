@@ -6,6 +6,8 @@ import chisel3.util.BitPat
 import chisel3.util.experimental.decode._
 import org.chipsalliance.rvdecoderdb
 
+import config._
+
 import freechips.rocketchip.diplomacy._
 import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem._
@@ -15,6 +17,29 @@ import signal_value._
 import bus_state._
 // riscv generating number(all meassge ALU and other thing needs) unit
 
+class IDU_PC extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+        val iType = Input(UInt(2.W))
+    })
+    setInline("IDU_PC.v",
+    """module IDU_PC(
+    |    input clock,
+    |    input valid,
+    |    input [1:0] iType
+    |);
+    |
+    |import "DPI-C" function void IDU_finished(input int unsigned iType);
+    |
+    |always @(posedge clock) begin
+    |   if(valid) begin
+    |       IDU_finished({30'h0, iType});
+    |   end
+    |end
+    |endmodule
+    """.stripMargin)
+}
 
 trait DecodeAPI {
     def Get_BitPat[T <: Data](Enum: T): BitPat = {
@@ -151,6 +176,19 @@ object csr_ctr_Field extends DecodeField[rvInstructionPattern, CSR_TypeEnum.Type
     }
 }
 
+object PC_Field extends DecodeField[rvInstructionPattern, UInt] with DecodeAPI {
+    override def name: String = "pc"
+    override def chiselType = UInt(2.W)
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "lb" | "lh" | "lw" | "lbu" | "lhu" | "sb" | "sh" | "sw" => BitPat("b00")
+            case _ => i.inst.args.map(_.toString()).collectFirst {
+                case "csr" => BitPat("b01")
+            }.getOrElse(BitPat("b10"))
+        }
+    }
+}
+
 class ysyx_23060198_IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
@@ -202,8 +240,19 @@ class ysyx_23060198_IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    val rvdecoderTable = new DecodeTable(instList, Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field))
+    val allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
+
+    val rvdecoderTable = new DecodeTable(instList, allField)
     val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
+    
+    if(Config.DPIC_on) {
+        val PCdecoderTable = new DecodeTable(instList, Seq(PC_Field))
+        val PCdecoderResult = PCdecoderTable.decode(io.IFU_2_IDU.bits.data)
+        val PerformenceCounter = Module(new IDU_PC)
+        PerformenceCounter.io.clock := clock
+        PerformenceCounter.io.valid := io.IDU_2_EXU.fire && !reset.asBool
+        PerformenceCounter.io.iType := PCdecoderResult(PC_Field)
+    }
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(
@@ -215,7 +264,7 @@ class ysyx_23060198_IDU extends Module{
         )
     )
 
-    val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), imm(11, 0))(
+    val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), io.IFU_2_IDU.bits.data(31, 20))(
         Seq(
             CSR_TypeEnum.CSR_R1W0 -> "h341".U,
             CSR_TypeEnum.CSR_R1W2 -> "h305".U,

@@ -20,7 +20,6 @@ def tabulate_show():
         'LS aver clk': [ac_LS],
         'CSR aver clk': [ac_CSR],
         'Cal aver clk': [ac_Cal],
-        'IF %': [ifu_pc / inst_cnt * 100],
         'LS %': [lsu_pc / inst_cnt * 100],
         'AL %': [alu_pc / inst_cnt * 100],
         'Total time(us)': [clk_cnt / Freq],

@@ -78,7 +78,6 @@ extern "C" void inst_comp_update(){
     }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    Log("cpu.pc = 0x%08x, npc = 0x%08x", cpu.pc, npc);
     difftest_step(cpu.pc, npc);
     
     watchpoint_catch();          //检查watchpoint

@@ -27,8 +27,8 @@ def tabulate_show():
 
 def ui():
     def func(pct, allvalues):
-        absolute = int(pct/100.*sum(allvalues))  # 计算实际值
-        return f"{pct:.1f}%\n({absolute} 个)"
+        absolute = int(pct/100.*sum(allvalues))
+        return f"{pct:.1f}%\n({absolute})"
 
     inst_nums = [i_LS, i_CSR, i_Cal]
     clk_nums = [c_LS, c_CSR, c_Cal]

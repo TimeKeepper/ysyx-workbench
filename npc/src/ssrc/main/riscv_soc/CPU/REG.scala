@@ -179,6 +179,6 @@ class ysyx_23060198_REG extends Module {
     bridge.io.new_GPR := io.WBU_2_REG.GPR_wdata
 
     val pc_update = Module(new PC_UPDATE)
-    pc_update.io.PC := pc
+    pc_update.io.PC := io.WBU_2_REG.Next_Pc
   }
 }

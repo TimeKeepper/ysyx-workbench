@@ -103,8 +103,8 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
         io.IFU_2_IDU.bits.data := RegEnable(AXI.r.bits.data, AXI.r.fire)
 
-        io.IFU_2_REG.GPR_Aaddr <> AXI.r.bits.data(19, 15)
-        io.IFU_2_REG.GPR_Baddr <> AXI.r.bits.data(24, 20)
+        io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
+        io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 
         AXI.aw.valid := false.B
         AXI.aw.bits.addr := 0.U

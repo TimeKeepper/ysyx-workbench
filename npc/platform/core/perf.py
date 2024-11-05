@@ -42,6 +42,8 @@ def ui():
     axes[0, 0].set_xlabel('average ccycle')
     axes[0, 0].set_ylabel('instruction type')
     axes[0, 0].grid(axis='x', linestyle='--', alpha=0.7)
+    for index, value in enumerate(a_cycle):
+        axes[0, 0].text(value + 0.1, index, str(value), va='center')
 
     axes[1, 1].axis('off')
 

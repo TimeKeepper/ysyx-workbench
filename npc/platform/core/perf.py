@@ -26,11 +26,11 @@ def tabulate_show():
     print(tabulate(df, headers='keys', tablefmt='grid', colalign=colalign))
 
 def ui():
-    sizes = [i_LS, i_CSR, i_Cal]
+    inst_nums = [i_LS, i_CSR, i_Cal]
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 
-    plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    plt.pie(inst_nums, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
     plt.axis('equal')
     plt.show()
 

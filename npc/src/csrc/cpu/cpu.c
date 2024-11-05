@@ -24,7 +24,6 @@ TOP_NAME* top = new TOP_NAME;
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
 uint64_t clk_cnt = 0;
-uint64_t inst_cnt = 0;
 bool     is_itrace_printf = false;
 
 #define MAX_INST_TO_PRINT 10
@@ -152,41 +151,6 @@ void itrace_catch(uint32_t addr, uint32_t inst){
 
 static bool is_ret = false;
 
-static void func_called_detect(){
-    #ifdef CONFIG_FTRACE
-    static uint32_t stack_num = 0;
-
-    static char* last_func_name = NULL;
-    struct get_func msg = get_func_name(cpu.pc);
-    char* func_name = msg.name;
-    if(func_name != NULL && last_func_name != func_name){
-        if(!msg.is_call) {printf("ret  "); stack_num--;}
-        else {printf("call "); stack_num++;}
-
-        for(int i = 0; i < stack_num; i++) printf(" ");
-        printf("[%s]\n", func_name);
-
-        last_func_name = func_name;
-    }
-    #endif
-}
-
-static uint32_t num_of_inst_to_end = 0;
-
-void watchpoint_catch(void){
-    #ifdef CONFIG_WATCHPOINT
-    wp_Value_Update();
-    WP* wp;
-    for(int i = 0; (wp = get_Changed_wp(i)) != NULL; i++){
-        printf("Watchpoint %d: " ANSI_FMT("%s\n", ANSI_FG_BLUE), wp->NO, wp->expr);
-        printf(ANSI_FMT("Old value" , ANSI_FG_YELLOW)  " = 0x%08x\n", wp->last_time_Value);
-        printf(ANSI_FMT("New value" , ANSI_FG_GREEN) " = 0x%08x\n", wp->value);
-        num_of_inst_to_end = 0;
-        // if(npc_state.state != NPC_END) npc_state.state = NPC_STOP;//如果在npc停止的情况下修改state，就会导致报错,因为会导致检查trap的时候无法通过NPC_END的判断
-    }
-    #endif
-}
-
 void check_special_inst(uint32_t inst){
     switch(inst){
         case 0x00000000: npc_trap(1);   break; // ecall
@@ -198,26 +162,6 @@ void check_special_inst(uint32_t inst){
 }
 
 void difftest_step(vaddr_t pc, vaddr_t npc);
-
-#ifdef PLATFORM_YSYXSOC
-static bool is_comp_first_time = true; // 由于多周期处理器特性不得不引入的边界条件，或许能够在修改成流水线之后去除
-#elif defined(PLATFORM_NPC)
-static bool is_comp_first_time = true;
-#endif
-
-void inst_comp_update(){
-    if(is_comp_first_time){
-        is_comp_first_time = false;
-        return;
-    }
-    inst_cnt++;
-    num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    difftest_step(cpu.pc, DUT_PC);
-    
-    watchpoint_catch();          //检查watchpoint
-
-    func_called_detect();   
-}
 
 static void execute_one_clk(){
     #ifdef CONFIG_NVBOARD

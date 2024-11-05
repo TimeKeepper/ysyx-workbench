@@ -51,7 +51,7 @@ extern CPU_State cpu;
 
 extern uint64_t IFU_pc, LSU_pc, ALU_pc;
 extern uint64_t i_CSR,  i_LS,  i_Cal;
-extern uint64_t clk_cnt, inst_cnt;
+extern uint64_t clk_cnt, inst_cnt, num_of_inst_to_end;
 extern bool is_itrace_printf;
 
 #endif

@@ -2,7 +2,7 @@ import get_parameter as gp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
-inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal = gp.read_report()
+inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal = gp.read_report()
 Freq = float(gp.get_Freq())
 
 def tabulate_show():
@@ -27,12 +27,22 @@ def tabulate_show():
 
 def ui():
     inst_nums = [i_LS, i_CSR, i_Cal]
+    clk_nums = [c_LS, c_CSR, c_Cal]
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 
-    plt.pie(inst_nums, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+
+    ax1.pie(inst_nums, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    ax1.set_title('Instruction Count')
+
+    ax2.pie(clk_nums, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    ax2.set_title('Clock Count')
+
     plt.axis('equal')
+    plt.tight_layout()
     plt.show()
+
 
 if __name__ == '__main__':
     tabulate_show()

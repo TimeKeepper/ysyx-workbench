@@ -4,6 +4,7 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 
 inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal = gp.read_report()
+ac_LS, ac_CSR, ac_Cal = c_LS / i_LS, c_CSR / i_CSR, c_Cal / i_Cal
 Freq = float(gp.get_Freq())
 
 def tabulate_show():
@@ -11,14 +12,16 @@ def tabulate_show():
         'Commit': [gp.get_commit_id()],
         'Message': [gp.get_commit_message()],
         'Performance Index': [ipc * Freq],
-        'Freq(MHz)': [Freq],
         'Chip area(um^2)': [gp.get_Chip_area()],
-        'Simulation clk_cnt': [clk_cnt],
         'IPC': [ipc],
-        'IFU PC': [ifu_pc],
-        'LSU PC': [lsu_pc],
-        'ALU PC': [alu_pc],
+        'Freq(MHz)': [Freq],
         'Simulation inst_cnt': [inst_cnt],
+        'Simulation clk_cnt': [clk_cnt],
+        'LS aver clk': [ac_LS],
+        'CSR aver clk': [ac_CSR],
+        'Cal aver clk': [ac_Cal],
+        'LS %': [lsu_pc / inst_cnt * 100],
+        'AL %': [alu_pc / inst_cnt * 100],
         'Total time(us)': [clk_cnt / Freq],
     }
 
@@ -33,7 +36,7 @@ def ui():
 
     inst_nums = [i_LS, i_CSR, i_Cal]
     clk_nums = [c_LS, c_CSR, c_Cal]
-    a_cycle = [c_LS / i_LS, c_CSR / i_CSR, c_Cal / i_Cal]
+    a_cycle = [ac_LS, ac_CSR, ac_Cal]
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 

@@ -112,11 +112,14 @@ object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.
     override def name: String = "EXUBsrc"
     override def chiselType = EXUBsrc_TypeEnum()
     override def genTable(i: rvInstructionPattern): BitPat = {
-        i.inst.args.map(_.toString).collectFirst {
-            case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
-            case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
-            case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
-        }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
+        i.inst.name match {
+            case "mret" | "ecall" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
+            case _ => i.inst.args.map(_.toString).collectFirst {
+                case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
+                case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
+                case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
+            }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
+        }
     }
 }
 
@@ -295,5 +298,4 @@ class ysyx_23060198_IDU extends Module{
     io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                                io.IFU_2_IDU.fire) 
     io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr,                          io.IFU_2_IDU.fire) 
     io.IDU_2_EXU.bits.PC           <> RegEnable(io.REG_2_IDU.PC,                    io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.CSR_rdata    <> RegEnable(io.REG_2_IDU.CSR_rdata,             io.IFU_2_IDU.fire) 
 }

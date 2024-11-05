@@ -26,6 +26,10 @@ def tabulate_show():
     print(tabulate(df, headers='keys', tablefmt='grid', colalign=colalign))
 
 def ui():
+    def func(pct, allvalues):
+        absolute = int(pct/100.*sum(allvalues))  # 计算实际值
+        return f"{pct:.1f}%\n({absolute} 个)"
+
     inst_nums = [i_LS, i_CSR, i_Cal]
     clk_nums = [c_LS, c_CSR, c_Cal]
     labels = ['LS', 'CSR', 'Cal']
@@ -33,10 +37,10 @@ def ui():
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
-    ax1.pie(inst_nums, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    ax1.pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
     ax1.set_title('Instruction Count')
 
-    ax2.pie(clk_nums, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    ax2.pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
     ax2.set_title('Clock Count')
 
     plt.axis('equal')

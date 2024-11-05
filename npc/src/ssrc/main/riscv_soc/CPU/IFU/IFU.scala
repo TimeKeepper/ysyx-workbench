@@ -77,6 +77,15 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         val (master, _) = masterNode.out(0)
         master <> AXI
 
+        val state = RegInit(bus_state.s_wait_valid)
+        state := MuxLookup(state, bus_state.s_wait_valid)(
+            Seq(
+                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, bus_state.s_busy, bus_state.s_wait_valid),
+                bus_state.s_busy -> Mux(AXI.r.valid, bus_state.s_wait_ready, bus_state.s_busy),
+                bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
+            )
+        )
+
         io.WBU_2_IFU.ready <> AXI.ar.ready
         io.WBU_2_IFU.valid <> AXI.ar.valid
         io.REG_2_IFU.Next_PC <> AXI.ar.bits.addr
@@ -89,12 +98,13 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         AXI.ar.bits.prot  := 0.U
         AXI.ar.bits.qos   := 0.U
 
-        io.IFU_2_IDU.ready <> AXI.r.ready
-        io.IFU_2_IDU.valid <> AXI.r.valid
-        io.IFU_2_IDU.bits.data <> AXI.r.bits.data
+        AXI.r.ready := state === bus_state.s_busy
 
-        io.IFU_2_REG.GPR_Aaddr <> AXI.r.bits.data(19, 15)
-        io.IFU_2_REG.GPR_Baddr <> AXI.r.bits.data(24, 20)
+        io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
+        io.IFU_2_IDU.bits.data := RegEnable(AXI.r.bits.data, AXI.r.fire)
+
+        io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
+        io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 
         AXI.aw.valid := false.B
         AXI.aw.bits.addr := 0.U

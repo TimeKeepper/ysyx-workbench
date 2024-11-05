@@ -69,7 +69,13 @@ extern "C" void pc_update(uint32_t n_npc){
     npc = n_npc;
 }
 
+static bool is_comp_first_time = false;
+
 extern "C" void inst_comp_update(){
+    if(!is_comp_first_time){
+        is_comp_first_time = true;
+        return;
+    }
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
     Log("cpu.pc = 0x%08x, npc = 0x%08x", cpu.pc, npc);

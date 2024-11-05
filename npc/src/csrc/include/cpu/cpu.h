@@ -50,5 +50,6 @@ int npc_trap (int ra);
 extern CPU_State cpu;
 
 extern uint64_t IFU_pc, LSU_pc, ALU_pc;
+extern uint64_t i_CSR,  i_LS,   i_Cal;
 
 #endif

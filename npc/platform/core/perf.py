@@ -45,11 +45,11 @@ def ui():
 
     axes[1, 1].axis('off')
 
-    axes(1, 0).pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
-    axes(1, 0).set_title('Instruction Count')
+    axes[1, 0].pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
+    axes[1, 0].set_title('Instruction Count')
 
-    axes(1, 1).pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
-    axes(1, 1).set_title('Clock Count')
+    axes[1, 1].pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
+    axes[1, 1].set_title('Clock Count')
 
     plt.tight_layout()
     plt.show()

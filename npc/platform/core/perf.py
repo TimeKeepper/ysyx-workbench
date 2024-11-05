@@ -1,3 +1,4 @@
+from matplotlib import gridspec
 import get_parameter as gp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
@@ -36,22 +37,24 @@ def ui():
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 5))
+    fig = plt.figure(figsize=(10, 8))
+    gs = gridspec.GridSpec(2, 2, height_ratios=[1, 1])
 
-    axes[0, 0].barh(labels, a_cycle, color=colors)
-    axes[0, 0].set_xlabel('average ccycle')
-    axes[0, 0].set_ylabel('instruction type')
-    axes[0, 0].grid(axis='x', linestyle='--', alpha=0.7)
+    ax1 = fig.add_subplot(gs[0, ;])
+    ax1.barh(labels, a_cycle, color=colors)
+    ax1.set_xlabel('average ccycle')
+    ax1.set_ylabel('instruction type')
+    ax1.grid(axis='x', linestyle='--', alpha=0.7)
     for index, value in enumerate(a_cycle):
-        axes[0, 0].text(value + 0.1, index, str("{:.3f}".format(value)), va='center')
+        ax1.text(value + 0.1, index, str("{:.3f}".format(value)), va='center')
 
-    axes[1, 1].axis('off')
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax2.pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
+    ax2.set_title('Instruction Count')
 
-    axes[1, 0].pie(inst_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, inst_nums), startangle=90)
-    axes[1, 0].set_title('Instruction Count')
-
-    axes[1, 1].pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
-    axes[1, 1].set_title('Clock Count')
+    ax3 = fig.add_subplot(gs[1, 1])
+    ax3.pie(clk_nums, labels=labels, colors=colors, autopct=lambda pct: func(pct, clk_nums), startangle=90)
+    ax3.set_title('Clock Count')
 
     plt.tight_layout()
     plt.show()

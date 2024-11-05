@@ -39,9 +39,9 @@ def ui():
     fig, axes = plt.subplots(2, 2, figsize=(10, 5))
 
     axes[0, 0].barh(labels, a_cycle, color=colors)
-    axes[1, 0].set_xlabel('average ccycle')
-    axes[1, 0].set_ylabel('instruction type')
-    axes[1, 0].grid(axis='x', linestyle='--', alpha=0.7)
+    axes[0, 0].set_xlabel('average ccycle')
+    axes[0, 0].set_ylabel('instruction type')
+    axes[0, 0].grid(axis='x', linestyle='--', alpha=0.7)
 
     axes[1, 1].axis('off')
 

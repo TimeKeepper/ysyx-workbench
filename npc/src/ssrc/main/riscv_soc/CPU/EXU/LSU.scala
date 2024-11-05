@@ -113,7 +113,7 @@ class ysyx_23060198_LSU extends Module{
     io.IDU_2_EXU.ready := state === LS_state.s_wait_valid
 
     val addr = WireDefault(io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm)
-    val data = WireDefault((io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0))
+    val data = WireDefault((io.IDU_2_EXU.bits.EXU_B << (addr(1,0) << 3.U))(31, 0))
 
     io.AXI.ar.bits.addr  := RegEnable(addr, io.IDU_2_EXU.fire)
     io.AXI.aw.bits.addr  := RegEnable(addr, io.IDU_2_EXU.fire)

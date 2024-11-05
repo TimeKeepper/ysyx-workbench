@@ -1,3 +1,4 @@
+#include "memory/paddr.h"
 #include "utils.h"
 #include "cpu/cpu.h"
 
@@ -62,10 +63,16 @@ void watchpoint_catch(void){
     #endif
 }
 
-extern void inst_comp_update(){
+static uint32_t npc = RESET_VECTOR;
+
+extern "C" void pc_update(uint32_t n_npc){
+    npc = n_npc;
+}
+
+extern "C" void inst_comp_update(){
     inst_cnt++;
     num_of_inst_to_end = num_of_inst_to_end == 0 ? 0 : num_of_inst_to_end - 1;
-    difftest_step(cpu.pc, cpu.pc);
+    difftest_step(cpu.pc, npc);
     
     watchpoint_catch();          //检查watchpoint
 

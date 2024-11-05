@@ -57,7 +57,7 @@ def ui():
     ax3.set_title('Clock Count')
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig('report.png')
 
 
 if __name__ == '__main__':

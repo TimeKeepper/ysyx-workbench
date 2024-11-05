@@ -38,7 +38,7 @@ def ui():
     colors = ['#ff9999','#66b3ff','#99ff99']
 
     fig = plt.figure(figsize=(10, 8))
-    gs = gridspec.GridSpec(2, 2, height_ratios=[1, 1])
+    gs = gridspec.GridSpec(2, 2, height_ratios=[1, 2])
 
     ax1 = fig.add_subplot(gs[0, :])
     ax1.barh(labels, a_cycle, color=colors)

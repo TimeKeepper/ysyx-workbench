@@ -177,5 +177,8 @@ class ysyx_23060198_REG extends Module {
     bridge.io.new_CSRb := io.WBU_2_REG.CSR_wdatab
     bridge.io.GPR_waddr := io.WBU_2_REG.GPR_waddr
     bridge.io.new_GPR := io.WBU_2_REG.GPR_wdata
+
+    val pc_update = Module(new PC_UPDATE)
+    pc_update.io.PC := pc
   }
 }

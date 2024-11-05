@@ -54,6 +54,16 @@ class LSU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+object LS_state extends ChiselEnum{
+  val s_wait_valid,
+      s_load,
+      s_store,
+      s_store_1,
+      s_wb,
+      s_sd
+      = Value
+}
+
 class ysyx_23060198_LSU extends Module{
     val io = IO(new Bundle{
         val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
@@ -64,7 +74,6 @@ class ysyx_23060198_LSU extends Module{
         val AXI = AXI4Bundle(CPUAXI4BundleParameters())
     })
     
-    io.AXI.ar.valid      := false.B
     io.AXI.ar.bits.id    := 1.U
     io.AXI.ar.bits.len   := 0.U
     io.AXI.ar.bits.burst := 0.U
@@ -72,10 +81,6 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.ar.bits.cache := 0.U
     io.AXI.ar.bits.prot  := 0.U
     io.AXI.ar.bits.qos   := 0.U
-
-    io.AXI.r.ready       := false.B
-
-    io.AXI.aw.valid      := false.B
     io.AXI.aw.bits.id    := 1.U
     io.AXI.aw.bits.len   := 0.U
     io.AXI.aw.bits.burst := 0.U
@@ -83,45 +88,51 @@ class ysyx_23060198_LSU extends Module{
     io.AXI.aw.bits.cache := 0.U
     io.AXI.aw.bits.prot  := 0.U
     io.AXI.aw.bits.qos   := 0.U
-
-    io.AXI.w.valid       := false.B
     io.AXI.w.bits.last   := 1.U
 
-    io.AXI.b.ready       := false.B
+    val state = RegInit(LS_state.s_wait_valid)
 
-    io.IDU_2_EXU.ready   := false.B
+    state := MuxLookup(state, LS_state.s_wait_valid)(
+        Seq(
+            LS_state.s_wait_valid -> Mux(io.IDU_2_EXU.valid, MuxLookup(io.IDU_2_EXU.bits.EXUctr, LS_state.s_wait_valid)(Seq(
+                EXUctr_TypeEnum.EXUctr_LD -> LS_state.s_load,
+                EXUctr_TypeEnum.EXUctr_ST -> LS_state.s_store
+            )), LS_state.s_wait_valid),
 
-    io.out.valid         := false.B
+            LS_state.s_load -> Mux(io.AXI.ar.ready, LS_state.s_wb, LS_state.s_load),
 
-    when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST) {
-        val state_write = RegInit(bus_state.s_wait_valid)
+            LS_state.s_store -> Mux(io.AXI.aw.ready, Mux(io.AXI.w.ready, LS_state.s_sd, LS_state.s_store_1), LS_state.s_store),
+            LS_state.s_store_1 -> Mux(io.AXI.w.ready, LS_state.s_sd, LS_state.s_store_1),
 
-        io.AXI.ar.valid   := false.B
-        io.AXI.r.ready    := false.B
-        io.AXI.aw.valid   := Mux(state_write === bus_state.s_wait_valid, io.IDU_2_EXU.valid, false.B)
-        io.AXI.w.valid    := Mux(state_write === bus_state.s_busy, true.B, false.B)
-        io.IDU_2_EXU.ready := io.AXI.aw.ready
-        io.AXI.b.ready    <> io.out.ready
-        io.AXI.b.valid    <> io.out.valid
+            LS_state.s_wb -> Mux(io.out.fire, LS_state.s_wait_valid, LS_state.s_wb),
 
-        state_write := MuxLookup(state_write, bus_state.s_wait_valid)(Seq(
-            bus_state.s_wait_valid -> Mux(io.AXI.aw.fire, bus_state.s_busy, bus_state.s_wait_valid),
-            bus_state.s_busy -> Mux(io.AXI.w.fire, bus_state.s_wait_ready, bus_state.s_busy),
-            bus_state.s_wait_ready -> Mux(io.AXI.b.fire, bus_state.s_wait_valid, bus_state.s_wait_ready)
-        ))
-    }.elsewhen(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD) {
-        io.AXI.aw.valid   := false.B
-        io.AXI.w.valid    := false.B
-        io.AXI.b.ready    := false.B
-        io.AXI.ar.ready   <> io.IDU_2_EXU.ready
-        io.AXI.ar.valid   <> io.IDU_2_EXU.valid
-        io.AXI.r.valid    <> io.out.valid
-        io.AXI.r.ready    <> io.out.ready
-    }
+            LS_state.s_sd -> Mux(io.out.fire, LS_state.s_wait_valid, LS_state.s_sd)
+        )
+    )
 
-    io.AXI.ar.bits.addr  := io.IDU_2_EXU.bits.EXU_A
-    io.AXI.aw.bits.addr  := io.IDU_2_EXU.bits.EXU_A
-    io.AXI.w.bits.data   := RegEnable((io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0), io.AXI.aw.fire)
+    io.IDU_2_EXU.ready := state === LS_state.s_wait_valid
+
+    val addr = WireDefault(io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm)
+    val data = WireDefault((io.IDU_2_EXU.bits.EXU_B << (io.AXI.aw.bits.addr(1,0) << 3.U))(31, 0))
+
+    io.AXI.ar.bits.addr  := RegEnable(addr, io.IDU_2_EXU.fire)
+    io.AXI.aw.bits.addr  := RegEnable(addr, io.IDU_2_EXU.fire)
+    io.AXI.w.bits.data   := RegEnable(data, io.IDU_2_EXU.fire)
+
+    io.AXI.ar.valid := state === LS_state.s_load
+    io.AXI.r.ready := Mux(state === LS_state.s_wb, io.out.ready, false.B)
+
+    io.AXI.aw.valid := state === LS_state.s_store
+    io.AXI.w.valid := state === LS_state.s_store || state === LS_state.s_store_1
+
+    io.AXI.b.ready := state === LS_state.s_sd
+    
+    io.out.valid := MuxLookup(state, false.B)(
+        Seq(
+            LS_state.s_wb -> io.AXI.r.valid,
+            LS_state.s_sd -> io.AXI.b.valid
+        )
+    )
     
     when(io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BU || io.IDU_2_EXU.bits.MemOp === MemOp_TypeEnum.MemOp_1BS){
         io.AXI.w.bits.strb   := MuxLookup(io.AXI.aw.bits.addr(1,0), "b0001".U)(Seq(
@@ -173,7 +184,7 @@ class ysyx_23060198_LSU extends Module{
     if(Config.DPIC_on){
         val LS_DPIC = Module(new LSU_DPIC)
         LS_DPIC.io.LS_begin  := io.AXI.ar.valid || io.AXI.aw.valid
-        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A
+        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
 
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock

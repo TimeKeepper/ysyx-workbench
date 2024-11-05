@@ -278,8 +278,8 @@ int npc_trap (int a0){
     fprintf(report_file, "%lu\n", IFU_pc);
     fprintf(report_file, "%lu\n", LSU_pc);
     fprintf(report_file, "%lu\n", ALU_pc);
-    fprintf(report_file, "%lu\n", i_CSR);
     fprintf(report_file, "%lu\n", i_LS);
+    fprintf(report_file, "%lu\n", i_CSR);
     fprintf(report_file, "%lu\n", i_Cal);
 
     fclose(report_file);

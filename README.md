@@ -66,6 +66,7 @@ pip install pandas tabulate gitpython wcwidth
 sudo apt-get install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6
 
 在https://github.com/YosysHQ/oss-cad-suite-build/releases中下载最新的releases，解压后在bashrc中source其中的enviroment
+为了能够使用标准规范版本的verilator,还需要在enviroment中将verilator的source注释掉
 
 进入yosys-sta目录下执行make init
 若需要综合查看PPA，在npc目录下运行make syn

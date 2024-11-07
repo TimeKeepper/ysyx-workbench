@@ -65,19 +65,18 @@ void Init_wavetrace(int argc, char **argv){
 
 extern vaddr_t __main_addr__;
 
+bool wave_trace_begin = false;
+
 void wave_Trace_once(){
     #ifdef CONFIG_WTRACE
-    static bool wave_trace_begin = true;
-    if(wave_trace_begin == false){
-        if(cpu.pc == 0xa00000cc) {
-            wave_trace_begin = true;
-            Log("Booting completed, start wave tracing...");
-        }
-        else return;
-    }
+    if(wave_trace_begin == false) return;
     contextp->timeInc(1);
     tfp->dump(contextp->time());
     #endif
+}
+
+void wave_Trace_on(){
+    wave_trace_begin = true;
 }
 
 void wave_Trace_close(){

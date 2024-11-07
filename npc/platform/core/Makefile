@@ -34,7 +34,7 @@ $(RPT_FILE) $(STAT_FILE): $(V_FILE_GEN)
 	$(MAKE) syn
 
 syn: $(V_FILE_GEN)
-	$(MAKE) -C $(YOSYS_HOME) sta DESIGN=ysyx_23060198 SDC_FILE=$(SDC_FILE) RTL_FILES=$(DESIGN_FILE) CLK_FREQ_MHZ=500 RESULT_DIR=$(abspath $(BUILD_DIR)/result)
+	$(MAKE) -C $(YOSYS_HOME) sta DESIGN=ysyx_23060198 SDC_FILE=$(SDC_FILE) RTL_FILES=$(DESIGN_FILE) CLK_FREQ_MHZ=5000 RESULT_DIR=$(abspath $(BUILD_DIR)/result)
 
 perf: $(RPT_FILE) $(STAT_FILE) $(PERFOMENSE_FILE)
 	$(call git_commit, "$(shell python ./get_parameter.py)")

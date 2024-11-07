@@ -218,7 +218,7 @@ int cmd_wo(char *args){
     printf(ANSI_FMT("You have no enable funtion named WTRACE\n", ANSI_FG_RED));
     #else
     wave_Trace_on();
-    printf(ANSI_FMT("Wave Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
+    printf("Wave Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
     #endif
     return 0;
 }

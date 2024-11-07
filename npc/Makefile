@@ -21,8 +21,8 @@ SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 
 ifeq ($(PLATFORM), ysyxsoc)
 	V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
-	# SSRC += $(shell find $(abspath $(YSYXSOC_HOME)) -name "*.scala")
-	# SSRC += $(shell find $(abspath ./) -name "*.scala")
+	SSRC += $(shell find $(abspath $(YSYXSOC_HOME)) -name "*.scala")
+	SSRC += $(shell find $(abspath ./) -name "*.scala")
 else
 ifeq ($(PLATFORM), npc)
 	V_FILE_GEN = $(VSRC_DIR)/top.sv

@@ -17,5 +17,6 @@ void sdb_set_batch_mode();
 int cmd_w(char *args);
 int cmd_d(char *args);
 int cmd_b(char *args);
+int cmd_wo(char *args);
 
 #endif

@@ -220,4 +220,5 @@ int cmd_wo(char *args){
     wave_Trace_on();
     printf(ANSI_FMT("Wave Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
     #endif
+    return 0;
 }

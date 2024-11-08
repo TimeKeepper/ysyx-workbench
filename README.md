@@ -60,11 +60,18 @@ sudo apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
 ```
 
 如果你遇到了找不到gnu/stubs-ilp32.h文件的错误，需要手动在/usr/riscv64-linux-gnu/include/gnu/stubs.h中将该include注释掉\
-初始化yosys综合器
+安装yosys综合器
 ```
 pip install pandas tabulate gitpython wcwidth
-sudo apt-get install yosys
 sudo apt-get install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6
+
+git clone git@github.com:YosysHQ/yosys.git
+cd yosys
+make config-gcc
+git submodule update --init --recursive
+make
+sudo make install
+
 进入yosys-sta目录下执行make init
 若需要综合查看PPA，在npc目录下运行make syn
 ```

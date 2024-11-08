@@ -212,4 +212,13 @@ int cmd_b(char *args){
   return 0;
 }
 
-
+extern void wave_Trace_on();
+int cmd_wo(char *args){
+    #ifndef CONFIG_WTRACE
+    printf(ANSI_FMT("You have no enable funtion named WTRACE\n", ANSI_FG_RED));
+    #else
+    wave_Trace_on();
+    printf("Wave Trace " ANSI_FMT("ON", ANSI_FG_GREEN) "\n");
+    #endif
+    return 0;
+}

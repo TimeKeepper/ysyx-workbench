@@ -82,7 +82,10 @@ static struct {
   , "", cmd_d},
 
   { "b", "Set Breakpoint"
-  , "", cmd_b}
+  , "", cmd_b},
+
+  { "wo", "Begin Wave Trace"
+  , "", cmd_wo}
 };
 
 #define NR_CMD ARRLEN(cmd_table)

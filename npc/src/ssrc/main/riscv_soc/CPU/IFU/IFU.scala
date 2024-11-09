@@ -86,7 +86,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
 
         val index = io.REG_2_IFU.Next_PC(5, 2)
         val tag = io.REG_2_IFU.Next_PC(31, 6)
-        val cache_tag = icache(index)(50, 32)
+        val cache_tag = icache(index)(49, 32)
         val data = icache(index)(31, 0)
         val tag_hit = tag === Cat("ha0000000".U(32.W)(31, 25), cache_tag)
         val valid = icache(index)(50)
@@ -104,7 +104,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.IFU_2_IDU.valid := Mux(state === bus_state.s_busy, AXI.r.valid, state === bus_state.s_wait_ready)
 
         when(state === bus_state.s_busy && AXI.r.fire){
-            icache(index) := Cat(1.U(1.W), io.IFU_2_IDU.bits.PC(24, 6), AXI.r.bits.data)
+            icache(index) := Cat(1.U(1.W), io.IFU_2_IDU.bits.PC(23, 6), AXI.r.bits.data)
         }
 
         AXI.aw.valid := false.B

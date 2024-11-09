@@ -103,6 +103,10 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
         io.IFU_2_IDU.valid := Mux(state === bus_state.s_busy, AXI.r.valid, state === bus_state.s_wait_ready)
 
+        when(state === bus_state.s_busy && AXI.r.fire){
+            icache(index) := Cat(1.U, io.IFU_2_IDU.bits.PC(31, 6), AXI.r.bits.data)
+        }
+
         AXI.aw.valid := false.B
         AXI.aw.bits.addr := 0.U
         AXI.aw.bits.size := 0.U

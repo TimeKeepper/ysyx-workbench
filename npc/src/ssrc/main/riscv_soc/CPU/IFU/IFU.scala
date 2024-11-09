@@ -88,7 +88,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
 
         val state = RegInit(bus_state.s_wait_valid)
 
-        val icache = SyncReadMem(16, UInt(52.W))
+        val icache = Mem(16, UInt(52.W))
 
         val index = io.REG_2_IFU.Next_PC(5, 2)
         val tag = io.REG_2_IFU.Next_PC(31, 6)
@@ -157,7 +157,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
         io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 
-        io.IFU_2_IDU.bits.data := data
+        io.IFU_2_IDU.bits.data := RegEnable(data, io.WBU_2_IFU.fire || AXI.r.fire)
 
         if(Config.DPIC_on){
             val trace = Module(new IFU_TRACE)

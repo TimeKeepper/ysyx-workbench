@@ -12,7 +12,8 @@ uint64_t inst_cnt = 0;
 
 uint64_t num_of_inst_to_end = 0;
 
-extern "C" void IFU_finished() {
+extern "C" void IFU_finished(uint32_t cache_hit) {
+    if(cache_hit) Log("IFU cache hit");
     IFU_pc++;
 }
 

@@ -44,16 +44,18 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
         val valid = Input(Bool())
+        val cache_hit = Input(Bool())
     })
     setInline("IFU_PC.v",
     """module IFU_PC(
     |    input clock,
-    |    input valid
+    |    input valid,
+    |    input cache_hit
     |);
-    |  import "DPI-C" function void IFU_finished();
+    |  import "DPI-C" function void IFU_finished(input int unsigned cache_hit);
     |  always @(posedge clock) begin
     |    if(valid) begin
-    |      IFU_finished();
+    |      IFU_finished({31'h0, cache_hit});
     |    end
     |  end
     |endmodule
@@ -164,6 +166,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val IFU_PC = Module(new IFU_PC)
             IFU_PC.io.clock := clock
             IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
+            IFU_PC.io.cache_hit := cache_hit
         }
 
         // val state = RegInit(bus_state.s_wait_valid)

@@ -166,7 +166,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val IFU_PC = Module(new IFU_PC)
             IFU_PC.io.clock := clock
             IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
-            IFU_PC.io.cache_hit := tag(25, 19) === "b1000000".U(7.W)
+            IFU_PC.io.cache_hit := cache_hit
         }
 
         // val state = RegInit(bus_state.s_wait_valid)

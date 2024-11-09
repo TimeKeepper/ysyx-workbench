@@ -96,7 +96,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
 
         def mapBegin = offsetWidth + indexWidth + tagWidth
 
-        def test = "h80000000".U(32.W)(32, mapBegin + 1)
+        def test = "h80000000".U(32.W)(31, mapBegin)
 
         def dataWidth = Math.pow(2, offsetWidth).toInt * 8
         def offsetPos = offsetWidth - 1

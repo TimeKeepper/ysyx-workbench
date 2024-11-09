@@ -88,7 +88,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
 
         val state = RegInit(bus_state.s_wait_valid)
 
-        val icache = Mem(16, UInt(52.W))
+        val icache = SyncReadMem(16, UInt(52.W))
 
         val index = io.REG_2_IFU.Next_PC(5, 2)
         val tag = io.REG_2_IFU.Next_PC(31, 6)
@@ -101,7 +101,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         state := MuxLookup(state, bus_state.s_wait_valid)(
             Seq(
                 bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.valid, Mux(cache_hit, bus_state.s_wait_ready, bus_state.s_busy), bus_state.s_wait_valid),
-                bus_state.s_busy -> Mux(AXI.r.fire, bus_state.s_wait_valid, bus_state.s_busy),
+                bus_state.s_busy -> Mux(AXI.r.fire, bus_state.s_wait_ready, bus_state.s_busy),
                 bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
             )
         )
@@ -157,7 +157,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
         io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 
-        io.IFU_2_IDU.bits.data := RegEnable(Mux(state === bus_state.s_busy, AXI.r.bits.data, data), io.WBU_2_IFU.fire || AXI.r.fire)
+        io.IFU_2_IDU.bits.data := data
 
         if(Config.DPIC_on){
             val trace = Module(new IFU_TRACE)

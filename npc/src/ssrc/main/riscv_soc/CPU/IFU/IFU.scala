@@ -157,7 +157,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
         io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 
-        io.IFU_2_IDU.bits.data := RegEnable(Mux(state === bus_state.s_busy, AXI.r.bits.data, data), io.WBU_2_IFU.fire)
+        io.IFU_2_IDU.bits.data := RegEnable(Mux(state === bus_state.s_busy, AXI.r.bits.data, data), io.WBU_2_IFU.fire || AXI.r.fire)
 
         if(Config.DPIC_on){
             val trace = Module(new IFU_TRACE)

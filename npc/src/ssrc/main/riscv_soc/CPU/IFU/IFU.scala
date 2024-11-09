@@ -10,6 +10,7 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
+import freechips.rocketchip.util.Annotated.srams
 
 class IFU_TRACE extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
@@ -43,16 +44,22 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
         val valid = Input(Bool())
+        val cache_hit = Input(Bool())
+        val tag = Input(UInt(19.W))
+        val cache_tah = Input(UInt(19.W))
     })
     setInline("IFU_PC.v",
     """module IFU_PC(
     |    input clock,
-    |    input valid
+    |    input valid,
+    |    input cache_hit,
+    |    input [18:0] tag,
+    |    input [18:0] cache_tah
     |);
-    |  import "DPI-C" function void IFU_finished();
+    |  import "DPI-C" function void IFU_finished(input int unsigned cache_hit, input int unsigned tag, input int unsigned cache_tah);
     |  always @(posedge clock) begin
     |    if(valid) begin
-    |      IFU_finished();
+    |      IFU_finished({31'h0, cache_hit}, {13'h0, tag}, {13'h0, cache_tah});
     |    end
     |  end
     |endmodule
@@ -77,34 +84,34 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         val (master, _) = masterNode.out(0)
         master <> AXI
 
+        io.IFU_2_IDU.bits.PC := RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire)
+
         val state = RegInit(bus_state.s_wait_valid)
+
+        val icache = Mem(16, UInt(52.W))
+
+        val index = io.REG_2_IFU.Next_PC(5, 2)
+        val tag = io.REG_2_IFU.Next_PC(31, 6)
+        val cache_tag = icache(index)(50, 32)
+        val data = icache(index)(31, 0)
+        val tag_hit = tag === Cat("b1010000".U(7.W), cache_tag)
+        val valid = icache(index)(51)
+        val cache_hit = valid && tag_hit
+        
         state := MuxLookup(state, bus_state.s_wait_valid)(
             Seq(
-                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, bus_state.s_busy, bus_state.s_wait_valid),
-                bus_state.s_busy -> Mux(AXI.r.valid, bus_state.s_wait_ready, bus_state.s_busy),
+                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.valid, Mux(cache_hit, bus_state.s_wait_ready, bus_state.s_busy), bus_state.s_wait_valid),
+                bus_state.s_busy -> Mux(AXI.r.fire, bus_state.s_wait_ready, bus_state.s_busy),
                 bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
             )
         )
 
-        io.WBU_2_IFU.ready <> AXI.ar.ready
-        io.WBU_2_IFU.valid <> AXI.ar.valid
-        io.REG_2_IFU.Next_PC <> AXI.ar.bits.addr
-        AXI.ar.bits.size  := 2.U
-        AXI.ar.bits.id    := 0.U
-        AXI.ar.bits.len   := 0.U
-        AXI.ar.bits.burst := 0.U
-        AXI.ar.bits.lock  := 0.U
-        AXI.ar.bits.cache := 0.U
-        AXI.ar.bits.prot  := 0.U
-        AXI.ar.bits.qos   := 0.U
-
-        AXI.r.ready := state === bus_state.s_busy
-
+        io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
         io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
-        io.IFU_2_IDU.bits.data := RegEnable(AXI.r.bits.data, AXI.r.fire)
 
-        io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
-        io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
+        when(state === bus_state.s_busy && AXI.r.fire){
+            icache(index) := Cat(1.U(1.W), io.IFU_2_IDU.bits.PC(24, 6), AXI.r.bits.data)
+        }
 
         AXI.aw.valid := false.B
         AXI.aw.bits.addr := 0.U
@@ -122,6 +129,44 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         AXI.w.bits.last  := 1.U
         AXI.b.ready := false.B
 
+        AXI.ar.bits.size  := 2.U
+        AXI.ar.bits.id    := 0.U
+        AXI.ar.bits.len   := 0.U
+        AXI.ar.bits.burst := 0.U
+        AXI.ar.bits.lock  := 0.U
+        AXI.ar.bits.cache := 0.U
+        AXI.ar.bits.prot  := 0.U
+        AXI.ar.bits.qos   := 0.U
+
+        AXI.r.ready := io.IFU_2_IDU.ready
+
+        val axi_state = RegInit(bus_state.s_wait_ready)
+
+        axi_state := MuxLookup(axi_state, bus_state.s_wait_ready)(
+            Seq(
+                bus_state.s_wait_ready -> Mux(state === bus_state.s_busy && AXI.ar.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
+                bus_state.s_wait_valid -> Mux(AXI.r.valid, bus_state.s_wait_ready, bus_state.s_wait_valid)
+            )
+        )
+
+        AXI.ar.valid := state === bus_state.s_busy && axi_state === bus_state.s_wait_ready
+        AXI.ar.bits.addr := io.IFU_2_IDU.bits.PC
+
+        io.REG_2_IFU.Next_PC <> AXI.ar.bits.addr
+
+        io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
+        io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
+
+        val inst = RegInit(0.U(32.W))
+
+        when(io.WBU_2_IFU.fire){
+            inst := data
+        }.elsewhen(AXI.r.fire){
+            inst := AXI.r.bits.data
+        }
+
+        io.IFU_2_IDU.bits.data := inst
+
         if(Config.DPIC_on){
             val trace = Module(new IFU_TRACE)
 
@@ -133,6 +178,9 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             val IFU_PC = Module(new IFU_PC)
             IFU_PC.io.clock := clock
             IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
+            IFU_PC.io.cache_hit := cache_hit
+            IFU_PC.io.tag := tag
+            IFU_PC.io.cache_tah := cache_tag
         }
     }
 }

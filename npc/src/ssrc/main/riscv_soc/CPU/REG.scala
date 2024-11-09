@@ -107,7 +107,6 @@ class ysyx_23060198_REG extends Module {
 
   val pc = RegEnable(io.WBU_2_REG.Next_Pc, Config.Reset_Vector, io.WBU_2_REG.inst_valid)
 
-  io.REG_2_IDU.PC := pc
   io.REG_2_IFU.Next_PC := pc
 
   // CSR

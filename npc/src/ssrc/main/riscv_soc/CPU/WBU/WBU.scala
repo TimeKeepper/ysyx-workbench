@@ -5,6 +5,7 @@ import chisel3.util._
 
 import signal_value._
 import bus_state._
+import config._
 
 class ysyx_23060198_WBU extends Module {
     val io = IO(new Bundle{

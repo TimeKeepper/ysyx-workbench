@@ -88,7 +88,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         val tag = io.REG_2_IFU.Next_PC(31, 6)
         val cache_tag = icache(index)(49, 32)
         val data = icache(index)(31, 0)
-        val tag_hit = tag === Cat("ha0000000".U(32.W)(31, 25), cache_tag)
+        val tag_hit = tag === Cat("b1010000".U(7.W), cache_tag)
         val valid = icache(index)(50)
         val cache_hit = valid && tag_hit
         

@@ -84,14 +84,14 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
 
         val state = RegInit(bus_state.s_wait_valid)
 
-        val icache = Mem(16, UInt(51.W))
+        val icache = Mem(16, UInt(50.W))
 
         val index = io.REG_2_IFU.Next_PC(5, 2)
         val tag = io.REG_2_IFU.Next_PC(31, 6)
-        val cache_tag = icache(index)(49, 32)
+        val cache_tag = icache(index)(48, 32)
         val data = icache(index)(31, 0)
         val tag_hit = tag === Cat("b1000000".U(7.W), cache_tag)
-        val valid = icache(index)(50)
+        val valid = icache(index)(49)
         val cache_hit = valid && tag_hit
         
         state := MuxLookup(state, bus_state.s_wait_valid)(

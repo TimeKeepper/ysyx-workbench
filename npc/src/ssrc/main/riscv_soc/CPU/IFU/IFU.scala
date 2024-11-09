@@ -94,7 +94,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         val tag = io.REG_2_IFU.Next_PC(31, 6)
         val cache_tag = icache(index)(50, 32)
         val data = icache(index)(31, 0)
-        val tag_hit = tag === Cat("b1000000".U(7.W), cache_tag)
+        val tag_hit = tag === Cat("b1010000".U(7.W), cache_tag)
         val valid = icache(index)(51)
         val cache_hit = valid && tag_hit
         
@@ -174,19 +174,5 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
             IFU_PC.io.tag := tag
             IFU_PC.io.cache_tah := cache_tag
         }
-
-        // val state = RegInit(bus_state.s_wait_valid)
-        // state := MuxLookup(state, bus_state.s_wait_valid)(
-        //     Seq(
-        //         bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, bus_state.s_busy, bus_state.s_wait_valid),
-        //         bus_state.s_busy -> Mux(AXI.r.valid, bus_state.s_wait_ready, bus_state.s_busy),
-        //         bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
-        //     )
-        // )
-
-
-        // io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
-        // io.IFU_2_IDU.bits.data := RegEnable(AXI.r.bits.data, AXI.r.fire)
-        // io.IFU_2_IDU.bits.PC := RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire)
     }
 }

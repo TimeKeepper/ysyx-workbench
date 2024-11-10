@@ -192,7 +192,7 @@ object PC_Field extends DecodeField[rvInstructionPattern, UInt] with DecodeAPI {
     }
 }
 
-class ysyx_23060198_IDU extends Module{
+class IDU extends Module{
     val io = IO(new Bundle{
         val IFU_2_IDU     = Flipped(Decoupled(Input(new BUS_IFU_2_IDU)))
         val REG_2_IDU     = Input(new BUS_REG_2_IDU)

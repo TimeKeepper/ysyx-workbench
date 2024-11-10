@@ -109,10 +109,10 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     })
     
     val IFU             = LazyIFU.module
-    val IDU             = Module(new ysyx_23060198_IDU)
+    val IDU             = Module(new IDU)
     val EXU             = LazyEXU.module
-    val WBU             = Module(new ysyx_23060198_WBU)
-    val REG             = Module(new ysyx_23060198_REG) 
+    val WBU             = Module(new WBU)
+    val REG             = Module(new REG) 
     // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
     // bus IFU -> IDU
@@ -184,11 +184,10 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
   class Impl extends LazyModuleImp(this) with DontTouch {
     
     val IFU             = LazyIFU.module
-    val IDU             = Module(new ysyx_23060198_IDU)
+    val IDU             = Module(new IDU)
     val EXU             = LazyEXU.module
-    val WBU             = Module(new ysyx_23060198_WBU)
-    val REG             = Module(new ysyx_23060198_REG) 
-    // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
+    val WBU             = Module(new WBU)
+    val REG             = Module(new REG) 
 
     // bus IFU -> IDU
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU

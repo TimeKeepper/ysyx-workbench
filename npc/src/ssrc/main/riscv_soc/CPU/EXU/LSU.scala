@@ -64,7 +64,7 @@ object LS_state extends ChiselEnum{
       = Value
 }
 
-class ysyx_23060198_LSU extends Module{
+class LSU extends Module{
     val io = IO(new Bundle{
         val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
 

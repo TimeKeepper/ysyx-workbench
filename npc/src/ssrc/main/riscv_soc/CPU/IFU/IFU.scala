@@ -88,28 +88,24 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
 
         val state = RegInit(bus_state.s_wait_valid)
 
-        val icache = Mem(16, UInt(52.W))
+        def mapBegin = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth + Config.Icache_Param.tagWidth
 
-        def offsetWidth = 2
-        def indexWidth = 4
-        def tagWidth = 19
+        def map = Config.Icache_Param.mapAddr.U(32.W)(31, mapBegin)
 
-        def mapBegin = offsetWidth + indexWidth + tagWidth
-
-        def test = "ha0000000".U(32.W)(31, mapBegin)
-
-        def dataWidth = Math.pow(2, offsetWidth).toInt * 8
-        def offsetPos = offsetWidth - 1
-        def indexPos = offsetWidth + indexWidth - 1
-        def tagPos = dataWidth + tagWidth - 1
+        def dataWidth = Math.pow(2, Config.Icache_Param.offsetWidth).toInt * 8
+        def offsetPos = Config.Icache_Param.offsetWidth - 1
+        def indexPos = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth - 1
+        def tagPos = dataWidth + Config.Icache_Param.tagWidth - 1
         def dataPos = dataWidth - 1
         def validPos = tagPos + 1
+
+        val icache = Mem(16, UInt(52.W))
 
         val index = io.REG_2_IFU.Next_PC(indexPos, offsetPos + 1)
         val tag = io.REG_2_IFU.Next_PC(31, indexPos + 1)
         val cache_tag = icache(index)(tagPos, dataPos + 1)
         val data = icache(index)(dataPos, 0)
-        val tag_hit = tag === Cat(test, cache_tag)
+        val tag_hit = tag === Cat(map, cache_tag)
         val valid = icache(index)(validPos)
         val cache_hit = valid && tag_hit
         

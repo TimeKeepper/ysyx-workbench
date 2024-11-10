@@ -14,4 +14,18 @@ object Config {
   def setDPIC(on: Boolean): Unit = {
     DPIC_on = on
   }
+
+  object Icache_Param {
+    var offsetWidth = 2
+    var indexWidth = 4
+    var tagWidth = 19
+    var mapAddr = "ha0000000"
+  }
+
+  def setIcacheParam(offsetWidth: Int, indexWidth: Int, tagWidth: Int, mapAddr: String): Unit = {
+    Icache_Param.offsetWidth = offsetWidth
+    Icache_Param.indexWidth = indexWidth
+    Icache_Param.tagWidth = tagWidth
+    Icache_Param.mapAddr = mapAddr
+  }
 }

@@ -14,7 +14,7 @@ uint64_t num_of_inst_to_end = 0;
 
 extern "C" void IFU_finished(uint32_t cache_hit, uint32_t tag, uint32_t cache_tag) {
     if(cache_hit) Log("IFU cache hit");
-    // Log("tag: 0x%08x, cache_tag: 0x%08x", tag, cache_tag);
+    Log("tag: 0x%08x, cache_tag: 0x%08x", tag, cache_tag);
     IFU_pc++;
 }
 

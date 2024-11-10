@@ -99,7 +99,7 @@ class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         def dataPos = dataWidth - 1
         def validPos = tagPos + 1
 
-        val icache = Mem(16, UInt(52.W))
+        val icache = Mem(Math.pow(2, Config.Icache_Param.indexWidth).toInt, UInt((32 + Config.Icache_Param.tagWidth + 1).W))
 
         val index = io.REG_2_IFU.Next_PC(indexPos, offsetPos + 1)
         val tag = io.REG_2_IFU.Next_PC(31, indexPos + 1)

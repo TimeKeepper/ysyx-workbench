@@ -66,7 +66,7 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
-class ysyx_23060198_IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
+class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(
         masters = Seq(AXI4MasterParameters(

@@ -4,8 +4,6 @@ import chisel3._
 
 object Elaborateysyxsoc extends App {
   val firtoolOptions = Array(
-    "-disable-all-randomization",
-    "-strip-debug-info",
     "--lowering-options=" + List(
       // make yosys happy
       // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
@@ -58,4 +56,18 @@ object Elaboratecore extends App {
   Config.setIcacheParam(2, 4, 19, "h80000000")
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)
+}
+
+object ElaborateBASYS extends App {
+  val firtoolOptions = Array(
+    "-disable-all-randomization",
+    "-strip-debug-info",
+    "--lowering-options=" + List(
+      // make vivado happy
+      // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
+      "mitigateVivadoArrayIndexConstPropBug",
+      "locationInfoStyle=wrapInAtSquareBracket"
+    ).reduce(_ + "," + _)
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(new BASYS.II_4(), args, firtoolOptions)
 }

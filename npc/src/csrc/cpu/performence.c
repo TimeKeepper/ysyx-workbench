@@ -17,10 +17,8 @@ uint64_t icache_hit = 0, icache_map_hit = 0;
 extern "C" void IFU_finished(uint32_t cache_hit, uint32_t map_hit) {
     if(map_hit) {
         icache_map_hit++;
-        Log("map hit");
         if(cache_hit) {
             icache_hit++;
-            Log("cache hit");
         }
     }
     IFU_pc++;

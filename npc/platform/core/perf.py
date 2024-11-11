@@ -3,8 +3,9 @@ import get_parameter as gp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
-inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal = gp.read_report()
+inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal, icache_hit, icache_map_hit = gp.read_report()
 ac_LS, ac_CSR, ac_Cal = c_LS / i_LS, c_CSR / i_CSR, c_Cal / i_Cal
+icache_hit_rate = icache_hit / icache_map_hit
 Freq = float(gp.get_Freq())
 
 def tabulate_show():
@@ -15,6 +16,7 @@ def tabulate_show():
         'Chip area(um^2)': [gp.get_Chip_area()],
         'IPC': [ipc],
         'Freq(MHz)': [Freq],
+        'Icache hit rate': [icache_hit_rate],
         'Simulation inst_cnt': [inst_cnt],
         'Simulation clk_cnt': [clk_cnt],
         'LS aver clk': [ac_LS],

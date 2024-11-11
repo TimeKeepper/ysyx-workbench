@@ -54,5 +54,6 @@ extern uint64_t i_CSR,  i_LS,  i_Cal;
 extern uint64_t c_CSR,  c_LS,  c_Cal;
 extern uint64_t clk_cnt, inst_cnt, num_of_inst_to_end;
 extern bool is_itrace_printf;
+extern uint64_t icache_hit, icache_map_hit;
 
 #endif

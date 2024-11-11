@@ -31,7 +31,7 @@ ifeq ($(PLATFORM), core)
 	V_FILE_GEN = $(VSRC_DIR)/ysyx_23060198.sv
 else
 ifeq ($(PLATFORM), BASYS)
-	V_FILE_GEN = $(shell find $(abspath $(VSRC_DIR)) -name "*.sv")
+	V_FILE_GEN = $(VSRC_DIR)/II_final.sv
 endif
 endif
 endif

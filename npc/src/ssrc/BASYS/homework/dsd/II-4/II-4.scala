@@ -12,9 +12,14 @@ class II_4 extends Module {
         val ps2_data = Analog(1.W)
     })
 
-    val vga_sync = Module(new VGA_SYNC)
-    vga_sync.io.clock := clock
-    vga_sync.io.reset := reset
+    val clock_devider = Module(new clock_devider(4))
+    clock_devider.io.clk_in := clock
+    clock_devider.io.reset := reset
+
+    val vga_sync = Module(new vga_sync)
+    vga_sync.clock := clock_devider.io.clk_out.asClock
+    vga_sync.reset := reset
+
     io.hsync := vga_sync.io.hsync
     io.vsync := vga_sync.io.vsync
 
@@ -40,9 +45,9 @@ class II_4 extends Module {
         mouse_y := Mux(Next_y > 240.S, 240.S, Mux(Next_y < -240.S, -240.S, Next_y))
     }
 
-    val vga_match = WireDefault(vga_sync.io.x >= 220.U && vga_sync.io.x < 420.U && vga_sync.io.y >= 140.U && vga_sync.io.y < 340.U)
-    val vga_match_f = WireDefault(vga_sync.io.x >= 70.U && vga_sync.io.x < 270.U && vga_sync.io.y >= 140.U && vga_sync.io.y < 340.U)
-    val vga_match_s = WireDefault(vga_sync.io.x >= 370.U && vga_sync.io.x < 570.U && vga_sync.io.y >= 140.U && vga_sync.io.y < 340.U)
+    val vga_match = WireDefault(vga_sync.xaddr >= 220.U && vga_sync.xaddr < 420.U && vga_sync.yaddr >= 140.U && vga_sync.yaddr < 340.U)
+    val vga_match_f = WireDefault(vga_sync.xaddr >= 70.U && vga_sync.xaddr < 270.U && vga_sync.yaddr >= 140.U && vga_sync.yaddr < 340.U)
+    val vga_match_s = WireDefault(vga_sync.xaddr >= 370.U && vga_sync.xaddr < 570.U && vga_sync.yaddr >= 140.U && vga_sync.yaddr < 340.U)
 
     val mouse_match_f = WireDefault(mouse_x >= -250.S && mouse_x < -50.S && mouse_y >= -100.S && mouse_y < 100.S)
     val mouse_match_s = WireDefault(mouse_x >= 50.S && mouse_x < 250.S && mouse_y >= -100.S && mouse_y < 100.S)
@@ -56,12 +61,12 @@ class II_4 extends Module {
         s_frame_s -> Mux(right_click, s_idle, s_frame_s)
     ))
 
-    val BRAM_raddr = WireDefault((vga_sync.io.x - 220.U) + ((vga_sync.io.y - 140.U) * 200.U))
-    val BRAM_0_raddr = WireDefault((vga_sync.io.x - 220.U) + ((vga_sync.io.y - 140.U) * 200.U))
+    val BRAM_raddr = WireDefault((vga_sync.xaddr - 220.U) + ((vga_sync.yaddr - 140.U) * 200.U))
+    val BRAM_0_raddr = WireDefault((vga_sync.xaddr - 220.U) + ((vga_sync.yaddr - 140.U) * 200.U))
 
     when(state === s_idle){
-        BRAM_raddr := (vga_sync.io.x - 70.U) + ((vga_sync.io.y - 140.U) * 200.U)
-        BRAM_0_raddr := (vga_sync.io.x - 370.U) + ((vga_sync.io.y - 140.U) * 200.U)
+        BRAM_raddr := (vga_sync.xaddr - 70.U) + ((vga_sync.yaddr - 140.U) * 200.U)
+        BRAM_0_raddr := (vga_sync.xaddr - 370.U) + ((vga_sync.yaddr - 140.U) * 200.U)
     }
 
     val BRAM = Module(new BRAM(16, 12))
@@ -77,7 +82,7 @@ class II_4 extends Module {
     val BRAM_P = Module(new BRAM_P)
     BRAM_P.io.clka := clock
     BRAM_P.io.ena := true.B
-    BRAM_P.io.addra := (vga_sync.io.x - (mouse_x + 320.S).asUInt) + (vga_sync.io.y - (mouse_y + 240.S).asUInt) * 20.U
+    BRAM_P.io.addra := (vga_sync.xaddr - (mouse_x + 320.S).asUInt) + (vga_sync.yaddr - (mouse_y + 240.S).asUInt) * 20.U
 
     val frame = WireDefault(0.U(12.W))
     when((state === s_frame_f) & vga_match) {
@@ -90,7 +95,7 @@ class II_4 extends Module {
         frame := BRAM_0.io.douta
     }
 
-    when(vga_sync.io.x - (mouse_x + 320.S).asUInt < 20.U && vga_sync.io.y - (mouse_y + 240.S).asUInt < 20.U && vga_sync.io.x - (mouse_x + 320.S).asUInt >= 0.U && vga_sync.io.y - (mouse_y + 240.S).asUInt >= 0.U){
+    when(vga_sync.xaddr - (mouse_x + 320.S).asUInt < 20.U && vga_sync.yaddr - (mouse_y + 240.S).asUInt < 20.U && vga_sync.xaddr - (mouse_x + 320.S).asUInt >= 0.U && vga_sync.yaddr - (mouse_y + 240.S).asUInt >= 0.U){
         io.rgb := BRAM_P.io.douta
     }.otherwise{
         io.rgb := frame

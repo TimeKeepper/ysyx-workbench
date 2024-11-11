@@ -22,3 +22,6 @@
 [submodule "npc/rocket-chip"]
 	path = npc/rocket-chip
 	url = git@github.com:TimeKeepper/rocket-chip.git
+[submodule "npc/rvdecoderdb"]
+	path = npc/rvdecoderdb
+	url = git@github.com:chipsalliance/rvdecoderdb.git

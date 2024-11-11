@@ -93,7 +93,8 @@ trait NPC extends npcModule with HasThisChisel {
   override def sources = T.sources {
     super.sources() ++ Seq(
       PathRef(millSourcePath / "src"),
-      PathRef(millSourcePath / "platform")  
+      PathRef(millSourcePath / "platform"),
+      PathRef(millSourcePath / "rvdecoderdb"),
     )
   }
 }

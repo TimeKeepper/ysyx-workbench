@@ -15,6 +15,7 @@
 !*.py
 !*.sdc
 !*.png
+!*.jpg
 build/
 **/compile_commands.json
 

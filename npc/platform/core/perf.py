@@ -18,7 +18,6 @@ def tabulate_show():
         'Freq(MHz)': [Freq],
         'Icache hit rate': [icache_hit_rate],
         'Simulation clk_cnt': [clk_cnt],
-        'Total time(us)': [clk_cnt / Freq],
     }
 
     colalign = ("center",) * len(df)

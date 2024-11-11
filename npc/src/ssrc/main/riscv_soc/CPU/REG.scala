@@ -73,7 +73,7 @@ class REG_output extends Bundle{
   val csr_rdata = Output(UInt(32.W))
 }
 
-class ysyx_23060198_REG extends Module {
+class REG extends Module {
   val io = IO(new Bundle {
     val REG_2_IFU = Output(new BUS_REG_2_IFU)
     val IFU_2_REG = Input(new BUS_IFU_2_REG)

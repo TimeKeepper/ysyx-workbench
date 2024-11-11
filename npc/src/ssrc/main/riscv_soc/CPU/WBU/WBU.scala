@@ -7,7 +7,7 @@ import signal_value._
 import bus_state._
 import config._
 
-class ysyx_23060198_WBU extends Module {
+class WBU extends Module {
     val io = IO(new Bundle{
         val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
         val WBU_2_IFU = Decoupled(Output(new BUS_WBU_2_IFU))

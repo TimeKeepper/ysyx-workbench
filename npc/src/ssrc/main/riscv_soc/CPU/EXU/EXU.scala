@@ -14,7 +14,7 @@ import freechips.rocketchip.util._
 
 // riscv excution unit
 
-class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
+class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(
         masters = Seq(AXI4MasterParameters(
@@ -33,8 +33,8 @@ class ysyx_23060198_EXU(idBits: Int)(implicit p: Parameters) extends LazyModule 
         val (master, _) = masterNode.out(0)
         master <> AXI
 
-        val alu = Module(new ysyx_23060198_ALU)
-        val lsu = Module(new ysyx_23060198_LSU)
+        val alu = Module(new ALU)
+        val lsu = Module(new LSU)
 
         when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD ||
             io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST){

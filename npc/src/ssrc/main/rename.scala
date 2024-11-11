@@ -1,34 +1,20 @@
-package rename
-
 import chisel3._
-import chisel3.util._
-import chisel3.experimental._
+import circt.stage.ChiselStage
 
 package sifive {
   package enterprise {
     package firrtl {
-      import _root_.firrtl.annotations._
 
       case class NestedPrefixModulesAnnotation(
-          val target: Target,
+          val target: _root_.firrtl.annotations.Target,
           prefix: String,
           inclusive: Boolean
-      ) extends SingleTargetAnnotation[Target] {
+      ) extends _root_.firrtl.annotations.SingleTargetAnnotation[
+            _root_.firrtl.annotations.Target
+          ] {
 
-        def duplicate(n: Target): Annotation =
-          NestedPrefixModulesAnnotation(target, prefix, inclusive)
+        override def duplicate(n: _root_.firrtl.annotations.Target) = ???
       }
     }
-
-  }
-
-}
-
-object AddPrefix {
-  def apply(module: Module, prefix: String, inclusive: Boolean = true) = {
-      annotate(new ChiselAnnotation {
-        def toFirrtl =
-          new sifive.enterprise.firrtl.NestedPrefixModulesAnnotation(module.toTarget, prefix, inclusive)
-      })
   }
 }

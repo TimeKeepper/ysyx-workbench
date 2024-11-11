@@ -77,8 +77,8 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
              AddressSet.misaligned(0xa0000000L, 0x2000000)
 
   ElaborationArtefacts.add("graphml", graphML)
-  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits-1))
-  val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits-1))
+  val LazyIFU = LazyModule(new IFU(idBits = idBits-1))
+  val LazyEXU = LazyModule(new EXU(idBits = idBits-1))
 
   val xbar = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
   xbar := LazyIFU.masterNode
@@ -109,10 +109,10 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     })
     
     val IFU             = LazyIFU.module
-    val IDU             = Module(new ysyx_23060198_IDU)
+    val IDU             = Module(new IDU)
     val EXU             = LazyEXU.module
-    val WBU             = Module(new ysyx_23060198_WBU)
-    val REG             = Module(new ysyx_23060198_REG) 
+    val WBU             = Module(new WBU)
+    val REG             = Module(new REG) 
     // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
     // bus IFU -> IDU
@@ -166,8 +166,8 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
   ElaborationArtefacts.add("graphml", graphML)
-  val LazyIFU = LazyModule(new ysyx_23060198_IFU(idBits = idBits))
-  val LazyEXU = LazyModule(new ysyx_23060198_EXU(idBits = idBits))
+  val LazyIFU = LazyModule(new IFU(idBits = idBits))
+  val LazyEXU = LazyModule(new EXU(idBits = idBits))
 
   val xbar = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
   xbar := LazyIFU.masterNode
@@ -184,11 +184,10 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
   class Impl extends LazyModuleImp(this) with DontTouch {
     
     val IFU             = LazyIFU.module
-    val IDU             = Module(new ysyx_23060198_IDU)
+    val IDU             = Module(new IDU)
     val EXU             = LazyEXU.module
-    val WBU             = Module(new ysyx_23060198_WBU)
-    val REG             = Module(new ysyx_23060198_REG) 
-    // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
+    val WBU             = Module(new WBU)
+    val REG             = Module(new REG) 
 
     // bus IFU -> IDU
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
@@ -230,6 +229,8 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
   }
 }
 
+import sifive._
+
 class ysyx_23060198 extends Module {
   implicit val config: Parameters = new Config(new Edge32BitConfig ++ new DefaultRV32Config)
   
@@ -240,6 +241,13 @@ class ysyx_23060198 extends Module {
   })
   val dut = LazyModule(new riscv_CPU(idBits = ChipLinkParam.idBits))
   val mdut = Module(dut.module)
+
+  chisel3.experimental.annotate(
+    new chisel3.experimental.ChiselAnnotation {
+      override def toFirrtl = sifive.enterprise.firrtl
+        .NestedPrefixModulesAnnotation(mdut.toTarget, "ysyx_23060198_", true)
+    }
+  )
 
   mdut.dontTouchPorts()
   

@@ -17,7 +17,6 @@ def tabulate_show():
         'IPC': [ipc],
         'Freq(MHz)': [Freq],
         'Icache hit rate': [icache_hit_rate],
-        'Simulation inst_cnt': [inst_cnt],
         'Simulation clk_cnt': [clk_cnt],
         'Total time(us)': [clk_cnt / Freq],
     }

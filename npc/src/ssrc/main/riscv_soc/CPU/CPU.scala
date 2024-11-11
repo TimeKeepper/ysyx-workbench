@@ -244,8 +244,7 @@ class ysyx_23060198 extends Module {
 
   chisel3.experimental.annotate(
     new chisel3.experimental.ChiselAnnotation {
-      override def toFirrtl = sifive.enterprise.firrtl
-        .NestedPrefixModulesAnnotation(mdut.toTarget, "ysyx_23060198_", true)
+      override def toFirrtl = sifive.enterprise.firrtl.NestedPrefixModulesAnnotation(mdut.toTarget, "ysyx_23060198_", true)
     }
   )
 

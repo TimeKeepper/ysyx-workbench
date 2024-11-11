@@ -45,21 +45,19 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
         val clock = Input(Clock())
         val valid = Input(Bool())
         val cache_hit = Input(Bool())
-        val tag = Input(UInt(19.W))
-        val cache_tah = Input(UInt(19.W))
+        val map_hit = Input(Bool())
     })
     setInline("IFU_PC.v",
     """module IFU_PC(
     |    input clock,
     |    input valid,
     |    input cache_hit,
-    |    input [18:0] tag,
-    |    input [18:0] cache_tah
+    |    input map_hit
     |);
-    |  import "DPI-C" function void IFU_finished(input int unsigned cache_hit, input int unsigned tag, input int unsigned cache_tah);
+    |  import "DPI-C" function void IFU_finished(input int unsigned cache_hit, input int unsigned map_hit);
     |  always @(posedge clock) begin
     |    if(valid) begin
-    |      IFU_finished({31'h0, cache_hit}, {13'h0, tag}, {13'h0, cache_tah});
+    |      IFU_finished({31'h0, cache_hit}, {31'h0, map_hit});
     |    end
     |  end
     |endmodule
@@ -190,8 +188,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             IFU_PC.io.clock := clock
             IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
             IFU_PC.io.cache_hit := RegNext(cache_hit)
-            IFU_PC.io.tag := tag
-            IFU_PC.io.cache_tah := cache_tag
+            IFU_PC.io.map_hit := RegNext(io.REG_2_IFU.Next_PC(31, mapBegin) === map)
         }
     }
 }

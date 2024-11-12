@@ -53,12 +53,15 @@ void init_sig(void){
 }
 
 void Init_wavetrace(int argc, char **argv);
+void bram_init(void);
 void init_monitor(int argc, char *argv[]) {
     parse_args(argc, argv);
 
     init_nvboard();
 
     Init_wavetrace(argc, argv);
+
+    bram_init();
 
     init_sig();
 }

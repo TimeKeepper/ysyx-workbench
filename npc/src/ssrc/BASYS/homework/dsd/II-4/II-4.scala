@@ -12,13 +12,7 @@ class II_4 extends Module {
         val ps2_data = Analog(1.W)
     })
 
-    val clock_devider = Module(new clock_devider(4))
-    clock_devider.io.clk_in := clock
-    clock_devider.io.reset := reset
-
     val vga_sync = Module(new vga_sync)
-    vga_sync.clock := clock_devider.io.clk_out.asClock
-    vga_sync.reset := reset
 
     io.hsync := vga_sync.io.hsync
     io.vsync := vga_sync.io.vsync

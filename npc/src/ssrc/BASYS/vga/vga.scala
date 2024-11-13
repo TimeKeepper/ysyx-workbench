@@ -6,7 +6,11 @@ import chisel3.util._
 class VGASyncIO extends Bundle{
 	val hsync = Output(Bool())
 	val vsync = Output(Bool())
+}
+
+class VGACtrlIO extends Bundle{
 	val valid = Output(Bool())
+	val xaddr, yaddr = Output(UInt(10.W))
 }
 
 object sync_config {
@@ -30,7 +34,7 @@ object vga_param {
 
 class vga_sync extends Module{
 	val io = IO(new VGASyncIO)
-	val xaddr, yaddr = IO(Output(UInt(10.W)))
+	val Ctrl = IO(new VGACtrlIO)
 
     val clock_devider = Module(new clock_devider(4))
     clock_devider.io.clk_in := clock
@@ -68,9 +72,9 @@ class vga_sync extends Module{
 		val v_valid = Wire(Bool())
 		h_valid := (x_cnt > vga_param.h_active.U) & (x_cnt <= vga_param.h_backporch.U)
 		v_valid := (y_cnt > vga_param.v_active.U) & (y_cnt <= vga_param.v_backporch.U)
-		io.valid := h_valid & v_valid
+		Ctrl.valid := h_valid & v_valid
 
-		xaddr := RegEnable(x_cnt - vga_param.h_active.U - 1.U, h_valid)
-		yaddr := RegEnable(y_cnt - vga_param.v_active.U - 1.U, v_valid)
+		Ctrl.xaddr := x_cnt - vga_param.h_active.U - 1.U
+		Ctrl.yaddr := y_cnt - vga_param.v_active.U - 1.U
 	}
 }

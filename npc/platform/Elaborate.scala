@@ -69,5 +69,5 @@ object ElaborateBASYS extends App {
       "locationInfoStyle=wrapInAtSquareBracket"
     ).reduce(_ + "," + _)
   )
-  circt.stage.ChiselStage.emitSystemVerilogFile(new BASYS.II_final(), args, firtoolOptions)
+  circt.stage.ChiselStage.emitSystemVerilogFile(new BASYS.II_4(), args, firtoolOptions)
 }

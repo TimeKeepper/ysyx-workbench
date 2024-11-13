@@ -31,19 +31,19 @@ class II_3 extends Module {
         s_pitch -> Mux(key.io.is_key_posedge, s_raw, s_pitch)
     ))
 
-    when(Mux(state === s_raw, vga_sync.xaddr < 80.U, vga_sync.yaddr < 60.U)){
+    when(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 80.U, vga_sync.Ctrl.yaddr < 60.U)){
         io.rgb := "hF00".U
-    }.elsewhen(Mux(state === s_raw, vga_sync.xaddr < 160.U, vga_sync.yaddr < 120.U)){
+    }.elsewhen(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 160.U, vga_sync.Ctrl.yaddr < 120.U)){
         io.rgb := "h00F".U
-    }.elsewhen(Mux(state === s_raw, vga_sync.xaddr < 240.U, vga_sync.yaddr < 180.U)){
+    }.elsewhen(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 240.U, vga_sync.Ctrl.yaddr < 180.U)){
         io.rgb := "h0F0".U
-    }.elsewhen(Mux(state === s_raw, vga_sync.xaddr < 320.U, vga_sync.yaddr < 240.U)){
+    }.elsewhen(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 320.U, vga_sync.Ctrl.yaddr < 240.U)){
         io.rgb := "h00F".U
-    }.elsewhen(Mux(state === s_raw, vga_sync.xaddr < 400.U, vga_sync.yaddr < 300.U)){
+    }.elsewhen(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 400.U, vga_sync.Ctrl.yaddr < 300.U)){
         io.rgb := "hF00".U
-    }.elsewhen(Mux(state === s_raw, vga_sync.xaddr < 480.U, vga_sync.yaddr < 360.U)){
+    }.elsewhen(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 480.U, vga_sync.Ctrl.yaddr < 360.U)){
         io.rgb := "h0F0".U
-    }.elsewhen(Mux(state === s_raw, vga_sync.xaddr < 560.U, vga_sync.yaddr < 420.U)){
+    }.elsewhen(Mux(state === s_raw, vga_sync.Ctrl.xaddr < 560.U, vga_sync.Ctrl.yaddr < 420.U)){
         io.rgb := "hF00".U
     }.otherwise{
         io.rgb := "h00F".U

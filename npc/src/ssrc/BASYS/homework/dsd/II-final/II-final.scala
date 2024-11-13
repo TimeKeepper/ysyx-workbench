@@ -13,14 +13,15 @@ class II_final extends Module{
 
     io.vga_sync <> vga_sync.io
     
-    val img_ui = Module(new image(200, 200, "ui", 220, 140))
+    // val img_ui = Module(new image(200, 200, "ui", 220, 140))
 
-    img_ui.io.xaddr := vga_sync.xaddr
-    img_ui.io.yaddr := vga_sync.yaddr
+    // img_ui.io.xaddr := vga_sync.xaddr
+    // img_ui.io.yaddr := vga_sync.yaddr
 
-    when(img_ui.io.hit){
-        io.rgb := img_ui.io.rgb
-    }.otherwise{
-        io.rgb := "hfff".U
-    }
+    // when(img_ui.io.hit){
+    //     io.rgb := img_ui.io.rgb
+    // }.otherwise{
+    //     io.rgb := "hfff".U
+    // }
+    io.rgb := "hfff".U
 }

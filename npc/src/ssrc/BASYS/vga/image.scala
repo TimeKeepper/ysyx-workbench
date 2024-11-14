@@ -2,7 +2,7 @@ package BASYS
 
 import chisel3._
 import chisel3.util._
-import os.stat.posix
+import chisel3.experimental.Analog
 
 class image(width: Int, height: Int, name: String) extends Module{
     val io = IO(new Bundle{
@@ -21,7 +21,14 @@ class image(width: Int, height: Int, name: String) extends Module{
     io.hit := vga_match
 
     if (sync_config.sim == true) {
-        val bram = Module(new BRAM_sim(17, 12, name))
+        class BRAM_ui_sim       extends BRAM_sim(width_addr = addr_width, width_data = 12, "ui")
+        class BRAM_pointer_sim  extends BRAM_sim(width_addr = addr_width, width_data = 12, "pointer")
+
+        val bram = name match {
+            case "ui" => Module(new BRAM_ui_sim)
+            case "pointer" => Module(new BRAM_pointer_sim)
+        }
+
         bram.io.clka := clock
         bram.io.ena  := vga_match
         bram.io.addra  := raddr
@@ -45,4 +52,39 @@ class image(width: Int, height: Int, name: String) extends Module{
         bram.io.addra  := raddr
         io.rgb := bram.io.douta
     }
+}
+
+class img_pointer extends Module{
+    val io = IO(new Bundle{
+        val vgaCtrl = Input(new VGACtrlIO)
+
+        val hit = Output(Bool())
+        val rgb = Output(UInt(12.W))
+
+        val ps2_clk = Analog(1.W)
+        val ps2_data = Analog(1.W)
+
+        val Left_click = Output(Bool())
+        val Right_click = Output(Bool())
+        val mouse_xpos = Output(UInt(11.W))
+        val mouse_ypos = Output(UInt(10.W))
+    })
+
+    val mouse_pointer = Module(new mouse_pointer)
+    mouse_pointer.io.ps2_clk <> io.ps2_clk
+    mouse_pointer.io.ps2_data <> io.ps2_data
+
+    mouse_pointer.io.Left_click <> io.Left_click
+    mouse_pointer.io.Right_click <> io.Right_click
+    mouse_pointer.io.mouse_xpos <> io.mouse_xpos
+    mouse_pointer.io.mouse_ypos <> io.mouse_ypos
+
+    val img_p = Module(new image(32, 32, "pointer"))
+    img_p.io.pos_x := mouse_pointer.io.mouse_xpos
+    img_p.io.pos_y := mouse_pointer.io.mouse_ypos
+    img_p.io.vgaCtrl := io.vgaCtrl
+    img_p.io.ena   := true.B
+
+    io.hit := img_p.io.hit
+    io.rgb := img_p.io.rgb
 }

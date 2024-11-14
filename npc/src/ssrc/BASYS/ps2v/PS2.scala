@@ -15,6 +15,52 @@ class ps2mouse extends BlackBox {
     })
 }
 
+class ps2mouse_sim_helper extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val ren = Input(Bool())
+        val data = Output(UInt(24.W))
+    })
+    val code: String = """module ps2mouse_sim_helper(
+    |    input ren,
+    |    output [23:0] data
+    |);
+    |
+    |import "DPI-C" function void mouse_sim(output int data);
+    |always @(posedge ren) begin
+    |   mouse_sim({8'h00, data});
+    |end
+    |endmodule
+    """
+
+    setInline("mouse_helper.v", code.stripMargin)
+}
+
+class ps2mouse_sim extends Module{
+    val io = IO(new Bundle{
+        val clock = Input(Clock())
+        val reset = Input(Bool())
+        val ps2_clk = Analog(1.W)
+        val ps2_data = Analog(1.W)
+        val REn = Output(Bool())
+        val mouse_data = Output(UInt(24.W))
+    })
+
+    val count = RegInit(0.U(10.W))
+    count := count + 1.U
+
+    val helper = Module(new ps2mouse_sim_helper)
+
+    when(count === 0.U){
+        io.REn := true.B
+        helper.io.ren := true.B
+    }.otherwise{
+        io.REn := false.B
+        helper.io.ren := false.B
+    }
+
+    io.mouse_data := helper.io.data
+}
+
 class mouse_pointer extends Module{
     val io = IO(new Bundle{
         val ps2_clk = Analog(1.W)
@@ -26,7 +72,7 @@ class mouse_pointer extends Module{
         val mouse_ypos = Output(UInt(10.W))
     })
 
-    val ps2_mouse = Module(new ps2mouse)
+    val ps2_mouse = Module(new ps2mouse_sim)
     ps2_mouse.io.clock := clock
     ps2_mouse.io.reset := reset
     ps2_mouse.io.ps2_clk <> io.ps2_clk

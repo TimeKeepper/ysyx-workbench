@@ -52,6 +52,13 @@ void init_sig(void){
     signal(SIGINT, SIGINT_handler);
 }
 
+void mouse_catch();
+void init_thread(void){
+    std::thread taskThread(mouse_catch);
+
+    taskThread.detach();
+}
+
 void Init_wavetrace(int argc, char **argv);
 void bram_init(void);
 void init_monitor(int argc, char *argv[]) {
@@ -64,11 +71,16 @@ void init_monitor(int argc, char *argv[]) {
     bram_init();
 
     init_sig();
+    
+    init_thread();
 }
 
 void wave_Trace_close();
+extern bool thread_run;
 void exit(void){
     nvboard_quit();
 
     wave_Trace_close();
+
+    thread_run = false;
 }

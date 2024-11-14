@@ -20,21 +20,21 @@ class II_4 extends Module {
 
     io.sync <> vga_sync.io
 
-    val mouse_pointer = Module(new mouse_pointer)
-
-    mouse_pointer.io.ps2_clk <> io.ps2_clk
-    mouse_pointer.io.ps2_data <> io.ps2_data
+    val img_pointer = Module(new img_pointer)
+    img_pointer.io.vgaCtrl := vga_sync.Ctrl
+    img_pointer.io.ps2_clk <> io.ps2_clk
+    img_pointer.io.ps2_data <> io.ps2_data
 
     val state = RegInit(II_4_state.s_idle)
 
     val (window_match, _) = BASYS_utils.pos_match(20.U, 0.U, 600.U, 480.U, vga_sync.Ctrl.xaddr, vga_sync.Ctrl.yaddr, true.B)
-    val (mouse_match_f, _) = BASYS_utils.pos_match(70.U, 140.U, 200.U, 200.U, mouse_pointer.io.mouse_xpos, mouse_pointer.io.mouse_ypos, state === II_4_state.s_idle)
-    val (mouse_match_s, _) = BASYS_utils.pos_match(370.U, 140.U, 200.U, 200.U, mouse_pointer.io.mouse_xpos, mouse_pointer.io.mouse_ypos, state === II_4_state.s_idle)
+    val (mouse_match_f, _) = BASYS_utils.pos_match(70.U, 140.U, 200.U, 200.U, img_pointer.io.mouse_xpos, img_pointer.io.mouse_ypos, state === II_4_state.s_idle)
+    val (mouse_match_s, _) = BASYS_utils.pos_match(370.U, 140.U, 200.U, 200.U, img_pointer.io.mouse_xpos, img_pointer.io.mouse_ypos, state === II_4_state.s_idle)
 
     state := MuxLookup(state, II_4_state.s_frame_f)(Seq(
-        II_4_state.s_idle -> Mux(mouse_pointer.io.Left_click, Mux(mouse_match_f, II_4_state.s_frame_f, Mux(mouse_match_s, II_4_state.s_frame_s, II_4_state.s_idle)), II_4_state.s_idle),
-        II_4_state.s_frame_f -> Mux(mouse_pointer.io.Right_click, II_4_state.s_idle, II_4_state.s_frame_f),
-        II_4_state.s_frame_s -> Mux(mouse_pointer.io.Right_click, II_4_state.s_idle, II_4_state.s_frame_s)
+        II_4_state.s_idle -> Mux(img_pointer.io.Left_click, Mux(mouse_match_f, II_4_state.s_frame_f, Mux(mouse_match_s, II_4_state.s_frame_s, II_4_state.s_idle)), II_4_state.s_idle),
+        II_4_state.s_frame_f -> Mux(img_pointer.io.Right_click, II_4_state.s_idle, II_4_state.s_frame_f),
+        II_4_state.s_frame_s -> Mux(img_pointer.io.Right_click, II_4_state.s_idle, II_4_state.s_frame_s)
     ))
 
     val img_a = Module(new image(200, 200, "frame_a"))
@@ -49,14 +49,8 @@ class II_4 extends Module {
     img_b.io.vgaCtrl := vga_sync.Ctrl
     img_b.io.ena   := state =/= II_4_state.s_frame_f
 
-    val img_p = Module(new image(20, 20, "pointer"))
-    img_p.io.pos_x := mouse_pointer.io.mouse_xpos
-    img_p.io.pos_y := mouse_pointer.io.mouse_ypos
-    img_p.io.vgaCtrl := vga_sync.Ctrl
-    img_p.io.ena   := true.B
-
-    when(img_p.io.hit){
-        io.rgb := img_p.io.rgb
+    when(img_pointer.io.hit){
+        io.rgb := img_pointer.io.rgb
     }.elsewhen(img_a.io.hit) {
         io.rgb := img_a.io.rgb
     }.elsewhen(img_b.io.hit){

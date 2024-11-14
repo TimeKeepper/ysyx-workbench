@@ -15,7 +15,7 @@ class BRAM_sim(width_addr: Int, width_data: Int, name: String) extends BlackBox 
 
     val code =
         s"""
-        |module BRAM_sim(
+        |module BRAM_${name}_sim(
         |    input wire clka,
         |    input wire ena,
         |    input wire [${width_addr-1}:0] addra,
@@ -28,7 +28,7 @@ class BRAM_sim(width_addr: Int, width_data: Int, name: String) extends BlackBox 
         |endmodule
         """
 
-    setInline("BRAM_sim.v", code.stripMargin)
+    setInline(s"BRAM_sim${name}.v", code.stripMargin)
 }
 
 class BRAM(width_addr: Int, width_data: Int) extends BlackBox{

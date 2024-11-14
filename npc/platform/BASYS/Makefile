@@ -35,6 +35,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 
 CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14 -fno-exceptions
 CXXFLAGS += -I$(INCLUDE) -I$(INC_PATH)
+CXXFLAGS += -std=c++17
 
 LDFLAGS += -lreadline -ldl
 
@@ -65,5 +66,8 @@ sim: $(BIN)
 
 batch: $(BIN)
 	$(BIN) -b
+
+gdb: $(BIN)
+	gdb --args $(BIN) -b
 
 .PHONY: clean verilog syn perf SSRC

@@ -3,7 +3,7 @@ import numpy as np
 
 image_array = cv2.imread('ui.png')
 
-image_array = cv2.resize(image_array, (200, 200))
+image_array = cv2.resize(image_array, (300, 300))
 
 [height, width, channels] = image_array.shape
 

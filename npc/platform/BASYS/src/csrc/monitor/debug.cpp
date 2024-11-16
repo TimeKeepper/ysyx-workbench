@@ -1,3 +1,4 @@
+#include "SDL_events.h"
 #include <utility>
 #include <utils.hpp>
 #include <fstream>
@@ -15,13 +16,17 @@ T& getCircularElement(std::vector<T>& vec, int index) {
 }
 
 std::vector<std::uint16_t> bram_ui;
+std::vector<std::uint16_t> bram_button;
 std::vector<std::uint16_t> bram_pointer;
+std::vector<std::uint16_t> bram_number;
 
 const std::string file_path = "/home/wenjiu/ysyx-workbench/npc/platform/BASYS/src/vga_coe/";
 
 std::vector<std::pair<std::string, std::vector<std::uint16_t>&>> bram_list = {
     {"ui", bram_ui},
+    {"button", bram_button},
     {"pointer", bram_pointer},
+    {"number", bram_number}
 };
 
 void bram_init(){
@@ -71,15 +76,22 @@ extern "C" void bram_ui_read(int raddr, int *rdata){
     *rdata = getCircularElement(bram_ui, raddr);
 }
 
+extern "C" void bram_button_read(int raddr, int *rdata){
+    *rdata = getCircularElement(bram_button, raddr);
+}
+
 extern "C" void bram_pointer_read(int raddr, int *rdata){
     *rdata = getCircularElement(bram_pointer, raddr);
+}
+
+extern "C" void bram_number_read(int raddr, int *rdata){
+    *rdata = getCircularElement(bram_number, raddr);
 }
 
 #include <SDL2/SDL.h>
 #include <thread>
 #include <chrono>
-#include <algorithm>
-int x, y, oth;
+int x, y, btn;
 
 bool thread_run = true;
 
@@ -89,8 +101,19 @@ void mouse_catch(){
         return;
     }
 
+    SDL_Event event;
+
     while(thread_run) {
         SDL_GetGlobalMouseState(&x, &y);
+        if(SDL_PollEvent(&event)){
+            if(event.type == SDL_MOUSEBUTTONDOWN) {
+                if(event.button.button == SDL_BUTTON_LEFT) {
+                    btn = 1;
+                } else if(event.button.button == SDL_BUTTON_RIGHT) {
+                    btn = 2;
+                }
+            }
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         // std::cout << "x: " << x << " y: " << y << std::endl;
     }
@@ -101,11 +124,12 @@ void mouse_catch(){
 extern "C" void mouse_sim(int *data){
     static int last_x = x, last_y = y;
 
-    int32_t bias_x = (x - last_x);
-    int32_t bias_y = (last_y - y);
+    int8_t bias_x = (x - last_x);
+    int8_t bias_y = (last_y - y);
 
-    *data = ((bias_x << 8) & 0x0000ff00) | ((bias_y << 16) & 0x00ff0000);
+    *data = ((bias_x << 8) & 0x0000ff00) | ((bias_y << 16) & 0x00ff0000) | (btn & 0x000000ff);
 
     last_x = x;
     last_y = y;
+    if(btn != 0) btn = 0;
 }

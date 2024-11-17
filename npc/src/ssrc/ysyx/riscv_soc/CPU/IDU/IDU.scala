@@ -265,13 +265,6 @@ class IDU extends Module{
         Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W))
     )).map { case (cond, value) => (rvdecoderResult(Imm_Field) === cond, value) })
 
-    // val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), io.IFU_2_IDU.bits.data(31, 20))(
-    //     Seq(
-    //         CSR_TypeEnum.CSR_R1W0 -> "h341".U,
-    //         CSR_TypeEnum.CSR_R1W2 -> "h305".U,
-    //     )
-    // )
-
     val csr_raddr = Mux1H(CSR_TypeEnum.all.zip(Seq(
         io.IFU_2_IDU.bits.data(31, 20),
         "h341".U,
@@ -283,16 +276,16 @@ class IDU extends Module{
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
-    val EXU_A = MuxLookup(rvdecoderResult(EXUAsrc_Field), 0.U)(Seq(
-        EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.IFU_2_IDU.bits.PC,
-    ))
+    val EXU_A = Mux1H(EXUAsrc_TypeEnum.all.zip(Seq(
+        io.REG_2_IDU.GPR_Adata,
+        io.IFU_2_IDU.bits.PC
+    )).map { case (cond, value) => (rvdecoderResult(EXUAsrc_Field) === cond, value) })
 
-    val EXU_B = MuxLookup(rvdecoderResult(EXUBsrc_Field), 0.U)(Seq(
-        EXUBsrc_TypeEnum.EXUBsrc_RS2 -> io.REG_2_IDU.GPR_Bdata,
-        EXUBsrc_TypeEnum.EXUBsrc_IMM -> imm,
-        EXUBsrc_TypeEnum.EXUBsrc_CSR -> io.REG_2_IDU.CSR_rdata,
-    ))
+    val EXU_B = Mux1H(EXUBsrc_TypeEnum.all.zip(Seq(
+        io.REG_2_IDU.GPR_Bdata,
+        imm,
+        io.REG_2_IDU.CSR_rdata
+    )).map { case (cond, value) => (rvdecoderResult(EXUBsrc_Field) === cond, value) })
 
     io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),        io.IFU_2_IDU.fire) 
     io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       io.IFU_2_IDU.fire) 

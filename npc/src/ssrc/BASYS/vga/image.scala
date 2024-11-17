@@ -22,11 +22,13 @@ class image(width: Int, height: Int, name: String) extends Module{
 
     if (sync_config.sim == true) {
         class BRAM_ui_sim       extends BRAM_sim(width_addr = addr_width, width_data = 12, "ui")
+        class BRAM_subui_sim    extends BRAM_sim(width_addr = addr_width, width_data = 12, "subui")
         class BRAM_button_sim   extends BRAM_sim(width_addr = addr_width, width_data = 12, "button")
         class BRAM_pointer_sim  extends BRAM_sim(width_addr = addr_width, width_data = 12, "pointer")
 
         val bram = name match {
             case "ui" => Module(new BRAM_ui_sim)
+            case "subui" => Module(new BRAM_subui_sim)
             case "button" => Module(new BRAM_button_sim)
             case "pointer" => Module(new BRAM_pointer_sim)
         }
@@ -39,12 +41,14 @@ class image(width: Int, height: Int, name: String) extends Module{
         class BRAM_framea   extends BRAM(width_addr = addr_width, width_data = 12)
         class BRAM_frameb   extends BRAM(width_addr = addr_width, width_data = 12)
         class BRAM_ui       extends BRAM(width_addr = addr_width, width_data = 12)
+        class BRAM_subui    extends BRAM(width_addr = addr_width, width_data = 12)
         class BRAM_pointer  extends BRAM(width_addr = addr_width, width_data = 12)
 
         val bram = name match {
             case "frame_a" => Module(new BRAM_framea)
             case "frame_b" => Module(new BRAM_frameb)
             case "ui" => Module(new BRAM_ui)
+            case "subui" => Module(new BRAM_subui)
             case "pointer" => Module(new BRAM_pointer)
             case _ => Module(new BRAM(16, 12))
         }

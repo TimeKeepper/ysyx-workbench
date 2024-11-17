@@ -1,9 +1,16 @@
 import cv2
 import numpy as np
 
-image_array = cv2.imread('ui.png')
+image_array = cv2.imread('subui.png')
 
-image_array = cv2.resize(image_array, (300, 300))
+gray = cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY)
+_, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
+contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+x, y, w, h = cv2.boundingRect(contours[0])
+cropped_image = image_array[y:y+h, x:x+w]
+
+# Resize the cropped image to 200x120
+image_array = cv2.resize(cropped_image, (200, 120))
 
 [height, width, channels] = image_array.shape
 
@@ -20,7 +27,7 @@ rgb = np.zeros(height * width, dtype=np.uint32)
 for i in range(height * width):
     rgb[i] = ((r[i] >> 4) << 8) | ((g[i] >> 4) << 4) | (b[i] >> 4)
 
-with open('ui.coe', 'w') as f:
+with open('subui.coe', 'w') as f:
     f.write("memory_initialization_radix=16;\n")
     f.write("memory_initialization_vector=\n")
     for i in range(len(rgb)):

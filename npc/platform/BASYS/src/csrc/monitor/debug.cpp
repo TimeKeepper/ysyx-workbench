@@ -16,6 +16,7 @@ T& getCircularElement(std::vector<T>& vec, int index) {
 }
 
 std::vector<std::uint16_t> bram_ui;
+std::vector<std::uint16_t> bram_subui;
 std::vector<std::uint16_t> bram_button;
 std::vector<std::uint16_t> bram_pointer;
 std::vector<std::uint16_t> bram_number;
@@ -24,6 +25,7 @@ const std::string file_path = "/home/wenjiu/ysyx-workbench/npc/platform/BASYS/sr
 
 std::vector<std::pair<std::string, std::vector<std::uint16_t>&>> bram_list = {
     {"ui", bram_ui},
+    {"subui", bram_subui},
     {"button", bram_button},
     {"pointer", bram_pointer},
     {"number", bram_number}
@@ -74,6 +76,10 @@ extern "C" void bram_ui_read(int raddr, int *rdata){
     // last_raddr = raddr;
 
     *rdata = getCircularElement(bram_ui, raddr);
+}
+
+extern "C" void bram_subui_read(int raddr, int *rdata){
+    *rdata = getCircularElement(bram_subui, raddr);
 }
 
 extern "C" void bram_button_read(int raddr, int *rdata){

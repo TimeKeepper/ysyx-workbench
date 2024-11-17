@@ -257,24 +257,6 @@ class IDU extends Module{
         PerformenceCounter.io.iType := PCdecoderResult(PC_Field)
     }
 
-    val imm_cond = Seq(
-        Imm_TypeEnum.Imm_I,
-        Imm_TypeEnum.Imm_U,
-        Imm_TypeEnum.Imm_S,
-        Imm_TypeEnum.Imm_B,
-        Imm_TypeEnum.Imm_J,
-    )
-
-    // val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
-    //     Seq(
-    //         Imm_TypeEnum.Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
-    //         Imm_TypeEnum.Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
-    //         Imm_TypeEnum.Imm_S -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),
-    //         Imm_TypeEnum.Imm_B -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(7), io.IFU_2_IDU.bits.data(30, 25), io.IFU_2_IDU.bits.data(11, 8), 0.U(1.W)),
-    //         Imm_TypeEnum.Imm_J -> Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W)),
-    //     )
-    // )
-
     val imm = Mux1H(Imm_TypeEnum.all.zip(Seq(
         Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
         Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
@@ -283,12 +265,19 @@ class IDU extends Module{
         Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W))
     )).map { case (cond, value) => (rvdecoderResult(Imm_Field) === cond, value) })
 
-    val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), io.IFU_2_IDU.bits.data(31, 20))(
-        Seq(
-            CSR_TypeEnum.CSR_R1W0 -> "h341".U,
-            CSR_TypeEnum.CSR_R1W2 -> "h305".U,
-        )
-    )
+    // val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), io.IFU_2_IDU.bits.data(31, 20))(
+    //     Seq(
+    //         CSR_TypeEnum.CSR_R1W0 -> "h341".U,
+    //         CSR_TypeEnum.CSR_R1W2 -> "h305".U,
+    //     )
+    // )
+
+    val csr_raddr = Mux1H(CSR_TypeEnum.all.zip(Seq(
+        io.IFU_2_IDU.bits.data(31, 20),
+        "h341".U,
+        io.IFU_2_IDU.bits.data(31, 20),
+        "h305".U,
+    )).map { case (cond, value) => (rvdecoderResult(csr_ctr_Field) === cond, value) })
 
     val gpr_waddr = Mux(rvdecoderResult(RegWr_Field) === RegWr_TypeEnum.RegWr_Yes, io.IFU_2_IDU.bits.data(10, 7), 0.U(4.W))
 

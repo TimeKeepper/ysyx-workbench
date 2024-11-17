@@ -275,7 +275,7 @@ class IDU extends Module{
     //     )
     // )
 
-    val imm = Mux1H(imm_cond.zip(Seq(
+    val imm = Mux1H(Imm_TypeEnum.all.zip(Seq(
         Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
         Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
         Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),

@@ -116,7 +116,7 @@ object EXUBsrc_Field extends DecodeField[rvInstructionPattern, EXUBsrc_TypeEnum.
             case "mret" | "ecall" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
             case _ => i.inst.args.map(_.toString).collectFirst {
                 case "rs2" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_RS2)
-                case "imm12" | "imm20" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
+                case "imm12" | "imm20" | "shamtw" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_IMM)
                 case "csr" => Get_BitPat(EXUBsrc_TypeEnum.EXUBsrc_CSR)
             }.getOrElse(BitPat.dontCare(EXUBsrc_TypeEnum.getWidth))
         }

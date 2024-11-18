@@ -23,7 +23,7 @@ sudo apt-get install git help2man perl python3 make autoconf g++ flex bison ccac
 sudo apt-get install libgoogle-perftools-dev numactl perl-doc
 sudo apt-get install libfl2
 sudo apt-get install libfl-dev
-sudo apt-get install zlibc zlib1g zlib1g-dev
+sudo apt-get install zlibc zlib1g zlib1g-dev #(ignore if gives error)
 git clone https://github.com/verilator/verilator
 unset VERILATOR_ROOT
 cd verilator
@@ -52,6 +52,23 @@ ysyxsoc目录下运行make dev-init make verilog
 ```
 在npc各个platform中执行menuconfig初始化配置，然后编译
 ```
+初始化rocket-chip
+```
+cd npc/rocket-chip
+git submodule update --init --recursive
+```
+初始化rvdecoderdb
+```
+cd npc/rvdecoderdb
+git submodule update --init --recursive
+```
+安装espresso
+```
+进入url找到对应二进制文件https://github.com/chipsalliance/espresso
+curl -JLO <url>
+将二进制文件转移到PATH指定路劲中
+```
+
 安装交叉编译环境和rtt编译环境
 ```
 sudo apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
@@ -63,7 +80,7 @@ sudo apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
 安装yosys综合器
 ```
 pip install pandas tabulate gitpython wcwidth
-sudo apt-get install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6
+sudo apt-get install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 tcl-dev
 
 git clone git@github.com:YosysHQ/yosys.git
 cd yosys

@@ -243,8 +243,6 @@ class IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    println(instList)
-
     val allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
 
     val rvdecoderTable = new DecodeTable(instList, allField)

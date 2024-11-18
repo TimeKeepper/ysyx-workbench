@@ -11,3 +11,5 @@
 !.gitignore
 !init.sh
 !/chisel-tutorial/*
+npc/platform/ysyxsoc/include/generated/autoconf.h
+npc/platform/npc/include/generated/autoconf.h

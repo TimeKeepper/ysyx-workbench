@@ -93,4 +93,20 @@ sudo make install
 若需要综合查看PPA，在npc目录下运行make syn
 ```
 
+代码提示(metals)
+```
+安装jdk17
+sudo apt-get install openjdk-17-jdk
+安装coursier
+curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs
+chmod +x cs
+sudo mv cs /usr/bin/
+cs setup
+cs install bloop
+bloop
+
+中途如果爆UNZIP什么错的话
+rm -r ~/.cache/coursier
+```
+
 [lecture note]: https://ysyx.oscc.cc/docs/

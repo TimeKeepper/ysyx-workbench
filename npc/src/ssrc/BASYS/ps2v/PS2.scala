@@ -72,7 +72,7 @@ class mouse_pointer extends Module{
         val mouse_ypos = Output(UInt(10.W))
     })
 
-    val ps2_mouse = Module(new ps2mouse_sim)
+    val ps2_mouse = Module(new ps2mouse)
     ps2_mouse.io.clock := clock
     ps2_mouse.io.reset := reset
     ps2_mouse.io.ps2_clk <> io.ps2_clk

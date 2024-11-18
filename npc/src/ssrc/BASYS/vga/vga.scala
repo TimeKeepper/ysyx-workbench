@@ -14,7 +14,7 @@ class VGACtrlIO extends Bundle{
 }
 
 object sync_config {
-	val sim = true
+	val sim = false
 }
 
 object vga_param {

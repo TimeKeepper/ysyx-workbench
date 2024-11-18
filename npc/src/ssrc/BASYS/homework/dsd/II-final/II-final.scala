@@ -160,7 +160,8 @@ class II_final extends Module{
         img_subui.io.hit && ui_state =/= II_final_state_Enum.s_idle,
         img_button.io.hit,
         img_ui.io.hit,
-        window_match
+        window_match,
+        !window_match
     )
 
     io.rgb := PriorityMux(rgb_cond.zip(Seq(

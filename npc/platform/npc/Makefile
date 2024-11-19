@@ -66,7 +66,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS)  --threads 4 --timescale "1ns/1ns" --no-timing\
+	$(VERILATOR) $(VERILATOR_CFLAGS)  --threads 8 --timescale "1ns/1ns" --no-timing\
 		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))

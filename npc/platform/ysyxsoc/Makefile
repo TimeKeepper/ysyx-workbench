@@ -91,7 +91,7 @@ LDFLAGS += -lreadline -ldl -pie -lelf
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) --threads 2 --timescale "1ns/1ns" --no-timing\
+	$(VERILATOR) $(VERILATOR_CFLAGS) -j 0 --threads 2 --timescale "1ns/1ns" --no-timing\
 		-y $(SOC_SPI_DIR) -y $(SOC_UART_DIR) \
 		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
@@ -103,7 +103,7 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim YSYXSOC") # DO NOT REMOVE THIS LINE!!!
-	$(NPC_EXEC)
+	numactl -m 0 -C 0,2 $(NPC_EXEC)
 
 gdb: $(BIN) $(IMG)
 	$(call git_commit, "gdb YSYXSOC")

@@ -91,7 +91,7 @@ LDFLAGS += -lreadline -ldl -pie -lelf
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) -j 0 --threads 2 --timescale "1ns/1ns" --no-timing\
+	$(VERILATOR) $(VERILATOR_CFLAGS) -j 0 --threads 8 --timescale "1ns/1ns" --no-timing\
 		-y $(SOC_SPI_DIR) -y $(SOC_UART_DIR) \
 		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \

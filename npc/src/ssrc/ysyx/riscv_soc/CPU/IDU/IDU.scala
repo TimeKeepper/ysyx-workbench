@@ -243,12 +243,17 @@ class IDU extends Module{
         .toSeq
     val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
 
-    println(instList)
-
     val allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
 
-    val rvdecoderTable = new DecodeTable(instList, allField)
-    val rvdecoderResult = rvdecoderTable.decode(io.IFU_2_IDU.bits.data)
+    require(instList.map(_.bitPat.getWidth).distinct.size == 1, "All instructions must have the same width")
+    def Decode_bundle: DecodeBundle = new DecodeBundle(allField)
+    val table: TruthTable = TruthTable(
+        instList.map { op => op.bitPat -> allField.reverse.map(field => field.genTable(op)).reduce(_ ## _) },
+        allField.reverse.map(_.default).reduce(_ ## _)
+    )
+    def Decode_decode(input: UInt): DecodeBundle = chisel3.util.experimental.decode.decoder(input, table).asTypeOf(Decode_bundle)
+
+    val rvdecoderResult = chisel3.util.experimental.decode.decoder(QMCMinimizer, io.IFU_2_IDU.bits.data, table).asTypeOf(Decode_bundle)
     
     if(Config.DPIC_on) {
         val PCdecoderTable = new DecodeTable(instList, Seq(PC_Field))

@@ -11,7 +11,7 @@ sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2
 
 安装mill,注意必须安装至少0.11以上的版本
 ```
-sudo apt-get install default-jre
+sudo apt-get install openjdk-17-jdk
 curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.12/0.11.12 > mill && chmod +x mill
 sudo mv ./mill /usr/local/bin/
 mill --version
@@ -30,7 +30,7 @@ cd verilator
 git checkout v5.008
 autoconf
 ./configure
-make -j 'nproc' (如果报错，直接make)
+make -j`nproc` #如果报错，直接make
 sudo make install
 verilator --version
 ```
@@ -91,6 +91,20 @@ sudo make install
 
 进入yosys-sta目录下执行make init
 若需要综合查看PPA，在npc目录下运行make syn
+```
+
+代码提示(metals)
+```
+安装coursier
+curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs
+chmod +x cs
+sudo mv cs /usr/bin/
+cs setup
+cs install bloop
+bloop
+
+中途如果爆UNZIP什么错的话
+rm -r ~/.cache/coursier
 ```
 
 [lecture note]: https://ysyx.oscc.cc/docs/

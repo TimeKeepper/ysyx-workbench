@@ -48,10 +48,6 @@ ysyxsoc目录下运行make dev-init make verilog
 在nemu目录下运行make menuconfig
 然后make
 ```
-初始化NPC
-```
-在npc各个platform中执行menuconfig初始化配置，然后编译
-```
 初始化rocket-chip
 ```
 cd npc/rocket-chip
@@ -66,7 +62,11 @@ git submodule update --init --recursive
 ```
 进入url找到对应二进制文件https://github.com/chipsalliance/espresso
 curl -JLO <url>
-将二进制文件转移到PATH指定路劲中
+sudo mv ./espresso /usr/local/bin/
+```
+初始化NPC
+```
+在npc各个platform中执行menuconfig初始化配置，然后编译
 ```
 
 安装交叉编译环境和rtt编译环境
@@ -74,6 +74,7 @@ curl -JLO <url>
 sudo apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
 
 在rtt的am目录下运行make init
+make ARCH=riscv32e-ysyxsoc
 ```
 
 如果你遇到了找不到gnu/stubs-ilp32.h文件的错误，需要手动在/usr/riscv64-linux-gnu/include/gnu/stubs.h中将该include注释掉\
@@ -86,7 +87,7 @@ git clone git@github.com:YosysHQ/yosys.git
 cd yosys
 make config-gcc
 git submodule update --init --recursive
-make
+make -j`nproc`
 sudo make install
 
 进入yosys-sta目录下执行make init

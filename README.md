@@ -11,7 +11,7 @@ sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2
 
 安装mill,注意必须安装至少0.11以上的版本
 ```
-sudo apt-get install default-jre
+sudo apt-get install openjdk-17-jdk
 curl -L https://github.com/com-lihaoyi/mill/releases/download/0.11.12/0.11.12 > mill && chmod +x mill
 sudo mv ./mill /usr/local/bin/
 mill --version
@@ -30,7 +30,7 @@ cd verilator
 git checkout v5.008
 autoconf
 ./configure
-make -j 'nproc' (如果报错，直接make)
+make -j`nproc` #如果报错，直接make
 sudo make install
 verilator --version
 ```
@@ -48,10 +48,6 @@ ysyxsoc目录下运行make dev-init make verilog
 在nemu目录下运行make menuconfig
 然后make
 ```
-初始化NPC
-```
-在npc各个platform中执行menuconfig初始化配置，然后编译
-```
 初始化rocket-chip
 ```
 cd npc/rocket-chip
@@ -66,7 +62,11 @@ git submodule update --init --recursive
 ```
 进入url找到对应二进制文件https://github.com/chipsalliance/espresso
 curl -JLO <url>
-将二进制文件转移到PATH指定路劲中
+sudo mv ./espresso /usr/local/bin/
+```
+初始化NPC
+```
+在npc各个platform中执行menuconfig初始化配置，然后编译
 ```
 
 安装交叉编译环境和rtt编译环境
@@ -74,6 +74,7 @@ curl -JLO <url>
 sudo apt-get install g++-riscv64-linux-gnu binutils-riscv64-linux-gnu scons
 
 在rtt的am目录下运行make init
+make ARCH=riscv32e-ysyxsoc
 ```
 
 如果你遇到了找不到gnu/stubs-ilp32.h文件的错误，需要手动在/usr/riscv64-linux-gnu/include/gnu/stubs.h中将该include注释掉\
@@ -86,11 +87,25 @@ git clone git@github.com:YosysHQ/yosys.git
 cd yosys
 make config-gcc
 git submodule update --init --recursive
-make
+make -j`nproc`
 sudo make install
 
 进入yosys-sta目录下执行make init
 若需要综合查看PPA，在npc目录下运行make syn
+```
+
+代码提示(metals)
+```
+安装coursier
+curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs
+chmod +x cs
+sudo mv cs /usr/bin/
+cs setup
+cs install bloop
+bloop
+
+中途如果爆UNZIP什么错的话
+rm -r ~/.cache/coursier
 ```
 
 [lecture note]: https://ysyx.oscc.cc/docs/

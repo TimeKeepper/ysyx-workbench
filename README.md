@@ -94,6 +94,12 @@ sudo make install
 若需要综合查看PPA，在npc目录下运行make syn
 ```
 
+安装python依赖
+```
+pip install matplotlib
+在npc下运行make perf查看效果
+```
+
 代码提示(metals)
 ```
 安装coursier

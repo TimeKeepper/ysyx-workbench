@@ -251,7 +251,7 @@ class IDU extends Module{
         instList.map { op => op.bitPat -> allField.reverse.map(field => field.genTable(op)).reduce(_ ## _) },
         allField.reverse.map(_.default).reduce(_ ## _)
     )
-    def Decode_decode(input: UInt): DecodeBundle = chisel3.util.experimental.decode.decoder(input, table).asTypeOf(Decode_bundle)
+    def Decode_decode(input: UInt): DecodeBundle = chisel3.util.experimental.decode.decoder(QMCMinimizer, input, table).asTypeOf(Decode_bundle)
 
     val rvdecoderResult = chisel3.util.experimental.decode.decoder(QMCMinimizer, io.IFU_2_IDU.bits.data, table).asTypeOf(Decode_bundle)
     

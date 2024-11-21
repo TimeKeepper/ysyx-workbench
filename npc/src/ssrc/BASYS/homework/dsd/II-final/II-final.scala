@@ -154,6 +154,38 @@ class II_final extends Module{
         II_final_state_Enum.s_subui_3 -> 40.U * num_buy,
     )), num_total))
 
+
+    def tar_seq = (0 until 3).map(i => {
+        val (tar, _) = BASYS_utils.pos_match((ui_posx + 25 + 90 * i).U, (ui_posy + 60).U, 70.U, 80.U, vga_sync.Ctrl.xaddr, vga_sync.Ctrl.yaddr, true.B)
+        tar
+    })
+    def buy_seq = Seq(
+        II_final_state_Enum.s_subui_1,
+        II_final_state_Enum.s_subui_2,
+        II_final_state_Enum.s_subui_3
+    ).map(state => RegNext(ui_state === state) && ui_state === II_final_state_Enum.s_idle && (subui_select === 2.U) && (num_buy =/= 0.U))
+
+    class blink_reg extends Bundle{
+        val state = UInt(1.W)
+        val count = UInt(27.W)
+    }
+
+    val tar3_blink = RegInit(VecInit(Seq.fill(3)(0.U.asTypeOf(new blink_reg))))
+
+    tar3_blink.zipWithIndex.map{ case (reg, i) =>
+        reg.state := MuxLookup(reg.state, 0.U)(Seq(
+            0.U -> Mux(buy_seq(i), 1.U, 0.U),
+            1.U -> Mux(reg.count === ((1 << 27) - 1).U, 0.U, 1.U)
+        ))
+        when(reg.state === 1.U){
+            reg.count := Mux(reg.count === ((1 << 27) - 1).U, 0.U, reg.count + 1.U)
+        }
+    }
+
+    val ui_rgb = Mux(
+        tar_seq.zipWithIndex.map{ case (tar, i) => tar && tar3_blink(i).count(27 - 3) }.reduce(_ | _),
+        "hfff".U, img_ui.io.rgb)
+
     val rgb_cond = Seq(
         img_pointer.io.hit,
         img_num.io.hit,
@@ -169,7 +201,7 @@ class II_final extends Module{
         img_num.io.rgb,
         img_subui.io.rgb,
         img_button.io.rgb,
-        img_ui.io.rgb,
+        ui_rgb,
         "hfff".U,
         "h000".U
     )))

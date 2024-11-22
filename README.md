@@ -64,6 +64,12 @@ git submodule update --init --recursive
 curl -JLO <url>
 sudo mv ./espresso /usr/local/bin/
 ```
+安装BtorMC模型检测器(基于Boolector SMT求解器)
+```
+进入链接https://github.com/YosysHQ/oss-cad-suite-build/releases
+找到对应二进制文件，copy url然后curl -JLO 下载
+tar -xvzf解压，将bin文件夹加入PATH
+```
 初始化NPC
 ```
 在npc各个platform中执行menuconfig初始化配置，然后编译

@@ -86,7 +86,31 @@ trait npcModule extends ScalaModule {
   )
 }
 
-object npc extends NPC
+object npc extends NPC {
+  val useChisel3 = false
+  override def scalacOptions = Seq(
+    "-language:reflectiveCalls",
+    "-deprecation",
+    "-feature",
+    "-Xcheckinit"
+  )
+  override def ivyDeps = super.ivyDeps() ++ Agg(
+    ivy"edu.berkeley.cs::chiseltest:6.0.0"
+  )
+  override def scalacPluginIvyDeps = Agg(
+    ivy"org.chipsalliance:::chisel-plugin:6.4.0"
+  )
+  object test extends SbtModuleTests with TestModule.ScalaTest with ScalafmtModule{
+    override def sources = T.sources {
+      super.sources() ++ Seq(PathRef(this.millSourcePath / "src" / "ssrc" / "ysyx" / "riscv_soc" / "test"))
+    }
+  }
+  def repositoriesTask = T.task { Seq(
+    coursier.MavenRepository("https://repo.scala-sbt.org/scalasbt/maven-releases"),
+    coursier.MavenRepository("https://oss.sonatype.org/content/repositories/releases"),
+    coursier.MavenRepository("https://oss.sonatype.org/content/repositories/snapshots"),
+  ) ++ super.repositoriesTask() }
+}
 trait NPC extends npcModule with HasThisChisel {
   override def millSourcePath = os.pwd
   def rocketModule = rocketchip

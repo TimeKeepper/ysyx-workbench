@@ -99,7 +99,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         val icache = Mem(Math.pow(2, Config.Icache_Param.indexWidth).toInt, UInt((32 + Config.Icache_Param.tagWidth + 1).W))
 
-        val index = io.REG_2_IFU.Next_PC(indexPos, offsetPos + 1)
+        val index = io.REG_2_IFU.Next_PC(indexPos, offsetPos + 1) holdUnless io.WBU_2_IFU.fire
         val tag = io.REG_2_IFU.Next_PC(31, indexPos + 1)
         val cache_tag = icache(index)(tagPos, dataPos + 1)
         val data = icache(index)(dataPos, 0)

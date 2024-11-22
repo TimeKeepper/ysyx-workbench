@@ -4,6 +4,7 @@
 !*.[cSh]
 !*.v
 !*.cpp
+!*.hpp
 !*.cc
 !*.excalidraw
 !.gitignore

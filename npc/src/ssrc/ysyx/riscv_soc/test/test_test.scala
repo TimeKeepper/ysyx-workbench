@@ -12,7 +12,7 @@ class Sub extends Module {
     val b = Input(UInt(4.W))
     val c = Output(UInt(4.W))
   })
-  io.c := io.a + ~io.b + Mux(io.a === 2.U, 0.U, 1.U)
+  io.c := io.a + ~io.b + 1.U
 
   val ref = io.a - io.b
   assert(io.c === ref)

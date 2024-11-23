@@ -64,6 +64,38 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class Icache(offsetWidth : Int, indexWidth : Int, tagWidth : Int, mapAddr : String) extends Module{
+    val io = IO(new Bundle{
+        val addr = Input(UInt((32).W))
+        val data = Output(UInt(32.W))
+        
+        val cache_hit = Output(Bool())
+        val wdata = Input(UInt((32 + tagWidth + 1).W))
+        val wen = Input(Bool())
+    })
+    def mapBegin = offsetWidth + indexWidth + tagWidth
+    def map = mapAddr.U(32.W)(31, mapBegin)
+    def dataWidth = Math.pow(2, offsetWidth).toInt * 8
+    def offsetPos = offsetWidth - 1
+    def indexPos = offsetWidth + indexWidth - 1
+    def tagPos = dataWidth + tagWidth - 1
+    def dataPos = dataWidth - 1
+    def validPos = tagPos + 1
+
+    val icache = Mem(Math.pow(2, indexWidth).toInt, UInt((32 + tagWidth + 1).W))
+    when(io.wen){
+        icache(io.addr(indexPos, offsetPos + 1)) := io.wdata
+    }
+
+    val tag = io.addr(31, indexPos + 1)
+    val cache_tag = icache(io.index)(tagPos, dataPos + 1)
+    io.data := icache(io.index)(dataPos, 0)
+    
+    val tag_hit = tag === Cat(map, cache_tag)
+    val valid = icache(io.index)(validPos)
+    io.cache_hit := valid && tag_hit
+}
+
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(
@@ -86,30 +118,32 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         val state = RegInit(bus_state.s_wait_valid)
 
-        def mapBegin = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth + Config.Icache_Param.tagWidth
+        // def mapBegin = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth + Config.Icache_Param.tagWidth
 
-        def map = Config.Icache_Param.mapAddr.U(32.W)(31, mapBegin)
+        // def map = Config.Icache_Param.mapAddr.U(32.W)(31, mapBegin)
 
-        def dataWidth = Math.pow(2, Config.Icache_Param.offsetWidth).toInt * 8
-        def offsetPos = Config.Icache_Param.offsetWidth - 1
-        def indexPos = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth - 1
-        def tagPos = dataWidth + Config.Icache_Param.tagWidth - 1
-        def dataPos = dataWidth - 1
-        def validPos = tagPos + 1
+        // def dataWidth = Math.pow(2, Config.Icache_Param.offsetWidth).toInt * 8
+        // def offsetPos = Config.Icache_Param.offsetWidth - 1
+        // def indexPos = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth - 1
+        // def tagPos = dataWidth + Config.Icache_Param.tagWidth - 1
+        // def dataPos = dataWidth - 1
+        // def validPos = tagPos + 1
 
-        val icache = Mem(Math.pow(2, Config.Icache_Param.indexWidth).toInt, UInt((32 + Config.Icache_Param.tagWidth + 1).W))
+        // val icache = Mem(Math.pow(2, Config.Icache_Param.indexWidth).toInt, UInt((32 + Config.Icache_Param.tagWidth + 1).W))
 
-        val index = io.REG_2_IFU.Next_PC(indexPos, offsetPos + 1)
-        val tag = io.REG_2_IFU.Next_PC(31, indexPos + 1)
-        val cache_tag = icache(index)(tagPos, dataPos + 1)
-        val data = icache(index)(dataPos, 0)
-        val tag_hit = tag === Cat(map, cache_tag)
-        val valid = icache(index)(validPos)
-        val cache_hit = valid && tag_hit
+        // val index = io.REG_2_IFU.Next_PC(indexPos, offsetPos + 1) holdUnless io.WBU_2_IFU.fire
+        // val tag = io.REG_2_IFU.Next_PC(31, indexPos + 1)
+        // val cache_tag = icache(index)(tagPos, dataPos + 1)
+        // val data = icache(index)(dataPos, 0)
+        // val tag_hit = tag === Cat(map, cache_tag)
+        // val valid = icache(index)(validPos)
+        // val cache_hit = valid && tag_hit
+
+        val Icache = Module(new Icache(Config.Icache_Param.offsetWidth, Config.Icache_Param.indexWidth, Config.Icache_Param.tagWidth, Config.Icache_Param.mapAddr))
         
         state := MuxLookup(state, bus_state.s_wait_valid)(
             Seq(
-                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.valid, Mux(cache_hit, bus_state.s_wait_ready, bus_state.s_busy), bus_state.s_wait_valid),
+                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.valid, Mux(Icache.io.cache_hit, bus_state.s_wait_ready, bus_state.s_busy), bus_state.s_wait_valid),
                 bus_state.s_busy -> Mux(AXI.r.fire, bus_state.s_wait_ready, bus_state.s_busy),
                 bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
             )
@@ -118,9 +152,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
         io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
 
-        when(state === bus_state.s_busy && AXI.r.fire){
-            icache(index) := Cat(true.B, io.IFU_2_IDU.bits.PC(24, 6), AXI.r.bits.data)
-        }
+        Icache.io.wdata := Cat(true.B, io.IFU_2_IDU.bits.PC(24, 6), AXI.r.bits.data)
+        Icache.io.wen := state === bus_state.s_busy && AXI.r.fire
 
         AXI.aw.valid := false.B
         AXI.aw.bits.addr := 0.U
@@ -169,7 +202,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val inst = RegInit(0.U(32.W))
 
         when(io.WBU_2_IFU.fire){
-            inst := data
+            inst := Icache.io.data
         }.elsewhen(AXI.r.fire){
             inst := AXI.r.bits.data
         }
@@ -187,8 +220,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val IFU_PC = Module(new IFU_PC)
             IFU_PC.io.clock := clock
             IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
-            IFU_PC.io.cache_hit := RegNext(cache_hit)
-            IFU_PC.io.map_hit := RegNext(io.REG_2_IFU.Next_PC(31, mapBegin) === map)
+            IFU_PC.io.cache_hit := RegNext(Icache.io.cache_hit)
+            IFU_PC.io.map_hit := false.B
         }
     }
 }

@@ -64,6 +64,34 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class Icache(offsetWidth : Int, indexWidth : Int, tagWidth : Int, mapAddr : String) extends Module{
+    val io = IO(new Bundle{
+        val index = Input(UInt((indexPos - offsetPos + 1).W))
+        val data = Output(UInt(32.W))
+        
+        val cache_hit = Output(Bool())
+        val wdata = Input(UInt(32.W))
+        val wen = Input(Bool())
+    })
+    def mapBegin = offsetWidth + indexWidth + tagWidth
+    def map = mapAddr.U(32.W)(31, mapBegin)
+    def dataWidth = Math.pow(2, offsetWidth).toInt * 8
+    def offsetPos = offsetWidth - 1
+    def indexPos = offsetWidth + indexWidth - 1
+    def tagPos = dataWidth + tagWidth - 1
+    def dataPos = dataWidth - 1
+    def validPos = tagPos + 1
+
+    val icache = Mem(Math.pow(2, indexWidth).toInt, UInt((32 + tagWidth + 1).W))
+
+    val tag = io.index(31, indexPos + 1)
+    val cache_tag = icache(io.index)(tagPos, dataPos + 1)
+    val data = icache(io.index)(dataPos, 0)
+    val tag_hit = tag === Cat(map, cache_tag)
+    val valid = icache(io.index)(validPos)
+    val cache_hit = valid && tag_hit
+}
+
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(

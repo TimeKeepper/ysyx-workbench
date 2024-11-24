@@ -3,11 +3,10 @@ BUILD_DIR = ./build
 SRC_DIR = ${NPC_HOME}/src
 
 SSRC_DIR = $(SRC_DIR)/ssrc
-
 SSRC = $(shell find $(abspath $(SSRC_DIR)) -name "*.scala")
 SSRC += $(shell find $(abspath ./) -name "*.scala")
 
-TOPNAME ?= II_final
+TOPNAME ?= top
 NXDC_FILES = $(abspath ./src/constr/top.nxdc)
 V_FILE_GEN = $(BUILD_DIR)/$(TOPNAME).sv
 
@@ -16,10 +15,10 @@ default: verilog
 
 $(V_FILE_GEN): $(SSRC)
 	$(MAKE) verilog
-
+	
 verilog:
 	# mkdir -p $(BUILD_DIR)
-	$(MAKE) -C $(NPC_HOME) PLATFORM=BASYS verilog
+	$(MAKE) -C $(NPC_HOME) PLATFORM=Zyqn verilog
 
 clean:
 	-rm -rf $(BUILD_DIR)

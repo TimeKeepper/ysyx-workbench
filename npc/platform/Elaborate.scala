@@ -71,3 +71,25 @@ object ElaborateBASYS extends App {
   )
   circt.stage.ChiselStage.emitSystemVerilogFile(new BASYS.II_final(), args, firtoolOptions)
 }
+
+object ElaborateTangnano extends App {
+  val firtoolOptions = Array(
+    "-disable-all-randomization",
+    "-strip-debug-info",
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(new ssrc.Tangnano.top, args, firtoolOptions)
+}
+
+object ElaborateZyqn extends App {
+  val firtoolOptions = Array(
+    "-disable-all-randomization",
+    "-strip-debug-info",
+    "--lowering-options=" + List(
+      // make vivado happy
+      // see https://github.com/llvm/circt/blob/main/docs/VerilogGeneration.md
+      "mitigateVivadoArrayIndexConstPropBug",
+      "locationInfoStyle=wrapInAtSquareBracket"
+    ).reduce(_ + "," + _)
+  )
+  circt.stage.ChiselStage.emitSystemVerilogFile(new ssrc.Zyqn.top, args, firtoolOptions)
+}

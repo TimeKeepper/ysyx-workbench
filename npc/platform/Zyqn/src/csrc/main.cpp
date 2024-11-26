@@ -2,12 +2,19 @@
 #include <emulator.hpp>
 #include <simple_debugger.hpp>
 
+void exit(void) {
+    Log("Exiting...");
+    exit(0);
+}
+
 int main(int argc, char **argv) {
-    Emulator emulator(argc, argv);
+    Emulator* emulator = new Emulator(argc, argv);
 
-    simple_debugger sdb(emulator, argc, argv);
-    sdb.sdb_mainloop();
+    simple_debugger* sdb = new simple_debugger(emulator, argc, argv);
+    sdb->sdb_mainloop();
 
-    // exit();
+    delete emulator;
+    delete sdb;
+    exit();
     return 0;
 }

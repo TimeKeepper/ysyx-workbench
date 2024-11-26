@@ -14,7 +14,7 @@ Emulator::Emulator(int argc, char **argv){
     Verilated::traceEverOn(true);
     this->top->trace(tfp, 99);
     this->tfp->open("wave.vcd");
-    Log("Wave Trace " ANSI_FMT(" ON", ANSI_FG_GREEN));
+    Log("Wave Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
 
     void nvboard_bind_all_pins(Vtop* top);  
     nvboard_bind_all_pins(this->top);
@@ -51,7 +51,7 @@ void Emulator::cycle(uint64_t n) {
 }
 
 void Emulator::wave_trace_ctrl(bool v){
-    std::cout << "Wave Trace" << (v ? ANSI_FG_GREEN : ANSI_FG_RED)
+    std::cout << "Wave Trace " << (v ? ANSI_FG_GREEN : ANSI_FG_RED)
     << (v ? "ON" : "OFF") << ANSI_NONE << std::endl;
     this->wave_trace_on = v;
 }

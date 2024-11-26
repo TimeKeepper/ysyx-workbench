@@ -1,3 +1,4 @@
+#include <iostream>
 #include <utils.hpp>
 #include <simple_debugger.hpp>
 #include <readline/readline.h>
@@ -5,45 +6,45 @@
 
 ModuleState module_state = { .state = MODULE_STOP };
 
-static int cmd_c(Emulator& emulator, char *args) {
-    emulator.cycle(-1);
+static int cmd_c(Emulator* emulator, char *args) {
+    emulator->cycle(-1);
     return 0;
 }
 
-static int cmd_q(Emulator& emulator, char *args) {
+static int cmd_q(Emulator* emulator, char *args) {
     module_state.state = MODULE_STOP;
     return -1;
 }
 
-static int cmd_sc(Emulator& emulator, char *args) {
+static int cmd_sc(Emulator* emulator, char *args) {
     char* parameter_str = strtok(args, " ");
 
     if(parameter_str == NULL){
-        emulator.cycle(1);
+        emulator->cycle(1);
         return 0;
     }
 
     int parameter = atoi(parameter_str);
     if(parameter < 0){
-        printf(ANSI_FMT("You should input a positive value\n", ANSI_FG_RED));
+        std::cout << ANSI_FG_RED << "You should input a positive value\n" << ANSI_NONE << std::endl;
         return 0;
     }
     else if(parameter == 0){
-        printf(ANSI_FMT("What do you mean, Bro?\n", ANSI_FG_RED));
+        std::cout << ANSI_FG_RED << "What do you mean, Bro?\n" << ANSI_NONE << std::endl;
         return 0;
     }
 
-    emulator.cycle(parameter);
+    emulator->cycle(parameter);
     return 0;
 }
 
-static int cmd_r(Emulator& emulator, char *args) {
-    emulator.reset(20);
+static int cmd_r(Emulator* emulator, char *args) {
+    emulator->reset(20);
     return 0;
 }
 
-static int cmd_wo(Emulator& emulator, char *args) {
-    emulator.wave_trace_ctrl(true);
+static int cmd_wo(Emulator* emulator, char *args) {
+    emulator->wave_trace_ctrl(true);
     return 0;
 }
 
@@ -63,9 +64,9 @@ int simple_debugger::parse_args(int argc, char *argv[]) {
       switch (o) {
         case 'b': set_batch_mode();     break;
         default:
-          printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
-          printf("\t-b,--batch              run with batch mode\n");
-          printf("\n");
+          std::cout << "Usage: " << argv[0] << " [OPTION...] IMAGE [args]\n\n";
+          std::cout << "\t-b,--batch              run with batch mode\n";
+          std::cout << std::endl;
           exit(0);
       }
     }
@@ -75,12 +76,12 @@ int simple_debugger::parse_args(int argc, char *argv[]) {
 #include <csignal>
 void SIGINT_handler(int signal){
     if (signal == SIGINT) {
-        printf(ANSI_FMT("\nsimulation interrupted\n", ANSI_FG_BLUE));
+        std::cout << ANSI_FG_CYAN << "Ctrl+C detected, stopping NEMU..." << ANSI_NONE << std::endl;
         module_state.state = MODULE_STOP;
     }
 }
 
-simple_debugger::simple_debugger(Emulator& emulator, int argc, char **argv) : emulator(emulator) {
+simple_debugger::simple_debugger(Emulator* emulator, int argc, char **argv) : emulator(emulator) {
     parse_args(argc, argv);
     
     signal(SIGINT, SIGINT_handler);
@@ -149,6 +150,6 @@ void simple_debugger::sdb_mainloop(){
             break;
         }
 
-        if (i == cmd_table.size()) { printf("Unknown command '%s'\n", cmd); }
+        if (i == cmd_table.size()) { std::cout << ANSI_FG_RED << "Unknown command: " << ANSI_NONE << cmd << std::endl; }
     }
 }

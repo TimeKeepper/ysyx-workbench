@@ -1,11 +1,11 @@
 // #include "VysyxSoCFull__Dpi.h"
-#include "cpu/cpu.h"
-#include "memory/paddr.h"
+#include "cpu/cpu.hpp"
+#include "memory/paddr.hpp"
 #include <assert.h>
-#include <common.h>
+#include <common.hpp>
 #include <dlfcn.h>
-#include <utils.h>
-#include <sdb/sdb.h>
+#include <utils.hpp>
+#include <sdb/sdb.hpp>
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 

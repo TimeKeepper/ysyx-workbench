@@ -1,7 +1,7 @@
 #ifndef __MEMORY_PADDR_H__
 #define __MEMORY_PADDR_H__
 
-#include <common.h>
+#include <common.hpp>
 #include <cstdint>
 #include <stdint.h>
 #include <stdio.h>

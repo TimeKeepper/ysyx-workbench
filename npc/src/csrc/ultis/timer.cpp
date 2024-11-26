@@ -1,8 +1,8 @@
-#include <common.h>
+#include <common.hpp>
 #include <cstddef>
 #include <cstdlib>
 #include <sys/time.h>
-#include <utils.h>
+#include <utils.hpp>
 
 static uint64_t boot_time = 0;
 

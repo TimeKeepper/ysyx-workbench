@@ -1,12 +1,12 @@
-#include "sdb/cmd.h"
-#include "utils.h"
+#include "sdb/cmd.hpp"
+#include "utils.hpp"
 #include <cassert>
-#include <common.h>
+#include <common.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <memory/paddr.h>
-#include <memory/host.h>
+#include <memory/paddr.hpp>
+#include <memory/host.hpp>
 #include <stdio.h>
 
 #define PG_ALIGN __attribute((aligned(4096)))

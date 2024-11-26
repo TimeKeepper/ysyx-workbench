@@ -1,5 +1,5 @@
-#include "utils.h"
-#include <main.h>
+#include "utils.hpp"
+#include <main.hpp>
 
 int main(int argc, char **argv) {
   init_monitor(argc, argv);

@@ -1,4 +1,4 @@
-#include "debug.h"
+#include "debug.hpp"
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -12,10 +12,10 @@
 #include "VysyxSoCFull___024root.h"
 #endif
 #include "verilated_vcd_c.h"
-#include <cpu/cpu.h>
-#include <memory/paddr.h>
-#include <utils.h>
-#include <sdb/sdb.h>
+#include <cpu/cpu.hpp>
+#include <memory/paddr.hpp>
+#include <utils.hpp>
+#include <sdb/sdb.hpp>
 
 const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
 TOP_NAME* top = new TOP_NAME;

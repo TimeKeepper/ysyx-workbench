@@ -1,9 +1,9 @@
-#include <sdb/cmd.h>
-#include <sdb/sdb.h>
-#include <cpu/cpu.h>
+#include <sdb/cmd.hpp>
+#include <sdb/sdb.hpp>
+#include <cpu/cpu.hpp>
 #include <stdexcept>
-#include <utils.h>
-#include <memory/paddr.h>
+#include <utils.hpp>
+#include <memory/paddr.hpp>
 
 int cmd_help(char *args) {
     /* extract the first argument */

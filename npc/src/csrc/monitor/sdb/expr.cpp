@@ -1,9 +1,9 @@
-#include "cpu/cpu.h"
+#include "cpu/cpu.hpp"
 #include <cassert>
-#include <common.h>
+#include <common.hpp>
 #include <cstring>
-#include <sdb/sdb.h>
-#include <memory/paddr.h>
+#include <sdb/sdb.hpp>
+#include <memory/paddr.hpp>
 
 #include <regex.h>
 #include <stdlib.h>

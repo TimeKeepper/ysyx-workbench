@@ -13,7 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include <common.h>
+#include <common.hpp>
 #include <stdio.h>
 
 typedef struct _IO_FILE FILE;

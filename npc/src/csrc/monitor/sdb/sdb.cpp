@@ -1,6 +1,6 @@
-#include <common.h>
-#include <sdb/sdb.h>
-#include <cpu/cpu.h>
+#include <common.hpp>
+#include <sdb/sdb.hpp>
+#include <cpu/cpu.hpp>
 #include <readline/readline.h>
 #include <readline/history.h>
 // #include <csignal>

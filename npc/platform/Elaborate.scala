@@ -91,5 +91,10 @@ object ElaborateZyqn extends App {
       "locationInfoStyle=wrapInAtSquareBracket"
     ).reduce(_ + "," + _)
   )
+  
+  Config.Reset_Vector = "h80000000".U(32.W)
+  Config.setDPIC(false)
+  Config.setIcacheParam(2, 4, 19, "h80000000")
+
   circt.stage.ChiselStage.emitSystemVerilogFile(new ssrc.Zyqn.top, args, firtoolOptions)
 }

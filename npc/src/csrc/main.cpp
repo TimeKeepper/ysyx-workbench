@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv) {
 
-  Log("REBUILD");
+  Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
   // init_monitor(argc, argv);
 

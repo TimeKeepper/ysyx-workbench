@@ -17,7 +17,6 @@
 #define __DEBUG_H__
 
 #include <utils.hpp>
-#include <iostream>
     
 #define Log(format, ...) \
         _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \

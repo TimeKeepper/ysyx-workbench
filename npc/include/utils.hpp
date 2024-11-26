@@ -2,6 +2,8 @@
 #define __UTILS_H__
 
 #include <common.hpp>
+#include <iostream>
+#include <debug.hpp>
 
 // ----------- state -----------
 

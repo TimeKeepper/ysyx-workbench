@@ -6,9 +6,9 @@
 int main(int argc, char **argv) {
   Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
-  Emulator* emulator = new Emulator();
+  Emulator* emulator = new Emulator(argc, argv);
 
-  emulator->Emulator_mainLoop(argc, argv);
+  emulator->Emulator_mainLoop();
 
   delete emulator;
 

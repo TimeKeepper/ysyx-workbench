@@ -13,10 +13,6 @@ typedef struct {
   uint32_t halt_ret;
 } NPCState;
 
-extern NPCState npc_state;
-
-uint64_t get_time();
-
 // ----------- log -----------
 
 #define ANSI_FG_BLACK   "\33[1;30m"
@@ -38,8 +34,6 @@ uint64_t get_time();
 #define ANSI_NONE       "\33[0m"
 
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
-
-int is_exit_status_bad();
 
 #include <iostream>
 #define Log(format, ...) \

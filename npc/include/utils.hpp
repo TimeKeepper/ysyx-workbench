@@ -36,8 +36,11 @@ typedef struct {
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
 #include <iostream>
+#include <cstdio>
 #define Log(format, ...) \
-    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "] " << format, ANSI_FG_BLUE) << "\n", ## __VA_ARGS__
+    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "] ", ANSI_FG_BLUE); \
+    printf(format, ## __VA_ARGS__); \
+    std::cout << "\n"
 
 #include <cassert>
 #define Assert(cond, format, ...) \

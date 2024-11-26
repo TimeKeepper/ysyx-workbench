@@ -5,7 +5,7 @@
 #include <chrono>
 #include <getopt.h>
 
-Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
+void Emulator::parse_args() {
     const struct option table[] = {
       {"batch"    , no_argument      , NULL, 'b'},
       {"log"      , required_argument, NULL, 'l'},
@@ -18,34 +18,74 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     
     int o;
     while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
-      switch (o) {
-        case 'b': is_batch_mode = true;     break;
-        case 'p':                           break;
-        case 'l':                           break;
-        case 'd': diff_so_file  = optarg;   break;
-        case 'e': elf_file      = optarg;   break;
-        case 1  : img_file      = optarg;   return;
-        default:
-          printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
-          printf("\t-b,--batch              run with batch mode\n");
-          printf("\t-l,--log=FILE           output log to FILE\n");
-          printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
-          printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-          printf("\n");
-          exit(0);
-      }
+        switch (o) {
+            case 'b': is_batch_mode = true;     break;
+            case 'p':                           break;
+            case 'l':                           break;
+            case 'd': diff_so_file  = optarg;   break;
+            case 'e': elf_file      = optarg;   break;
+            case 1  : img_file      = optarg;   return;
+            default:
+            printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
+            printf("\t-b,--batch              run with batch mode\n");
+            printf("\t-l,--log=FILE           output log to FILE\n");
+            printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
+            printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+            printf("\n");
+            exit(0);
+        }
     }
+}
 
+void Emulator::init_rand() {
     this->seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::srand(seed);
+}
 
+void Emulator::init_mem() {
     memorys.emplace("psram", std::make_unique<Memory>(CONFIG_PSRAM_SIZE));
     memorys.emplace("sdram", std::make_unique<Memory>(CONFIG_SDRAM_SIZE));
     memorys.emplace("mrom", std::make_unique<Memory>(CONFIG_MROM_SIZE));
     memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_SIZE));
     memorys.emplace("vga", std::make_unique<Memory>(CONFIG_VGA_FRAME_BUFFER_SIZE));
-    
+}
+
+void Emulator::init_isa() {
     this->cpu.sr[ADDR_MVENDORID] = 0x79737978;
     this->cpu.sr[ADDR_MARCHID]   = 23060198;
+}
+
+void Emulator::load_image() {
+    if (this->img_file == NULL) {
+        Log(ANSI_FMT("No image is given. Use the default build-in image.", ANSI_FG_RED));
+        return;
+    }
+
+    FILE *fp = fopen(this->img_file, "rb");
+
+    fseek(fp, 0, SEEK_END);
+    uint64_t size = ftell(fp);
+
+    Log("The image is %s, size = %ld", this->img_file, size);
+
+    fseek(fp, 0, SEEK_SET);
+    int ret = fread(this->memorys["psram"]->get_memory(), size, 1, fp);
+    assert(ret == 1);
+
+    fclose(fp);
+    this->img_size = size;
+}
+
+Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
+    this->parse_args();
+
+    this->init_rand();
+
+    this->init_mem();
+    
+    this->init_isa();
+
+    this->load_image();
 }
 
 Emulator::~Emulator() {

@@ -13,13 +13,13 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include "sdb/sdb.h"
+#include "sdb/sdb.hpp"
 #include <cassert>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "utils.h"
+#include "utils.hpp"
 
 #define NR_WP 32
 

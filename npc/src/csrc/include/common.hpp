@@ -19,4 +19,4 @@ typedef word_t vaddr_t;
 
 void engine_start(int argc, char **argv);
 
-#include <debug.h>
+#include <debug.hpp>

@@ -1,13 +1,13 @@
-#include "cpu/cpu.h"
-#include "utils.h"
-#include <common.h>
+#include "cpu/cpu.hpp"
+#include "utils.hpp"
+#include <common.hpp>
 #include <cstdlib>
-#include <sdb/sdb.h>
+#include <sdb/sdb.hpp>
 #include <fcntl.h>
 #include <gelf.h>
 #include <libelf.h>
 #include <getopt.h>
-#include <memory/paddr.h>
+#include <memory/paddr.hpp>
 #include <signal.h>
 
 void init_rand();

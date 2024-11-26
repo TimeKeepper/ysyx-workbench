@@ -11,7 +11,7 @@
 #elif defined (PLATFORM_YSYXSOC)
 #include <VysyxSoCFull.h>
 #endif
-#include <sdb/sdb.h>
-#include <utils.h>
+#include <sdb/sdb.hpp>
+#include <utils.hpp>
 
 #endif

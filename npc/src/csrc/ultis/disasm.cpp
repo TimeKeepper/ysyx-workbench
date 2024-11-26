@@ -7,7 +7,7 @@
 #define __STDC_FORMAT_MACROS
 #define __STDC_LIMIT_MACROS
 
-#include <cpu/cpu.h>
+#include <cpu/cpu.hpp>
 
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCContext.h"

@@ -9,7 +9,7 @@
 #include "VysyxSoCFull__Dpi.h"
 #endif
 
-#include <common.h>
+#include <common.hpp>
 #include <nvboard.h>
 #include "verilated.h"
 #include "verilated_vcd_c.h"

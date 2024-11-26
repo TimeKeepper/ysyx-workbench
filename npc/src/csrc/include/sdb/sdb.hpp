@@ -1,7 +1,7 @@
 #ifndef __MONITOR_H__
 #define __MONITOR_H__
 
-#include <sdb/cmd.h>
+#include <sdb/cmd.hpp>
 
 word_t expr(char *e, bool *success);
 

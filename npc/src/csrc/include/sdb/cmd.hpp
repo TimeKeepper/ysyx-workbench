@@ -1,7 +1,7 @@
 #ifndef __CMD_H__
 #define __CMD_H__
 
-#include <common.h>
+#include <common.hpp>
 
 int cmd_help(char *args);
 int cmd_c(char *args);

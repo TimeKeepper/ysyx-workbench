@@ -1,7 +1,7 @@
-#include "memory/paddr.h"
-#include "utils.h"
-#include "cpu/cpu.h"
-#include <sdb/sdb.h>
+#include "memory/paddr.hpp"
+#include "utils.hpp"
+#include "cpu/cpu.hpp"
+#include <sdb/sdb.hpp>
 
 uint64_t IFU_pc = 0, LSU_pc = 0, ALU_pc = 0;
 

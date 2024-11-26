@@ -1,7 +1,7 @@
 #ifndef __MEMORY_HOST_H__
 #define __MEMORY_HOST_H__
 
-#include <common.h>
+#include <common.hpp>
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>

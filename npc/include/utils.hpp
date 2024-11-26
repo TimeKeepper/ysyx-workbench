@@ -39,4 +39,16 @@ typedef struct {
 #define Log(format, ...) \
     std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "] " << format, ANSI_FG_BLUE) << "\n", ## __VA_ARGS__
 
+#include <cassert>
+#define Assert(cond, format, ...) \
+  do { \
+    if (!(cond)) { \
+      Log(ANSI_FMT("Assertion failed: " #cond, ANSI_FG_RED) " " format, ## __VA_ARGS__); \
+      assert(0); \
+    } \
+  } while (0)
+
+#define TODO() \
+  Assert(0, "Please implement this function")
+
 #endif

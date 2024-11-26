@@ -32,6 +32,14 @@ ifeq ($(PLATFORM), core)
 else
 ifeq ($(PLATFORM), BASYS)
 	V_FILE_GEN = $(VSRC_DIR)/II_final.sv
+else
+ifeq ($(PLATFORM), Tangnano)
+	V_FILE_GEN = $(shell find $(abspath $(VSRC_DIR)) -name "*.sv")
+else
+ifeq ($(PLATFORM), Zyqn)
+	V_FILE_GEN = $(shell find $(abspath $(VSRC_DIR)) -name "*.sv")
+endif
+endif
 endif
 endif
 endif

@@ -43,7 +43,7 @@ int is_exit_status_bad();
 
 #define _Log(...) \
   do { \
-    printf(__VA_ARGS__); \
+      std::cout << __VA_ARGS__; \
   } while (0)
 
 #endif

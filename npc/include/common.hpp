@@ -1,5 +1,7 @@
-#include <stdint.h>
-#include <stdio.h>
+#ifndef __COMMON_HPP__
+#define __COMMON_HPP__
+
+#include <cstdint>
 #include <autoconf.h>
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
@@ -19,4 +21,4 @@ typedef word_t vaddr_t;
 
 void engine_start(int argc, char **argv);
 
-#include <debug.hpp>
+#endif

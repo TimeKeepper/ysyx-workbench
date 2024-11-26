@@ -41,9 +41,8 @@ uint64_t get_time();
 
 int is_exit_status_bad();
 
-#define _Log(...) \
-  do { \
-    printf(__VA_ARGS__); \
-  } while (0)
+#include <iostream>
+#define Log(format, ...) \
+    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "] " << format, ANSI_FG_BLUE) << "\n", ## __VA_ARGS__
 
 #endif

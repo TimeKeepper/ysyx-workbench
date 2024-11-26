@@ -1,10 +1,12 @@
-#include "utils.hpp"
+#include <utils.hpp>
 #include <main.hpp>
 
 int main(int argc, char **argv) {
-  init_monitor(argc, argv);
+  Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
-  engine_start(argc, argv);
+  // init_monitor(argc, argv);
 
-  return is_exit_status_bad();
+  // engine_start(argc, argv);
+
+  // return is_exit_status_bad();
 }

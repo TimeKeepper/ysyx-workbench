@@ -13,7 +13,7 @@ SOC_SPI_DIR  = $(SOC_DIR)/perip/spi/rtl
 
 VSRC_DIR = $(BUILD_DIR)
 CSRC_DIR = $(SRC_DIR)/csrc
-HEAD_DIR = $(abspath $(CSRC_DIR)/include)
+HEAD_DIR = $(abspath $(NPC_HOME)/include)
 AUTOCONFIG = $(abspath ./include/generated)
 
 DESIGN_FILE ?= $(abspath $(VSRC_DIR))/ysyx_23060198.sv

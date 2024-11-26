@@ -38,7 +38,7 @@ typedef struct {
 #include <iostream>
 #include <cstdio>
 #define Log(format, ...) \
-    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "] ", ANSI_FG_BLUE); \
+    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "]\n", ANSI_FG_BLUE); \
     printf(format, ## __VA_ARGS__); \
     std::cout << "\n"
 

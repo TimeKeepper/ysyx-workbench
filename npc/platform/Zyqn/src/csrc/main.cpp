@@ -1,13 +1,13 @@
 #include <utils.hpp>
+#include <emulator.hpp>
+#include <simple_debugger.hpp>
 
-void init_monitor(int argc, char *argv[]);
-void engine_start(int argc, char **argv);
-void exit(void);
 int main(int argc, char **argv) {
-    init_monitor(argc, argv);
+    Emulator emulator(argc, argv);
 
-    engine_start(argc, argv);
+    simple_debugger sdb(emulator, argc, argv);
+    sdb.sdb_mainloop();
 
-    exit();
+    // exit();
     return 0;
 }

@@ -152,9 +152,9 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
-    this->differtest = std::make_unique<Differtest>(this->diff_so_file, \
-    this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
-    &this->npc_state);
+    // this->differtest = std::make_unique<Differtest>(this->diff_so_file, \
+    // this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
+    // &this->npc_state);
 
     welcome();
 }

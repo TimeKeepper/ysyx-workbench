@@ -139,6 +139,7 @@ void Emulator::load_image() {
 
 static void welcome() {
     std::cout << "Welcome to " << ANSI_FMT("riscv32e", ANSI_FG_YELLOW) << "-npc" << std::endl;
+    std::cout << "For help, Type 'help'";
 }
 
 Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
@@ -152,9 +153,11 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
-    // this->differtest = std::make_unique<Differtest>(this->diff_so_file, \
-    // this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
-    // &this->npc_state);
+    this->differtest = std::make_unique<Differtest>(this->diff_so_file, \
+    this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
+    &this->npc_state, [&](int a0){
+        this->Emulator_trap(a0);
+    });
 
     this->sdb = std::make_unique<simple_debugger>(&this->npc_state, [&](int a0){
         this->Emulator_trap(a0);

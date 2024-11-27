@@ -13,7 +13,7 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, Riscv_CPU_Sta
     assert(ref_so_file != NULL);
 
     void *handle;
-    handle = dlopen(ref_so_file, RTLD_NOW);
+    handle = dlopen(ref_so_file, RTLD_LAZY);
     assert(handle);
 
     ref_difftest_memcpy = (void (*)(paddr_t, void *, size_t, bool))dlsym(handle, "difftest_memcpy");

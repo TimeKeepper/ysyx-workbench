@@ -3,6 +3,8 @@
 
 #include "cpu/cpu.hpp"
 #include <memory.hpp>
+#include <differtest.hpp>
+#include <memory>
 #include <utils.hpp>
 #include <unordered_map>
 
@@ -24,6 +26,8 @@ class Emulator {
         Riscv_CPU_State cpu;
 
         std::unordered_map<std::string, std::unique_ptr<Memory>> memorys;
+
+        std::unique_ptr<Differtest> differtest;
 
         void parse_args();
         void init_rand();

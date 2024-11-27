@@ -32,6 +32,11 @@ typedef struct {
     word_t sr[4096];
 } Riscv_CPU_State;
 
+extern std::map<uint32_t, std::string> csr_key;
+
+const char* gpr_id2name(int id);
+const char* csr_id2name(int id);
+
 // void clk_exec(uint64_t n);
 // void cpu_exec(uint64_t n);
 // void cpu_reset(int n);

@@ -168,6 +168,7 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
 Emulator::~Emulator() {
     std::cout << "You should implement some exit code later";
+    std::cout << "Such as Close Wave trace, close nvboard, Generate Performence report etc..." << std::endl;
 }
 
 void Emulator::Emulator_mainLoop() {

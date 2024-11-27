@@ -14,6 +14,7 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, Riscv_CPU_Sta
 
     void *handle;
     handle = dlopen(ref_so_file, RTLD_LAZY);
+    Log("debug");
     std::cout << "Error msg: " << dlerror();
     assert(handle);
 

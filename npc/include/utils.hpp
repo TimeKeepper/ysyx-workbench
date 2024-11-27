@@ -43,7 +43,7 @@ typedef struct {
   } while (0)
 
 #define Log(format, ...) \
-    _Log(ANSI_FMT("[%s:%d %s] " "\n", ANSI_FG_BLUE), \
+    _Log(ANSI_FMT("[%s:%d %s] " "\n" , ANSI_FG_BLUE) format, \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #include <cassert>

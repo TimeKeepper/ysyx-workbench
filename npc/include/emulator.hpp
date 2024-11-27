@@ -2,6 +2,7 @@
 #define __EMULATOR_HPP__
 
 #include "cpu/cpu.hpp"
+#include "simple_debugger.hpp"
 #include <memory.hpp>
 #include <differtest.hpp>
 #include <memory>
@@ -28,6 +29,7 @@ class Emulator {
         std::unordered_map<std::string, std::unique_ptr<Memory>> memorys;
 
         std::unique_ptr<Differtest> differtest;
+        std::unique_ptr<simple_debugger> sdb;
 
         void parse_args();
         void init_rand();
@@ -39,6 +41,7 @@ class Emulator {
         ~Emulator();
 
         void Emulator_mainLoop();
+        void Emulator_trap(uint32_t a0);
 };
 
 #endif

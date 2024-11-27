@@ -156,6 +156,10 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     // this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
     // &this->npc_state);
 
+    this->sdb = std::make_unique<simple_debugger>([&](int a0){
+        this->Emulator_trap(a0);
+    });
+
     welcome();
 }
 
@@ -164,5 +168,14 @@ Emulator::~Emulator() {
 }
 
 void Emulator::Emulator_mainLoop() {
-    TODO();
+    this->sdb->main_loop(this->is_batch_mode);
+}
+
+void Emulator::Emulator_trap(uint32_t a0) {
+    this->npc_state.state = NPC_STOP;
+    this->npc_state.halt_ret = a0;
+
+    std::cout << ((a0 == 0) ? \
+        ANSI_FMT("Hit good trap", ANSI_FG_GREEN) : \
+        ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
 }

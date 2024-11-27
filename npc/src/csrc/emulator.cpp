@@ -138,7 +138,7 @@ void Emulator::load_image() {
 }
 
 static void welcome() {
-    std::cout << "Welcome to" << ANSI_FMT("riscv32e", ANSI_FG_YELLOW) << "npc" << std::endl;
+    std::cout << "Welcome to " << ANSI_FMT("riscv32e", ANSI_FG_YELLOW) << "-npc" << std::endl;
 }
 
 Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {

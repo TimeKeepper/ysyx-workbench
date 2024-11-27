@@ -1,5 +1,6 @@
 #include <utils.hpp>
 #include <main.hpp>
+#include <simple_debugger.hpp>
 
 #include <emulator.hpp>
 
@@ -8,7 +9,7 @@ int main(int argc, char **argv) {
 
   Emulator* emulator = new Emulator(argc, argv);
 
-  emulator->Emulator_mainLoop();
+  std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator);
 
   delete emulator;
 

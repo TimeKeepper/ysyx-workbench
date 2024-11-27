@@ -4,10 +4,8 @@
 #include <readline/history.h>
 #include <algorithm>
 
-simple_debugger::simple_debugger(NPCState* npc_state, \
-    std::function<void(int a0)> emulator_trap_func) \
-    : npc_state(npc_state), Emulator_trap(emulator_trap_func) {
-        
+simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
+
     cmds.push_back(
         {"help", "Print this help message", "help", \
         [&](std::vector<std::string> args){
@@ -21,7 +19,7 @@ simple_debugger::simple_debugger(NPCState* npc_state, \
     cmds.push_back(
         {"q", "Quit the debugger", "q", \
         [&](std::vector<std::string> args){
-            this->npc_state->state = NPC_STOP;
+            this->emulator->npc_state.state = NPC_STOP;
             return -1;
         }});
 }

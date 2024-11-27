@@ -5,6 +5,7 @@
 #include <string>
 #include <utils.hpp>
 #include <vector>
+#include <emulator.hpp>
 
 struct cmd {
     std::string name;
@@ -16,10 +17,9 @@ struct cmd {
 class simple_debugger {
     private:
         std::vector<cmd> cmds;
-        NPCState* npc_state;
-        std::function<void(int a0)> Emulator_trap;
+        Emulator* emulator;
     public:
-        simple_debugger(NPCState* npc_state, std::function<void(int a0)> emulator_trap_func);
+        simple_debugger(Emulator* emulator);
         void main_loop(bool is_batch_mode);
 };
 

@@ -153,26 +153,12 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
-    this->differtest = std::make_unique<Differtest>(this->diff_so_file, \
-    this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
-    &this->npc_state, [&](int a0){
-        this->Emulator_trap(a0);
-    });
-
-    this->sdb = std::make_unique<simple_debugger>(&this->npc_state, [&](int a0){
-        this->Emulator_trap(a0);
-    });
-
     welcome();
 }
 
 Emulator::~Emulator() {
     std::cout << "You should implement some exit code later";
     std::cout << "Such as Close Wave trace, close nvboard, Generate Performence report etc..." << std::endl;
-}
-
-void Emulator::Emulator_mainLoop() {
-    this->sdb->main_loop(this->is_batch_mode);
 }
 
 void Emulator::Emulator_trap(uint32_t a0) {

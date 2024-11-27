@@ -14,7 +14,7 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, Riscv_CPU_Sta
 
     void *handle;
     handle = dlopen(ref_so_file, RTLD_LAZY);
-    std::cout << dlerror();
+    std::cout << "Error msg: " << dlerror();
     assert(handle);
 
     ref_difftest_memcpy = (void (*)(paddr_t, void *, size_t, bool))dlsym(handle, "difftest_memcpy");

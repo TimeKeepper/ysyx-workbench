@@ -12,6 +12,7 @@ void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
 Differtest::Differtest(char *ref_so_file, long img_size, int port, Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state) : dut_r(dut_r), npc_state(npc_state) {
     assert(ref_so_file != NULL);
 
+    Log(ref_so_file);
     void *handle;
     handle = dlopen(ref_so_file, RTLD_LAZY);
     assert(handle);

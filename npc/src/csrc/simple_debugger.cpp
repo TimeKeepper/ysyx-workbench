@@ -9,13 +9,14 @@ simple_debugger::simple_debugger(NPCState* npc_state, std::function<void(int a0)
         {"help", "Print this help message", "help", \
         [&](std::vector<std::string> args){
             for(auto c : cmds){
-                printf("%s: %s\n", c.name.c_str(), c.description.c_str());
+                std::cout << ANSI_BG_YELLOW << c.name.c_str() << ANSI_NONE << '\t' << \
+                ": " << ANSI_BG_CYAN << c.description << ANSI_NONE << std::endl;
             }
             return 0;
         }});
 
     cmds.push_back(
-        {"quit", "Quit the debugger", "quit", \
+        {"q", "Quit the debugger", "q", \
         [&](std::vector<std::string> args){
             this->npc_state->state = NPC_STOP;
             return -1;

@@ -164,7 +164,7 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 }
 
 Emulator::~Emulator() {
-    TODO();
+    std::cout << "You should implement some exit code later";
 }
 
 void Emulator::Emulator_mainLoop() {

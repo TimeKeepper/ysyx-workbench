@@ -9,8 +9,8 @@ simple_debugger::simple_debugger(NPCState* npc_state, std::function<void(int a0)
         {"help", "Print this help message", "help", \
         [&](std::vector<std::string> args){
             for(auto c : cmds){
-                std::cout << ANSI_BG_YELLOW << c.name.c_str() << ANSI_NONE << '\t' << \
-                ": " << ANSI_BG_CYAN << c.description << ANSI_NONE << std::endl;
+                std::cout << ANSI_FG_YELLOW << c.name.c_str() << ANSI_NONE << '\t' << \
+                ": " << ANSI_FG_CYAN << c.description << ANSI_NONE << std::endl;
             }
             return 0;
         }});

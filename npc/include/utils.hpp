@@ -13,10 +13,6 @@ typedef struct {
   uint32_t halt_ret;
 } NPCState;
 
-extern NPCState npc_state;
-
-uint64_t get_time();
-
 // ----------- log -----------
 
 #define ANSI_FG_BLACK   "\33[1;30m"
@@ -39,10 +35,23 @@ uint64_t get_time();
 
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
-int is_exit_status_bad();
-
 #include <iostream>
+#include <cstdio>
 #define Log(format, ...) \
-    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "] " << format, ANSI_FG_BLUE) << "\n", ## __VA_ARGS__
+    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "]\n", ANSI_FG_BLUE); \
+    printf(format, ## __VA_ARGS__); \
+    std::cout << "\n"
+
+#include <cassert>
+#define Assert(cond, format, ...) \
+  do { \
+    if (!(cond)) { \
+      Log(ANSI_FMT("Assertion failed: " #cond, ANSI_FG_RED) " " format, ## __VA_ARGS__); \
+      assert(0); \
+    } \
+  } while (0)
+
+#define TODO() \
+  Assert(0, "Please implement this function")
 
 #endif

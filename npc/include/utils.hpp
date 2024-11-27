@@ -44,7 +44,7 @@ typedef struct {
   } while (0)
 
 #define Log(format, ...) \
-  _Log(ANSI_FMT(format, ANSI_FG_WHITE) "\n", ## __VA_ARGS__)
+  _Log(ANSI_FMT(format, ANSI_FG_BLUE) "\n", ## __VA_ARGS__)
 
 #include <cassert>
 #define Assert(cond, format, ...) \

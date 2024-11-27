@@ -14,7 +14,6 @@ class Emulator {
 
         uint64_t seed = 0;
 
-        bool is_batch_mode = false;
 
         char* diff_so_file = NULL;
         char* elf_file = NULL;
@@ -31,6 +30,7 @@ class Emulator {
         void init_isa();
         void load_image();
     public:
+        bool is_batch_mode = false;
         NPCState npc_state = { .state = NPC_STOP ,.halt_pc = 0, .halt_ret = 0};
         Emulator(int argc, char **argv);
         ~Emulator();

@@ -20,7 +20,7 @@ class simple_debugger {
         Emulator* emulator;
     public:
         simple_debugger(Emulator* emulator);
-        void main_loop(bool is_batch_mode);
+        void main_loop();
 };
 
 #endif

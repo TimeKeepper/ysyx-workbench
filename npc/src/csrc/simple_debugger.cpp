@@ -54,8 +54,8 @@ static char* rl_gets() {
     return line_read;
 }
 
-void simple_debugger::main_loop(bool is_batch_mode) {
-    if (is_batch_mode) {
+void simple_debugger::main_loop() {
+    if (this->emulator->is_batch_mode) {
         TODO();
         return;
     }

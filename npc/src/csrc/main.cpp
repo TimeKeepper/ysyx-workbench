@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 
   std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator.get());
 
-  sdb->main_loop(false);
+  sdb->main_loop();
 
   // init_monitor(argc, argv);
 

@@ -19,6 +19,4 @@ typedef uint32_t word_t;
 
 typedef word_t vaddr_t;
 
-void engine_start(int argc, char **argv);
-
 #endif

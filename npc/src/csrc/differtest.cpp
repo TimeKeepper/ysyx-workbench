@@ -9,7 +9,10 @@ void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
     }
 }
 
-Differtest::Differtest(char *ref_so_file, long img_size, int port, Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state) : dut_r(dut_r), npc_state(npc_state) {
+Differtest::Differtest(char *ref_so_file, long img_size, int port, \
+    Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state, \
+    std::function<void(int a0)> emulator_trap_func) \
+    : dut_r(dut_r), npc_state(npc_state), Emulator_trap(emulator_trap_func) {
     assert(ref_so_file != NULL);
 
     void *handle;

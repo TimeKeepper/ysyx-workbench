@@ -1,16 +1,18 @@
+#include <memory>
 #include <utils.hpp>
 #include <main.hpp>
+#include <simple_debugger.hpp>
 
 #include <emulator.hpp>
 
 int main(int argc, char **argv) {
   Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
-  Emulator* emulator = new Emulator(argc, argv);
+  std::unique_ptr<Emulator> emulator = std::make_unique<Emulator>(argc, argv);
 
-  emulator->Emulator_mainLoop();
+  std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator.get());
 
-  delete emulator;
+  sdb->main_loop();
 
   // init_monitor(argc, argv);
 

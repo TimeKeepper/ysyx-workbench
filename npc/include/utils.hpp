@@ -37,10 +37,14 @@ typedef struct {
 
 #include <iostream>
 #include <cstdio>
+#define _Log(...) \
+  do { \
+    printf(__VA_ARGS__); \
+  } while (0)
+
 #define Log(format, ...) \
-    std::cout << ANSI_FMT("[" << __FILE__ << ":" << __LINE__ << " " << __func__ << "]\n", ANSI_FG_BLUE); \
-    printf(format, ## __VA_ARGS__); \
-    std::cout << "\n"
+    _Log(ANSI_FMT("[%s:%d %s] " "\n" , ANSI_FG_BLUE) format "\n", \
+        __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #include <cassert>
 #define Assert(cond, format, ...) \

@@ -156,7 +156,7 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     // this->img_size, 0, &this->cpu, this->memorys["psram"].get(), \
     // &this->npc_state);
 
-    this->sdb = std::make_unique<simple_debugger>([&](int a0){
+    this->sdb = std::make_unique<simple_debugger>(&this->npc_state, [&](int a0){
         this->Emulator_trap(a0);
     });
 

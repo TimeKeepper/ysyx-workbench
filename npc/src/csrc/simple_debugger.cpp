@@ -1,19 +1,26 @@
 #include <simple_debugger.hpp>
 
-simple_debugger::simple_debugger(std::function<void(int a0)> emulator_trap_func) {
-    this->Emulator_trap = emulator_trap_func;
-
-    cmds.push_back(
-        {"help", "Print this help message", "help", [&](std::vector<std::string> args){
-            for(auto c : cmds){
-                printf("%s: %s\n", c.name.c_str(), c.description.c_str());
-            return 0;
-        }}});
-}
-
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <algorithm>
+
+simple_debugger::simple_debugger(NPCState* npc_state, std::function<void(int a0)> emulator_trap_func) : npc_state(npc_state), Emulator_trap(emulator_trap_func) {
+    cmds.push_back(
+        {"help", "Print this help message", "help", \
+        [&](std::vector<std::string> args){
+            for(auto c : cmds){
+                printf("%s: %s\n", c.name.c_str(), c.description.c_str());
+            }
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"quit", "Quit the debugger", "quit", \
+        [&](std::vector<std::string> args){
+            this->npc_state->state = NPC_STOP;
+            return -1;
+        }});
+}
 static char* rl_gets() {
     static char *line_read = NULL;
 

@@ -46,4 +46,7 @@ extern "C" {
         *rdata = emulator->memorys["vga"]->read((raddr & ~0x3u), 4);
     }
 
+    extern void inst_comp(){
+        emulator->inst_comp();
+    }
 }

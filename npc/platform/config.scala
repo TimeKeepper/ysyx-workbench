@@ -8,11 +8,18 @@ object Config {
 
   var DPIC_on: Boolean = false
 
+  var Simulate: Boolean = false
+
   def setResetVector(addr: UInt): Unit = {
     Reset_Vector := addr
   }
+
   def setDPIC(on: Boolean): Unit = {
     DPIC_on = on
+  }
+
+  def setSimulate(on: Boolean): Unit = {
+    Simulate = on
   }
 
   object Icache_Param {

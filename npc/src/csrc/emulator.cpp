@@ -194,6 +194,7 @@ void Emulator::reset(uint64_t n) {
 
 void Emulator::cycle(uint64_t n) {
     this->npc_state.state = NPC_RUNNING;
+
     for(;n > 0; n--) {
         this->top->clock = 0; top->eval();
         if(this->wave_trace_on) wave_trace_once();                  
@@ -205,6 +206,8 @@ void Emulator::cycle(uint64_t n) {
 
         if(this->npc_state.state != NPC_RUNNING) break;
     }
+    
+    this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
 }
 
 void Emulator::wave_trace_ctrl(bool v){

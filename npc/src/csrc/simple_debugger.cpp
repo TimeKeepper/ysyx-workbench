@@ -107,7 +107,6 @@ void simple_debugger::main_loop() {
         if (str.empty()) continue;
 
         std::string cmd = strtok((char*)str.c_str(), " ");
-        if (cmd.empty()) continue;
 
         std::vector<std::string> args;
         for (char *p = strtok(NULL, " "); p; p = strtok(NULL, " ")) {

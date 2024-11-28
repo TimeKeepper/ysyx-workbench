@@ -182,6 +182,10 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
 Emulator::~Emulator() {
     this->tfp->close();
+
+    #ifdef CONFIG_NVBOARD
+    nvboard_quit();
+    #endif
     std::cout << "You should implement some exit code later";
     std::cout << "Such as Close Wave trace, close nvboard, Generate Performence report etc..." << std::endl;
 }
@@ -202,11 +206,13 @@ void Emulator::cycle(uint64_t n) {
         this->top->clock = 1; top->eval();
         if(this->wave_trace_on) wave_trace_once();  
 
+        #ifdef CONFIG_NVBOARD
         // nvboard_update();
+        #endif
 
         if(this->npc_state.state != NPC_RUNNING) break;
     }
-    
+
     this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
 }
 

@@ -2,15 +2,24 @@
 #include <utils.hpp>
 #include <main.hpp>
 #include <simple_debugger.hpp>
-
+#include <csignal>
 #include <emulator.hpp>
 
 std::unique_ptr<Emulator> emulator;
+
+void SDL_handle(int SIGNAL){
+  if(SIGNAL == SIGINT){
+    std::cout << ANSI_FG_CYAN << "Ctrl+C detected, stopping Emulator..." << ANSI_NONE << std::endl;
+    emulator->npc_state.state = NPC_STOP;
+  }
+}
 
 int main(int argc, char **argv) {
   Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
   emulator = std::make_unique<Emulator>(argc, argv);
+
+  signal(SIGINT, SDL_handle);
 
   std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator.get());
 

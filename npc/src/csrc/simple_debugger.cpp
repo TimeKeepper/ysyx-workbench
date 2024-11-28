@@ -5,7 +5,6 @@
 #include <algorithm>
 
 simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
-
     cmds.push_back(
         {"help", "Print this help message", "help", \
         [&](std::vector<std::string> args){
@@ -49,6 +48,13 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         {"r", "Reset the emulator", "r", \
         [&](std::vector<std::string> args){
             this->emulator->reset(20);
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"c", "Continue the execution of the program", "c", \
+        [&](std::vector<std::string> args){
+            this->emulator->cycle(-1);
             return 0;
         }});
 

@@ -8,6 +8,7 @@
 std::unique_ptr<Emulator> emulator;
 
 void SDL_handle(int SIGNAL){
+  Log("state: %d", emulator->npc_state.state);
   if(SIGNAL == SIGINT && emulator->npc_state.state == NPC_RUNNING){
     std::cout << ANSI_FG_CYAN << "Ctrl+C detected, stopping Emulator..." << ANSI_NONE << std::endl;
     emulator->npc_state.state = NPC_STOP;

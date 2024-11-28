@@ -45,6 +45,7 @@ class Emulator {
         
         void reset(uint64_t n);
         void cycle(uint64_t n);
+        void single_inst(uint64_t n);
         void inst_comp();
         void wave_trace_ctrl(bool v);
 

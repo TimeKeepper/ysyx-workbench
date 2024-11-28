@@ -216,6 +216,17 @@ void Emulator::cycle(uint64_t n) {
     this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
 }
 
+void Emulator::single_inst(uint64_t n){
+    this->run_inst_num = n;
+    this->npc_state.state = NPC_RUNNING;
+    while(1){
+        this->cycle(1);
+
+        if(this->run_inst_num == 0) break;
+        if(this->npc_state.state != NPC_RUNNING) break;
+    }
+}
+
 void Emulator::inst_comp(){
     this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
 }

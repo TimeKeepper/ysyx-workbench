@@ -5,10 +5,12 @@
 
 #include <emulator.hpp>
 
+std::unique_ptr<Emulator> emulator;
+
 int main(int argc, char **argv) {
   Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
-  std::unique_ptr<Emulator> emulator = std::make_unique<Emulator>(argc, argv);
+  emulator = std::make_unique<Emulator>(argc, argv);
 
   std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator.get());
 

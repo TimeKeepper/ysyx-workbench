@@ -66,6 +66,11 @@ const char* csr_id2name(int id){
   return "Unknown";
 }
 
+void Emulator::wave_trace_once(){
+    this->contextp->timeInc(1);
+    this->tfp->dump(contextp->time());
+}
+
 void Emulator::parse_args() {
     const struct option table[] = {
       {"batch"    , no_argument      , NULL, 'b'},
@@ -137,6 +142,20 @@ void Emulator::load_image() {
     this->img_size = size;
 }
 
+void Emulator::init_simulate(){
+    this->contextp->commandArgs(this->argc, this->argv);
+    Verilated::traceEverOn(true);
+    this->top->trace(tfp, 99);
+    this->tfp->open("wave.vcd");
+
+    // void nvboard_bind_all_pins(TOP_NAME* top);  
+    // nvboard_bind_all_pins(this->top);
+    // nvboard_init();
+    // Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));
+
+    this->reset(20);
+}
+
 static void welcome() {
     std::cout << "Welcome to " << ANSI_FMT("riscv32e", ANSI_FG_YELLOW) << "-npc" << std::endl;
     std::cout << "For help, Type 'help'" << std::endl;
@@ -153,12 +172,36 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
+    this->init_simulate();
+
     welcome();
 }
 
 Emulator::~Emulator() {
+    this->tfp->close();
     std::cout << "You should implement some exit code later";
     std::cout << "Such as Close Wave trace, close nvboard, Generate Performence report etc..." << std::endl;
+}
+
+void Emulator::reset(uint64_t n) {
+    this->top->reset = 0;
+    cycle(n);
+    this->top->reset = 1;
+}
+
+void Emulator::cycle(uint64_t n) {
+    this->npc_state.state = NPC_RUNNING;
+    for(;n > 0; n--) {
+        this->top->clock = 0; top->eval();
+        if(this->wave_trace_on) wave_trace_once();                  
+
+        this->top->clock = 1; top->eval();
+        if(this->wave_trace_on) wave_trace_once();  
+
+        // nvboard_update();
+
+        if(this->npc_state.state != NPC_RUNNING) break;
+    }
 }
 
 void Emulator::Emulator_trap(uint32_t a0) {

@@ -22,6 +22,29 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             this->emulator->npc_state.state = NPC_STOP;
             return -1;
         }});
+
+    cmds.push_back(
+        {"sc", "Step through N clock cycles", "sc N", \
+        [&](std::vector<std::string> args){
+            if(args.size() == 0){
+                this->emulator->cycle(1);
+                return 0;
+            }
+
+            int n = std::stoi(args[0]);
+            if(n < 0){
+                std::cout << ANSI_FG_RED << "You should input a positive value\n" << ANSI_NONE << std::endl;
+                return 0;
+            }
+            else if(n == 0){
+                std::cout << ANSI_FG_RED << "What do you mean, Bro?\n" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            this->emulator->cycle(n);
+            return 0;
+        }});
+    
 }
 static char* rl_gets() {
     static char *line_read = NULL;

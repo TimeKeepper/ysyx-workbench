@@ -207,7 +207,6 @@ void Emulator::cycle(uint64_t n) {
         if(this->wave_trace_on) wave_trace_once();  
 
         #ifdef CONFIG_NVBOARD
-        Log("nvboard update");
         nvboard_update();
         #endif
 

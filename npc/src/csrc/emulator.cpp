@@ -144,14 +144,17 @@ void Emulator::load_image() {
 
 void Emulator::init_simulate(){
     this->contextp->commandArgs(this->argc, this->argv);
+
     Verilated::traceEverOn(true);
     this->top->trace(tfp, 99);
     this->tfp->open("wave.vcd");
 
-    // void nvboard_bind_all_pins(TOP_NAME* top);  
-    // nvboard_bind_all_pins(this->top);
-    // nvboard_init();
-    // Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));
+    #ifdef CONFIG_NVBOARD
+    void nvboard_bind_all_pins(TOP_NAME* top);  
+    nvboard_bind_all_pins(this->top);
+    nvboard_init();
+    Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));
+    #endif
 
     this->reset(20);
 }

@@ -27,7 +27,6 @@ class Emulator {
         bool wave_trace_on = false;
         void wave_trace_once();
 
-
         void parse_args();
         void init_rand();
         void init_mem();

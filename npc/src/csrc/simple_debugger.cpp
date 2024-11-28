@@ -44,7 +44,20 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             this->emulator->cycle(n);
             return 0;
         }});
-    
+
+    cmds.push_back(
+        {"r", "Reset the emulator", "r", \
+        [&](std::vector<std::string> args){
+            this->emulator->reset(20);
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"wo", "Begin Wave Trace", "wo", \
+        [&](std::vector<std::string> args){
+            this->emulator->wave_trace_ctrl(true);
+            return 0;
+        }});
 }
 static char* rl_gets() {
     static char *line_read = NULL;

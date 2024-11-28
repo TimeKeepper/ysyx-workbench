@@ -207,6 +207,12 @@ void Emulator::cycle(uint64_t n) {
     }
 }
 
+void Emulator::wave_trace_ctrl(bool v){
+    std::cout << "Wave Trace " << (v ? ANSI_FG_GREEN : ANSI_FG_RED)
+    << (v ? "ON" : "OFF") << ANSI_NONE << std::endl;
+    this->wave_trace_on = v;
+}
+
 void Emulator::Emulator_trap(uint32_t a0) {
     this->npc_state.state = NPC_STOP;
     this->npc_state.halt_ret = a0;

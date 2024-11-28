@@ -19,11 +19,13 @@ int main(int argc, char **argv) {
   Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
   emulator = std::make_unique<Emulator>(argc, argv);
+  Log("state: %d", emulator->npc_state.state);
 
   signal(SIGINT, SDL_handle);
 
   std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator.get());
 
+  Log("state: %d", emulator->npc_state.state);
   sdb->main_loop();
 
   // init_monitor(argc, argv);

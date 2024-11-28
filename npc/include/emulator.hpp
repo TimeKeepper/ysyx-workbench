@@ -27,8 +27,6 @@ class Emulator {
         bool wave_trace_on = false;
         void wave_trace_once();
 
-        std::unordered_map<std::string, std::unique_ptr<Memory>> memorys;
-
         void parse_args();
         void init_rand();
         void init_mem();
@@ -41,6 +39,8 @@ class Emulator {
         Emulator(int argc, char **argv);
         ~Emulator();
 
+        std::unordered_map<std::string, std::unique_ptr<Memory>> memorys;
+        
         void reset(uint64_t n);
         void cycle(uint64_t n);
         void wave_trace_ctrl(bool v);

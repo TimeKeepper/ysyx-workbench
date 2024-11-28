@@ -5,7 +5,6 @@
 #include <algorithm>
 
 simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
-
     cmds.push_back(
         {"help", "Print this help message", "help", \
         [&](std::vector<std::string> args){
@@ -44,7 +43,27 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             this->emulator->cycle(n);
             return 0;
         }});
-    
+
+    cmds.push_back(
+        {"r", "Reset the emulator", "r", \
+        [&](std::vector<std::string> args){
+            this->emulator->reset(20);
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"c", "Continue the execution of the program", "c", \
+        [&](std::vector<std::string> args){
+            this->emulator->cycle(-1);
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"wo", "Begin Wave Trace", "wo", \
+        [&](std::vector<std::string> args){
+            this->emulator->wave_trace_ctrl(true);
+            return 0;
+        }});
 }
 static char* rl_gets() {
     static char *line_read = NULL;
@@ -88,7 +107,6 @@ void simple_debugger::main_loop() {
         if (str.empty()) continue;
 
         std::string cmd = strtok((char*)str.c_str(), " ");
-        if (cmd.empty()) continue;
 
         std::vector<std::string> args;
         for (char *p = strtok(NULL, " "); p; p = strtok(NULL, " ")) {

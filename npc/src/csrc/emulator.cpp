@@ -66,6 +66,11 @@ const char* csr_id2name(int id){
   return "Unknown";
 }
 
+void Emulator::wave_trace_once(){
+    this->contextp->timeInc(1);
+    this->tfp->dump(contextp->time());
+}
+
 void Emulator::parse_args() {
     const struct option table[] = {
       {"batch"    , no_argument      , NULL, 'b'},
@@ -139,14 +144,17 @@ void Emulator::load_image() {
 
 void Emulator::init_simulate(){
     this->contextp->commandArgs(this->argc, this->argv);
+
     Verilated::traceEverOn(true);
     this->top->trace(tfp, 99);
     this->tfp->open("wave.vcd");
 
-    // void nvboard_bind_all_pins(TOP_NAME* top);  
-    // nvboard_bind_all_pins(this->top);
-    // nvboard_init();
-    // Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));
+    #ifdef CONFIG_NVBOARD
+    void nvboard_bind_all_pins(TOP_NAME* top);  
+    nvboard_bind_all_pins(this->top);
+    nvboard_init();
+    Log("NVBoard " ANSI_FMT("ON", ANSI_FG_GREEN));
+    #endif
 
     this->reset(20);
 }
@@ -174,6 +182,10 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
 Emulator::~Emulator() {
     this->tfp->close();
+
+    #ifdef CONFIG_NVBOARD
+    nvboard_quit();
+    #endif
     std::cout << "You should implement some exit code later";
     std::cout << "Such as Close Wave trace, close nvboard, Generate Performence report etc..." << std::endl;
 }
@@ -186,6 +198,7 @@ void Emulator::reset(uint64_t n) {
 
 void Emulator::cycle(uint64_t n) {
     this->npc_state.state = NPC_RUNNING;
+
     for(;n > 0; n--) {
         this->top->clock = 0; top->eval();
         if(this->wave_trace_on) wave_trace_once();                  
@@ -193,10 +206,21 @@ void Emulator::cycle(uint64_t n) {
         this->top->clock = 1; top->eval();
         if(this->wave_trace_on) wave_trace_once();  
 
-        // nvboard_update();
+        #ifdef CONFIG_NVBOARD
+        Log("nvboard update");
+        nvboard_update();
+        #endif
 
         if(this->npc_state.state != NPC_RUNNING) break;
     }
+
+    this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
+}
+
+void Emulator::wave_trace_ctrl(bool v){
+    std::cout << "Wave Trace " << (v ? ANSI_FG_GREEN : ANSI_FG_RED)
+    << (v ? "ON" : "OFF") << ANSI_NONE << std::endl;
+    this->wave_trace_on = v;
 }
 
 void Emulator::Emulator_trap(uint32_t a0) {

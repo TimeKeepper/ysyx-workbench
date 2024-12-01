@@ -32,7 +32,6 @@ class Emulator {
         std::deque<std::pair<uint32_t, uint32_t>> instruction_buffer;
         uint32_t buffer_cap = 32;
         void instruction_buffer_push(uint32_t pc, uint32_t inst);
-        void instruction_buffer_print();
 
         std::string disasm(uint32_t pc, uint32_t inst);
 
@@ -57,6 +56,7 @@ class Emulator {
         void single_inst(uint64_t n);
         void wave_trace_ctrl(bool v);
         void instruction_trace_ctrl(bool v);
+        void instruction_buffer_print();
 
         void Emulator_trap(uint32_t a0);
 

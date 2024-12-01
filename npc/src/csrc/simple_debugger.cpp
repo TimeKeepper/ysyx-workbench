@@ -83,7 +83,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     cmds.push_back(
         {"ir", "print instruction ring buffer", "ir", \
         [&](std::vector<std::string> args){
-            
+            this->emulator->instruction_buffer_print();
             return 0;
         }});
 

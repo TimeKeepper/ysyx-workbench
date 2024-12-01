@@ -5,7 +5,7 @@
 std::string expr(std::string expr) {
     mu::Parser p;
 
-    p.DefineInfixOprt("0x", [](double tar) { 
+    p.DefinePostfixOprt("0x", [](double tar) { 
         return static_cast<double>(std::stoi(std::to_string(static_cast<int>(tar)), nullptr, 16)); 
     });
 

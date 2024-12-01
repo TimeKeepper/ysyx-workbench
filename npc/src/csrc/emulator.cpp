@@ -255,15 +255,13 @@ void Emulator::Emulator_trap(uint32_t a0) {
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 void Emulator::IFU_catch(uint32_t inst){
-    std::cout << inst << std::endl;
-    std::cout << cpu.pc << std::endl;
     std::stringstream ss;
-    ss << "0x" << std::hex << std::nouppercase << cpu.pc;
+    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << cpu.pc << ANSI_NONE;
     std::string disam = ss.str();
 
     char inst_str[64];
 
     disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
     
-    std::cout << ss.str() << inst_str << std::endl;
+    std::cout << ss.str() << '\t' << ANSI_FG_BLUE << inst_str << ANSI_NONE << std::endl;
 }

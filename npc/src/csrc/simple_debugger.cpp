@@ -129,7 +129,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }
 
             for(int i = 0; i < len; i += 1){
-                uint32_t data = it->second->read(addr + i, 4);
+                uint32_t data = it->second->read_WithBias(addr + (i * 4), 4);
                 std::cout << ANSI_FG_CYAN << "0x" << std::hex << addr + i << ANSI_NONE << "\t: " << ANSI_FG_BLUE << data << ANSI_NONE << std::endl;
             }
 

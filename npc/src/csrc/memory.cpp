@@ -24,6 +24,18 @@ word_t Memory::read(uint32_t addr, int len) {
     return data;
 }
 
+word_t Memory::read_WithBias(uint32_t addr, int len) {
+    this->len_require(len);
+
+    addr -= this->base;
+    word_t data = 0;
+    for (int i = 0; i < len; i++) {
+        if(this->endian == Big_endian) data |= this->memory[addr + i] << (i * 8);
+        else data |= this->memory[addr + i] << ((len - i - 1) * 8);
+    }
+    return data;
+}
+
 void Memory::write(uint32_t addr, int len, word_t data) {
     this->len_require(len);
 

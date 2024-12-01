@@ -1,6 +1,6 @@
 #include <memory.hpp>
 
-Memory::Memory(size_t size, int endian) : endian(endian) {
+Memory::Memory(uint32_t base, size_t size, int endian) : base(base), endian(endian) {
     this->size = size;
     this->memory = new uint8_t[size];
 }
@@ -30,4 +30,8 @@ void Memory::write(uint32_t addr, int len, word_t data) {
     for (int i = 0; i < len; i++) {
         this->memory[addr + i] = (data >> (i * 8)) & 0xff;
     }
+}
+
+bool Memory::match(uint32_t addr){
+    return addr >= this->base && addr < this->base + this->size;
 }

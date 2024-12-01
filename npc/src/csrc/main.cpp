@@ -5,7 +5,7 @@
 #include <csignal>
 #include <emulator.hpp>
 
-std::unique_ptr<Emulator> emulator;
+Emulator* emulator;
 
 void SDL_handle(int SIGNAL){
   if(SIGNAL == SIGINT && emulator->npc_state.state == NPC_RUNNING){
@@ -18,13 +18,17 @@ void SDL_handle(int SIGNAL){
 int main(int argc, char **argv) {
   Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
 
-  emulator = std::make_unique<Emulator>(argc, argv);
+  emulator = new Emulator(argc, argv);
 
   signal(SIGINT, SDL_handle);
 
-  std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator.get());
+  std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator);
 
   sdb->main_loop();
+
+  delete emulator;
+
+  return 0;
 
   // init_monitor(argc, argv);
 

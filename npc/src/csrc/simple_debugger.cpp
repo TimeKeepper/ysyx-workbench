@@ -59,6 +59,28 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }});
 
     cmds.push_back(
+        {"si", "Step through one instruction", "si", \
+        [&](std::vector<std::string> args){
+            if(args.size() == 0){
+                this->emulator->single_inst(1);
+                return 0;
+            }
+
+            int n = std::stoi(args[0]);
+            if(n < 0){
+                std::cout << ANSI_FG_RED << "You should input a positive value\n" << ANSI_NONE << std::endl;
+                return 0;
+            }
+            else if(n == 0){
+                std::cout << ANSI_FG_RED << "What do you mean, Bro?\n" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            this->emulator->single_inst(n);
+            return 0;
+        }});
+
+    cmds.push_back(
         {"wo", "Begin Wave Trace", "wo", \
         [&](std::vector<std::string> args){
             this->emulator->wave_trace_ctrl(true);

@@ -15,20 +15,20 @@ import org.chipsalliance.cde.config.{Parameters, Config}
 import freechips.rocketchip.system._
 import freechips.rocketchip.diplomacy.LazyModule
 
-class INST_BRIDGE extends BlackBox with HasBlackBoxInline{
+class Inst_Comp extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle{
     val clock = Input(Clock())
     val valid = Input(Bool())
   })
-  setInline("INST_BRIDGE.v",
-  """module INST_BRIDGE(
+  setInline("Inst_Comp.v",
+  """module Inst_Comp(
   |  input clock,
   |  input valid
   |);
-  | import "DPI-C" function void inst_comp_update();
+  | import "DPI-C" function void inst_comp();
   | always @(posedge clock) begin
   |     if(valid) begin
-  |         inst_comp_update();
+  |         inst_comp();
   |     end
   | end
   |
@@ -144,18 +144,14 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     io.slave <> DontCare
     io.interrupt <> DontCare
 
+    if(Config.Simulate){
+      val Inst_Comp = Module(new Inst_Comp)
+      Inst_Comp.io.clock := clock
+
+      Inst_Comp.io.valid := (RegNext(WBU.io.WBU_2_IFU.valid) === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)
+    }
+
     if(Config.DPIC_on){
-      val INST_BRIDGE = Module(new INST_BRIDGE)
-      INST_BRIDGE.io.clock := clock
-
-      val comp_cache = RegInit(Bool(), false.B)
-      comp_cache := WBU.io.WBU_2_IFU.valid
-      when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
-        INST_BRIDGE.io.valid := true.B
-      }.otherwise {
-        INST_BRIDGE.io.valid := false.B
-      }
-
       val axi_bridge = Module(new AXI_BRIDGE)
       axi_bridge.io.clock := clock
       axi_bridge.io.rresp := io.master.r.bits.resp
@@ -214,7 +210,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
 
     if(Config.DPIC_on){
-      val INST_BRIDGE = Module(new INST_BRIDGE)
+      val INST_BRIDGE = Module(new Inst_Comp)
       INST_BRIDGE.io.clock := clock
 
       val comp_cache = RegInit(Bool(), false.B)

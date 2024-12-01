@@ -1,6 +1,6 @@
 #include <memory.hpp>
 
-Memory::Memory(size_t size) {
+Memory::Memory(size_t size, int endian) : endian(endian) {
     this->size = size;
     this->memory = new uint8_t[size];
 }
@@ -18,7 +18,8 @@ word_t Memory::read(uint32_t addr, int len) {
 
     word_t data = 0;
     for (int i = 0; i < len; i++) {
-        data |= this->memory[addr + i] << (i * 8);
+        if(this->endian == Big_endian) data |= this->memory[addr + i] << (i * 8);
+        else data |= this->memory[addr + i] << ((len - i - 1) * 8);
     }
     return data;
 }

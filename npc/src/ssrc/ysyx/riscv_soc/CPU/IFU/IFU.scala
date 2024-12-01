@@ -64,6 +64,30 @@ class IFU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class IFU_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+        val inst  = Input(UInt(32.W))
+    })
+    setInline("IFU_catch.v",
+    """module IFU_catch(
+    |    input clock,
+    |    input valid,
+    |    input [31:0] inst
+    |);
+    |
+    |   import "DPI-C" function void IFU_catch(input int unsigned inst);
+    |   always @(posedge clock) begin
+    |       if(valid) begin
+    |           IFU_catch(inst);
+    |       end
+    |   end
+    |
+    |endmodule
+    """.stripMargin)
+}
+
 class Icache(offsetWidth : Int, indexWidth : Int, tagWidth : Int, mapAddr : String) extends Module{
     val io = IO(new Bundle{
         val addr = Input(UInt(32.W))
@@ -190,6 +214,13 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         }
 
         io.IFU_2_IDU.bits.data := inst
+
+        if(Config.Simulate){
+            val Catch = Module(new IFU_catch)
+            Catch.io.clock := clock
+            Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
+            Catch.io.inst := io.IFU_2_IDU.bits.data
+        }
 
         if(Config.DPIC_on){
             def mapBegin = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth + Config.Icache_Param.tagWidth

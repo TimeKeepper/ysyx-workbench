@@ -1,7 +1,9 @@
 #include "common.hpp"
 #include "cpu/cpu.hpp"
+#include "memory.hpp"
 #include <unordered_map>
 #include <utils.hpp>
+#include <sstream>
 #include <emulator.hpp>
 
 #include <chrono>
@@ -112,7 +114,7 @@ void Emulator::init_mem() {
     memorys.emplace("psram", std::make_unique<Memory>(CONFIG_PSRAM_SIZE));
     memorys.emplace("sdram", std::make_unique<Memory>(CONFIG_SDRAM_SIZE));
     memorys.emplace("mrom", std::make_unique<Memory>(CONFIG_MROM_SIZE));
-    memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_SIZE));
+    memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_SIZE, Memory::Little_endian));
     memorys.emplace("vga", std::make_unique<Memory>(CONFIG_VGA_FRAME_BUFFER_SIZE));
 }
 
@@ -135,7 +137,7 @@ void Emulator::load_image() {
     Log("The image is %s, size = %ld", this->img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    int ret = fread(this->memorys["psram"]->get_memory(), size, 1, fp);
+    int ret = fread(this->memorys["flash"]->get_memory(), size, 1, fp);
     assert(ret == 1);
 
     fclose(fp);
@@ -164,6 +166,8 @@ static void welcome() {
     std::cout << "For help, Type 'help'" << std::endl;
 }
 
+void init_disasm(const char *triple);
+
 Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     this->parse_args();
 
@@ -176,6 +180,8 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     this->load_image();
 
     this->init_simulate();
+
+    init_disasm("riscv32");
 
     welcome();
 }
@@ -191,9 +197,9 @@ Emulator::~Emulator() {
 }
 
 void Emulator::reset(uint64_t n) {
-    this->top->reset = 0;
-    cycle(n);
     this->top->reset = 1;
+    cycle(n);
+    this->top->reset = 0;
 }
 
 void Emulator::cycle(uint64_t n) {
@@ -207,7 +213,6 @@ void Emulator::cycle(uint64_t n) {
         if(this->wave_trace_on) wave_trace_once();  
 
         #ifdef CONFIG_NVBOARD
-        Log("nvboard update");
         nvboard_update();
         #endif
 
@@ -215,6 +220,20 @@ void Emulator::cycle(uint64_t n) {
     }
 
     this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
+}
+
+void Emulator::single_inst(uint64_t n){
+    this->run_inst_num = n;
+    this->npc_state.state = NPC_RUNNING;
+    while(1){
+        this->cycle(1);
+
+        if(this->run_inst_num == 0) break;
+    }
+}
+
+void Emulator::inst_comp(){
+    this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
 }
 
 void Emulator::wave_trace_ctrl(bool v){
@@ -230,4 +249,20 @@ void Emulator::Emulator_trap(uint32_t a0) {
     std::cout << ((a0 == 0) ? \
         ANSI_FMT("Hit good trap", ANSI_FG_GREEN) : \
         ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
+}
+
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
+void Emulator::IFU_catch(uint32_t inst){
+    std::cout << inst << std::endl;
+    std::cout << cpu.pc << std::endl;
+    std::stringstream ss;
+    ss << "0x" << std::hex << std::nouppercase << cpu.pc;
+    std::string disam = ss.str();
+
+    char inst_str[64];
+
+    disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
+    
+    std::cout << ss.str() << inst_str << std::endl;
 }

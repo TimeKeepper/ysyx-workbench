@@ -21,6 +21,8 @@ class Emulator {
 
         Riscv_CPU_State cpu;
 
+        uint64_t run_inst_num = 0;
+
         const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
         TOP_NAME* top = new TOP_NAME;
         VerilatedVcdC* tfp = new VerilatedVcdC;
@@ -43,9 +45,13 @@ class Emulator {
         
         void reset(uint64_t n);
         void cycle(uint64_t n);
+        void single_inst(uint64_t n);
+        void inst_comp();
         void wave_trace_ctrl(bool v);
 
         void Emulator_trap(uint32_t a0);
+
+        void IFU_catch(uint32_t inst);
 };
 
 #endif

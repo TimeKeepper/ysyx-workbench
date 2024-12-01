@@ -95,15 +95,20 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 return 0;
             }
 
-            if(args[1] != "on" && args[1] != "off"){
-                std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;
-                return 0;
-            }
-
             std::unordered_map<std::string, std::function<void(bool)>> func_map = {
                 {"wave", [&](bool on) { this->emulator->wave_trace_ctrl(on); }},
                 {"inst", [&](bool on) { this->emulator->instruction_trace_ctrl(on); }}
             };
+
+            if(args[1] == "help"){
+                std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            if(args[1] != "on" && args[1] != "off"){
+                std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;
+                return 0;
+            }
 
             auto it = func_map.find(args[0]);
             if (it != func_map.end()) {

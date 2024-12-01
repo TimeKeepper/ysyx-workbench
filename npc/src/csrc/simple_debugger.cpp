@@ -74,7 +74,27 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                         << this->emulator->cpu.gpr[i] << ANSI_NONE \
                         << std::endl;
                     }
+                    return 0;
+                }
 
+                if(args[1] == "pc"){
+                    std::cout << ANSI_FG_CYAN << "pc" << ANSI_NONE << "\t: " \
+                    << ANSI_FG_BLUE << this->emulator->cpu.pc << ANSI_NONE << std::endl;
+                    return 0;
+                }
+
+                int target = -1;
+                for (int i = 0; i < ARRLEN(this->emulator->cpu.gpr); i++) {
+                    if (gpr_id2name(i) == args[1]) {
+                        target = i;
+                        break;
+                    }
+                }
+
+                if (target != -1) {
+                    std::cout << ANSI_FG_CYAN << gpr_id2name(target) << ANSI_NONE << "\t: " << ANSI_FG_BLUE << this->emulator->cpu.gpr[target] << ANSI_NONE << std::endl;
+                } else {
+                    std::cout << ANSI_FG_RED << "Unknown register: " << args[1] << ANSI_NONE << std::endl;
                     return 0;
                 }
             }

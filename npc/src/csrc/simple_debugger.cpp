@@ -103,6 +103,55 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }});
 
     cmds.push_back(
+        {"x", "Examine memory", "x <len> <addr>", \
+        [&](std::vector<std::string> args){
+            if(args.size() != 2){
+                std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            uint32_t addr = std::stoul(args[1], nullptr, 0);
+            uint32_t len = std::stoul(args[0], nullptr, 0);
+            
+            // find match memory
+            bool found = false;
+            auto it = std::find_if(this->emulator->memorys.begin(), this->emulator->memorys.end(), [&](const std::pair<const std::string, std::unique_ptr<Memory>>& m) {
+                if (m.second->match(addr)) {
+                    found = true;
+                    std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << m.first << ANSI_NONE << std::endl;
+                    return true;
+                }
+                return false;
+            });
+
+            if(!found) {
+                std::cout << ANSI_FG_RED << "No memory found at address 0x" << std::hex << addr << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            for(int i = 0; i < len; i += 1){
+                uint32_t data = it->second->read_WithBias(addr + (i * 4), 4);
+                std::cout << ANSI_FG_CYAN << "0x" << std::hex << addr + i << ANSI_NONE << "\t: " << ANSI_FG_BLUE << data << ANSI_NONE << std::endl;
+            }
+
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"mm", "show memory map", "mm", \
+        [&](std::vector<std::string> args){
+            for(auto &m : this->emulator->memorys){
+                std::cout << ANSI_FG_CYAN << m.first << ANSI_NONE << "\t: " \
+                << '[' << ANSI_FG_BLUE << "0x" << std::hex \
+                << m.second->base << ANSI_NONE\
+                << ", " << ANSI_FG_BLUE << "0x" << std::hex \
+                << m.second->base + m.second->size << ANSI_NONE << ']' \
+                << std::endl;
+            }
+            return 0;
+        }});
+
+    cmds.push_back(
         {"si", "Step through one instruction", "si", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){

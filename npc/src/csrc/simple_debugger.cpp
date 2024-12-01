@@ -103,7 +103,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }});
 
     cmds.push_back(
-        {"x", "Examine memory", "x <addr> <len>", \
+        {"x", "Examine memory", "x <len> <addr>", \
         [&](std::vector<std::string> args){
             if(args.size() != 2){
                 std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
@@ -134,6 +134,20 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 std::cout << ANSI_FG_CYAN << "0x" << std::hex << addr + i << ANSI_NONE << "\t: " << ANSI_FG_BLUE << data << ANSI_NONE << std::endl;
             }
 
+            return 0;
+        }});
+
+    cmds.push_back(
+        {"mm", "show memory map", "mm", \
+        [&](std::vector<std::string> args){
+            for(auto &m : this->emulator->memorys){
+                std::cout << ANSI_FG_CYAN << m.first << ANSI_NONE << "\t: " \
+                << '[' << ANSI_FG_BLUE << "0x" << std::hex \
+                << m.second->base << ANSI_NONE\
+                << ", " << ANSI_FG_BLUE << "0x" << std::hex \
+                << m.second->base + m.second->size << ANSI_NONE << ']' \
+                << std::endl;
+            }
             return 0;
         }});
 

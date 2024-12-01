@@ -8,14 +8,14 @@
 class Memory {
     private:
         uint8_t* memory;
-        uint32_t base;
-        size_t size;
         int endian;
 
         void len_require(int len);
     public:
         enum {Big_endian, Little_endian};
 
+        uint32_t base;
+        size_t size;
         Memory(uint32_t base, size_t size, int endian = Big_endian);
         ~Memory();
 

@@ -196,9 +196,9 @@ Emulator::~Emulator() {
 }
 
 void Emulator::reset(uint64_t n) {
-    this->top->reset = 0;
-    cycle(n);
     this->top->reset = 1;
+    cycle(n);
+    this->top->reset = 0;
 }
 
 void Emulator::cycle(uint64_t n) {

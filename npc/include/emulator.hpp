@@ -19,7 +19,6 @@ class Emulator {
         char* img_file = NULL;
         uint64_t img_size = 0;
 
-        Riscv_CPU_State cpu;
 
         uint64_t run_inst_num = 0;
 
@@ -38,6 +37,8 @@ class Emulator {
     public:
         bool is_batch_mode = false;
         NPCState npc_state = { .state = NPC_STOP ,.halt_pc = 0, .halt_ret = 0};
+        Riscv_CPU_State cpu;
+        
         Emulator(int argc, char **argv);
         ~Emulator();
 
@@ -52,6 +53,9 @@ class Emulator {
         void Emulator_trap(uint32_t a0);
 
         void IFU_catch(uint32_t inst);
+        void WBU_catch(uint32_t next_pc, \
+        uint32_t gpr_waddr, uint32_t gpr_wdata, \
+        uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata);
 };
 
 #endif

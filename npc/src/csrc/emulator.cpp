@@ -265,3 +265,12 @@ void Emulator::IFU_catch(uint32_t inst){
     
     std::cout << ss.str() << '\t' << ANSI_FG_BLUE << inst_str << ANSI_NONE << std::endl;
 }
+
+void Emulator::WBU_catch(uint32_t next_pc, \
+    uint32_t gpr_waddr, uint32_t gpr_wdata, \
+    uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata){
+        
+    this->cpu.pc = next_pc;
+    if(gpr_waddr != 0) this->cpu.gpr[gpr_waddr] = gpr_wdata;
+    if(csr_wen) this->cpu.sr[csr_waddr] = csr_wdata;
+}

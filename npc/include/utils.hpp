@@ -37,6 +37,7 @@ typedef struct {
 
 #include <iostream>
 #include <cstdio>
+
 #define _Log(...) \
   do { \
     printf(__VA_ARGS__); \

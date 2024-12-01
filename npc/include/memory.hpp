@@ -9,10 +9,13 @@ class Memory {
     private:
         uint8_t* memory;
         size_t size;
+        int endian;
 
         void len_require(int len);
     public:
-        Memory(size_t size);
+        enum {Big_endian, Little_endian};
+
+        Memory(size_t size, int endian = Big_endian);
         ~Memory();
 
         uint8_t* get_memory() { return this->memory; }

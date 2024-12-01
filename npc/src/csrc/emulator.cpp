@@ -1,5 +1,6 @@
 #include "common.hpp"
 #include "cpu/cpu.hpp"
+#include "memory.hpp"
 #include <unordered_map>
 #include <utils.hpp>
 #include <sstream>
@@ -113,7 +114,7 @@ void Emulator::init_mem() {
     memorys.emplace("psram", std::make_unique<Memory>(CONFIG_PSRAM_SIZE));
     memorys.emplace("sdram", std::make_unique<Memory>(CONFIG_SDRAM_SIZE));
     memorys.emplace("mrom", std::make_unique<Memory>(CONFIG_MROM_SIZE));
-    memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_SIZE));
+    memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_SIZE, Memory::Little_endian));
     memorys.emplace("vga", std::make_unique<Memory>(CONFIG_VGA_FRAME_BUFFER_SIZE));
 }
 

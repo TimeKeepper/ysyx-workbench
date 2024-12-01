@@ -89,8 +89,8 @@ void init_disasm(const char *triple) {
   #endif
 }
 
-#ifdef CONFIG_ITRACE
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
+#ifdef CONFIG_ITRACE
   MCInst inst;
   llvm::ArrayRef<uint8_t> arr(code, nbyte);
   uint64_t dummy_size = 0;
@@ -104,5 +104,7 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
   const char *p = s.c_str() + skip;
   assert((int)s.length() - skip < size);
   strcpy(str, p);
-}
+#else
+  Log("Instruction Trace Not Available");
 #endif
+}

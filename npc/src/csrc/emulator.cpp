@@ -248,8 +248,6 @@ void Emulator::Emulator_trap(uint32_t a0) {
         ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
 }
 
-void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-
 void Emulator::IFU_catch(uint32_t inst){
     std::stringstream ss;
     ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << cpu.pc << ANSI_NONE;
@@ -257,9 +255,14 @@ void Emulator::IFU_catch(uint32_t inst){
 
     char inst_str[64];
 
-    disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
+    #ifdef CONFIG_ITRACE
     
+    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
+    disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
     std::cout << ss.str() << '\t' << ANSI_FG_BLUE << inst_str << ANSI_NONE << std::endl;
+    
+    #endif
 }
 
 void Emulator::WBU_catch(uint32_t next_pc, \

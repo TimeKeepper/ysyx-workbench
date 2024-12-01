@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include "cpu/cpu.hpp"
+#include "cpu.hpp"
 #include "memory.hpp"
 #include <unordered_map>
 #include <utils.hpp>
@@ -209,6 +209,12 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     init_disasm("riscv32");
 
+    #ifdef CONFIG_DIFFTEST
+    this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
+        this->memorys["flash"].get(), &this->npc_state, \
+        [&](int a0) { this->Emulator_trap(a0); });
+    #endif
+
     welcome();
 }
 
@@ -296,4 +302,8 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     this->cpu.pc = next_pc;
     if(gpr_waddr != 0) this->cpu.gpr[gpr_waddr] = gpr_wdata;
     if(csr_wen) this->cpu.sr[csr_waddr] = csr_wdata;
+
+    #ifdef CONFIG_DIFFTEST
+    this->difftest->difftest_step(cpu.pc);
+    #endif
 }

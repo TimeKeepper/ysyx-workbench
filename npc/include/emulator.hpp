@@ -1,11 +1,12 @@
 #ifndef __EMULATOR_HPP__
 #define __EMULATOR_HPP__
 
-#include "cpu/cpu.hpp"
+#include "cpu.hpp"
 #include <memory.hpp>
 #include <memory>
 #include <utils.hpp>
 #include <unordered_map>
+#include <differtest.hpp>
 
 class Emulator {
     private:
@@ -33,6 +34,8 @@ class Emulator {
         void instruction_buffer_push(uint32_t pc, uint32_t inst);
 
         std::string disasm(uint32_t pc, uint32_t inst);
+
+        std::unique_ptr<Differtest> difftest;
 
         void parse_args();
         void init_rand();

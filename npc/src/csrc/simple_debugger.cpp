@@ -59,6 +59,50 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }});
 
     cmds.push_back(
+        {"info", "Print information about the emulator", "info <r/w> <target>", \
+        [&](std::vector<std::string> args){
+            if(args.size() == 0){
+                std::cout << ANSI_FG_RED << "You should input r/w" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            if(args[0] == "r"){
+                if(args.size() == 1){
+                    for(int i = 0; i < ARRLEN(this->emulator->cpu.gpr); i++){
+                        std::cout << ANSI_FG_CYAN << gpr_id2name(i) \
+                        << ANSI_NONE << "\t: " << ANSI_FG_BLUE \
+                        << this->emulator->cpu.gpr[i] << ANSI_NONE \
+                        << std::endl;
+                    }
+                    return 0;
+                }
+
+                if(args[1] == "pc"){
+                    std::cout << ANSI_FG_CYAN << "pc" << ANSI_NONE << "\t: " \
+                    << ANSI_FG_BLUE << this->emulator->cpu.pc << ANSI_NONE << std::endl;
+                    return 0;
+                }
+
+                int target = -1;
+                for (int i = 0; i < ARRLEN(this->emulator->cpu.gpr); i++) {
+                    if (gpr_id2name(i) == args[1]) {
+                        target = i;
+                        break;
+                    }
+                }
+
+                if (target != -1) {
+                    std::cout << ANSI_FG_CYAN << gpr_id2name(target) << ANSI_NONE << "\t: " << ANSI_FG_BLUE << this->emulator->cpu.gpr[target] << ANSI_NONE << std::endl;
+                } else {
+                    std::cout << ANSI_FG_RED << "Unknown register: " << args[1] << ANSI_NONE << std::endl;
+                    return 0;
+                }
+            }
+
+            return 0;
+        }});
+
+    cmds.push_back(
         {"si", "Step through one instruction", "si", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
@@ -95,15 +139,20 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 return 0;
             }
 
-            if(args[1] != "on" && args[1] != "off"){
-                std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;
-                return 0;
-            }
-
             std::unordered_map<std::string, std::function<void(bool)>> func_map = {
                 {"wave", [&](bool on) { this->emulator->wave_trace_ctrl(on); }},
                 {"inst", [&](bool on) { this->emulator->instruction_trace_ctrl(on); }}
             };
+
+            if(args[0] == "help"){
+                std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            if(args[1] != "on" && args[1] != "off"){
+                std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;
+                return 0;
+            }
 
             auto it = func_map.find(args[0]);
             if (it != func_map.end()) {

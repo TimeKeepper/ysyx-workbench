@@ -81,15 +81,22 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }});
 
     cmds.push_back(
+        {"ir", "print instruction ring buffer", "ir", \
+        [&](std::vector<std::string> args){
+            
+            return 0;
+        }});
+
+    cmds.push_back(
         {"func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
             if(args.size() != 2){
-                std::cout << ANSI_FG_RED << "You should input two arguments\n" << ANSI_NONE << std::endl;
+                std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
                 return 0;
             }
 
             if(args[1] != "on" && args[1] != "off"){
-                std::cout << ANSI_FG_RED << "You should input on/off\n" << ANSI_NONE << std::endl;
+                std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;
                 return 0;
             }
 
@@ -102,7 +109,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             if (it != func_map.end()) {
                 it->second(args[1] == "on");
             } else {
-                std::cout << ANSI_FG_RED << "Unknown Function\n" << ANSI_NONE << std::endl;
+                std::cout << ANSI_FG_RED << "Unknown Function" << ANSI_NONE << std::endl;
             }
 
             return 0;

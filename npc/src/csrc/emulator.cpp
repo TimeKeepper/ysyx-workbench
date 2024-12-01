@@ -73,6 +73,25 @@ void Emulator::wave_trace_once(){
     this->tfp->dump(contextp->time());
 }
 
+void Emulator::instruction_buffer_push(uint32_t pc, uint32_t inst){
+    if(this->instruction_buffer.size() == this->buffer_cap){
+        this->instruction_buffer.pop_front();
+    }
+    this->instruction_buffer.emplace_back(pc, inst);
+}
+
+std::string Emulator::disasm(uint32_t pc, uint32_t inst){
+    std::stringstream ss;
+    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << pc << ANSI_NONE;
+
+    char inst_str[64];
+
+    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+    disassemble(inst_str, 64, pc, (uint8_t*)&inst, 4);
+
+    return ss.str() + '\t' + ANSI_FG_BLUE + inst_str + ANSI_NONE;
+}
+
 void Emulator::parse_args() {
     const struct option table[] = {
       {"batch"    , no_argument      , NULL, 'b'},
@@ -255,18 +274,11 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
+    this->instruction_buffer_push(cpu.pc, inst);
+
     if(!this->instruciton_trace_on) return;
 
-    std::stringstream ss;
-    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << cpu.pc << ANSI_NONE;
-    std::string disam = ss.str();
-
-    char inst_str[64];
-
-    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-
-    disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
-    std::cout << ss.str() << '\t' << ANSI_FG_BLUE << inst_str << ANSI_NONE << std::endl;
+    std::cout << this->disasm(cpu.pc, inst) << std::endl;
 }
 
 void Emulator::WBU_catch(uint32_t next_pc, \

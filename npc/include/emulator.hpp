@@ -26,8 +26,14 @@ class Emulator {
         TOP_NAME* top = new TOP_NAME;
         VerilatedVcdC* tfp = new VerilatedVcdC;
         bool wave_trace_on = false;
-        bool instruciton_trace_on = false;
         void wave_trace_once();
+
+        bool instruciton_trace_on = false;
+        std::deque<std::pair<uint32_t, uint32_t>> instruction_buffer;
+        uint32_t buffer_cap = 32;
+        void instruction_buffer_push(uint32_t pc, uint32_t inst);
+
+        std::string disasm(uint32_t pc, uint32_t inst);
 
         void parse_args();
         void init_rand();

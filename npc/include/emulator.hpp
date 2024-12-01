@@ -19,7 +19,6 @@ class Emulator {
         char* img_file = NULL;
         uint64_t img_size = 0;
 
-
         uint64_t run_inst_num = 0;
 
         const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
@@ -27,6 +26,13 @@ class Emulator {
         VerilatedVcdC* tfp = new VerilatedVcdC;
         bool wave_trace_on = false;
         void wave_trace_once();
+
+        bool instruciton_trace_on = false;
+        std::deque<std::pair<uint32_t, uint32_t>> instruction_buffer;
+        uint32_t buffer_cap = 32;
+        void instruction_buffer_push(uint32_t pc, uint32_t inst);
+
+        std::string disasm(uint32_t pc, uint32_t inst);
 
         void parse_args();
         void init_rand();
@@ -48,6 +54,8 @@ class Emulator {
         void cycle(uint64_t n);
         void single_inst(uint64_t n);
         void wave_trace_ctrl(bool v);
+        void instruction_trace_ctrl(bool v);
+        void instruction_buffer_print();
 
         void Emulator_trap(uint32_t a0);
 

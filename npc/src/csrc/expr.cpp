@@ -6,4 +6,3 @@ std::string expr(std::string expr) {
     p.SetExpr(expr);
     return std::to_string(static_cast<int>(p.Eval()));
 }
-

@@ -85,7 +85,7 @@ void init_disasm(const char *triple) {
   
   Log("Instruction Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
   #else
-  Log(ANSI_FMT("Instruction Trace ", ANSI_FG_BLUE) ANSI_FMT("OFF", ANSI_FG_RED));
+  Log(ANSI_FMT("Instruction Trace ", ANSI_FG_CYAN) ANSI_FMT("OFF", ANSI_FG_RED));
   #endif
 }
 

@@ -106,9 +106,14 @@ class WBU extends Module {
     io.WBU_2_REG.CSR_wdatab    := 11.U
 
     if(Config.Simulate){
+        val state_idle :: state_catch :: Nil = Enum(2)
+
+        val state_Catch = RegInit(state_idle)
+        state_Catch := Mux(io.WBU_2_IFU.fire && !reset.asBool, state_catch, state_idle)
+
         val Catch = Module(new WBU_catch)
         Catch.io.clock := clock
-        Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool
+        Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool && (state_Catch === state_catch)
 
         Catch.io.next_pc := Next_Pc
         

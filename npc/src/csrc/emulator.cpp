@@ -239,6 +239,12 @@ void Emulator::wave_trace_ctrl(bool v){
     this->wave_trace_on = v;
 }
 
+void Emulator::instruction_trace_ctrl(bool v){
+    std::cout << "Instruction Trace " << (v ? ANSI_FG_GREEN : ANSI_FG_RED)
+    << (v ? "ON" : "OFF") << ANSI_NONE << std::endl;
+    this->instruciton_trace_on = v;
+}
+
 void Emulator::Emulator_trap(uint32_t a0) {
     this->npc_state.state = NPC_STOP;
     this->npc_state.halt_ret = a0;
@@ -249,8 +255,8 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
-    #ifdef CONFIG_ITRACE
-    
+    if(!this->instruciton_trace_on) return;
+
     std::stringstream ss;
     ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << cpu.pc << ANSI_NONE;
     std::string disam = ss.str();
@@ -261,8 +267,6 @@ void Emulator::IFU_catch(uint32_t inst){
 
     disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
     std::cout << ss.str() << '\t' << ANSI_FG_BLUE << inst_str << ANSI_NONE << std::endl;
-
-    #endif
 }
 
 void Emulator::WBU_catch(uint32_t next_pc, \

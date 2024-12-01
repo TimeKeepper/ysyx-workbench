@@ -81,9 +81,30 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }});
 
     cmds.push_back(
-        {"wo", "Begin Wave Trace", "wo", \
+        {"func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
-            this->emulator->wave_trace_ctrl(true);
+            if(args.size() != 2){
+                std::cout << ANSI_FG_RED << "You should input two arguments\n" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            if(args[1] != "on" && args[1] != "off"){
+                std::cout << ANSI_FG_RED << "You should input on/off\n" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            std::unordered_map<std::string, std::function<void(bool)>> func_map = {
+                {"wave", [&](bool on) { this->emulator->wave_trace_ctrl(on); }},
+                {"inst", [&](bool on) { this->emulator->instruction_trace_ctrl(on); }}
+            };
+
+            auto it = func_map.find(args[0]);
+            if (it != func_map.end()) {
+                it->second(args[1] == "on");
+            } else {
+                std::cout << ANSI_FG_RED << "Unknown Function\n" << ANSI_NONE << std::endl;
+            }
+
             return 0;
         }});
 }

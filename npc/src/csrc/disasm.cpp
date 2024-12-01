@@ -38,7 +38,6 @@ static llvm::MCSubtargetInfo *gSTI = nullptr;
 static llvm::MCInstPrinter *gIP = nullptr;
 
 void init_disasm(const char *triple) {
-  #ifdef CONFIG_ITRACE
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmParsers();
@@ -84,13 +83,9 @@ void init_disasm(const char *triple) {
     gIP->applyTargetSpecificCLOption("no-aliases");
   
   Log("Instruction Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
-  #else
-  Log(ANSI_FMT("Instruction Trace ", ANSI_FG_CYAN) ANSI_FMT("OFF", ANSI_FG_RED));
-  #endif
 }
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
-#ifdef CONFIG_ITRACE
   MCInst inst;
   llvm::ArrayRef<uint8_t> arr(code, nbyte);
   uint64_t dummy_size = 0;
@@ -104,7 +99,4 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {
   const char *p = s.c_str() + skip;
   assert((int)s.length() - skip < size);
   strcpy(str, p);
-#else
-  Log("Instruction Trace Not Available");
-#endif
 }

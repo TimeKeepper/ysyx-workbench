@@ -26,6 +26,7 @@ class Emulator {
         TOP_NAME* top = new TOP_NAME;
         VerilatedVcdC* tfp = new VerilatedVcdC;
         bool wave_trace_on = false;
+        bool instruciton_trace_on = false;
         void wave_trace_once();
 
         void parse_args();
@@ -48,6 +49,7 @@ class Emulator {
         void cycle(uint64_t n);
         void single_inst(uint64_t n);
         void wave_trace_ctrl(bool v);
+        void instruction_trace_ctrl(bool v);
 
         void Emulator_trap(uint32_t a0);
 

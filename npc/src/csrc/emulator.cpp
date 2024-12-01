@@ -232,6 +232,7 @@ void Emulator::single_inst(uint64_t n){
 }
 
 void Emulator::inst_comp(){
+    Log("inst_comp");
     this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
 }
 

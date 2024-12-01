@@ -118,7 +118,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             auto it = std::find_if(this->emulator->memorys.begin(), this->emulator->memorys.end(), [&](const std::pair<const std::string, std::unique_ptr<Memory>>& m) {
                 if (m.second->match(addr)) {
                     found = true;
-                    std::cout << ANSI_FG_BLUE << "Memory match on:\t" << m.first << ANSI_NONE << std::endl;
+                    std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t:" << ANSI_FG_BLUE << m.first << ANSI_NONE << std::endl;
                     return true;
                 }
                 return false;

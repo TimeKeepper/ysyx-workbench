@@ -265,8 +265,6 @@ void Emulator::IFU_catch(uint32_t inst){
 void Emulator::WBU_catch(uint32_t next_pc, \
     uint32_t gpr_waddr, uint32_t gpr_wdata, \
     uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata){
-
-    Log("WBU_catch");
         
     this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
 

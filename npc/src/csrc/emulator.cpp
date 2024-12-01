@@ -253,6 +253,7 @@ void Emulator::Emulator_trap(uint32_t a0) {
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 void Emulator::IFU_catch(uint32_t inst){
+    std::cout << inst << std::endl;
     std::stringstream ss;
     ss << "0x" << std::hex << std::nouppercase << cpu.pc;
     std::string disam = ss.str();

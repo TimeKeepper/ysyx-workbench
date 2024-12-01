@@ -10,7 +10,6 @@ enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 class Differtest {
     private:
         bool is_skip_ref = false;
-        uint64_t skip_dut_nr_inst = 0;
         void checkregs(Riscv_CPU_State *ref, vaddr_t pc);
 
         Riscv_CPU_State *dut_r;
@@ -27,7 +26,7 @@ class Differtest {
             std::function<void(int a0)> emulator_trap_func);
             
         bool isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc);
-        void difftest_step(vaddr_t pc, vaddr_t npc);
+        void difftest_step(vaddr_t pc);
 };
 
 #endif

@@ -2,13 +2,6 @@
 #include <differtest.hpp>
 #include <dlfcn.h>
 
-void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
-    if (!isa_difftest_checkregs(ref, pc)) {
-        npc_state->state = NPC_ABORT;
-        npc_state->halt_pc = pc;
-    }
-}
-
 Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state, \
     std::function<void(int a0)> emulator_trap_func) \
@@ -64,25 +57,15 @@ bool Differtest::isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc) {
     return true;
 }
 
-void Differtest::difftest_step(vaddr_t pc, vaddr_t npc){
-    Riscv_CPU_State ref_r;
-
-    if (skip_dut_nr_inst > 0) {
-        ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
-        if (ref_r.pc == npc) {
-            skip_dut_nr_inst = 0;
-            checkregs( &ref_r, npc);
-            return;
-        }
-
-        skip_dut_nr_inst --;
-        if (skip_dut_nr_inst == 0){
-            printf("can not catch up with ref.pc = 0x%08x at pc = 0x%08x", ref_r.pc, pc);
-            assert(0);
-        }
-
-        return;
+void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
+    if (!isa_difftest_checkregs(ref, pc)) {
+        npc_state->state = NPC_ABORT;
+        npc_state->halt_pc = pc;
     }
+}
+
+void Differtest::difftest_step(vaddr_t pc){
+    Riscv_CPU_State ref_r;
 
     if (is_skip_ref) {
         ref_difftest_regcpy(this->dut_r, DIFFTEST_TO_REF);

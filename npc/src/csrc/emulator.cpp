@@ -119,6 +119,7 @@ void Emulator::init_mem() {
 }
 
 void Emulator::init_isa() {
+    this->cpu.pc = CONFIG_RESET_VECTOR;
     this->cpu.sr[ADDR_MVENDORID] = 0x79737978;
     this->cpu.sr[ADDR_MARCHID]   = 23060198;
 }

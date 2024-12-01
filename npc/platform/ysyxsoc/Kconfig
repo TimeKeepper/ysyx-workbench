@@ -10,6 +10,10 @@ config LOAD_MEMORY_SIZE
   hex "Load memory(The memory store program) size"
   default FLASH_SIZE
 
+config RESET_VECTOR
+  hex "RESET_VECTOR"
+  default LOAD_MEMORY_BASE
+
 config SRAM_BASE
   hex "SRAM base address"
   default 0x0f000000

@@ -100,7 +100,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 {"inst", [&](bool on) { this->emulator->instruction_trace_ctrl(on); }}
             };
 
-            if(args[1] == "help"){
+            if(args[0] == "help"){
                 std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
                 return 0;
             }

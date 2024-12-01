@@ -80,6 +80,12 @@ void Emulator::instruction_buffer_push(uint32_t pc, uint32_t inst){
     this->instruction_buffer.emplace_back(pc, inst);
 }
 
+void Emulator::instruction_buffer_print(){
+    for(auto &i : this->instruction_buffer){
+        std::cout << this->disasm(i.first, i.second) << std::endl;
+    }
+}
+
 std::string Emulator::disasm(uint32_t pc, uint32_t inst){
     std::stringstream ss;
     ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << pc << ANSI_NONE;

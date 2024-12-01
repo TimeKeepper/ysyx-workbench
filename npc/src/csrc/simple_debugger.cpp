@@ -62,14 +62,17 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         {"info", "Print information about the emulator", "info <r/w> <target>", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
-                std::cout << "You should input r/w" << std::endl;
+                std::cout << ANSI_FG_RED << "You should input r/w" << ANSI_NONE << std::endl;
                 return 0;
             }
 
             if(args[0] == "r"){
                 if(args.size() == 1){
                     for(int i = 0; i < ARRLEN(this->emulator->cpu.gpr); i++){
-                        std::cout << gpr_id2name(i) << ": " << this->emulator->cpu.gpr[i] << std::endl;
+                        std::cout << ANSI_FG_CYAN << gpr_id2name(i) \
+                        << ANSI_NONE << "\t: " << ANSI_FG_BLUE \
+                        << this->emulator->cpu.gpr[i] << ANSI_NONE \
+                        << std::endl;
                     }
 
                     return 0;

@@ -187,7 +187,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         [&](std::vector<std::string> args) {
             // 将所有args合成一个string传入函数
             std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
-            std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t:" << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
+            std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
             return 0;
         }});
 

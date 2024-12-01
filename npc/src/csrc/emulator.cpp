@@ -2,6 +2,7 @@
 #include "cpu/cpu.hpp"
 #include <unordered_map>
 #include <utils.hpp>
+#include <sstream>
 #include <emulator.hpp>
 
 #include <chrono>
@@ -164,6 +165,8 @@ static void welcome() {
     std::cout << "For help, Type 'help'" << std::endl;
 }
 
+void init_disasm(const char *triple);
+
 Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     this->parse_args();
 
@@ -176,6 +179,8 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     this->load_image();
 
     this->init_simulate();
+
+    init_disasm("riscv32");
 
     welcome();
 }
@@ -223,7 +228,6 @@ void Emulator::single_inst(uint64_t n){
         this->cycle(1);
 
         if(this->run_inst_num == 0) break;
-        if(this->npc_state.state != NPC_RUNNING) break;
     }
 }
 
@@ -244,4 +248,18 @@ void Emulator::Emulator_trap(uint32_t a0) {
     std::cout << ((a0 == 0) ? \
         ANSI_FMT("Hit good trap", ANSI_FG_GREEN) : \
         ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
+}
+
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
+void Emulator::IFU_catch(uint32_t inst){
+    std::stringstream ss;
+    ss << "0x" << std::hex << std::nouppercase << cpu.pc;
+    std::string disam = ss.str();
+
+    char inst_str[64];
+
+    disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
+    
+    std::cout << ss.str() << inst_str << std::endl;
 }

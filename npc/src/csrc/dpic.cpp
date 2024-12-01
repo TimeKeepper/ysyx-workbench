@@ -49,4 +49,8 @@ extern "C" {
     extern void inst_comp(){
         emulator->inst_comp();
     }
+
+    extern void IFU_catch(uint32_t inst){
+        emulator->IFU_catch(inst);
+    }
 }

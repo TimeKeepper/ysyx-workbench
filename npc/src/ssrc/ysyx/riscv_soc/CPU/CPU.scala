@@ -149,13 +149,6 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
       Inst_Comp.io.clock := clock
 
       Inst_Comp.io.valid := (RegNext(WBU.io.WBU_2_IFU.valid) === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)
-      // val comp_cache = RegInit(Bool(), false.B)
-      // comp_cache := WBU.io.WBU_2_IFU.valid
-      // when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
-      //   Inst_Comp.io.valid := true.B
-      // }.otherwise {
-      //   Inst_Comp.io.valid := false.B
-      // }
     }
 
     if(Config.DPIC_on){

@@ -50,6 +50,8 @@ class Emulator {
         void wave_trace_ctrl(bool v);
 
         void Emulator_trap(uint32_t a0);
+
+        void IFU_catch(uint32_t inst);
 };
 
 #endif

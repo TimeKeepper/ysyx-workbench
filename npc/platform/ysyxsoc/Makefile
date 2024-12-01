@@ -87,7 +87,7 @@ CXXFLAGS += $(EXTRA_DEFILE)
 endif
 CXXFLAGS += -g -DTRACE
 LDFLAGS += $(shell llvm-config --libs)
-LDFLAGS += -lreadline -ldl -pie -lelf
+LDFLAGS += -lreadline -ldl -pie -lelf -lmuparser
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)

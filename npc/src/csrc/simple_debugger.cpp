@@ -3,7 +3,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <algorithm>
-// #include <muParser.h>
 
 simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     cmds.push_back(
@@ -181,12 +180,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             return 0;
         }});
 
+    std::string expr(std::string expr);
     cmds.push_back(
         {"expr", "Evaluate an expression", "expr <expr>", \
         [&](std::vector<std::string> args) {
-            // mu::Parser p;
-            // p.SetExpr(args[0]);
-            // std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t:" << ANSI_FG_BLUE << p.Eval() << ANSI_NONE << std::endl;
+            std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t:" << ANSI_FG_BLUE << expr(args[0]) << ANSI_NONE << std::endl;
             return 0;
         }});
 

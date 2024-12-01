@@ -1,3 +1,4 @@
+#include <numeric>
 #include <simple_debugger.hpp>
 
 #include <readline/readline.h>
@@ -184,7 +185,9 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     cmds.push_back(
         {"expr", "Evaluate an expression", "expr <expr>", \
         [&](std::vector<std::string> args) {
-            std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t:" << ANSI_FG_BLUE << expr(args[0]) << ANSI_NONE << std::endl;
+            // 将所有args合成一个string传入函数
+            std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
+            std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t:" << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
             return 0;
         }});
 

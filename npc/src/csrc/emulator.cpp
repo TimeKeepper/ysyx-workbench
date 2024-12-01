@@ -136,7 +136,7 @@ void Emulator::load_image() {
     Log("The image is %s, size = %ld", this->img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    int ret = fread(this->memorys["psram"]->get_memory(), size, 1, fp);
+    int ret = fread(this->memorys["flash"]->get_memory(), size, 1, fp);
     assert(ret == 1);
 
     fclose(fp);

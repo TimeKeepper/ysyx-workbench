@@ -19,7 +19,6 @@ class Emulator {
         char* img_file = NULL;
         uint64_t img_size = 0;
 
-
         uint64_t run_inst_num = 0;
 
         const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};

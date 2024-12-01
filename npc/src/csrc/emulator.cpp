@@ -119,6 +119,7 @@ void Emulator::init_mem() {
 }
 
 void Emulator::init_isa() {
+    this->cpu.pc = CONFIG_RESET_VECTOR;
     this->cpu.sr[ADDR_MVENDORID] = 0x79737978;
     this->cpu.sr[ADDR_MARCHID]   = 23060198;
 }
@@ -232,10 +233,6 @@ void Emulator::single_inst(uint64_t n){
     }
 }
 
-void Emulator::inst_comp(){
-    this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
-}
-
 void Emulator::wave_trace_ctrl(bool v){
     std::cout << "Wave Trace " << (v ? ANSI_FG_GREEN : ANSI_FG_RED)
     << (v ? "ON" : "OFF") << ANSI_NONE << std::endl;
@@ -251,18 +248,30 @@ void Emulator::Emulator_trap(uint32_t a0) {
         ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
 }
 
-void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-
 void Emulator::IFU_catch(uint32_t inst){
-    std::cout << inst << std::endl;
-    std::cout << cpu.pc << std::endl;
+    #ifdef CONFIG_ITRACE
+    
     std::stringstream ss;
-    ss << "0x" << std::hex << std::nouppercase << cpu.pc;
+    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << cpu.pc << ANSI_NONE;
     std::string disam = ss.str();
 
     char inst_str[64];
 
+    void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
     disassemble(inst_str, 64, this->cpu.pc, (uint8_t*)&inst, 4);
-    
-    std::cout << ss.str() << inst_str << std::endl;
+    std::cout << ss.str() << '\t' << ANSI_FG_BLUE << inst_str << ANSI_NONE << std::endl;
+
+    #endif
+}
+
+void Emulator::WBU_catch(uint32_t next_pc, \
+    uint32_t gpr_waddr, uint32_t gpr_wdata, \
+    uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata){
+        
+    this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
+
+    this->cpu.pc = next_pc;
+    if(gpr_waddr != 0) this->cpu.gpr[gpr_waddr] = gpr_wdata;
+    if(csr_wen) this->cpu.sr[csr_waddr] = csr_wdata;
 }

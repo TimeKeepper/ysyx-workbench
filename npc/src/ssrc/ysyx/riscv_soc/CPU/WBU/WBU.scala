@@ -7,6 +7,47 @@ import signal_value._
 import bus_state._
 import config._
 
+class WBU_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val clock = Input(Clock())
+        val valid = Input(Bool())
+        
+        val next_pc = Input(UInt(32.W))
+
+        val gpr_waddr = Input(UInt(32.W))
+        val gpr_wdata = Input(UInt(32.W))
+
+        val csr_wen = Input(UInt(32.W))
+        val csr_waddr = Input(UInt(32.W))
+        val csr_wdata = Input(UInt(32.W))
+    })
+
+    setInline("WBU_catch.v",
+    """module WBU_catch(
+    |    input clock,
+    |    input valid,
+    |
+    |    input [31:0] next_pc,
+    |
+    |    input [31:0] gpr_waddr,
+    |    input [31:0] gpr_wdata,
+    |
+    |    input [31:0] csr_wen,
+    |    input [31:0] csr_waddr,
+    |    input [31:0] csr_wdata
+    |);
+    |
+    |   import "DPI-C" function void WBU_catch(input int unsigned next_pc, input int unsigned gpr_waddr, input int unsigned gpr_wdata, input int unsigned csr_wen, input int unsigned csr_waddr, input int unsigned csr_wdata);
+    |   always @(posedge clock) begin
+    |       if(valid) begin
+    |           WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wen, csr_waddr, csr_wdata);
+    |       end
+    |   end
+    |
+    |endmodule
+    """.stripMargin)
+}
+
 class WBU extends Module {
     val io = IO(new Bundle{
         val EXU_2_WBU = Flipped(Decoupled(Input(new BUS_EXU_2_WBU)))
@@ -63,4 +104,27 @@ class WBU extends Module {
     io.WBU_2_REG.CSR_waddrb    := "h342".U
     io.WBU_2_REG.CSR_wdataa    := CSR_wdataa
     io.WBU_2_REG.CSR_wdatab    := 11.U
+
+    if(Config.Simulate){
+        val state_idle :: state_catch :: Nil = Enum(2)
+
+        val state_Catch = RegInit(state_idle)
+        when(io.WBU_2_IFU.fire && !reset.asBool) {
+            state_Catch := state_catch
+        }
+
+        val Catch = Module(new WBU_catch)
+        Catch.io.clock := clock
+        Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool && (state_Catch === state_catch)
+
+        Catch.io.next_pc := Next_Pc
+        
+        Catch.io.gpr_waddr := io.EXU_2_WBU.bits.GPR_waddr
+        Catch.io.gpr_wdata := GPR_wdata
+
+        Catch.io.csr_wen := io.EXU_2_WBU.bits.csr_ctr =/= CSR_TypeEnum.CSR_N
+        Catch.io.csr_waddr := CSR_waddra
+        Catch.io.csr_wdata := CSR_wdataa
+    }
+
 }

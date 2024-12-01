@@ -144,13 +144,6 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     io.slave <> DontCare
     io.interrupt <> DontCare
 
-    if(Config.Simulate){
-      val Inst_Comp = Module(new Inst_Comp)
-      Inst_Comp.io.clock := clock
-
-      Inst_Comp.io.valid := (RegNext(WBU.io.WBU_2_IFU.valid) === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)
-    }
-
     if(Config.DPIC_on){
       val axi_bridge = Module(new AXI_BRIDGE)
       axi_bridge.io.clock := clock

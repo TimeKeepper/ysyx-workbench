@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include "cpu/cpu.hpp"
+#include "cpu.hpp"
 #include "memory.hpp"
 #include <unordered_map>
 #include <utils.hpp>

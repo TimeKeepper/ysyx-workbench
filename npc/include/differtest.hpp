@@ -1,7 +1,7 @@
 #ifndef __DIFFERTEST_HPP__
 #define __DIFFERTEST_HPP__
 
-#include "cpu/cpu.hpp"
+#include "cpu.hpp"
 #include <memory.hpp>
 #include <utils.hpp>
 

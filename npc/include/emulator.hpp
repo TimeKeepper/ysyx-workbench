@@ -1,7 +1,7 @@
 #ifndef __EMULATOR_HPP__
 #define __EMULATOR_HPP__
 
-#include "cpu/cpu.hpp"
+#include "cpu.hpp"
 #include <memory.hpp>
 #include <memory>
 #include <utils.hpp>

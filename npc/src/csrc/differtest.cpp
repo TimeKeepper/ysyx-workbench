@@ -1,4 +1,4 @@
-#include "cpu/cpu.hpp"
+#include "cpu.hpp"
 #include <differtest.hpp>
 #include <dlfcn.h>
 

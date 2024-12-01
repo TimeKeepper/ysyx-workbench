@@ -109,7 +109,9 @@ class WBU extends Module {
         val state_idle :: state_catch :: Nil = Enum(2)
 
         val state_Catch = RegInit(state_idle)
-        state_Catch := Mux(io.WBU_2_IFU.fire && !reset.asBool, state_catch, state_idle)
+        when(io.WBU_2_IFU.fire && !reset.asBool) {
+            state_Catch := state_catch
+        }
 
         val Catch = Module(new WBU_catch)
         Catch.io.clock := clock

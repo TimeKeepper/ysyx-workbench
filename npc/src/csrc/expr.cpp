@@ -31,6 +31,6 @@ std::string Expr::eval(std::string expr){
 
     // 返回所有token str的集合
     return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){
-        return acc + '\n' + token.value;
+        return acc + token.value + '\n';
     });
 }

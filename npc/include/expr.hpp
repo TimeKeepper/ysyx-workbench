@@ -3,7 +3,6 @@
 
 #include <utils.hpp>
 #include <vector>
-#include <map>
 
 class Expr {
     private:
@@ -14,14 +13,6 @@ class Expr {
         DECIMAL,
         EQ,
     } Token_Type;
-
-    // Token map with index
-    std::map<Token_Type, uint32_t> token_map = {
-        {SPACE, 0},
-        {HEX, 1},
-        {DECIMAL, 2},
-        {EQ, 3},
-    };
 
     class Token {
         public:

@@ -25,6 +25,8 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
 
+    std::cout << "Token nums:" << tokens.size() << std::endl;
+
     std::cout << std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){
         return acc + token.value + '\n';
     });

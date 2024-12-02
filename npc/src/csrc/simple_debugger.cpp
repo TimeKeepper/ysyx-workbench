@@ -257,6 +257,7 @@ void simple_debugger::main_loop() {
 
     while (true) {
         std::string str = rl_gets();
+        std::string str_bc = str;
         if (str.empty()) continue;
 
         std::string cmd = strtok((char*)str.c_str(), " ");
@@ -271,12 +272,10 @@ void simple_debugger::main_loop() {
         });
 
         if (it == cmds.end()) {
-            std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
-            expr_str = cmd + expr_str;
-            std::cout << ANSI_FG_BLUE << this->expr->eval(expr_str) << ANSI_NONE << std::endl;
+            std::cout << ANSI_FG_BLUE << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
             continue;
         }
-
+        
         if (it->func(args) < 0) return;
     }
 }

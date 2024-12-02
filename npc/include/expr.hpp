@@ -9,7 +9,6 @@ class Expr {
     private:
 
     typedef enum {
-        SPACE,
         HEX,
         DECIMAL,
         EQ,
@@ -17,10 +16,9 @@ class Expr {
 
     // Token map with index
     std::map<Token_Type, uint32_t> token_map = {
-        {SPACE, 0},
-        {HEX, 1},
-        {DECIMAL, 2},
-        {EQ, 3},
+        {HEX, 0},
+        {DECIMAL, 1},
+        {EQ, 2},
     };
 
     class Token {

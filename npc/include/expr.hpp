@@ -3,6 +3,7 @@
 
 #include <utils.hpp>
 #include <vector>
+#include <regex>
 
 class Expr {
     private:
@@ -12,14 +13,21 @@ class Expr {
         HEX,
         DECIMAL,
         EQ,
-    } Token_Type;
+    } TokenType;
+
+    std::vector<std::pair<TokenType, std::regex>> token_patterns = {
+        {SPACE, std::regex("\\s+")},
+        {HEX, std::regex("0[xX][0-9a-fA-F]+")},
+        {DECIMAL, std::regex("\\d+")},
+        {EQ, std::regex("==")}
+    };
 
     class Token {
         public:
-        Token_Type type;
+        TokenType type;
         std::string value;
 
-        Token(Token_Type type, const std::string& value) : type(type), value(value) {};
+        Token(TokenType type, const std::string& value) : type(type), value(value) {};
         uint32_t get_val() {
             if(this->type == HEX){
                 return std::stoul(this->value, nullptr, 16);

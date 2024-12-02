@@ -81,11 +81,11 @@ INCFLAGS =  $(addprefix -I, $(INC_PATH))
 INCFLAGS += $(addprefix -I, $(HEAD_DIR))
 INCFLAGS += $(addprefix -I, $(AUTOCONFIG))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""  
-CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14   -fno-exceptions
+CXXFLAGS += -I/usr/lib/llvm-14/include -std=c++14 
 ifdef EXTRA_DEFILE
 CXXFLAGS += $(EXTRA_DEFILE)
 endif
-CXXFLAGS += -g -DTRACE
+CXXFLAGS += -g -DTRACE -fexceptions
 LDFLAGS += $(shell llvm-config --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf -lmuparser
 

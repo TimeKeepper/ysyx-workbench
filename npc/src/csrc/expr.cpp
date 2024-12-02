@@ -7,7 +7,7 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
     
     std::regex token_regex(
-        R"(^(\s+)|([0-9]+)|(==))"
+        R"(^(\s+)|([0-9]+)|(0[xX][0-9a-fA-F]+)|(==))"
     );
 
     auto words_begin = std::sregex_iterator(expr.begin(), expr.end(), token_regex);
@@ -29,7 +29,6 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
 
-    // 返回所有token str的集合
     return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){
         return acc + token.value + '\n';
     });

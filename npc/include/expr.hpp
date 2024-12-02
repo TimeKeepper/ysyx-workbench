@@ -11,6 +11,7 @@ class Expr {
     typedef enum {
         SPACE,
         DECIMAL,
+        HEX,
         EQ,
     } Token_Type;
 

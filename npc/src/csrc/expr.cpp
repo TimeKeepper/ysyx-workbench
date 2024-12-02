@@ -1,22 +1,32 @@
-#include <exprtk.hpp>
+#include <expr.hpp>
+#include <numeric>
+#include <string>
+#include <vector>
+#include <regex>
 
-template <typename T>
-
-std::string expr(std::string expr){    
-    typedef exprtk::symbol_table<T> symbol_table_t;
-    typedef exprtk::expression<T> expression_t;
-    typedef exprtk::parser<T> parser_t;
+std::vector<Expr::Token> Expr::get_tokens(std::string expr){
+    std::vector<Token> tokens;
     
-    symbol_table_t symbol_table;
-    expression_t expression;
-    parser_t parser;
-    
-    expression.register_symbol_table(symbol_table);
-    
-    if (!parser.compile(expr, expression)) {
-        return "Error: " + std::string(parser.error().c_str());
+    while(expr.size() > 0){
+        for(auto pattern : token_patterns){
+            std::smatch match;
+            if(std::regex_search(expr, match, pattern.second)){
+                std::cout << match.str() << std::endl;
+                std::cout << pattern.first << std::endl;
+                tokens.push_back(Token(pattern.first, match.str()));
+                expr = match.suffix();
+                break;
+            }
+        }
     }
-    
-    uint32_t result = expression.value();
-    return std::to_string(result);
+
+    return tokens;
+}
+
+std::string Expr::eval(std::string expr){
+    std::vector<Token> tokens = get_tokens(expr);
+
+    return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){
+        return acc + token.value + '\n';
+    });
 }

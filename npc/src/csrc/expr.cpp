@@ -1,5 +1,6 @@
 #include <expr.hpp>
 #include <numeric>
+#include <string>
 #include <vector>
 
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
@@ -25,6 +26,6 @@ std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
 
     return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){
-        return acc + token.value + '\n';
+        return acc + std::to_string(token.get_val()) + '\n';
     });
 }

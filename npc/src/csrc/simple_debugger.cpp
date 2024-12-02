@@ -279,8 +279,7 @@ void simple_debugger::main_loop() {
         });
 
         if (it == cmds.end()) {
-            std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
-            std::cout << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
+            std::cout << ANSI_FG_BLUE << expr(str) << ANSI_NONE << std::endl;
             continue;
         }
 

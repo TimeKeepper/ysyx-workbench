@@ -9,17 +9,24 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
 
     std::regex token_regex(R"(( +)|(0[xX][0-9a-fA-F]+)|([0-9]+)|(==))");
     
-    auto words_begin = std::sregex_iterator(expr.begin(), expr.end(), token_regex);
-    auto words_end = std::sregex_iterator();
+    std::sregex_iterator it(expr.begin(), expr.end(), token_regex);
+    std::sregex_iterator end;
 
-    for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-        std::smatch match = *i;
-        for (size_t j = 1; j < match.size(); ++j) {
-            if (match[j].str().size() > 0) {
-                Token_Type type = static_cast<Token_Type>(j - 1);
-                tokens.push_back(Token(type, match[j].str()));
-            }
+    while(it != end){
+        std::smatch match = *it;
+        if(match[1].matched){
+            tokens.push_back(Token(SPACE, match.str()));
         }
+        else if(match[2].matched){
+            tokens.push_back(Token(HEX, match.str()));
+        }
+        else if(match[3].matched){
+            tokens.push_back(Token(DECIMAL, match.str()));
+        }
+        else if(match[4].matched){
+            tokens.push_back(Token(EQ, match.str()));
+        }
+        it++;
     }
 
     return tokens;

@@ -4,6 +4,7 @@
 #include <utils.hpp>
 #include <vector>
 #include <map>
+#include <regex>
 
 class Expr {
     private:
@@ -14,6 +15,9 @@ class Expr {
         DECIMAL,
         EQ,
     } Token_Type;
+    
+    std::regex token_regex;
+
 
     // Token map with index
     std::map<Token_Type, uint32_t> token_map = {
@@ -30,6 +34,8 @@ class Expr {
     };
 
     public:
+        Expr() : token_regex(R"(^(\s+)|(0[xX][0-9a-fA-F]+)|([0-9]+)|(==))") {}
+        
         std::vector<Token> get_tokens(std::string expr);
         std::string eval(std::string expr);
 };

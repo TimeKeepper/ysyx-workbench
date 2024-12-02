@@ -15,12 +15,14 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     while(it != end){
         std::smatch match = *it;
         if(match[1].matched){
-            tokens.push_back(Token(HEX, match.str()));
         }
         else if(match[2].matched){
-            tokens.push_back(Token(DECIMAL, match.str()));
+            tokens.push_back(Token(HEX, match.str()));
         }
         else if(match[3].matched){
+            tokens.push_back(Token(DECIMAL, match.str()));
+        }
+        else if(match[4].matched){
             tokens.push_back(Token(EQ, match.str()));
         }
         it++;

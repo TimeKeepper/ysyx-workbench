@@ -45,7 +45,7 @@ class Expr {
     };
 
     public:
-        Expr() : token_regex(R"(^(\s+)|(0[xX][0-9a-fA-F]+)|([0-9]+)|(==))") {}
+        Expr() : token_regex(R"(( +)|(0[xX][0-9a-fA-F]+)|([0-9]+)|(==))") {}
         
         std::vector<Token> get_tokens(std::string expr);
         std::string eval(std::string expr);

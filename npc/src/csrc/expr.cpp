@@ -7,7 +7,7 @@
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
 
-    std::regex token_regex(R"((\s+)|([0-9]+)|(0[xX][0-9a-fA-F]+)|(==))");
+    std::regex token_regex(R"((\s+)|(0[xX][0-9a-fA-F]+)|([0-9]+)|(==))");
     
     std::sregex_iterator it(expr.begin(), expr.end(), token_regex);
     std::sregex_iterator end;

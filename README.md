@@ -6,7 +6,7 @@ git submodule update
 
 安装依赖
 ```
-sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libelf-dev bison flex llvm llvm-14 llvm-14-dev
+sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libelf-dev bison flex llvm llvm-14 llvm-14-dev libmuparser-dev
 ```
 
 安装mill,注意必须安装至少0.11以上的版本

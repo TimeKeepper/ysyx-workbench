@@ -1,9 +1,9 @@
 #ifndef __SIMPLE_DEBUGGER_HPP__
 #define __SIMPLE_DEBUGGER_HPP__
 
+#include <utils.hpp>
 #include <functional>
 #include <string>
-#include <utils.hpp>
 #include <vector>
 #include <emulator.hpp>
 

@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <autoconf.h>
+#include <iostream>
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define BITMASK(bits) ((1ull << (bits)) - 1)

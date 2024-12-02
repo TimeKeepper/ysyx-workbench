@@ -5,6 +5,8 @@
 #include <readline/history.h>
 #include <algorithm>
 
+std::string expr(std::string expr);
+
 simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     cmds.push_back(
         {"help", "Print this help message", "help", \
@@ -181,15 +183,15 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             return 0;
         }});
 
-    std::string expr(std::string expr);
-    cmds.push_back(
-        {"expr", "Evaluate an expression", "expr <expr>", \
-        [&](std::vector<std::string> args) {
-            // 将所有args合成一个string传入函数
-            std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
-            std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
-            return 0;
-        }});
+    // std::string expr(std::string expr);
+    // cmds.push_back(
+    //     {"expr", "Evaluate an expression", "expr <expr>", \
+    //     [&](std::vector<std::string> args) {
+    //         // 将所有args合成一个string传入函数
+    //         std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
+    //         std::cout << ANSI_FG_CYAN << "Result" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
+    //         return 0;
+    //     }});
 
     cmds.push_back(
         {"func", "Control Debug Function ON/OFF", "func <func> on/off", \
@@ -277,7 +279,8 @@ void simple_debugger::main_loop() {
         });
 
         if (it == cmds.end()) {
-            printf("Unknown Command: %s\n", cmd.c_str());
+            std::string expr_str = std::accumulate(args.begin(), args.end(), std::string(""));
+            std::cout << ANSI_FG_BLUE << expr(expr_str) << ANSI_NONE << std::endl;
             continue;
         }
 

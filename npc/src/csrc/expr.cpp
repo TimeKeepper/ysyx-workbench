@@ -15,6 +15,6 @@ std::string expr(std::string expr){
         return "Error: " + std::string(parser.error().c_str());
     }
     
-    double result = expression.value();
+    uint32_t result = expression.value();
     return std::to_string(result);
 }

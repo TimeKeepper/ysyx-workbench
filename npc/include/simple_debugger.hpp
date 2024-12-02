@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <emulator.hpp>
+#include <expr.hpp>
 
 struct cmd {
     std::string name;
@@ -18,6 +19,8 @@ class simple_debugger {
     private:
         std::vector<cmd> cmds;
         Emulator* emulator;
+
+        std::unique_ptr<Expr> expr;
     public:
         simple_debugger(Emulator* emulator);
         void main_loop();

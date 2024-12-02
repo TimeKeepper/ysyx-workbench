@@ -35,6 +35,6 @@ std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
 
     return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){
-        return acc + std::to_string(token.get_val()) + '\n';
+        return acc + token.value + '\n';
     });
 }

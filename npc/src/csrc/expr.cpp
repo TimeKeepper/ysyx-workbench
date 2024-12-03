@@ -181,18 +181,16 @@ void Expr::test(){
     }
 
     std::string line;
-    // while(std::getline(input, line)){
-    //     std::string result = line.substr(0, line.find(" "));
-    //     std::string expr = line.substr(line.find(" ") + 1);
+    while(std::getline(input, line)){
+        std::string result = line.substr(0, line.find(" "));
+        std::string expr = line.substr(line.find(" ") + 1);
 
-    //     if(eval(expr) != result){
-    //         std::cout << "Test failed: " << expr << std::endl;
-    //         return;
-    //     }
-    // }
-
-    std::getline(input, line);
-    std::cout << line << std::endl;
+        if(eval(expr) != result){
+            std::cout << "Test failed: " << expr << std::endl;
+            input.close();
+            return;
+        }
+    }
 
     input.close();
 

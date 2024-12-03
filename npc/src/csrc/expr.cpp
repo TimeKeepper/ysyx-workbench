@@ -25,8 +25,22 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
 }
 
 bool Expr::expr_valid(std::vector<Token> tokens){
-    std::vector<TokenType> valid_tokens = {TokenType::REGISTER, TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB, TokenType::EQ};
-    std::vector<TokenType> valid_tokens_no_eq = {TokenType::REGISTER, TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB};
+    auto is_valid_token = [](TokenType type, bool allow_eq) {
+        switch(type) {
+            case TokenType::REGISTER:
+            case TokenType::HEX:
+            case TokenType::DECIMAL:
+            case TokenType::MUL:
+            case TokenType::DIV:
+            case TokenType::ADD:
+            case TokenType::SUB:
+                return true;
+            case TokenType::EQ:
+                return allow_eq;
+            default:
+                return false;
+        }
+    };
 
     std::vector<TokenType> stack;
     for(auto token : tokens){
@@ -43,10 +57,10 @@ bool Expr::expr_valid(std::vector<Token> tokens){
         }
         else{
             if(stack.empty() || stack.back() == TokenType::LPAREN){
-                if(std::find(valid_tokens_no_eq.begin(), valid_tokens_no_eq.end(), token.type) == valid_tokens_no_eq.end()) return false;
+                if(!is_valid_token(token.type, false)) return false;
             }
             else{
-                if(std::find(valid_tokens.begin(), valid_tokens.end(), token.type) == valid_tokens.end()) return false;
+                if(!is_valid_token(token.type, true)) return false;
             }
         }
     }

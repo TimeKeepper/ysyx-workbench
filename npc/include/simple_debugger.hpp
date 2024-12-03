@@ -28,6 +28,8 @@ class simple_debugger {
     public:
         simple_debugger(Emulator* emulator);
         void main_loop();
+
+        void inst_comp(void);
 };
 
 #endif

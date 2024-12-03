@@ -19,6 +19,8 @@ bool Watch_Point_Manager::add_watch_point(std::string expr){
     if(this->expr_parser->eval(expr) == "Invalid expression") return false;
 
     this->watch_points.emplace_back(expr, std::make_unique<Expr>(*this->expr_parser));
+
+    return true;
 }
 
 bool Watch_Point_Manager::delete_watch_point(uint32_t index){

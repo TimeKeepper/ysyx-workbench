@@ -41,6 +41,11 @@ std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = RPN(get_tokens(expr));
 
+    std::cout << "TokensType: ";
+    for(auto token : tokens){
+        std::cout << std::to_string(static_cast<int>(token.type)) << " ";
+    }
+
     std::vector<uint32_t> stack;
     for(auto token : tokens){
         if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){

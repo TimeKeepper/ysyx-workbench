@@ -42,21 +42,21 @@ std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = RPN(get_tokens(expr));
 
-    // std::vector<uint32_t> stack;
-    // for(auto token : tokens){
-    //     if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){
-    //         stack.push_back(token.get_val());
-    //     }
-    //     else if(token.type == TokenType::EQ){
-    //         uint32_t a = stack.back();
-    //         stack.pop_back();
-    //         uint32_t b = stack.back();
-    //         stack.pop_back();
-    //         stack.push_back(a == b);
-    //     }
-    // }
+    std::vector<uint32_t> stack;
+    for(auto token : tokens){
+        if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){
+            stack.push_back(token.get_val());
+        }
+        else if(token.type == TokenType::EQ){
+            uint32_t a = stack.back();
+            stack.pop_back();
+            uint32_t b = stack.back();
+            stack.pop_back();
+            stack.push_back(a == b);
+        }
+    }
 
-    return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){ return acc + token.value + '\n'; });
+    // return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){ return acc + token.value + '\n'; });
 
-    // return std::to_string(stack.back());
+    return std::to_string(stack.back());
 }

@@ -61,6 +61,7 @@ class Expr {
     std::vector<Token> get_tokens(std::string expr);
     std::queue<Expr::Token> RPN(std::vector<Token> tokens);
     int precedence(TokenType type);
+    bool expr_valid(std::vector<Token> tokens);
 
     public:
         

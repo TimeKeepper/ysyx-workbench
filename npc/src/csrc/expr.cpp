@@ -5,17 +5,6 @@
 #include <vector>
 #include <regex>
 
-int Expr::precedence(TokenType type) {
-    switch(type) {
-        case TokenType::EQ: return 1;
-        case TokenType::ADD:
-        case TokenType::SUB: return 2;
-        case TokenType::MUL:
-        case TokenType::DIV: return 3;
-        default: return 0;
-    }
-}
-
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
     std::string current_expr = expr;
@@ -32,6 +21,47 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     }
 
     return tokens;
+}
+
+bool Expr::expr_valid(std::vector<Token> tokens){
+    std::vector<TokenType> valid_tokens = {TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB, TokenType::EQ};
+    std::vector<TokenType> valid_tokens_no_eq = {TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB};
+
+    std::vector<TokenType> stack;
+    for(auto token : tokens){
+        if(token.type == TokenType::LPAREN){
+            stack.push_back(token.type);
+        }
+        else if(token.type == TokenType::RPAREN){
+            if(stack.empty() || stack.back() != TokenType::LPAREN) return false;
+            stack.pop_back();
+        }
+        else if(token.type == TokenType::EQ){
+            if(stack.empty() || stack.back() != TokenType::EQ) return false;
+            stack.pop_back();
+        }
+        else{
+            if(stack.empty() || stack.back() == TokenType::LPAREN){
+                if(std::find(valid_tokens_no_eq.begin(), valid_tokens_no_eq.end(), token.type) == valid_tokens_no_eq.end()) return false;
+            }
+            else{
+                if(std::find(valid_tokens.begin(), valid_tokens.end(), token.type) == valid_tokens.end()) return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+int Expr::precedence(TokenType type) {
+    switch(type) {
+        case TokenType::EQ: return 1;
+        case TokenType::ADD:
+        case TokenType::SUB: return 2;
+        case TokenType::MUL:
+        case TokenType::DIV: return 3;
+        default: return 0;
+    }
 }
 
 std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
@@ -82,12 +112,15 @@ std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 }
 
 std::string Expr::eval(std::string expr){
-    std::queue<Token> tokens = RPN(get_tokens(expr));
+    std::vector<Token> tokens = get_tokens(expr);
+    if(!expr_valid(tokens)) return "Invalid expression";
+
+    std::queue<Token> Rpn = RPN(tokens);
 
     std::vector<uint32_t> stack;
-    while(!tokens.empty()){
-        Token token = tokens.front();
-        tokens.pop();
+    while(!Rpn.empty()){
+        Token token = Rpn.front();
+        Rpn.pop();
 
         switch(token.type){
             case TokenType::DECIMAL:

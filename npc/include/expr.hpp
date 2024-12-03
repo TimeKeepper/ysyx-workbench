@@ -8,6 +8,7 @@
 #include <emulator.hpp>
 
 extern Emulator* emulator;
+int gpr_name2id(const std::string& name);
 
 class Expr {
     private:
@@ -54,7 +55,6 @@ class Expr {
         Token(TokenType type, const std::string& value) : type(type), value(value) {};
         uint32_t get_val() {
             switch(this->type) {
-                int gpr_name2id(const std::string& name);
                 case TokenType::REGISTER:   return emulator->cpu.gpr[gpr_name2id(this->value.substr(1))];
                 case TokenType::HEX:        return std::stoul(this->value, nullptr, 16);
                 case TokenType::DECIMAL:    return std::stoul(this->value);

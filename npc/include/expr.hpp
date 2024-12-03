@@ -9,14 +9,16 @@ class Expr {
     private:
 
     typedef enum {
-        DECIMAL,
+        SPACE,
         HEX,
+        DECIMAL,
         EQ,
     } TokenType;
 
     std::vector<std::pair<TokenType, std::regex>> token_patterns = {
-        {DECIMAL, std::regex("\\d+")},
+        {SPACE, std::regex("\\s+")},
         {HEX, std::regex("0[xX][0-9a-fA-F]+")},
+        {DECIMAL, std::regex("\\d+")},
         {EQ, std::regex("==")}
     };
 

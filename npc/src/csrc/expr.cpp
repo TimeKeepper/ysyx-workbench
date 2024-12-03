@@ -12,7 +12,7 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
         bool found = false;
         for(auto token_pattern : token_patterns){
             std::smatch match;
-            if(std::regex_search(current_expr, match, token_pattern.second)){
+            if(std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)){
                 tokens.push_back(Token(token_pattern.first, match.str()));
                 current_expr = match.suffix();
                 found = true;

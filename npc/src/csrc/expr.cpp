@@ -43,7 +43,7 @@ std::string Expr::eval(std::string expr){
 
     std::cout << "TokensType: ";
     for(auto token : tokens){
-        std::cout << std::to_string(static_cast<int>(token.type)) << " ";
+        std::cout << std::to_string(static_cast<int>(token.type)) << std::endl;
     }
 
     std::vector<uint32_t> stack;

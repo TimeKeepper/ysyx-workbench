@@ -50,6 +50,8 @@ bool Expr::expr_valid(std::vector<Token> tokens){
         }
     }
 
+    if(!stack.empty()) return false;
+
     return true;
 }
 

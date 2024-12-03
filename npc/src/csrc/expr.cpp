@@ -27,11 +27,28 @@ std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
     std::vector<Token> stack;
 
     for(auto token : tokens){
-        if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){
-            output.push_back(token);
-        }
-        else if(token.type == TokenType::EQ){
-            stack.push_back(token);
+        switch(token.type){
+            case TokenType::DECIMAL:
+            case TokenType::HEX:
+                output.push_back(token);
+                break;
+
+            case TokenType::EQ:
+                stack.push_back(token);
+                break;
+
+            case TokenType::LPAREN:
+                stack.push_back(token);
+                break;
+            case TokenType::RPAREN:
+                while(stack.back().type != TokenType::LPAREN){
+                    output.push_back(stack.back());
+                    stack.pop_back();
+                }
+                stack.pop_back();
+                break;
+
+            default: break;
         }
     }
 

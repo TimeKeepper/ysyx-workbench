@@ -10,16 +10,26 @@ class Expr {
 
     enum class TokenType{
         SPACE,
+
         HEX,
         DECIMAL,
+
         EQ,
+
+        LPAREN,
+        RPAREN,
     };
 
     std::vector<std::pair<TokenType, std::regex>> token_patterns = {
         {TokenType::SPACE, std::regex("\\s+")},
+        
         {TokenType::HEX, std::regex("0[xX][0-9a-fA-F]+")},
         {TokenType::DECIMAL, std::regex("\\d+")},
-        {TokenType::EQ, std::regex("==")}
+
+        {TokenType::EQ, std::regex("==")},
+
+        {TokenType::LPAREN, std::regex("\\(")},
+        {TokenType::RPAREN, std::regex("\\)")},
     };
 
     class Token {

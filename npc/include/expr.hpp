@@ -55,7 +55,7 @@ class Expr {
         uint32_t get_val() {
             switch(this->type) {
                 int gpr_name2id(const std::string& name);
-                case TokenType::REGISTER:   return emulator->cpu.gpr[gpr_name2id(this->value)];
+                case TokenType::REGISTER:   return emulator->cpu.gpr[gpr_name2id(this->value.substr(1))];
                 case TokenType::HEX:        return std::stoul(this->value, nullptr, 16);
                 case TokenType::DECIMAL:    return std::stoul(this->value);
                 default: return 0;

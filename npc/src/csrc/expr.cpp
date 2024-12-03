@@ -130,6 +130,8 @@ std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
+    if(tokens.empty()) return "";
+
     if(!expr_valid(tokens)) return "Invalid expression";
 
     std::queue<Token> Rpn = RPN(tokens);

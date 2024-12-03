@@ -9,25 +9,27 @@
 std::string expr(std::string expr);
 
 simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
-    cmds.push_back(
-        {"help", "Print this help message", "help", \
+    cmds.push_back({
+        "help", "Print this help message", "help", \
         [&](std::vector<std::string> args){
             for(auto c : cmds){
                 std::cout << ANSI_FG_YELLOW << c.name.c_str() << ANSI_NONE << '\t' << \
                 ": " << ANSI_FG_CYAN << c.description << ANSI_NONE << std::endl;
             }
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"q", "Quit the debugger", "q", \
+    cmds.push_back({
+        "q", "Quit the debugger", "q", \
         [&](std::vector<std::string> args){
             this->emulator->npc_state.state = NPC_STOP;
             return -1;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"sc", "Step through N clock cycles", "sc N", \
+    cmds.push_back({
+        "sc", "Step through N clock cycles", "sc N", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
                 this->emulator->cycle(1);
@@ -46,24 +48,27 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
             this->emulator->cycle(n);
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"r", "Reset the emulator", "r", \
+    cmds.push_back({
+        "r", "Reset the emulator", "r", \
         [&](std::vector<std::string> args){
             this->emulator->reset(20);
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"c", "Continue the execution of the program", "c", \
+    cmds.push_back({
+        "c", "Continue the execution of the program", "c", \
         [&](std::vector<std::string> args){
             this->emulator->cycle(-1);
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"info", "Print information about the emulator", "info <r/w> <target>", \
+    cmds.push_back({
+        "info", "Print information about the emulator", "info <r/w> <target>", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
                 std::cout << ANSI_FG_RED << "You should input r/w" << ANSI_NONE << std::endl;
@@ -89,18 +94,15 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                     return 0;
                 }
 
-                int target = -1;
-                for (int i = 0; i < ARRLEN(this->emulator->cpu.gpr); i++) {
-                    if (gpr_id2name(i) == args[1]) {
-                        target = i;
-                        break;
-                    }
-                }
+                int target = gpr_name2id(args[1]);
 
                 if (target != -1) {
-                    std::cout << ANSI_FG_CYAN << gpr_id2name(target) << ANSI_NONE << "\t: " << ANSI_FG_BLUE << this->emulator->cpu.gpr[target] << ANSI_NONE << std::endl;
+                    std::cout << ANSI_FG_CYAN << args[1] << ANSI_NONE \
+                    << "\t: " << ANSI_FG_BLUE << this->emulator->cpu.gpr[target] \
+                    << ANSI_NONE << std::endl;
                 } else {
-                    std::cout << ANSI_FG_RED << "Unknown register: " << args[1] << ANSI_NONE << std::endl;
+                    std::cout << ANSI_FG_RED << "Unknown register: " \
+                    << args[1] << ANSI_NONE << std::endl;
                     return 0;
                 }
             }else if(args[0] == "w"){
@@ -108,10 +110,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }
 
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"x", "Examine memory", "x <len> <addr>", \
+    cmds.push_back({
+        "x", "Examine memory", "x <len> <addr>", \
         [&](std::vector<std::string> args){
             if(args.size() != 2){
                 std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
@@ -143,10 +146,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }
 
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"mm", "show memory map", "mm", \
+    cmds.push_back({
+        "mm", "show memory map", "mm", \
         [&](std::vector<std::string> args){
             for(auto &m : this->emulator->memorys){
                 std::cout << ANSI_FG_CYAN << m.first << ANSI_NONE << "\t: " \
@@ -157,10 +161,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 << std::endl;
             }
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"si", "Step through one instruction", "si", \
+    cmds.push_back({
+        "si", "Step through one instruction", "si", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
                 this->emulator->single_inst(1);
@@ -179,17 +184,38 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
             this->emulator->single_inst(n);
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"ir", "print instruction ring buffer", "ir", \
+    cmds.push_back({
+        "ir", "print instruction ring buffer", "ir", \
         [&](std::vector<std::string> args){
             this->emulator->instruction_buffer_print();
             return 0;
-        }});
+        }
+    });
 
-    cmds.push_back(
-        {"func", "Control Debug Function ON/OFF", "func <func> on/off", \
+    cmds.push_back({
+        "w", "Set a watchpoint", "w <expr>", \
+        [&](std::vector<std::string> args){
+            if(args.size() == 0){
+                std::cout << ANSI_FG_RED << "You should input an expression" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            std::string expr = args[0];
+            if(this->wpm->add_watch_point(expr)){
+                std::cout << ANSI_FG_CYAN << "Watchpoint set on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << expr << ANSI_NONE << std::endl;
+            }else{
+                std::cout << ANSI_FG_RED << "Invalid expression" << ANSI_NONE << std::endl;
+            }
+
+            return 0;
+        }
+    });
+
+    cmds.push_back({
+        "func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
             if(args.size() != 2){
                 std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
@@ -219,7 +245,8 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }
 
             return 0;
-        }});
+        }
+    });
 
     // cmds.push_back(
     //     {"test", "Test the expr", "test", \

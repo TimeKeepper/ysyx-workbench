@@ -1,6 +1,6 @@
 #include <watch_point.hpp>
 
-Watch_Point::Watch_Point(std::string expr, std::unique_ptr<Expr> expr_parser) : expr(expr), expr_parser(std::move(expr_parser)) {
+Watch_Point::Watch_Point(std::string expr, Expr* expr_parser) : expr(expr), expr_parser(expr_parser) {
     if(this->expr_parser->eval(expr) == "Invalid expression") {
         this->value = 0;
         return;
@@ -18,13 +18,12 @@ bool Watch_Point::check(){
     return false;
 }
 
-Watch_Point_Manager::Watch_Point_Manager(std::unique_ptr<Expr> expr_parser) : expr_parser(std::move(expr_parser)) {}
+Watch_Point_Manager::Watch_Point_Manager(Expr* expr_parser) : expr_parser(expr_parser) {}
 
 bool Watch_Point_Manager::add_watch_point(std::string expr){
     if(this->expr_parser->eval(expr) == "Invalid expression") return false;
 
-    Log("expr_parser exists %p", this->expr_parser.get());
-    this->watch_points.emplace_back(expr, std::make_unique<Expr>(*this->expr_parser));
+    this->watch_points.emplace_back(expr, this->expr_parser);
 
     return true;
 }

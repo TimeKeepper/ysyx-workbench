@@ -258,7 +258,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     //     }});
 
     this->expr = std::make_unique<Expr>();
-    this->wpm = std::make_unique<Watch_Point_Manager>(std::move(this->expr));
+    this->wpm = std::make_unique<Watch_Point_Manager>(this->expr.get());
 }
 static char* rl_gets() {
     static char *line_read = NULL;

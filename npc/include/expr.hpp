@@ -55,7 +55,8 @@ class Expr {
         Token(TokenType type, const std::string& value) : type(type), value(value) {};
         uint32_t get_val() {
             switch(this->type) {
-                case TokenType::REGISTER:   return emulator->cpu.gpr[gpr_name2id(this->value.substr(1))];
+                case TokenType::REGISTER:   if(this->value.substr(1) == "pc") return emulator->cpu.pc;
+                                            return emulator->cpu.gpr[gpr_name2id(this->value.substr(1))];
                 case TokenType::HEX:        return std::stoul(this->value, nullptr, 16);
                 case TokenType::DECIMAL:    return std::stoul(this->value);
                 default: return 0;

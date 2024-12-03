@@ -49,7 +49,6 @@ uint32_t Watch_Point_Manager::check_watch_points(){
 }
 
 void Watch_Point_Manager::print_watch_points(){
-    Log("Watchpoints: %ld", this->watch_points.size());
     for(int i = 0; i < this->watch_points.size(); i++){
         std::cout << ANSI_FG_CYAN << "Watchpoint " << i << ANSI_NONE << "\t: " << ANSI_FG_BLUE << this->watch_points[i].expr << ANSI_NONE << std::endl;
     }

@@ -101,7 +101,6 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                     return 0;
                 }
             }else if(args[0] == "w"){
-                Log("Call watch point manager");
                 this->wpm->print_watch_points();
             }
 

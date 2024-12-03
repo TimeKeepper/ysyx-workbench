@@ -6,6 +6,7 @@
 #include <emulator.hpp>
 
 Emulator* emulator;
+simple_debugger* sdb;
 
 void SDL_handle(int SIGNAL){
   if(SIGNAL == SIGINT && emulator->npc_state.state == NPC_RUNNING){
@@ -22,11 +23,12 @@ int main(int argc, char **argv) {
 
   signal(SIGINT, SDL_handle);
 
-  std::unique_ptr<simple_debugger> sdb = std::make_unique<simple_debugger>(emulator);
+  sdb = new simple_debugger(emulator);
 
   sdb->main_loop();
 
   delete emulator;
+  delete sdb;
 
   return 0;
 

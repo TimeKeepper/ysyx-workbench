@@ -260,6 +260,13 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     this->expr = std::make_unique<Expr>();
     this->wpm = std::make_unique<Watch_Point_Manager>(this->expr.get());
 }
+
+void simple_debugger::watch_point_mode(bool v) {
+    std::cout << "Watch Point Mode " << (v ? ANSI_FG_GREEN : ANSI_FG_RED) \
+    << (v ? "ON" : "OFF") << ANSI_NONE << std::endl;
+    this->is_watch_point_mode = v;
+}
+
 static char* rl_gets() {
     static char *line_read = NULL;
 

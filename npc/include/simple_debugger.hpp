@@ -23,6 +23,8 @@ class simple_debugger {
 
         std::unique_ptr<Expr> expr;
         std::unique_ptr<Watch_Point_Manager> wpm;
+        bool is_watch_point_mode = false;
+        void watch_point_mode(bool v);
     public:
         simple_debugger(Emulator* emulator);
         void main_loop();

@@ -4,22 +4,41 @@
 #include <utils.hpp>
 #include <vector>
 #include <regex>
+#include <queue>
 
 class Expr {
     private:
 
-    typedef enum {
+    enum class TokenType{
         SPACE,
+
         HEX,
         DECIMAL,
+
+        MUL,
+        DIV,
+        ADD,
+        SUB,
         EQ,
-    } TokenType;
+
+        LPAREN,
+        RPAREN,
+    };
 
     std::vector<std::pair<TokenType, std::regex>> token_patterns = {
-        {SPACE, std::regex("\\s+")},
-        {HEX, std::regex("0[xX][0-9a-fA-F]+")},
-        {DECIMAL, std::regex("\\d+")},
-        {EQ, std::regex("==")}
+        {TokenType::SPACE, std::regex("\\s+")},
+        
+        {TokenType::HEX, std::regex("0[xX][0-9a-fA-F]+")},
+        {TokenType::DECIMAL, std::regex("\\d+")},
+
+        {TokenType::MUL, std::regex("\\*")},
+        {TokenType::DIV, std::regex("/")},
+        {TokenType::ADD, std::regex("\\+")},
+        {TokenType::SUB, std::regex("-")},
+        {TokenType::EQ, std::regex("==")},
+
+        {TokenType::LPAREN, std::regex("\\(")},
+        {TokenType::RPAREN, std::regex("\\)")},
     };
 
     class Token {
@@ -29,19 +48,23 @@ class Expr {
 
         Token(TokenType type, const std::string& value) : type(type), value(value) {};
         uint32_t get_val() {
-            if(this->type == HEX){
+            if(this->type == TokenType::HEX){
                 return std::stoul(this->value, nullptr, 16);
             }
-            else if(this->type == DECIMAL){
+            else if(this->type == TokenType::DECIMAL){
                 return std::stoul(this->value);
             }
             return 0;
         }
     };
 
+    std::vector<Token> get_tokens(std::string expr);
+    std::queue<Expr::Token> RPN(std::vector<Token> tokens);
+    int precedence(TokenType type);
+    bool expr_valid(std::vector<Token> tokens);
+
     public:
         
-        std::vector<Token> get_tokens(std::string expr);
         std::string eval(std::string expr);
 };
 

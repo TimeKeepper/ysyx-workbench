@@ -196,10 +196,10 @@ void Expr::test(){
 
     std::string line;
     while(std::getline(input, line)){
-        std::string result = line.substr(0, line.find(" "));
+        uint32_t result = std::stoul( line.substr(0, line.find(" ")));
         std::string expr = line.substr(line.find(" ") + 1);
 
-        if(eval(expr) != result){
+        if(std::stoul(eval(expr), 0, 16) != result){
             std::cout << ANSI_FG_RED << "Test failed: " << ANSI_NONE << expr << std::endl;
             input.close();
             return;

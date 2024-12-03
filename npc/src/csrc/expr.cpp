@@ -35,6 +35,7 @@ std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
         }
     }
 
+    output.insert(output.end(), stack.begin(), stack.end());
     return output;
 }
 

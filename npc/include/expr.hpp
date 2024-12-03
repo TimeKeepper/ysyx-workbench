@@ -66,6 +66,7 @@ class Expr {
     public:
         
         std::string eval(std::string expr);
+        void test();
 };
 
 #endif

@@ -147,6 +147,7 @@ std::string Expr::eval(std::string expr){
         Rpn.pop();
 
         switch(token.type){
+            case TokenType::REGISTER:
             case TokenType::DECIMAL:
             case TokenType::HEX:
                 stack.push_back(token.get_val());

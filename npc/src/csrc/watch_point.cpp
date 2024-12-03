@@ -22,9 +22,9 @@ Watch_Point_Manager::Watch_Point_Manager(std::unique_ptr<Expr> expr_parser) : ex
 
 bool Watch_Point_Manager::add_watch_point(std::string expr){
     if(this->expr_parser->eval(expr) == "Invalid expression") return false;
-    Log("enter add_watch_point");
 
     this->watch_points.emplace_back(expr, std::make_unique<Expr>(*this->expr_parser));
+    Log("enter add_watch_point");
 
     return true;
 }

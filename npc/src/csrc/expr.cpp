@@ -133,10 +133,6 @@ std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
     if(!expr_valid(tokens)) return "Invalid expression";
 
-    if(tokens[0].type == TokenType::REGISTER){
-        Log("Register %d", emulator->cpu.gpr[gpr_name2id(tokens[0].value.substr(1).c_str())]);
-    }
-
     std::queue<Token> Rpn = RPN(tokens);
 
     if(Rpn.empty()) return "";

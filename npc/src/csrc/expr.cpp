@@ -39,7 +39,7 @@ std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 }
 
 std::string Expr::eval(std::string expr){
-    std::vector<Token> tokens = RPN(get_tokens(expr));
+    std::vector<Token> tokens = get_tokens(expr);
 
     // std::vector<uint32_t> stack;
     // for(auto token : tokens){

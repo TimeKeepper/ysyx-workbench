@@ -132,6 +132,10 @@ std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
     if(!expr_valid(tokens)) return "Invalid expression";
 
+    if(tokens[0].type == TokenType::REGISTER){
+        Log("Register %s", tokens[0].value.c_str());
+    }
+
     std::queue<Token> Rpn = RPN(tokens);
 
     if(Rpn.empty()) return "";

@@ -60,12 +60,6 @@ class Expr {
                 case TokenType::DECIMAL:    return std::stoul(this->value);
                 default: return 0;
             }
-            // if(this->type == TokenType::HEX){
-            //     return std::stoul(this->value, nullptr, 16);
-            // }
-            // else if(this->type == TokenType::DECIMAL){
-            //     return std::stoul(this->value);
-            // }
         }
     };
 

@@ -5,6 +5,17 @@
 #include <vector>
 #include <regex>
 
+int Expr::precedence(TokenType type) {
+    switch(type) {
+        case TokenType::EQ: return 1;
+        case TokenType::ADD:
+        case TokenType::SUB: return 2;
+        case TokenType::MUL:
+        case TokenType::DIV: return 3;
+        default: return 0;
+    }
+}
+
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
     std::string current_expr = expr;
@@ -39,6 +50,11 @@ std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
             case TokenType::SUB:
             case TokenType::MUL:
             case TokenType::DIV:
+                while(!Operator.empty() && Operator.top().type != TokenType::LPAREN &&
+                      precedence(Operator.top().type) >= precedence(token.type)){
+                    output.push(Operator.top());
+                    Operator.pop();
+                }
                 Operator.push(token);
                 break;
 

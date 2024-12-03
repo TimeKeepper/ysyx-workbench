@@ -15,11 +15,11 @@ class Expr {
         HEX,
         DECIMAL,
 
-        EQ,
-        ADD,
-        SUB,
         MUL,
         DIV,
+        ADD,
+        SUB,
+        EQ,
 
         LPAREN,
         RPAREN,
@@ -31,11 +31,11 @@ class Expr {
         {TokenType::HEX, std::regex("0[xX][0-9a-fA-F]+")},
         {TokenType::DECIMAL, std::regex("\\d+")},
 
-        {TokenType::EQ, std::regex("==")},
-        {TokenType::ADD, std::regex("\\+")},
-        {TokenType::SUB, std::regex("-")},
         {TokenType::MUL, std::regex("\\*")},
         {TokenType::DIV, std::regex("/")},
+        {TokenType::ADD, std::regex("\\+")},
+        {TokenType::SUB, std::regex("-")},
+        {TokenType::EQ, std::regex("==")},
 
         {TokenType::LPAREN, std::regex("\\(")},
         {TokenType::RPAREN, std::regex("\\)")},
@@ -60,6 +60,7 @@ class Expr {
 
     std::vector<Token> get_tokens(std::string expr);
     std::queue<Expr::Token> RPN(std::vector<Token> tokens);
+    int precedence(TokenType type);
 
     public:
         

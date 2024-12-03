@@ -4,6 +4,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <algorithm>
+#include <iomanip>
 
 std::string expr(std::string expr);
 
@@ -74,6 +75,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                     for(int i = 0; i < ARRLEN(this->emulator->cpu.gpr); i++){
                         std::cout << ANSI_FG_CYAN << gpr_id2name(i) \
                         << ANSI_NONE << "\t: " << ANSI_FG_BLUE \
+                        << std::hex << "0x" << std::setw(8) << std::setfill('0') \
                         << this->emulator->cpu.gpr[i] << ANSI_NONE \
                         << std::endl;
                     }
@@ -82,7 +84,8 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
                 if(args[1] == "pc"){
                     std::cout << ANSI_FG_CYAN << "pc" << ANSI_NONE << "\t: " \
-                    << ANSI_FG_BLUE << this->emulator->cpu.pc << ANSI_NONE << std::endl;
+                    << ANSI_FG_BLUE << std::hex << "0x" << std::setw(8) << std::setfill('0') \
+                    << this->emulator->cpu.pc << ANSI_NONE << std::endl;
                     return 0;
                 }
 

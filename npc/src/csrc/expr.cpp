@@ -121,6 +121,8 @@ std::string Expr::eval(std::string expr){
 
     std::queue<Token> Rpn = RPN(tokens);
 
+    if(Rpn.empty()) return "";
+
     std::vector<uint32_t> stack;
     while(!Rpn.empty()){
         Token token = Rpn.front();

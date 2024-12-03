@@ -5,6 +5,9 @@
 #include <vector>
 #include <regex>
 #include <queue>
+#include <emulator.hpp>
+
+extern Emulator* emulator;
 
 class Expr {
     private:
@@ -12,6 +15,7 @@ class Expr {
     enum class TokenType{
         SPACE,
 
+        REGISTER,
         HEX,
         DECIMAL,
 
@@ -28,6 +32,7 @@ class Expr {
     std::vector<std::pair<TokenType, std::regex>> token_patterns = {
         {TokenType::SPACE, std::regex("\\s+")},
         
+        {TokenType::REGISTER, std::regex("\\$[\\$]?[0-9a-zA-Z]+")},
         {TokenType::HEX, std::regex("0[xX][0-9a-fA-F]+")},
         {TokenType::DECIMAL, std::regex("\\d+")},
 
@@ -48,13 +53,19 @@ class Expr {
 
         Token(TokenType type, const std::string& value) : type(type), value(value) {};
         uint32_t get_val() {
-            if(this->type == TokenType::HEX){
-                return std::stoul(this->value, nullptr, 16);
+            switch(this->type) {
+                int gpr_name2id(const std::string& name);
+                case TokenType::REGISTER:   return emulator->cpu.gpr[gpr_name2id(this->value)];
+                case TokenType::HEX:        return std::stoul(this->value, nullptr, 16);
+                case TokenType::DECIMAL:    return std::stoul(this->value);
+                default: return 0;
             }
-            else if(this->type == TokenType::DECIMAL){
-                return std::stoul(this->value);
-            }
-            return 0;
+            // if(this->type == TokenType::HEX){
+            //     return std::stoul(this->value, nullptr, 16);
+            // }
+            // else if(this->type == TokenType::DECIMAL){
+            //     return std::stoul(this->value);
+            // }
         }
     };
 

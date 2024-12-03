@@ -216,12 +216,12 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             return 0;
         }});
 
-    cmds.push_back(
-        {"test", "Test the expr", "test", \
-        [&](std::vector<std::string> args){
-            this->expr->test();
-            return 0;
-        }});
+    // cmds.push_back(
+    //     {"test", "Test the expr", "test", \
+    //     [&](std::vector<std::string> args){
+    //         this->expr->test();
+    //         return 0;
+    //     }});
 
     this->expr = std::make_unique<Expr>();
 }

@@ -5,28 +5,45 @@
 #include <vector>
 #include <regex>
 #include <fstream>
+#include <iomanip>
 
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
     std::string current_expr = expr;
 
     while(current_expr.size() > 0){
+        bool matched = false;
         for(auto token_pattern : token_patterns){
             std::smatch match;
             if(!std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)) continue;
 
             if(token_pattern.first != TokenType::SPACE) tokens.push_back(Token(token_pattern.first, match.str()));
             current_expr = match.suffix();
+            matched = true;
             break;
         }
+        if(!matched) return {};
     }
 
     return tokens;
 }
 
 bool Expr::expr_valid(std::vector<Token> tokens){
-    std::vector<TokenType> valid_tokens = {TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB, TokenType::EQ};
-    std::vector<TokenType> valid_tokens_no_eq = {TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB};
+    auto is_valid_token = [](TokenType type) {
+        switch(type) {
+            case TokenType::REGISTER:
+            case TokenType::HEX:
+            case TokenType::DECIMAL:
+            case TokenType::MUL:
+            case TokenType::DIV:
+            case TokenType::ADD:
+            case TokenType::SUB:
+            case TokenType::EQ:
+                return true;
+            default:
+                return false;
+        }
+    };
 
     std::vector<TokenType> stack;
     for(auto token : tokens){
@@ -37,16 +54,12 @@ bool Expr::expr_valid(std::vector<Token> tokens){
             if(stack.empty() || stack.back() != TokenType::LPAREN) return false;
             stack.pop_back();
         }
-        else if(token.type == TokenType::EQ){
-            if(stack.empty() || stack.back() != TokenType::EQ) return false;
-            stack.pop_back();
-        }
         else{
             if(stack.empty() || stack.back() == TokenType::LPAREN){
-                if(std::find(valid_tokens_no_eq.begin(), valid_tokens_no_eq.end(), token.type) == valid_tokens_no_eq.end()) return false;
+                if(!is_valid_token(token.type)) return false;
             }
             else{
-                if(std::find(valid_tokens.begin(), valid_tokens.end(), token.type) == valid_tokens.end()) return false;
+                if(!is_valid_token(token.type)) return false;
             }
         }
     }
@@ -73,8 +86,9 @@ std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 
     for(auto token : tokens){
         switch(token.type){
-            case TokenType::DECIMAL:
+            case TokenType::REGISTER:
             case TokenType::HEX:
+            case TokenType::DECIMAL:
                 output.push(token);
                 break;
 
@@ -116,6 +130,8 @@ std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
+    if(tokens.empty()) return "";
+
     if(!expr_valid(tokens)) return "Invalid expression";
 
     std::queue<Token> Rpn = RPN(tokens);
@@ -128,6 +144,7 @@ std::string Expr::eval(std::string expr){
         Rpn.pop();
 
         switch(token.type){
+            case TokenType::REGISTER:
             case TokenType::DECIMAL:
             case TokenType::HEX:
                 stack.push_back(token.get_val());
@@ -168,7 +185,9 @@ std::string Expr::eval(std::string expr){
         }
     }
 
-    return std::to_string(stack.back());
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(8) << std::hex << stack.back();
+    return "0x" + ss.str();
 }
 
 void Expr::test(){
@@ -182,10 +201,10 @@ void Expr::test(){
 
     std::string line;
     while(std::getline(input, line)){
-        std::string result = line.substr(0, line.find(" "));
+        uint32_t result = std::stoul( line.substr(0, line.find(" ")));
         std::string expr = line.substr(line.find(" ") + 1);
 
-        if(eval(expr) != result){
+        if(std::stoul(eval(expr), 0, 16) != result){
             std::cout << ANSI_FG_RED << "Test failed: " << ANSI_NONE << expr << std::endl;
             input.close();
             return;

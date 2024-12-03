@@ -81,8 +81,6 @@ void init_disasm(const char *triple) {
   gIP->setPrintBranchImmAsAddress(true);
   if (isa == "riscv32" || isa == "riscv64")
     gIP->applyTargetSpecificCLOption("no-aliases");
-  
-  Log("Instruction Trace " ANSI_FMT("ON", ANSI_FG_GREEN));
 }
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte) {

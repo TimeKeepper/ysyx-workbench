@@ -52,6 +52,15 @@ std::map<uint8_t, std::string> gpr_key = {
     {31, "t6"}
 };
 
+const int gpr_name2id(const std::string& name){
+    for(auto &i : gpr_key){
+        if(i.second == name){
+            return i.first;
+        }
+    }
+    return -1;
+}
+
 const char* gpr_id2name(int id){
     auto it = gpr_key.find(id);
     if(it != gpr_key.end()){

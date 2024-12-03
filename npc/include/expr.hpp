@@ -5,6 +5,10 @@
 #include <vector>
 #include <regex>
 #include <queue>
+#include <emulator.hpp>
+
+extern Emulator* emulator;
+int gpr_name2id(const std::string& name);
 
 class Expr {
     private:
@@ -12,6 +16,7 @@ class Expr {
     enum class TokenType{
         SPACE,
 
+        REGISTER,
         HEX,
         DECIMAL,
 
@@ -28,6 +33,7 @@ class Expr {
     std::vector<std::pair<TokenType, std::regex>> token_patterns = {
         {TokenType::SPACE, std::regex("\\s+")},
         
+        {TokenType::REGISTER, std::regex("\\$[\\$]?[0-9a-zA-Z]+")},
         {TokenType::HEX, std::regex("0[xX][0-9a-fA-F]+")},
         {TokenType::DECIMAL, std::regex("\\d+")},
 
@@ -35,7 +41,7 @@ class Expr {
         {TokenType::DIV, std::regex("/")},
         {TokenType::ADD, std::regex("\\+")},
         {TokenType::SUB, std::regex("-")},
-        {TokenType::EQ, std::regex("==")},
+        {TokenType::EQ,  std::regex("==")},
 
         {TokenType::LPAREN, std::regex("\\(")},
         {TokenType::RPAREN, std::regex("\\)")},
@@ -48,13 +54,13 @@ class Expr {
 
         Token(TokenType type, const std::string& value) : type(type), value(value) {};
         uint32_t get_val() {
-            if(this->type == TokenType::HEX){
-                return std::stoul(this->value, nullptr, 16);
+            switch(this->type) {
+                case TokenType::REGISTER:   if(this->value.substr(1) == "pc") return emulator->cpu.pc;
+                                            return emulator->cpu.gpr[gpr_name2id(this->value.substr(1))];
+                case TokenType::HEX:        return std::stoul(this->value, nullptr, 16);
+                case TokenType::DECIMAL:    return std::stoul(this->value);
+                default: return 0;
             }
-            else if(this->type == TokenType::DECIMAL){
-                return std::stoul(this->value);
-            }
-            return 0;
         }
     };
 

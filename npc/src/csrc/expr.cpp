@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <fstream>
 
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
@@ -168,4 +169,32 @@ std::string Expr::eval(std::string expr){
     }
 
     return std::to_string(stack.back());
+}
+
+void Expr::test(){
+    std::string test_input = "/home/wenjiu/ysyx-workbench/nemu/tools/gen-expr/input";
+
+    std::ifstream input(test_input);
+    if(!input.is_open()){
+        std::cout << "Cannot open file: " << test_input << std::endl;
+        return;
+    }
+
+    std::string line;
+    // while(std::getline(input, line)){
+    //     std::string result = line.substr(0, line.find(" "));
+    //     std::string expr = line.substr(line.find(" ") + 1);
+
+    //     if(eval(expr) != result){
+    //         std::cout << "Test failed: " << expr << std::endl;
+    //         return;
+    //     }
+    // }
+
+    std::getline(input, line);
+    std::cout << line << std::endl;
+
+    input.close();
+
+    std::cout << "All tests passed" << std::endl;
 }

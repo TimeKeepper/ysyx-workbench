@@ -203,7 +203,9 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 return 0;
             }
 
-            std::string expr = args[0];
+            std::string expr = std::accumulate(args.begin(), args.end(), std::string(" "), [](std::string a, std::string b) {
+                return a + b + " ";
+            });
             if(this->wpm->add_watch_point(expr)){
                 std::cout << ANSI_FG_CYAN << "Watchpoint set on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << expr << ANSI_NONE << std::endl;
             }else{

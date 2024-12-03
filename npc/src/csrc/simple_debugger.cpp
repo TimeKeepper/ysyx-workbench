@@ -100,7 +100,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                     std::cout << ANSI_FG_RED << "Unknown register: " << args[1] << ANSI_NONE << std::endl;
                     return 0;
                 }
-            }else if(args[1] == "w"){
+            }else if(args[0] == "w"){
                 Log("Call watch point manager");
                 this->wpm->print_watch_points();
             }

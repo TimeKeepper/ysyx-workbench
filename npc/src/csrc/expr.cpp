@@ -25,8 +25,8 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
 }
 
 bool Expr::expr_valid(std::vector<Token> tokens){
-    std::vector<TokenType> valid_tokens = {TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB, TokenType::EQ};
-    std::vector<TokenType> valid_tokens_no_eq = {TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB};
+    std::vector<TokenType> valid_tokens = {TokenType::REGISTER, TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB, TokenType::EQ};
+    std::vector<TokenType> valid_tokens_no_eq = {TokenType::REGISTER, TokenType::HEX, TokenType::DECIMAL, TokenType::MUL, TokenType::DIV, TokenType::ADD, TokenType::SUB};
 
     std::vector<TokenType> stack;
     for(auto token : tokens){

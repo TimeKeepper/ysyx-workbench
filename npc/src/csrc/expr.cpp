@@ -6,17 +6,22 @@
 
 std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::vector<Token> tokens;
-    
-    while(expr.size() > 0){
-        for(auto pattern : token_patterns){
+    std::string current_expr = expr;
+
+    while(current_expr.size() > 0){
+        bool found = false;
+        for(auto token_pattern : token_patterns){
             std::smatch match;
-            if(std::regex_search(expr, match, pattern.second)){
-                std::cout << match.str() << std::endl;
-                std::cout << pattern.first << std::endl;
-                tokens.push_back(Token(pattern.first, match.str()));
-                expr = match.suffix();
+            if(std::regex_search(current_expr, match, token_pattern.second)){
+                tokens.push_back(Token(token_pattern.first, match.str()));
+                current_expr = match.suffix();
+                found = true;
                 break;
             }
+        }
+
+        if(!found){
+            throw std::runtime_error("Invalid expression");
         }
     }
 

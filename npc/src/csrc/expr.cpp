@@ -190,6 +190,8 @@ void Expr::test(){
             input.close();
             return;
         }
+
+        std::cout << "Test passed: " << expr << std::endl;
     }
 
     input.close();

@@ -11,8 +11,8 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     while(current_expr.size() > 0){
         for(auto token_pattern : token_patterns){
             std::smatch match;
-            if(std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)) continue;
-            
+            if(!std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)) continue;
+
             if(token_pattern.first != SPACE) tokens.push_back(Token(token_pattern.first, match.str()));
             current_expr = match.suffix();
             break;

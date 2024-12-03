@@ -186,15 +186,15 @@ void Expr::test(){
         std::string expr = line.substr(line.find(" ") + 1);
 
         if(eval(expr) != result){
-            std::cout << "Test failed: " << expr << std::endl;
+            std::cout << ANSI_FG_RED << "Test failed: " << ANSI_NONE << expr << std::endl;
             input.close();
             return;
         }
 
-        std::cout << "Test passed: " << expr << std::endl;
+        // std::cout << ANSI_FG_GREEN << "Test passed: " << ANSI_NONE << expr << std::endl;
     }
 
     input.close();
 
-    std::cout << "All tests passed" << std::endl;
+    std::cout << ANSI_FG_GREEN << "All tests passed" << ANSI_NONE << std::endl;
 }

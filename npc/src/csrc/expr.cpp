@@ -55,7 +55,7 @@ std::string Expr::eval(std::string expr){
     //     }
     // }
 
-    return std::to_string(std::accumulate(tokens.begin(), tokens.end(), 0, [](int acc, Token token){ return acc + token.get_val(); }));
+    return std::accumulate(tokens.begin(), tokens.end(), std::string(), [](std::string acc, Token token){ return acc + token.value; });
 
     // return std::to_string(stack.back());
 }

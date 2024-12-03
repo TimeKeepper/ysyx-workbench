@@ -216,6 +216,13 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }
     });
 
+    cmds.push_back(
+        {"test", "Test the expr", "test", \
+        [&](std::vector<std::string> args){
+            this->expr->test();
+            return 0;
+        }});
+
     cmds.push_back({
         "func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
@@ -249,13 +256,6 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             return 0;
         }
     });
-
-    cmds.push_back(
-        {"test", "Test the expr", "test", \
-        [&](std::vector<std::string> args){
-            this->expr->test();
-            return 0;
-        }});
 
     this->expr = std::make_unique<Expr>();
     this->wpm = std::make_unique<Watch_Point_Manager>(this->expr.get());

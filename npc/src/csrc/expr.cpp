@@ -87,8 +87,9 @@ std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 
     for(auto token : tokens){
         switch(token.type){
-            case TokenType::DECIMAL:
+            case TokenType::REGISTER:
             case TokenType::HEX:
+            case TokenType::DECIMAL:
                 output.push(token);
                 break;
 

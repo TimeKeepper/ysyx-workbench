@@ -117,8 +117,6 @@ std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = get_tokens(expr);
     if(!expr_valid(tokens)) return "Invalid expression";
 
-    Log("Valid expression");
-
     std::queue<Token> Rpn = RPN(tokens);
 
     if(Rpn.empty()) return "";

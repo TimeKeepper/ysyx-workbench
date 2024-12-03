@@ -41,21 +41,21 @@ std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
 std::string Expr::eval(std::string expr){
     std::vector<Token> tokens = RPN(get_tokens(expr));
 
-    std::vector<uint32_t> stack;
-    for(auto token : tokens){
-        if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){
-            stack.push_back(token.get_val());
-        }
-        else if(token.type == TokenType::EQ){
-            uint32_t a = stack.back();
-            stack.pop_back();
-            uint32_t b = stack.back();
-            stack.pop_back();
-            stack.push_back(a == b);
-        }
-    }
+    // std::vector<uint32_t> stack;
+    // for(auto token : tokens){
+    //     if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){
+    //         stack.push_back(token.get_val());
+    //     }
+    //     else if(token.type == TokenType::EQ){
+    //         uint32_t a = stack.back();
+    //         stack.pop_back();
+    //         uint32_t b = stack.back();
+    //         stack.pop_back();
+    //         stack.push_back(a == b);
+    //     }
+    // }
 
-    return std::to_string(std::accumulate(stack.begin(), stack.end(), 0));
+    return std::to_string(std::accumulate(tokens.begin(), tokens.end(), 0, [](int acc, Token token){ return acc + token.get_val(); }));
 
     // return std::to_string(stack.back());
 }

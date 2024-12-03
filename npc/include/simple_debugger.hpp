@@ -7,6 +7,7 @@
 #include <vector>
 #include <emulator.hpp>
 #include <expr.hpp>
+#include <watch_point.hpp>
 
 struct cmd {
     std::string name;
@@ -21,6 +22,7 @@ class simple_debugger {
         Emulator* emulator;
 
         std::unique_ptr<Expr> expr;
+        std::unique_ptr<Watch_Point_Manager> wpm;
     public:
         simple_debugger(Emulator* emulator);
         void main_loop();

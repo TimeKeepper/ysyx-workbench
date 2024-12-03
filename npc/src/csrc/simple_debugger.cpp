@@ -100,6 +100,8 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                     std::cout << ANSI_FG_RED << "Unknown register: " << args[1] << ANSI_NONE << std::endl;
                     return 0;
                 }
+            }else if(args[1] == "w"){
+                this->wpm->print_watch_points();
             }
 
             return 0;
@@ -224,6 +226,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     //     }});
 
     this->expr = std::make_unique<Expr>();
+    this->wpm = std::make_unique<Watch_Point_Manager>(std::move(this->expr));
 }
 static char* rl_gets() {
     static char *line_read = NULL;

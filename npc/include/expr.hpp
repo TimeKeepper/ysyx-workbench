@@ -41,7 +41,7 @@ class Expr {
         {TokenType::DIV, std::regex("/")},
         {TokenType::ADD, std::regex("\\+")},
         {TokenType::SUB, std::regex("-")},
-        {TokenType::EQ, std::regex("==")},
+        {TokenType::EQ,  std::regex("==")},
 
         {TokenType::LPAREN, std::regex("\\(")},
         {TokenType::RPAREN, std::regex("\\)")},

@@ -1,5 +1,6 @@
 #include <expr.hpp>
 #include <numeric>
+#include <queue>
 #include <string>
 #include <vector>
 #include <regex>
@@ -22,54 +23,94 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     return tokens;
 }
 
-std::vector<Expr::Token> Expr::RPN(std::vector<Token> tokens){
-    std::vector<Token> output;
-    std::vector<Token> stack;
+std::queue<Expr::Token> Expr::RPN(std::vector<Token> tokens){
+    std::stack<Token> Operator;
+    std::queue<Token> output;
 
     for(auto token : tokens){
         switch(token.type){
             case TokenType::DECIMAL:
             case TokenType::HEX:
-                output.push_back(token);
+                output.push(token);
                 break;
 
             case TokenType::EQ:
-                stack.push_back(token);
+            case TokenType::ADD:
+            case TokenType::SUB:
+            case TokenType::MUL:
+            case TokenType::DIV:
+                Operator.push(token);
                 break;
 
             case TokenType::LPAREN:
-                stack.push_back(token);
+                Operator.push(token);
                 break;
             case TokenType::RPAREN:
-                while(stack.back().type != TokenType::LPAREN){
-                    output.push_back(stack.back());
-                    stack.pop_back();
+                while(Operator.top().type != TokenType::LPAREN){
+                    output.push(Operator.top());
+                    Operator.pop();
                 }
-                stack.pop_back();
+                Operator.pop();
                 break;
 
             default: break;
         }
     }
 
-    output.insert(output.end(), stack.begin(), stack.end());
+    while(!Operator.empty()){
+        output.push(Operator.top());
+        Operator.pop();
+    }
+
     return output;
 }
 
 std::string Expr::eval(std::string expr){
-    std::vector<Token> tokens = RPN(get_tokens(expr));
+    std::queue<Token> tokens = RPN(get_tokens(expr));
 
     std::vector<uint32_t> stack;
-    for(auto token : tokens){
-        if(token.type == TokenType::DECIMAL || token.type == TokenType::HEX){
-            stack.push_back(token.get_val());
-        }
-        else if(token.type == TokenType::EQ){
-            uint32_t a = stack.back();
-            stack.pop_back();
-            uint32_t b = stack.back();
-            stack.pop_back();
-            stack.push_back(a == b);
+    while(!tokens.empty()){
+        Token token = tokens.front();
+        tokens.pop();
+
+        switch(token.type){
+            case TokenType::DECIMAL:
+            case TokenType::HEX:
+                stack.push_back(token.get_val());
+                break;
+
+            case TokenType::EQ:
+            case TokenType::ADD:
+            case TokenType::SUB:
+            case TokenType::MUL:
+            case TokenType::DIV:{
+                uint32_t b = stack.back();
+                stack.pop_back();
+                uint32_t a = stack.back();
+                stack.pop_back();
+
+                switch(token.type){
+                    case TokenType::EQ:
+                        stack.push_back(a == b);
+                        break;
+                    case TokenType::ADD:
+                        stack.push_back(a + b);
+                        break;
+                    case TokenType::SUB:
+                        stack.push_back(a - b);
+                        break;
+                    case TokenType::MUL:
+                        stack.push_back(a * b);
+                        break;
+                    case TokenType::DIV:
+                        stack.push_back(a / b);
+                        break;
+                    default: break;
+                }
+                break;
+            }
+            
+            default: break;
         }
     }
 

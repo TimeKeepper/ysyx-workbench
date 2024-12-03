@@ -4,6 +4,7 @@
 #include <utils.hpp>
 #include <vector>
 #include <regex>
+#include <queue>
 
 class Expr {
     private:
@@ -15,6 +16,10 @@ class Expr {
         DECIMAL,
 
         EQ,
+        ADD,
+        SUB,
+        MUL,
+        DIV,
 
         LPAREN,
         RPAREN,
@@ -27,6 +32,10 @@ class Expr {
         {TokenType::DECIMAL, std::regex("\\d+")},
 
         {TokenType::EQ, std::regex("==")},
+        {TokenType::ADD, std::regex("\\+")},
+        {TokenType::SUB, std::regex("-")},
+        {TokenType::MUL, std::regex("\\*")},
+        {TokenType::DIV, std::regex("/")},
 
         {TokenType::LPAREN, std::regex("\\(")},
         {TokenType::RPAREN, std::regex("\\)")},
@@ -50,7 +59,7 @@ class Expr {
     };
 
     std::vector<Token> get_tokens(std::string expr);
-    std::vector<Token> RPN(std::vector<Token> tokens);
+    std::queue<Expr::Token> RPN(std::vector<Token> tokens);
 
     public:
         

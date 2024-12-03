@@ -1,6 +1,11 @@
 #include <watch_point.hpp>
 
 Watch_Point::Watch_Point(std::string expr, std::unique_ptr<Expr> expr_parser) : expr(expr), expr_parser(std::move(expr_parser)) {
+    if(this->expr_parser->eval(expr) == "Invalid expression") {
+        this->value = 0;
+        return;
+    }
+
     this->value = std::stoul(expr_parser->eval(expr));
 }
 

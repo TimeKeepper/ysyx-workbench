@@ -9,19 +9,13 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::string current_expr = expr;
 
     while(current_expr.size() > 0){
-        bool found = false;
         for(auto token_pattern : token_patterns){
             std::smatch match;
-            if(std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)){
-                tokens.push_back(Token(token_pattern.first, match.str()));
-                current_expr = match.suffix();
-                found = true;
-                break;
-            }
-        }
-
-        if(!found){
-            throw std::runtime_error("Invalid expression");
+            if(std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)) continue;
+            
+            if(token_pattern.first != SPACE) tokens.push_back(Token(token_pattern.first, match.str()));
+            current_expr = match.suffix();
+            break;
         }
     }
 

@@ -26,7 +26,7 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
 }
 
 bool Expr::expr_valid(std::vector<Token> tokens){
-    auto is_valid_token = [](TokenType type, bool allow_eq) {
+    auto is_valid_token = [](TokenType type) {
         switch(type) {
             case TokenType::REGISTER:
             case TokenType::HEX:
@@ -35,9 +35,8 @@ bool Expr::expr_valid(std::vector<Token> tokens){
             case TokenType::DIV:
             case TokenType::ADD:
             case TokenType::SUB:
-                return true;
             case TokenType::EQ:
-                return allow_eq;
+                return true;
             default:
                 return false;
         }
@@ -52,16 +51,12 @@ bool Expr::expr_valid(std::vector<Token> tokens){
             if(stack.empty() || stack.back() != TokenType::LPAREN) return false;
             stack.pop_back();
         }
-        else if(token.type == TokenType::EQ){
-            if(stack.empty() || stack.back() != TokenType::EQ) return false;
-            stack.pop_back();
-        }
         else{
             if(stack.empty() || stack.back() == TokenType::LPAREN){
-                if(!is_valid_token(token.type, false)) return false;
+                if(!is_valid_token(token.type)) return false;
             }
             else{
-                if(!is_valid_token(token.type, true)) return false;
+                if(!is_valid_token(token.type)) return false;
             }
         }
     }

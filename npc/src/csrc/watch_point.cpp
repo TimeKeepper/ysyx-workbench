@@ -24,7 +24,6 @@ bool Watch_Point_Manager::add_watch_point(std::string expr){
     if(this->expr_parser->eval(expr) == "Invalid expression") return false;
 
     this->watch_points.emplace_back(expr, this->expr_parser);
-    Log("expr %s", expr.c_str());
 
     return true;
 }

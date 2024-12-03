@@ -12,14 +12,17 @@ std::vector<Expr::Token> Expr::get_tokens(std::string expr){
     std::string current_expr = expr;
 
     while(current_expr.size() > 0){
+        bool matched = false;
         for(auto token_pattern : token_patterns){
             std::smatch match;
             if(!std::regex_search(current_expr, match, token_pattern.second, std::regex_constants::match_continuous)) continue;
 
             if(token_pattern.first != TokenType::SPACE) tokens.push_back(Token(token_pattern.first, match.str()));
             current_expr = match.suffix();
+            matched = true;
             break;
         }
+        if(!matched) return {};
     }
 
     return tokens;

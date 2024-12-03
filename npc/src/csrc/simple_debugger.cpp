@@ -279,7 +279,7 @@ void simple_debugger::main_loop() {
         });
 
         if (it == cmds.end()) {
-            std::cout << ANSI_FG_BLUE << "0x" << std::hex << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
+            std::cout << ANSI_FG_BLUE << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
             continue;
         }
         

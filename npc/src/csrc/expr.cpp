@@ -184,7 +184,9 @@ std::string Expr::eval(std::string expr){
         }
     }
 
-    return std::to_string(stack.back());
+    std::stringstream ss;
+    ss << std::hex << stack.back();
+    return ss.str();
 }
 
 void Expr::test(){

@@ -11,6 +11,7 @@ Watch_Point::Watch_Point(std::string expr, Expr* expr_parser) : expr(expr), expr
 
 bool Watch_Point::check(){
     Log("watch_point check");
+    Log("%d, %lu", this->value, std::stoul(expr_parser->eval(expr)));
     if(this->value != std::stoul(expr_parser->eval(expr))){
         this->value = std::stoul(expr_parser->eval(expr));
         return true;

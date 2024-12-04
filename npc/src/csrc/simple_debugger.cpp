@@ -68,10 +68,10 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     });
 
     cmds.push_back({
-        "info", "Print information about the emulator", "info <r/w> <target>", \
+        "info", "Print information about the emulator", "info <r/w/b> <target>", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
-                std::cout << ANSI_FG_RED << "You should input r/w" << ANSI_NONE << std::endl;
+                std::cout << ANSI_FG_RED << "You should input r/w/b" << ANSI_NONE << std::endl;
                 return 0;
             }
 
@@ -107,6 +107,8 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 }
             }else if(args[0] == "w"){
                 this->wpm->print_watch_points();
+            }else if(args[0] == "b"){
+                this->wpm->print_break_points();
             }
 
             return 0;
@@ -214,6 +216,25 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
             return 0;
         }
+    });
+
+    cmds.push_back({
+       "b", "Set a breakpoint", "b <addr>", \
+       [&](std::vector<std::string> args){
+           if(args.size() == 0){
+               std::cout << ANSI_FG_RED << "You should input an address" << ANSI_NONE << std::endl;
+               return 0;
+           }
+
+           std::string addr = args[0];
+           if(this->wpm->add_break_point(addr)){
+               std::cout << ANSI_FG_CYAN << "Breakpoint set on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << addr << ANSI_NONE << std::endl;
+           }else{
+               std::cout << ANSI_FG_RED << "Invalid expression" << ANSI_NONE << std::endl;
+           }
+
+           return 0;
+       } 
     });
 
     cmds.push_back(

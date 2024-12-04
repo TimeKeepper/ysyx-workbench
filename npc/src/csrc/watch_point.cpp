@@ -18,17 +18,17 @@ bool Watch_Point::check(){
     return false;
 }
 
-Break_Point::Break_Point(std::string addr, Expr* expr_parser) : addr(addr), expr_parser(expr_parser) {
-    if(this->expr_parser->eval(addr) == "Invalid expression") {
-        this->value = 0;
+Break_Point::Break_Point(std::string addr_str, Expr* expr_parser) : expr_parser(expr_parser) {
+    if(this->expr_parser->eval(addr_str) == "Invalid expression") {
+        this->addr = 0;
         return;
     }
 
-    this->value = std::stoul(expr_parser->eval(addr), 0, 16);
+    this->addr = std::stoul(expr_parser->eval(addr_str), 0, 16);
 }
 
 bool Break_Point::check(){
-    return this->value == std::stoul(this->expr_parser->eval(this->addr), 0, 16);
+    return this->addr == std::stoul(this->expr_parser->eval("$pc"), 0, 16);
 }
 
 Watch_Point_Manager::Watch_Point_Manager(Expr* expr_parser) : expr_parser(expr_parser) {}

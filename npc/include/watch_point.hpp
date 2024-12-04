@@ -16,11 +16,10 @@ class Watch_Point {
 
 class Break_Point {
     public:
-        std::string addr;
-        uint32_t value;
+        uint32_t addr;
         Expr* expr_parser;
 
-        Break_Point(std::string addr, Expr* expr_parser);
+        Break_Point(std::string addr_str, Expr* expr_parser);
         bool check();
 };
 

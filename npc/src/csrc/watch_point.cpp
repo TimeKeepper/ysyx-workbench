@@ -1,4 +1,5 @@
 #include <watch_point.hpp>
+#include <iomanip>
 
 Watch_Point::Watch_Point(std::string expr, Expr* expr_parser) : expr(expr), expr_parser(expr_parser) {
     if(this->expr_parser->eval(expr) == "Invalid expression") {
@@ -81,7 +82,7 @@ uint32_t Watch_Point_Manager::check_break_points(){
     uint32_t hit = 0;
     for(auto &bp : this->break_points){
         if(bp.check()){
-            std::cout << ANSI_FG_CYAN << "Breakpoint triggered: " << ANSI_NONE << bp.addr << std::endl;
+            std::cout << ANSI_FG_CYAN << "Breakpoint triggered: " << ANSI_NONE << std::hex << "0x" << std::setw(8) << std::setfill('0') << bp.addr << std::endl;
             hit++;
         }
     }

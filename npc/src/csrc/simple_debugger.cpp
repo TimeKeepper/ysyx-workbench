@@ -330,6 +330,7 @@ void simple_debugger::main_loop() {
 }
 
 void simple_debugger::inst_comp(void) {
+    Log("inst_comp");
     if(this->wpm->check_watch_points()){
         this->emulator->npc_state.state = NPC_STOP;
     }

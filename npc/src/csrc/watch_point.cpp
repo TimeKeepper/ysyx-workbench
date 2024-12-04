@@ -28,7 +28,7 @@ Break_Point::Break_Point(std::string addr, Expr* expr_parser) : addr(addr), expr
 }
 
 bool Break_Point::check(){
-    return this->value == std::stoul(this->expr_parser->eval(this->addr));
+    return this->value == std::stoul(this->expr_parser->eval(this->addr), 0, 16);
 }
 
 Watch_Point_Manager::Watch_Point_Manager(Expr* expr_parser) : expr_parser(expr_parser) {}

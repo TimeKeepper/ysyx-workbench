@@ -41,6 +41,27 @@ class IDU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class IDU_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle {
+        val ID = Input(Bool())
+        val Inst_Type = Input(UInt(2.W))
+    })
+    setInline("IDU_catch.v",
+    """module IDU_catch(
+    |   input ID,
+    |   input [1:0] Inst_Type
+    |);
+    |import "DPI-C" function void IDU_catch(input int unsigned Inst_Type);
+    |
+    |always @(posedge ID) begin
+    |    IDU_catch({30'h0, Inst_Type});
+    |end
+    |
+    |endmodule
+    |
+    """.stripMargin)
+}
+
 trait DecodeAPI {
     def Get_BitPat[T <: Data](Enum: T): BitPat = {
         BitPat(Enum.litValue.U(Enum.getWidth.W))
@@ -184,10 +205,10 @@ object PC_Field extends DecodeField[rvInstructionPattern, UInt] with DecodeAPI {
     override def chiselType = UInt(2.W)
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
-            case "lb" | "lh" | "lw" | "lbu" | "lhu" | "sb" | "sh" | "sw" => BitPat("b00")
+            case "lb" | "lh" | "lw" | "lbu" | "lhu" | "sb" | "sh" | "sw" => BitPat("b01")
             case _ => i.inst.args.map(_.toString()).collectFirst {
-                case "csr" => BitPat("b01")
-            }.getOrElse(BitPat("b10"))
+                case "csr" => BitPat("b10")
+            }.getOrElse(BitPat("b00"))
         }
     }
 }
@@ -255,6 +276,14 @@ class IDU extends Module{
 
     val rvdecoderResult = chisel3.util.experimental.decode.decoder(QMCMinimizer, io.IFU_2_IDU.bits.data, table).asTypeOf(Decode_bundle)
     
+    if(Config.Simulate) {
+        val catchTable = new DecodeTable(instList, Seq(PC_Field))
+        val catchResult = catchTable.decode(io.IFU_2_IDU.bits.data)
+        val Catch = Module(new IDU_catch)
+        Catch.io.ID := io.IFU_2_IDU.fire && !reset.asBool
+        Catch.io.Inst_Type := catchResult(PC_Field)
+    }
+
     if(Config.DPIC_on) {
         val PCdecoderTable = new DecodeTable(instList, Seq(PC_Field))
         val PCdecoderResult = PCdecoderTable.decode(io.IFU_2_IDU.bits.data)

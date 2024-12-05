@@ -66,6 +66,7 @@ class Emulator {
         void Emulator_trap(uint32_t a0);
 
         void IFU_catch(uint32_t inst);
+        void IDU_catch(performence::Inst_Type type);
         void LSU_catch(uint32_t diff_skip);
         void WBU_catch(uint32_t next_pc, \
         uint32_t gpr_waddr, uint32_t gpr_wdata, \

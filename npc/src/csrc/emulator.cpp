@@ -311,6 +311,10 @@ void Emulator::IFU_catch(uint32_t inst){
     std::cout << this->disasm(cpu.pc, inst) << std::endl;
 }
 
+void Emulator::IDU_catch(performence::Inst_Type type){
+    this->perf->inst_type_set(type);
+}
+
 void Emulator::LSU_catch(uint32_t diff_skip){
     if(diff_skip == 0) return;
 

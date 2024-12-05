@@ -1,3 +1,4 @@
+#include "performence.hpp"
 #include <simple_debugger.hpp>
 #include <memory>
 #include <utils.hpp>
@@ -50,6 +51,17 @@ extern "C" {
 
     extern void IFU_catch(uint32_t inst){
         emulator->IFU_catch(inst);
+    }
+
+    extern void IDU_catch(uint32_t type){
+        performence::Inst_Type inst_type;
+        switch(type){
+            case 0: inst_type = performence::Inst_Type::Cal; break;
+            case 1: inst_type = performence::Inst_Type::LS; break;
+            case 2: inst_type = performence::Inst_Type::CSR; break;
+            default: inst_type = performence::Inst_Type::GP; break;
+        }
+        emulator->IDU_catch(inst_type);
     }
 
     extern void LSU_catch(uint32_t diff_skip){

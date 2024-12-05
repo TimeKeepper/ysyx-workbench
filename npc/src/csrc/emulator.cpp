@@ -227,6 +227,7 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
         [&](int a0) { this->Emulator_trap(a0); });
     #endif
 
+    Log("perf init");
     this->perf = std::make_unique<performence>();
 
     welcome();

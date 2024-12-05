@@ -98,7 +98,9 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
                 if (target != -1) {
                     std::cout << ANSI_FG_CYAN << args[1] << ANSI_NONE \
-                    << "\t: " << ANSI_FG_BLUE << this->emulator->cpu.gpr[target] \
+                    << "\t: " << ANSI_FG_BLUE \
+                    << std::hex << "0x" << std::setw(8) << std::setfill('0') \
+                    << this->emulator->cpu.gpr[target] \
                     << ANSI_NONE << std::endl;
                 } else {
                     std::cout << ANSI_FG_RED << "Unknown register: " \

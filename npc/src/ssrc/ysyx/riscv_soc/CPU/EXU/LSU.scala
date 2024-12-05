@@ -211,6 +211,6 @@ class LSU extends Module{
         val diff_mis_map =  AddressSet.misaligned(0x10002000, 0x10)
         val Catch = Module(new LSU_catch)
         Catch.io.LS := io.AXI.ar.valid || io.AXI.aw.valid
-        Catch.io.diff_skip := diff_mis_map.contains(io.AXI.aw.bits.addr).B
+        Catch.io.diff_skip := true.B
     }
 }

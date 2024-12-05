@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include "cpu.hpp"
 #include "memory.hpp"
+#include <string>
 #include <unordered_map>
 #include <utils.hpp>
 #include <sstream>
@@ -74,7 +75,9 @@ const char* csr_id2name(int id){
   if(it != csr_key.end()){
     return (char*)it->second.c_str();
   }
-  return "Unknown";
+  static std::string id_str;
+  id_str = std::to_string(id);
+  return id_str.c_str();
 }
 
 void Emulator::wave_trace_once(){

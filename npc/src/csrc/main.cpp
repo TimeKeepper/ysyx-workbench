@@ -13,7 +13,6 @@ void SDL_handle(int SIGNAL){
     std::cout << ANSI_FG_CYAN << "Ctrl+C detected, stopping Emulator..." << ANSI_NONE << std::endl;
     emulator->npc_state.state = NPC_STOP;
   }
-  std::cout << "(npc) ";
 }
 
 int main(int argc, char **argv) {
@@ -31,10 +30,4 @@ int main(int argc, char **argv) {
   delete sdb;
 
   return 0;
-
-  // init_monitor(argc, argv);
-
-  // engine_start(argc, argv);
-
-  // return is_exit_status_bad();
 }

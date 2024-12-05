@@ -17,9 +17,12 @@ class WBU_catch extends BlackBox with HasBlackBoxInline {
         val gpr_waddr = Input(UInt(32.W))
         val gpr_wdata = Input(UInt(32.W))
 
-        val csr_wen = Input(UInt(32.W))
-        val csr_waddr = Input(UInt(32.W))
-        val csr_wdata = Input(UInt(32.W))
+        val csr_wena = Input(UInt(32.W))
+        val csr_waddra = Input(UInt(32.W))
+        val csr_wdataa = Input(UInt(32.W))
+        val csr_wenb = Input(UInt(32.W))
+        val csr_waddrb = Input(UInt(32.W))
+        val csr_wdatab = Input(UInt(32.W))
     })
 
     setInline("WBU_catch.v",
@@ -32,15 +35,18 @@ class WBU_catch extends BlackBox with HasBlackBoxInline {
     |    input [31:0] gpr_waddr,
     |    input [31:0] gpr_wdata,
     |
-    |    input [31:0] csr_wen,
-    |    input [31:0] csr_waddr,
-    |    input [31:0] csr_wdata
+    |    input [31:0] csr_wena,
+    |    input [31:0] csr_waddra,
+    |    input [31:0] csr_wdataa,
+    |    input [31:0] csr_wenb,
+    |    input [31:0] csr_waddrb,
+    |    input [31:0] csr_wdatab
     |);
     |
-    |   import "DPI-C" function void WBU_catch(input int unsigned next_pc, input int unsigned gpr_waddr, input int unsigned gpr_wdata, input int unsigned csr_wen, input int unsigned csr_waddr, input int unsigned csr_wdata);
+    |   import "DPI-C" function void WBU_catch(input int unsigned next_pc, input int unsigned gpr_waddr, input int unsigned gpr_wdata, input int unsigned csr_wena, input int unsigned csr_waddra, input int unsigned csr_wdataa, input int unsigned csr_wenb, input int unsigned csr_waddrb, input int unsigned csr_wdatab);
     |   always @(posedge clock) begin
     |       if(valid) begin
-    |           WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wen, csr_waddr, csr_wdata);
+    |           WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wena, csr_waddra, csr_wdataa, csr_wenb, csr_waddrb, csr_wdatab);
     |       end
     |   end
     |
@@ -115,16 +121,20 @@ class WBU extends Module {
 
         val Catch = Module(new WBU_catch)
         Catch.io.clock := clock
-        Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool && (state_Catch === state_catch)
+        Catch.io.valid := io.EXU_2_WBU.fire && !reset.asBool && (state_Catch === state_catch)
 
         Catch.io.next_pc := Next_Pc
         
         Catch.io.gpr_waddr := io.EXU_2_WBU.bits.GPR_waddr
         Catch.io.gpr_wdata := GPR_wdata
 
-        Catch.io.csr_wen := io.EXU_2_WBU.bits.csr_ctr =/= CSR_TypeEnum.CSR_N
-        Catch.io.csr_waddr := CSR_waddra
-        Catch.io.csr_wdata := CSR_wdataa
+        Catch.io.csr_wena := io.EXU_2_WBU.bits.csr_ctr =/= CSR_TypeEnum.CSR_N
+        Catch.io.csr_waddra := CSR_waddra
+        Catch.io.csr_wdataa := CSR_wdataa
+        
+        Catch.io.csr_wenb := io.EXU_2_WBU.bits.csr_ctr === CSR_TypeEnum.CSR_R1W2
+        Catch.io.csr_waddrb := "h342".U
+        Catch.io.csr_wdatab := 11.U
     }
 
 }

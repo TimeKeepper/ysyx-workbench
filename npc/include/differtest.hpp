@@ -27,6 +27,7 @@ class Differtest {
             
         bool isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc);
         void difftest_step(vaddr_t pc);
+        void difftest_skip_ref();
 };
 
 #endif

@@ -58,8 +58,9 @@ extern "C" {
 
     extern void WBU_catch(uint32_t next_pc, \
     uint32_t gpr_waddr, uint32_t gpr_wdata, \
-    uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata){
-        emulator->WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wen, csr_waddr, csr_wdata);
+    uint32_t csr_wena, uint32_t csr_waddra, uint32_t csr_wdataa, \
+    uint32_t csr_wenb, uint32_t csr_waddrb, uint32_t csr_wdatab){
+        emulator->WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wena, csr_waddra, csr_wdataa, csr_wenb, csr_waddrb, csr_wdatab);
         sdb->inst_comp();
     }
 }

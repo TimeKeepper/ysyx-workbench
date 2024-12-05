@@ -315,13 +315,15 @@ void Emulator::LSU_catch(uint32_t diff_skip){
 
 void Emulator::WBU_catch(uint32_t next_pc, \
     uint32_t gpr_waddr, uint32_t gpr_wdata, \
-    uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata){
+    uint32_t csr_wena, uint32_t csr_waddra, uint32_t csr_wdataa, \
+    uint32_t csr_wenb, uint32_t csr_waddrb, uint32_t csr_wdatab){
         
     this->run_inst_num = (this->run_inst_num == 0) ? 0 : this->run_inst_num - 1;
 
     this->cpu.pc = next_pc;
     if(gpr_waddr != 0) this->cpu.gpr[gpr_waddr] = gpr_wdata;
-    if(csr_wen) this->cpu.sr[csr_waddr] = csr_wdata;
+    if(csr_wena) this->cpu.sr[csr_waddra] = csr_wdataa;
+    if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
 
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(cpu.pc);

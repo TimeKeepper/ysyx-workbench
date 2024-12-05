@@ -2,6 +2,8 @@
 #include <fstream>
 
 performence::performence(){
+    Log("init begin");
+
     this->inst_cntrs.emplace(Inst_Type::GP, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::Cal, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::LS, std::make_pair(0, 0));

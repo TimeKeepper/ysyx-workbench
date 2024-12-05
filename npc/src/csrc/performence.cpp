@@ -2,24 +2,17 @@
 #include <fstream>
 
 performence::performence(){
-    Log("init begin");
 
     this->inst_cntrs.emplace(Inst_Type::GP, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::Cal, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::LS, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::CSR, std::make_pair(0, 0));
 
-    Log("inst compelete");
-
     this->conpo_cntrs.emplace("IFU", 0);
     this->conpo_cntrs.emplace("LSU", 0);
     this->conpo_cntrs.emplace("ALU", 0);
 
-    Log("conpo compelete");
-
     this->cache_cntrs.emplace("Inst", std::make_pair(0, 0));
-
-    Log("cache compelete");
 }
 
 performence::~performence(){

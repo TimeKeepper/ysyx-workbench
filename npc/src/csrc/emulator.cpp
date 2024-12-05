@@ -215,6 +215,8 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     
     this->init_isa();
 
+    Log("debug");
+
     this->load_image();
 
     this->init_simulate();

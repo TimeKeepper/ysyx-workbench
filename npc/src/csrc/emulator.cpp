@@ -217,10 +217,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
-    this->init_simulate();
-
-    Log("debug");
-
     init_disasm("riscv32");
 
     #ifdef CONFIG_DIFFTEST
@@ -229,8 +225,9 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
         [&](int a0) { this->Emulator_trap(a0); });
     #endif
 
-    Log("perf init");
     this->perf = std::make_unique<performence>();
+
+    this->init_simulate();
 
     welcome();
 }

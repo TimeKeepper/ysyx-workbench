@@ -7,6 +7,7 @@
 #include <utils.hpp>
 #include <unordered_map>
 #include <differtest.hpp>
+#include <performence.hpp>
 
 class Emulator {
     private:
@@ -53,6 +54,8 @@ class Emulator {
 
         std::unordered_map<std::string, std::unique_ptr<Memory>> memorys;
         
+        std::unique_ptr<performence> perf;
+
         void reset(uint64_t n);
         void cycle(uint64_t n);
         void single_inst(uint64_t n);

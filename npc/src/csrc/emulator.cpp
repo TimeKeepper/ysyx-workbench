@@ -227,11 +227,15 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
         [&](int a0) { this->Emulator_trap(a0); });
     #endif
 
+    this->perf = std::make_unique<performence>();
+
     welcome();
 }
 
 Emulator::~Emulator() {
     this->tfp->close();
+
+    this->memorys.clear();
 
     #ifdef CONFIG_NVBOARD
     nvboard_quit();
@@ -259,6 +263,8 @@ void Emulator::cycle(uint64_t n) {
         #ifdef CONFIG_NVBOARD
         nvboard_update();
         #endif
+
+        this->perf->clk_count();
 
         if(this->npc_state.state != NPC_RUNNING) break;
     }
@@ -324,6 +330,8 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(gpr_waddr != 0) this->cpu.gpr[gpr_waddr] = gpr_wdata;
     if(csr_wena) this->cpu.sr[csr_waddra] = csr_wdataa;
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
+
+    this->perf->inst_cont();
 
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(cpu.pc);

@@ -68,6 +68,7 @@ void Differtest::difftest_step(vaddr_t pc){
     Riscv_CPU_State ref_r;
 
     if (is_skip_ref) {
+        Log("skip ref");
         ref_difftest_regcpy(this->dut_r, DIFFTEST_TO_REF);
         is_skip_ref = false;
         return;

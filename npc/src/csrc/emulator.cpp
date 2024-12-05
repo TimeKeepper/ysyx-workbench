@@ -217,9 +217,9 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
-    Log("debug");
-
     this->init_simulate();
+
+    Log("debug");
 
     init_disasm("riscv32");
 

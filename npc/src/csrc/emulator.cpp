@@ -219,8 +219,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     init_disasm("riscv32");
 
-    this->init_simulate();
-
     #ifdef CONFIG_DIFFTEST
     this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
         this->memorys["flash"].get(), &this->npc_state, \
@@ -228,6 +226,8 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     #endif
 
     this->perf = std::make_unique<performence>();
+
+    this->init_simulate();
 
     welcome();
 }

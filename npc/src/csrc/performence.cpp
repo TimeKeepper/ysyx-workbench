@@ -1,3 +1,4 @@
+#include "common.hpp"
 #include <performence.hpp>
 #include <fstream>
 
@@ -31,16 +32,16 @@ performence::~performence(){
 }
 
 void performence::clk_count(){
-    if(this->inst_cntrs.empty()) return;
-
     this->inst_cntrs[Inst_Type::GP].first += 1;
+    if(unlikely(this->cur_instType == Inst_Type::GP)) return;
+
     this->inst_cntrs[this->cur_instType].first += 1;
 }
 
 void performence::inst_cont(){
-    if(this->inst_cntrs.empty()) return;
-    
     this->inst_cntrs[Inst_Type::GP].second += 1;
+    if(unlikely(this->cur_instType == Inst_Type::GP)) return;
+    
     this->inst_cntrs[this->cur_instType].second += 1;
 }
 

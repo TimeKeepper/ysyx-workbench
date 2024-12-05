@@ -210,7 +210,8 @@ class LSU extends Module{
     if(Config.Simulate){
         val diff_mis_map =  AddressSet.misaligned(0x10000000, 0x1000) ++
                             AddressSet.misaligned(0x10002000, 0x10) ++
-                            AddressSet.misaligned(0x10011000, 0x8)
+                            AddressSet.misaligned(0x10011000, 0x8) ++
+                            AddressSet.misaligned(0x02000048L, 0x10)
         val Catch = Module(new LSU_catch)
         Catch.io.LS := io.AXI.ar.valid || io.AXI.aw.valid
         Catch.io.diff_skip := diff_mis_map.map(_.contains(RegEnable(addr, io.IDU_2_EXU.fire))).reduce(_ || _)

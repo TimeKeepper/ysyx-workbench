@@ -305,8 +305,6 @@ void Emulator::IFU_catch(uint32_t inst){
 void Emulator::LSU_catch(uint32_t diff_skip){
     if(diff_skip == 0) return;
 
-    Log("LSU_catch");
-
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_skip_ref();
     #endif

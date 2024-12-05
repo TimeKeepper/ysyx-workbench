@@ -13,8 +13,6 @@ import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 
-// riscv load store unit
-
 class LSU_DPIC extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val LS_begin = Input(Bool())
@@ -31,6 +29,24 @@ class LSU_DPIC extends BlackBox with HasBlackBoxInline {
       |     LS_differtest_catch(addr);
       |  end
       |endmodule
+    """.stripMargin)
+}
+
+class LSU_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val LS = Input(Bool())
+        val diff_skip = Input(Bool())
+    })
+    setInline("LSU_catch.v",
+    """module LSU_catch(
+    |   input LS,
+    |   input diff_skip
+    |);
+    |  import "DPI-C" function void LSU_catch(input int unsigned diff_skip);
+    |  always @(posedge LS) begin
+    |       LSU_catch({31'h00000000, diff_skip});
+    |  end
+    |endmodule
     """.stripMargin)
 }
 
@@ -189,5 +205,14 @@ class LSU extends Module{
         val LSU_PC = Module(new LSU_PC)
         LSU_PC.io.clock := clock
         LSU_PC.io.valid := io.out.fire && !reset.asBool
+    }
+
+    if(Config.Simulate){
+        val diff_mis_map =  AddressSet.misaligned(0x10000000, 0x1000) ++
+                            AddressSet.misaligned(0x10002000, 0x10) ++
+                            AddressSet.misaligned(0x10011000, 0x8)
+        val Catch = Module(new LSU_catch)
+        Catch.io.LS := io.AXI.ar.valid || io.AXI.aw.valid
+        Catch.io.diff_skip := (diff_mis_map.contains(io.AXI.ar.bits.addr) || diff_mis_map.contains(io.AXI.aw.bits.addr)).B
     }
 }

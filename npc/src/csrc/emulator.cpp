@@ -302,6 +302,14 @@ void Emulator::IFU_catch(uint32_t inst){
     std::cout << this->disasm(cpu.pc, inst) << std::endl;
 }
 
+void Emulator::LSU_catch(uint32_t diff_skip){
+    if(diff_skip == 0) return;
+
+    #ifdef CONFIG_DIFFTEST
+    this->difftest->difftest_skip_ref();
+    #endif
+}
+
 void Emulator::WBU_catch(uint32_t next_pc, \
     uint32_t gpr_waddr, uint32_t gpr_wdata, \
     uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata){

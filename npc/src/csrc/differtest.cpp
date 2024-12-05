@@ -78,3 +78,7 @@ void Differtest::difftest_step(vaddr_t pc){
 
     checkregs(&ref_r, pc);
 }
+
+void Differtest::difftest_skip_ref() {
+    is_skip_ref = true;
+}

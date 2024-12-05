@@ -66,15 +66,15 @@ import peripheral._
 import ram._
 
 class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
-  val mmio = AddressSet.misaligned(0x10000000, 0x1000) ++
-             AddressSet.misaligned(0x10002000, 0x10) ++
-             AddressSet.misaligned(0x10011000, 0x8) ++
-             AddressSet.misaligned(0x21000000, 0x200000) ++
-             AddressSet.misaligned(0x10001000, 0x1000) ++
-             AddressSet.misaligned(0x30000000, 0x10000000) ++
-             AddressSet.misaligned(0x80000000L, 0x400000) ++
-             AddressSet.misaligned(0x0f000000, 0x2000) ++
-             AddressSet.misaligned(0xa0000000L, 0x2000000)
+  val mmio = AddressSet.misaligned(0x0f000000, 0x2000) ++     // SRAM
+             AddressSet.misaligned(0x10000000, 0x1000) ++     // UART
+             AddressSet.misaligned(0x10001000, 0x1000) ++     // SPI
+             AddressSet.misaligned(0x10002000, 0x10) ++       // GPIO
+             AddressSet.misaligned(0x10011000, 0x8) ++        // PS2
+             AddressSet.misaligned(0x21000000, 0x200000) ++   // VGA
+             AddressSet.misaligned(0x30000000, 0x10000000) ++ // FLASH
+             AddressSet.misaligned(0x80000000L, 0x400000) ++  // PSRAM
+             AddressSet.misaligned(0xa0000000L, 0x2000000)    // SDRAM
 
   ElaborationArtefacts.add("graphml", graphML)
   val LazyIFU = LazyModule(new IFU(idBits = idBits-1))

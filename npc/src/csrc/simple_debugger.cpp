@@ -323,7 +323,7 @@ static char* rl_gets() {
 
 void simple_debugger::main_loop() {
     if (this->emulator->is_batch_mode) {
-        TODO();
+        this->emulator->cycle(-1);
         return;
     }
 

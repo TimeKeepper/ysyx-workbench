@@ -63,6 +63,7 @@ class Emulator {
         void Emulator_trap(uint32_t a0);
 
         void IFU_catch(uint32_t inst);
+        void LSU_catch(uint32_t diff_skip);
         void WBU_catch(uint32_t next_pc, \
         uint32_t gpr_waddr, uint32_t gpr_wdata, \
         uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata);

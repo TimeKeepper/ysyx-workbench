@@ -1,6 +1,18 @@
 #include "common.hpp"
 #include <performence.hpp>
 #include <fstream>
+#include <string>
+
+// Function to convert Inst_Type to string
+std::string inst_type_to_string(performence::Inst_Type type) {
+    switch(type) {
+        case performence::Inst_Type::GP: return "GP";
+        case performence::Inst_Type::Cal: return "Cal";
+        case performence::Inst_Type::LS: return "LS";
+        case performence::Inst_Type::CSR: return "CSR";
+        default: return "Unknown";
+    }
+}
 
 performence::performence(){
 
@@ -22,12 +34,11 @@ performence::~performence(){
     std::ofstream report(report_dir, std::ios::out);
 
     for(auto &i : this->inst_cntrs){
-        report << i.second.first << std::endl;
-        report << i.second.second << std::endl;
+        report << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
     }
 
     for(auto &i : this->conpo_cntrs){
-        report << i.second << std::endl;
+        report << i.first << i.second << std::endl;
     }
 
     this->inst_cntrs.clear();

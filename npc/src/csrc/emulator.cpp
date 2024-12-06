@@ -304,6 +304,8 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
+    this->perf->coponent_count("IFU");
+
     this->instruction_buffer_push(cpu.pc, inst);
 
     if(!this->instruciton_trace_on) return;
@@ -316,6 +318,8 @@ void Emulator::IDU_catch(performence::Inst_Type type){
 }
 
 void Emulator::LSU_catch(uint32_t diff_skip){
+    this->perf->coponent_count("LSU");
+    
     if(diff_skip == 0) return;
 
     #ifdef CONFIG_DIFFTEST

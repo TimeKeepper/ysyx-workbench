@@ -24,6 +24,8 @@ class performence {
     void clk_count();
     void inst_cont();
     void inst_type_set(Inst_Type type);
+
+    void coponent_count(const std::string& name);
 };
 
 #endif

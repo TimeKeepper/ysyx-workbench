@@ -26,6 +26,10 @@ performence::~performence(){
         report << i.second.second << std::endl;
     }
 
+    for(auto &i : this->conpo_cntrs){
+        report << i.second << std::endl;
+    }
+
     this->inst_cntrs.clear();
     this->conpo_cntrs.clear();
     this->cache_cntrs.clear();
@@ -47,4 +51,12 @@ void performence::inst_cont(){
 
 void performence::inst_type_set(Inst_Type type){
     this->cur_instType = type;
+}
+
+void performence::coponent_count(const std::string& name){
+    if(this->conpo_cntrs.find(name) == this->conpo_cntrs.end()){ 
+        Log("Unknown component name: %s", name.c_str());
+        return;
+    }
+    this->conpo_cntrs[name] += 1;
 }

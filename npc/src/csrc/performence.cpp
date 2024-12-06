@@ -38,7 +38,7 @@ performence::~performence(){
     }
 
     for(auto &i : this->conpo_cntrs){
-        report << i.first << " :\t" << i.second << std::endl;
+        report << i.first << ":\t" << i.second << std::endl;
     }
 
     this->inst_cntrs.clear();

@@ -317,6 +317,10 @@ void Emulator::IDU_catch(performence::Inst_Type type){
     this->perf->inst_type_set(type);
 }
 
+void Emulator::ALU_catch(){
+    this->perf->coponent_count("ALU");
+}
+
 void Emulator::LSU_catch(uint32_t diff_skip){
     this->perf->coponent_count("LSU");
     

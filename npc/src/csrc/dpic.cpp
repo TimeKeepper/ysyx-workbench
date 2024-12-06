@@ -64,6 +64,10 @@ extern "C" {
         emulator->IDU_catch(inst_type);
     }
 
+    extern void ALU_catch(){
+        emulator->ALU_catch();
+    }
+
     extern void LSU_catch(uint32_t diff_skip){
         emulator->LSU_catch(diff_skip);
     }

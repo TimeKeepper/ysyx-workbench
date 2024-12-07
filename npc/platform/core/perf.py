@@ -3,21 +3,19 @@ import get_parameter as gp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
-inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal, icache_hit, icache_map_hit = gp.read_report()
-ac_LS, ac_CSR, ac_Cal = c_LS / i_LS, c_CSR / i_CSR, c_Cal / i_Cal
-icache_hit_rate = icache_hit / icache_map_hit
+data = gp.read_report()
 Freq = float(gp.get_Freq())
 
 def tabulate_show():
     df = {
         'Commit': [gp.get_commit_id()],
         'Message': [gp.get_commit_message()],
-        'Performance Index': [ipc * Freq],
+        'Performance Index': [data['GP'][1] / data['GP'][0] * Freq],
         'Chip area(um^2)': [gp.get_Chip_area()],
-        'IPC': [ipc],
+        'IPC': [data['CSR'][1] / data['CSR'][0]],
         'Freq(MHz)': [Freq],
-        'Icache hit rate': [icache_hit_rate],
-        'Simulation clk_cnt': [clk_cnt],
+        'Icache hit rate': [data['Inst'][0] / data['GP'][0]],
+        'Simulation clk_cnt': [data['GP'][0]],
     }
 
     colalign = ("center",) * len(df)
@@ -29,9 +27,9 @@ def ui():
         absolute = int(pct/100.*sum(allvalues))
         return f"{pct:.1f}%\n({absolute})"
 
-    inst_nums = [i_LS, i_CSR, i_Cal]
-    clk_nums = [c_LS, c_CSR, c_Cal]
-    a_cycle = [ac_LS, ac_CSR, ac_Cal]
+    clk_nums = [data['CSR'][0], data['LS'][0], data['Cal'][0]]
+    inst_nums = [data['CSR'][1], data['LS'][1], data['Cal'][1]]
+    a_cycle = inst_nums / clk_nums
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 

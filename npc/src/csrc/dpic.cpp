@@ -51,7 +51,7 @@ extern "C" {
     }
 #elif defined (PLATFORM_NPC)
     extern void sram_read(int32_t addr, int32_t* data) {
-        *data = emulator->memorys["sram"]->read(addr, 4);
+        *data = emulator->memorys["sram"]->read(addr - CONFIG_LOAD_MEMORY_BASE, 4);
     }
 
     extern void sram_write(int32_t addr, int32_t data, int32_t strb){

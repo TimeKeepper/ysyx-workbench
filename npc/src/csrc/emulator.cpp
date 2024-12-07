@@ -179,7 +179,11 @@ void Emulator::load_image() {
     Log("The image is %s, size = %ld", this->img_file, size);
 
     fseek(fp, 0, SEEK_SET);
+    #ifdef PLATFORM_YSYXSOC
     int ret = fread(this->memorys["flash"]->get_memory(), size, 1, fp);
+    #elif defined (PLATFORM_NPC)
+    int ret = fread(this->memorys["sram"]->get_memory(), size, 1, fp);
+    #endif
     assert(ret == 1);
 
     fclose(fp);
@@ -220,8 +224,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     this->init_isa();
 
     this->load_image();
-
-    Log("debug!");
 
     init_disasm("riscv32");
 

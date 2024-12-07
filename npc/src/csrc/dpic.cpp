@@ -55,6 +55,7 @@ extern "C" {
     }
 
     extern void sram_write(int32_t addr, int32_t data, int32_t strb){
+        Log("sram_write: addr = 0x%x, data = 0x%x, strb = 0x%x", addr, data, strb);
         int32_t len;
         switch(strb){
             case 0b0001:

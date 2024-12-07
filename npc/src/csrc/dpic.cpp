@@ -76,13 +76,10 @@ extern "C" {
 #endif
 
     extern void IFU_catch(uint32_t inst){
-        Log("IFU catch");
         emulator->IFU_catch(inst);
     }
 
     extern void IDU_catch(uint32_t type){
-        Log("IDU catch");
-
         performence::Inst_Type inst_type;
         switch(type){
             case 0: inst_type = performence::Inst_Type::Cal; break;
@@ -94,14 +91,10 @@ extern "C" {
     }
 
     extern void ALU_catch(){
-        Log("ALU catch");
-
         emulator->ALU_catch();
     }
 
     extern void LSU_catch(uint32_t diff_skip){
-        Log("LSU catch");
-
         emulator->LSU_catch(diff_skip);
     }
 
@@ -109,7 +102,6 @@ extern "C" {
     uint32_t gpr_waddr, uint32_t gpr_wdata, \
     uint32_t csr_wena, uint32_t csr_waddra, uint32_t csr_wdataa, \
     uint32_t csr_wenb, uint32_t csr_waddrb, uint32_t csr_wdatab){
-        Log("WBU catch");
         emulator->WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wena, csr_waddra, csr_wdataa, csr_wenb, csr_waddrb, csr_wdatab);
         sdb->inst_comp();
     }

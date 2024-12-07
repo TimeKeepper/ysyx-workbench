@@ -67,7 +67,7 @@ void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
 void Differtest::checkmems(){
     uint32_t ref_data;
     uint32_t dut_data;
-    ref_difftest_memcpy(checkmem_addr, &ref_data, 4, DIFFTEST_TO_REF);
+    ref_difftest_memcpy(checkmem_addr, &ref_data, 4, DIFFTEST_TO_DUT);
     dut_data = this->emulator->memory_read(checkmem_addr);
     if(ref_data != dut_data){
         printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);

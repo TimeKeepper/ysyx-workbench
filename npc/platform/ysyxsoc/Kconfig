@@ -64,39 +64,12 @@ config SDRAM_SIZE
 
 endmenu #MEMORY
 
-menu "Testing and Debugging"
-
 config DIFFTEST
   bool "Enable differential testing"
   default n
   help
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NPC.
-
-config WATCHPOINT
-  bool "Enable watch point and break point"
-  default n
-
-config TRACE
-  bool "Enable tracer"
-  default y
-
-config ITRACE
-depends on TRACE
-bool "Enable instruction tracer"
-default n
-
-config FTRACE
-depends on TRACE
-bool "Enable function tracer"
-default n
-
-config WTRACE
-depends on TRACE
-bool "Enable wave tracer"
-default n
-
-endmenu
 
 config NVBOARD
   bool "Enable Virtual FPGA NVBOARD"

@@ -18,38 +18,25 @@ def get_latest_commit_message():
     return latest_commit.message.strip()
 
 def read_report():
+    data = {}
+
     with open("./build/report.txt", 'r') as file:
-        lines = file.readlines()
+        for line in file:
+            match = re.match(r'(\w+):\s+([\d\s]+)', line)
+            if match:
+                key = match.group(1)
+                values = list(map(int, match.group(2).split()))
+                data[key] = values
 
-    inst_cnt    = int(lines[0].strip()) 
-    clk_cnt     = int(lines[1].strip())       
-    ipc         = float(lines[2].strip())           
-    ifu_pc      = int(lines[3].strip())           
-    lsu_pc      = int(lines[4].strip())           
-    alu_pc      = int(lines[5].strip())     
-    i_LS        = int(lines[6].strip())
-    i_CSR       = int(lines[7].strip())
-    i_Cal       = int(lines[8].strip())
-    c_LS        = int(lines[9].strip())
-    c_CSR       = int(lines[10].strip())
-    c_Cal       = int(lines[11].strip())
-    icache_hit  = int(lines[12].strip())
-    icache_map_hit = int(lines[13].strip())
-
-
-    return inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal, icache_hit, icache_map_hit
+    return data
 
 def truncate_string(input_str, max_length):
-    # 检查字符串是否超过最大长度
     if len(input_str) > max_length:
-        # 截断并在末尾添加省略号
         return input_str[:max_length - 3] + "..."
     else:
-        # 如果字符串未超过最大长度，则直接返回原字符串
         return input_str
     
 def add_newlines(text, length):
-    # 使用列表推导式，每隔指定长度分割一次，并在每段后添加换行符
     return '\n'.join([text[i:i+length] for i in range(0, len(text), length)])
 
 
@@ -76,14 +63,18 @@ def get_Chip_area():
 if __name__ == '__main__':
     print("Commit: ", get_latest_commit_id())
 
-    inst_cnt, clk_cnt, ipc, ifu_pc, lsu_pc, alu_pc, i_LS, i_CSR, i_Cal, c_LS, c_CSR, c_Cal, icache_hit, icache_map_hit = read_report()
+    data = read_report()
 
-    print("Instruction count: ", inst_cnt)
-    print("Clock count: ", clk_cnt)
-    print("IPC: ", ipc)
-    print("IFU performence counter: ", ifu_pc)
-    print("LSU performence counter: ", lsu_pc)
-    print("ALU performence counter: ", alu_pc)
+    print("CSR inst: ", data['CSR'][0], "CSR clk", data['CSR'][1])
+    print("LS inst: ", data['LS'][0], "LS clk", data['LS'][1])
+    print("Cal inst: ", data['Cal'][0], "Cal clk", data['Cal'][1])
+    print("GP inst: ", data['GP'][0], "GP clk", data['GP'][1])
+
+    print("ALU pc", data['ALU'][0])
+    print("LSU pc", data['LSU'][0])
+    print("IFU pc", data['IFU'][0])
+
+    print("Cache map hit: ", data['Inst'][0], "Cache hit", data['Inst'][1])
 
     print("Freq: ", get_Freq())
     print("Chip area: ", get_Chip_area())

@@ -7,6 +7,7 @@
 #include <utils.hpp>
 #include <unordered_map>
 #include <differtest.hpp>
+#include <performence.hpp>
 
 class Emulator {
     private:
@@ -53,6 +54,8 @@ class Emulator {
 
         std::unordered_map<std::string, std::unique_ptr<Memory>> memorys;
         
+        std::unique_ptr<performence> perf;
+
         void reset(uint64_t n);
         void cycle(uint64_t n);
         void single_inst(uint64_t n);
@@ -63,6 +66,8 @@ class Emulator {
         void Emulator_trap(uint32_t a0);
 
         void IFU_catch(uint32_t inst);
+        void IDU_catch(performence::Inst_Type type);
+        void ALU_catch();
         void LSU_catch(uint32_t diff_skip);
         void WBU_catch(uint32_t next_pc, \
         uint32_t gpr_waddr, uint32_t gpr_wdata, \

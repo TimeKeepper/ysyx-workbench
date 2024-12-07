@@ -217,8 +217,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
-    this->init_simulate();
-
     init_disasm("riscv32");
 
     #ifdef CONFIG_DIFFTEST
@@ -227,11 +225,17 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
         [&](int a0) { this->Emulator_trap(a0); });
     #endif
 
+    this->perf = std::make_unique<performence>();
+
+    this->init_simulate();
+
     welcome();
 }
 
 Emulator::~Emulator() {
     this->tfp->close();
+
+    this->memorys.clear();
 
     #ifdef CONFIG_NVBOARD
     nvboard_quit();
@@ -259,6 +263,8 @@ void Emulator::cycle(uint64_t n) {
         #ifdef CONFIG_NVBOARD
         nvboard_update();
         #endif
+
+        this->perf->clk_count();
 
         if(this->npc_state.state != NPC_RUNNING) break;
     }
@@ -298,6 +304,8 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
+    this->perf->coponent_count("IFU");
+
     this->instruction_buffer_push(cpu.pc, inst);
 
     if(!this->instruciton_trace_on) return;
@@ -305,7 +313,17 @@ void Emulator::IFU_catch(uint32_t inst){
     std::cout << this->disasm(cpu.pc, inst) << std::endl;
 }
 
+void Emulator::IDU_catch(performence::Inst_Type type){
+    this->perf->inst_type_set(type);
+}
+
+void Emulator::ALU_catch(){
+    this->perf->coponent_count("ALU");
+}
+
 void Emulator::LSU_catch(uint32_t diff_skip){
+    this->perf->coponent_count("LSU");
+    
     if(diff_skip == 0) return;
 
     #ifdef CONFIG_DIFFTEST
@@ -324,6 +342,8 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(gpr_waddr != 0) this->cpu.gpr[gpr_waddr] = gpr_wdata;
     if(csr_wena) this->cpu.sr[csr_waddra] = csr_wdataa;
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
+
+    this->perf->inst_cont();
 
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(cpu.pc);

@@ -30,6 +30,22 @@ class ALU_PC extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class ALU_catch extends BlackBox with HasBlackBoxInline {
+  val io = IO(new Bundle{
+    val AL = Input(Bool())
+  })
+  setInline("ALU_catch.v",
+  """module ALU_catch(
+  |   input AL
+  |);
+  |  import "DPI-C" function void ALU_catch();
+  |  always @(posedge AL) begin
+  |       ALU_catch();
+  |  end
+  |endmodule
+  """.stripMargin)
+}
+
 class ALU extends Module {
   val io = IO(new Bundle {
     val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
@@ -101,6 +117,11 @@ class ALU extends Module {
   )
   
   io.out.bits.Result        := RegEnable(Result, io.IDU_2_EXU.fire) 
+
+  if(Config.Simulate){
+    val Catch = Module(new ALU_catch)
+    Catch.io.AL := io.out.fire && !reset.asBool
+  }
 
   if(Config.DPIC_on){
       val ALU_PC = Module(new ALU_PC)

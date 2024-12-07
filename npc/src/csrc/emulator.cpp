@@ -312,7 +312,6 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
-    Log("IFU catch");
 
     this->perf->coponent_count("IFU");
 

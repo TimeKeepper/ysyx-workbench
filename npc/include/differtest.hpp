@@ -12,7 +12,7 @@ class Differtest {
     private:
         bool is_skip_ref = false;
         void checkregs(Riscv_CPU_State *ref, vaddr_t pc);
-        uint32_t checkmem_addr = 0x8001ac29;
+        uint32_t checkmem_addr = 0x80030bb0;
         void checkmems();
 
         Riscv_CPU_State *dut_r;

@@ -61,6 +61,7 @@ object Elaboratecore extends App {
   
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setDPIC(false)
+  Config.setSimulate(false)
   Config.setIcacheParam(2, 4, 19, "h80000000")
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)

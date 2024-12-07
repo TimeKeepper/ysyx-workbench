@@ -11,7 +11,7 @@ Freq = float(gp.get_Freq())
 T = TypeVar('T', int, float, complex)
 
 def safe_divide(numerator: Union[T, List[T]], denominator: Union[T, List[T]], precision: int = 100) -> Union[T, List[T], float]:
-    getcontext().prec = precision  # 设置局部精度
+    getcontext().prec = precision 
 
     try:
         if isinstance(numerator, list) and isinstance(denominator, list):
@@ -23,7 +23,7 @@ def safe_divide(numerator: Union[T, List[T]], denominator: Union[T, List[T]], pr
         else:
             return numerator / denominator
     except ZeroDivisionError:
-        return 0  # 或者返回其他适当的值，如 0 或 None
+        return 0  
 
 
 def tabulate_show():

@@ -22,11 +22,11 @@ class UART_bridge extends BlackBox with HasBlackBoxInline {
       |  input valid,
       |  input [7:0] data
       |);
-      |  import "DPI-C" function void my_putc(input int c);
+      |  import "DPI-C" function void Uart_putc(input int c);
       |  
       |  always @(posedge clock) begin
       |    if(valid) begin
-      |      my_putc({24'h0, data});
+      |      Uart_putc({24'h0, data});
       |    end
       |  end
       |

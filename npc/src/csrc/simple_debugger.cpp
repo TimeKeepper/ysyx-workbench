@@ -127,25 +127,18 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
             uint32_t addr = std::stoul(args[1], nullptr, 0);
             uint32_t len = std::stoul(args[0], nullptr, 0);
-            
-            // find match memory
-            bool found = false;
-            auto it = std::find_if(this->emulator->memorys.begin(), this->emulator->memorys.end(), [&](const std::pair<const std::string, std::unique_ptr<Memory>>& m) {
-                if (m.second->match(addr)) {
-                    found = true;
-                    std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << m.first << ANSI_NONE << std::endl;
-                    return true;
-                }
-                return false;
-            });
 
-            if(!found) {
+            auto match_memory = this->emulator->find_match_memory(addr);
+
+            if(match_memory == nullptr) {
                 std::cout << ANSI_FG_RED << "No memory found at address 0x" << std::hex << addr << ANSI_NONE << std::endl;
                 return 0;
             }
+            
+            std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << match_memory->first << ANSI_NONE << std::endl;
 
             for(int i = 0; i < len; i += 1){
-                uint32_t data = it->second->read_WithBias(addr + (i * 4), 4);
+                uint32_t data = match_memory->second->read_WithBias(addr + (i * 4), 4);
                 std::cout << ANSI_FG_CYAN << "0x" << std::hex << addr + i << ANSI_NONE << "\t: " << ANSI_FG_BLUE << data << ANSI_NONE << std::endl;
             }
 
@@ -282,6 +275,18 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
 
     this->expr = std::make_unique<Expr>();
     this->wpm = std::make_unique<Watch_Point_Manager>(this->expr.get());
+
+    #ifdef CONFIG_DIFFTEST
+    #ifdef PLATFORM_YSYXSOC
+    this->difftest = std::make_unique<Differtest>(this->emulator->diff_so_file, this->emulator->img_size, 1234, &this->emulator->cpu, \
+        this->emulator->memorys["flash"].get(), &this->emulator->npc_state, \
+        [&](int a0) { this->emulator->Emulator_trap(a0); }, this->emulator);
+    #elif defined (PLATFORM_NPC)
+    this->difftest = std::make_unique<Differtest>(this->emulator->diff_so_file, this->emulator->img_size, 1234, &this->emulator->cpu, \
+        this->emulator->memorys["sram"].get(), &this->emulator->npc_state, \
+        [&](int a0) { this->emulator->Emulator_trap(a0); }, this->emulator);
+    #endif
+    #endif
 }
 
 void simple_debugger::watch_point_mode(bool v) {
@@ -352,7 +357,19 @@ void simple_debugger::main_loop() {
     }
 }
 
-void simple_debugger::inst_comp(void) {
+void simple_debugger::LSU_catch(uint32_t diff_skip){
+    if(diff_skip == 0) return;
+    
+    #ifdef CONFIG_DIFFTEST
+    this->difftest->difftest_skip_ref();
+    #endif
+}
+
+void simple_debugger::WBU_catch(void) {
+    #ifdef CONFIG_DIFFTEST
+    this->difftest->difftest_step(this->emulator->cpu.pc);
+    #endif
+
     if(this->wpm->check_watch_points() || this->wpm->check_break_points()){
         this->emulator->npc_state.state = NPC_STOP;
     }

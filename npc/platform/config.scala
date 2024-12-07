@@ -2,6 +2,7 @@ package config
 
 import chisel3._
 import chisel3.util._
+import freechips.rocketchip.diplomacy.AddressSet
 
 object Config {
   var Reset_Vector = "h80000000".U(32.W)
@@ -9,6 +10,8 @@ object Config {
   var DPIC_on: Boolean = false
 
   var Simulate: Boolean = false
+
+  var diff_mis_map: Seq[AddressSet] = AddressSet.misaligned(0, 0)
 
   def setResetVector(addr: UInt): Unit = {
     Reset_Vector := addr
@@ -20,6 +23,10 @@ object Config {
 
   def setSimulate(on: Boolean): Unit = {
     Simulate = on
+  }
+
+  def setDiffMisMap(addr: Seq[AddressSet]): Any = {
+    diff_mis_map = addr
   }
 
   object Icache_Param {

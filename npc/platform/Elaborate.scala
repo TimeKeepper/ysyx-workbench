@@ -1,6 +1,7 @@
 package config
 
 import chisel3._
+import freechips.rocketchip.diplomacy.AddressSet
 
 object Elaborateysyxsoc extends App {
   val firtoolOptions = Array(
@@ -15,8 +16,12 @@ object Elaborateysyxsoc extends App {
   
   Config.Reset_Vector = "h30000000".U(32.W)
   Config.setDPIC(false)
-  Config.setIcacheParam(2, 4, 19, "ha0000000")
   Config.setSimulate(true)
+  Config.setIcacheParam(2, 4, 19, "ha0000000")
+  Config.setDiffMisMap( AddressSet.misaligned(0x10000000, 0x1000) ++
+                        AddressSet.misaligned(0x10002000, 0x10) ++
+                        AddressSet.misaligned(0x10011000, 0x8) ++
+                        AddressSet.misaligned(0x02000000L, 0x10000))
 
   circt.stage.ChiselStage.emitSystemVerilogFile(gen = new riscv_cpu.ysyx_23060198(), args = args, firtoolOpts  = firtoolOptions)
 }
@@ -35,8 +40,10 @@ object Elaboratenpc extends App {
   )
   
   Config.Reset_Vector = "h80000000".U(32.W)
-  Config.setDPIC(true)
+  Config.setDPIC(false)
+  Config.setSimulate(true)
   Config.setIcacheParam(2, 4, 19, "h80000000")
+  Config.setDiffMisMap(AddressSet.misaligned(0x10000000, 0x1000))
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.top(), args, firtoolOptions)
 }
@@ -54,6 +61,7 @@ object Elaboratecore extends App {
   
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setDPIC(false)
+  Config.setSimulate(false)
   Config.setIcacheParam(2, 4, 19, "h80000000")
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)

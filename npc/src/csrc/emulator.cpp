@@ -148,11 +148,15 @@ void Emulator::init_rand() {
 }
 
 void Emulator::init_mem() {
+    #ifdef PLATFORM_YSYXSOC
     memorys.emplace("psram", std::make_unique<Memory>(CONFIG_PSRAM_BASE, CONFIG_PSRAM_SIZE));
     memorys.emplace("sdram", std::make_unique<Memory>(CONFIG_SDRAM_BASE, CONFIG_SDRAM_SIZE));
     memorys.emplace("mrom", std::make_unique<Memory>(CONFIG_MROM_BASE, CONFIG_MROM_SIZE));
     memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_BASE, CONFIG_FLASH_SIZE, Memory::Little_endian));
     memorys.emplace("vga", std::make_unique<Memory>(CONFIG_VGA_FRAME_BUFFER_BASE, CONFIG_VGA_FRAME_BUFFER_SIZE));
+    #elif defined (PLATFORM_NPC)
+    memorys.emplace("sram", std::make_unique<Memory>(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_SIZE));
+    #endif
 }
 
 void Emulator::init_isa() {
@@ -175,7 +179,11 @@ void Emulator::load_image() {
     Log("The image is %s, size = %ld", this->img_file, size);
 
     fseek(fp, 0, SEEK_SET);
+    #ifdef PLATFORM_YSYXSOC
     int ret = fread(this->memorys["flash"]->get_memory(), size, 1, fp);
+    #elif defined (PLATFORM_NPC)
+    int ret = fread(this->memorys["sram"]->get_memory(), size, 1, fp);
+    #endif
     assert(ret == 1);
 
     fclose(fp);
@@ -218,12 +226,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     this->load_image();
 
     init_disasm("riscv32");
-
-    #ifdef CONFIG_DIFFTEST
-    this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
-        this->memorys["flash"].get(), &this->npc_state, \
-        [&](int a0) { this->Emulator_trap(a0); });
-    #endif
 
     this->perf = std::make_unique<performence>();
 
@@ -272,6 +274,21 @@ void Emulator::cycle(uint64_t n) {
     this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
 }
 
+const std::pair<const std::string, std::unique_ptr<Memory>>* Emulator::find_match_memory(uint32_t addr){
+    for(auto &i : this->memorys){
+        if(i.second->match(addr)){
+            return &i;
+        }
+    }
+    return nullptr;
+}
+
+uint32_t Emulator::memory_read(uint32_t addr){
+    auto match_memory = this->find_match_memory(addr);
+    if(match_memory == nullptr) return 0;
+    return match_memory->second->read_WithBias(addr, 4);
+}
+
 void Emulator::single_inst(uint64_t n){
     this->run_inst_num = n;
     this->npc_state.state = NPC_RUNNING;
@@ -304,6 +321,13 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
+    switch(inst){
+        case 0x00000000: this->Emulator_trap(1);   break; // ecall
+        case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
+        case 0x00100073: this->Emulator_trap(cpu.gpr[10]);   break; // ebreak
+        default: break;
+    }
+
     this->perf->coponent_count("IFU");
 
     this->instruction_buffer_push(cpu.pc, inst);
@@ -321,14 +345,8 @@ void Emulator::ALU_catch(){
     this->perf->coponent_count("ALU");
 }
 
-void Emulator::LSU_catch(uint32_t diff_skip){
+void Emulator::LSU_catch(){
     this->perf->coponent_count("LSU");
-    
-    if(diff_skip == 0) return;
-
-    #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_skip_ref();
-    #endif
 }
 
 void Emulator::WBU_catch(uint32_t next_pc, \
@@ -344,8 +362,4 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
 
     this->perf->inst_cont();
-
-    #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_step(cpu.pc);
-    #endif
 }

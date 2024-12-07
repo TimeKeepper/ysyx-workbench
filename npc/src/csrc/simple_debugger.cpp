@@ -129,23 +129,27 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             uint32_t len = std::stoul(args[0], nullptr, 0);
             
             // find match memory
-            bool found = false;
-            auto it = std::find_if(this->emulator->memorys.begin(), this->emulator->memorys.end(), [&](const std::pair<const std::string, std::unique_ptr<Memory>>& m) {
-                if (m.second->match(addr)) {
-                    found = true;
-                    std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << m.first << ANSI_NONE << std::endl;
-                    return true;
-                }
-                return false;
-            });
+            // bool found = false;
+            // auto it = std::find_if(this->emulator->memorys.begin(), this->emulator->memorys.end(), [&](const std::pair<const std::string, std::unique_ptr<Memory>>& m) {
+            //     if (m.second->match(addr)) {
+            //         found = true;
+            //         std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << m.first << ANSI_NONE << std::endl;
+            //         return true;
+            //     }
+            //     return false;
+            // });
 
-            if(!found) {
+            auto match_memory = this->emulator->find_match_memory(addr);
+
+            if(match_memory == nullptr) {
                 std::cout << ANSI_FG_RED << "No memory found at address 0x" << std::hex << addr << ANSI_NONE << std::endl;
                 return 0;
             }
+            
+            std::cout << ANSI_FG_CYAN << "Memory match on" << ANSI_NONE << "\t: " << ANSI_FG_BLUE << match_memory->first << ANSI_NONE << std::endl;
 
             for(int i = 0; i < len; i += 1){
-                uint32_t data = it->second->read_WithBias(addr + (i * 4), 4);
+                uint32_t data = match_memory->second->read_WithBias(addr + (i * 4), 4);
                 std::cout << ANSI_FG_CYAN << "0x" << std::hex << addr + i << ANSI_NONE << "\t: " << ANSI_FG_BLUE << data << ANSI_NONE << std::endl;
             }
 

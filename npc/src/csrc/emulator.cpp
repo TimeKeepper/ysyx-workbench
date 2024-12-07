@@ -286,6 +286,15 @@ void Emulator::cycle(uint64_t n) {
     this->npc_state.state = this->npc_state.state == NPC_RUNNING ? NPC_STOP : this->npc_state.state;
 }
 
+const std::pair<const std::string, std::unique_ptr<Memory>>* Emulator::find_match_memory(uint32_t addr){
+    for(auto &i : this->memorys){
+        if(i.second->match(addr)){
+            return &i;
+        }
+    }
+    return nullptr;
+}
+
 void Emulator::single_inst(uint64_t n){
     this->run_inst_num = n;
     this->npc_state.state = NPC_RUNNING;

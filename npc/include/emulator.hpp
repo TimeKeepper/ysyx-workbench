@@ -58,6 +58,7 @@ class Emulator {
 
         void reset(uint64_t n);
         void cycle(uint64_t n);
+        const std::pair<const std::string, std::unique_ptr<Memory>>* find_match_memory(uint32_t addr);
         void single_inst(uint64_t n);
         void wave_trace_ctrl(bool v);
         void instruction_trace_ctrl(bool v);

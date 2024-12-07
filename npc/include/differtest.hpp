@@ -11,6 +11,8 @@ class Differtest {
     private:
         bool is_skip_ref = false;
         void checkregs(Riscv_CPU_State *ref, vaddr_t pc);
+        uint32_t checkmem_addr = CONFIG_RESET_VECTOR;
+        void checkmems();
 
         Riscv_CPU_State *dut_r;
         NPCState* npc_state;

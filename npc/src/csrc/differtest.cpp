@@ -4,8 +4,8 @@
 
 Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state, \
-    std::function<void(int a0)> emulator_trap_func) \
-    : dut_r(dut_r), npc_state(npc_state), Emulator_trap(emulator_trap_func) {
+    std::function<void(int a0)> emulator_trap_func, Emulator* emulator) \
+    : dut_r(dut_r), npc_state(npc_state), Emulator_trap(emulator_trap_func), emulator(emulator) {
     assert(ref_so_file != NULL);
 
     void *handle;
@@ -68,13 +68,13 @@ void Differtest::checkmems(){
     uint32_t ref_data;
     uint32_t dut_data;
     ref_difftest_memcpy(checkmem_addr, &ref_data, 4, DIFFTEST_TO_REF);
-    // dut_data = vaddr_read(checkmem_addr, 4);
-    // if(ref_data != dut_data){
-    //     printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-    //     printf("mem:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", ref_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", checkmem_addr, ref_data, dut_data);
-    //     npc_state->state = NPC_ABORT;
-    //     npc_state->halt_pc = dut_r->pc;
-    // }
+    dut_data = this->emulator->memory_read(checkmem_addr);
+    if(ref_data != dut_data){
+        printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+        printf("mem:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", ref_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", checkmem_addr, ref_data, dut_data);
+        npc_state->state = NPC_ABORT;
+        npc_state->halt_pc = dut_r->pc;
+    }
 }
 
 void Differtest::difftest_step(vaddr_t pc){

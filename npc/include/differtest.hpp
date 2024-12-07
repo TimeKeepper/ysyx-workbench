@@ -2,6 +2,7 @@
 #define __DIFFERTEST_HPP__
 
 #include "cpu.hpp"
+#include "emulator.hpp"
 #include <memory.hpp>
 #include <utils.hpp>
 
@@ -17,6 +18,7 @@ class Differtest {
         Riscv_CPU_State *dut_r;
         NPCState* npc_state;
         std::function<void(int a0)> Emulator_trap;
+        Emulator* emulator;
     public:
         void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
         void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
@@ -25,7 +27,7 @@ class Differtest {
 
         Differtest(char *ref_so_file, long img_size, int port, Riscv_CPU_State* dut_r, \
             Memory *load_mem, NPCState* npc_state, \
-            std::function<void(int a0)> emulator_trap_func);
+            std::function<void(int a0)> emulator_trap_func, Emulator* emulator);
             
         bool isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc);
         void difftest_step(vaddr_t pc);

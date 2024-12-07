@@ -8,6 +8,7 @@
 #include <emulator.hpp>
 #include <expr.hpp>
 #include <watch_point.hpp>
+#include <differtest.hpp>
 
 struct cmd {
     std::string name;
@@ -25,11 +26,14 @@ class simple_debugger {
         std::unique_ptr<Watch_Point_Manager> wpm;
         bool is_watch_point_mode = false;
         void watch_point_mode(bool v);
+
+        std::unique_ptr<Differtest> difftest;
     public:
         simple_debugger(Emulator* emulator);
         void main_loop();
 
-        void inst_comp(void);
+        void LSU_catch(uint32_t diff_skip);
+        void WBU_catch(void);
 };
 
 #endif

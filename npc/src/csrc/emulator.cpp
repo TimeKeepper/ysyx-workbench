@@ -227,18 +227,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     init_disasm("riscv32");
 
-    #ifdef CONFIG_DIFFTEST
-    #ifdef PLATFORM_YSYXSOC
-    this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
-        this->memorys["flash"].get(), &this->npc_state, \
-        [&](int a0) { this->Emulator_trap(a0); });
-    #elif defined (PLATFORM_NPC)
-    this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
-        this->memorys["sram"].get(), &this->npc_state, \
-        [&](int a0) { this->Emulator_trap(a0); });
-    #endif
-    #endif
-
     this->perf = std::make_unique<performence>();
 
     this->init_simulate();
@@ -295,6 +283,12 @@ const std::pair<const std::string, std::unique_ptr<Memory>>* Emulator::find_matc
     return nullptr;
 }
 
+uint32_t Emulator::memory_read(uint32_t addr){
+    auto match_memory = this->find_match_memory(addr);
+    if(match_memory == nullptr) return 0;
+    return match_memory->second->read_WithBias(addr, 4);
+}
+
 void Emulator::single_inst(uint64_t n){
     this->run_inst_num = n;
     this->npc_state.state = NPC_RUNNING;
@@ -345,14 +339,8 @@ void Emulator::ALU_catch(){
     this->perf->coponent_count("ALU");
 }
 
-void Emulator::LSU_catch(uint32_t diff_skip){
+void Emulator::LSU_catch(){
     this->perf->coponent_count("LSU");
-    
-    if(diff_skip == 0) return;
-
-    #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_skip_ref();
-    #endif
 }
 
 void Emulator::WBU_catch(uint32_t next_pc, \
@@ -368,8 +356,4 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
 
     this->perf->inst_cont();
-
-    #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_step(cpu.pc);
-    #endif
 }

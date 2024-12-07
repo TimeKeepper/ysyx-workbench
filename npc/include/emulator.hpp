@@ -6,11 +6,10 @@
 #include <memory>
 #include <utils.hpp>
 #include <unordered_map>
-#include <differtest.hpp>
 #include <performence.hpp>
 
 class Emulator {
-    private:
+    public:
         int argc;
         char **argv;
 
@@ -36,15 +35,13 @@ class Emulator {
 
         std::string disasm(uint32_t pc, uint32_t inst);
 
-        std::unique_ptr<Differtest> difftest;
-
         void parse_args();
         void init_rand();
         void init_mem();
         void init_isa();
         void load_image();
         void init_simulate();
-    public:
+
         bool is_batch_mode = false;
         NPCState npc_state = { .state = NPC_STOP ,.halt_pc = 0, .halt_ret = 0};
         Riscv_CPU_State cpu;
@@ -59,6 +56,7 @@ class Emulator {
         void reset(uint64_t n);
         void cycle(uint64_t n);
         const std::pair<const std::string, std::unique_ptr<Memory>>* find_match_memory(uint32_t addr);
+        uint32_t memory_read(uint32_t addr);
         void single_inst(uint64_t n);
         void wave_trace_ctrl(bool v);
         void instruction_trace_ctrl(bool v);
@@ -69,7 +67,7 @@ class Emulator {
         void IFU_catch(uint32_t inst);
         void IDU_catch(performence::Inst_Type type);
         void ALU_catch();
-        void LSU_catch(uint32_t diff_skip);
+        void LSU_catch();
         void WBU_catch(uint32_t next_pc, \
         uint32_t gpr_waddr, uint32_t gpr_wdata, \
         uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata, \

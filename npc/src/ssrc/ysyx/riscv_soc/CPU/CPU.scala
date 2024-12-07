@@ -143,13 +143,6 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
     io.slave <> DontCare
     io.interrupt <> DontCare
-
-    if(Config.DPIC_on){
-      val axi_bridge = Module(new AXI_BRIDGE)
-      axi_bridge.io.clock := clock
-      axi_bridge.io.rresp := io.master.r.bits.resp
-      axi_bridge.io.bresp := io.master.b.bits.resp
-    }
   }
 }
 class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
@@ -201,20 +194,6 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     // bus WBU -> REG -> IFU without delay
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
     REG.io.REG_2_IFU     <> IFU.io.REG_2_IFU
-
-    if(Config.DPIC_on){
-      val INST_BRIDGE = Module(new Inst_Comp)
-      INST_BRIDGE.io.clock := clock
-
-      val comp_cache = RegInit(Bool(), false.B)
-      comp_cache := WBU.io.WBU_2_IFU.valid
-      when((comp_cache === false.B) && (WBU.io.WBU_2_IFU.valid === true.B)) {
-        INST_BRIDGE.io.valid := true.B
-      }.otherwise {
-        INST_BRIDGE.io.valid := false.B
-      }
-
-    }
   }
 }
 

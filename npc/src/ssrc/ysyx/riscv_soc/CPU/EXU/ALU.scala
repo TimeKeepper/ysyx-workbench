@@ -10,26 +10,6 @@ import config._
 
 // riscv cpu analogic and logical unit
 
-class ALU_PC extends BlackBox with HasBlackBoxInline {
-    val io = IO(new Bundle{
-        val clock = Input(Clock())
-        val valid = Input(Bool())
-    })
-    setInline("ALU_PC.v",
-    """module ALU_PC(
-    |    input clock,
-    |    input valid
-    |);
-    |  import "DPI-C" function void ALU_finished();
-    |  always @(posedge clock) begin
-    |    if(valid) begin
-    |      ALU_finished();
-    |    end
-    |  end
-    |endmodule
-    """.stripMargin)
-}
-
 class ALU_catch extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle{
     val AL = Input(Bool())
@@ -121,11 +101,5 @@ class ALU extends Module {
   if(Config.Simulate){
     val Catch = Module(new ALU_catch)
     Catch.io.AL := io.out.fire && !reset.asBool
-  }
-
-  if(Config.DPIC_on){
-      val ALU_PC = Module(new ALU_PC)
-      ALU_PC.io.clock := clock
-      ALU_PC.io.valid := io.out.fire && !reset.asBool
   }
 }

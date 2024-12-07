@@ -228,9 +228,15 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
     init_disasm("riscv32");
 
     #ifdef CONFIG_DIFFTEST
+    #ifdef PLATFORM_YSYXSOC
     this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
         this->memorys["flash"].get(), &this->npc_state, \
         [&](int a0) { this->Emulator_trap(a0); });
+    #elif defined (PLATFORM_NPC)
+    this->difftest = std::make_unique<Differtest>(this->diff_so_file, this->img_size, 1234, &this->cpu, \
+        this->memorys["sram"].get(), &this->npc_state, \
+        [&](int a0) { this->Emulator_trap(a0); });
+    #endif
     #endif
 
     this->perf = std::make_unique<performence>();

@@ -15,31 +15,6 @@ import freechips.rocketchip.util._
 
 import signal_value._
 import bus_state._
-// riscv generating number(all meassge ALU and other thing needs) unit
-
-class IDU_PC extends BlackBox with HasBlackBoxInline {
-    val io = IO(new Bundle{
-        val clock = Input(Clock())
-        val valid = Input(Bool())
-        val iType = Input(UInt(2.W))
-    })
-    setInline("IDU_PC.v",
-    """module IDU_PC(
-    |    input clock,
-    |    input valid,
-    |    input [1:0] iType
-    |);
-    |
-    |import "DPI-C" function void IDU_finished(input int unsigned iType);
-    |
-    |always @(posedge clock) begin
-    |   if(valid) begin
-    |       IDU_finished({30'h0, iType});
-    |   end
-    |end
-    |endmodule
-    """.stripMargin)
-}
 
 class IDU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
@@ -282,15 +257,6 @@ class IDU extends Module{
         val Catch = Module(new IDU_catch)
         Catch.io.ID := io.IFU_2_IDU.fire && !reset.asBool
         Catch.io.Inst_Type := catchResult(PC_Field)
-    }
-
-    if(Config.DPIC_on) {
-        val PCdecoderTable = new DecodeTable(instList, Seq(PC_Field))
-        val PCdecoderResult = PCdecoderTable.decode(io.IFU_2_IDU.bits.data)
-        val PerformenceCounter = Module(new IDU_PC)
-        PerformenceCounter.io.clock := clock
-        PerformenceCounter.io.valid := io.IDU_2_EXU.fire && !reset.asBool
-        PerformenceCounter.io.iType := PCdecoderResult(PC_Field)
     }
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(

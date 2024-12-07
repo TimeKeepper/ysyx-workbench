@@ -13,25 +13,6 @@ import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 
-class LSU_DPIC extends BlackBox with HasBlackBoxInline {
-    val io = IO(new Bundle{
-        val LS_begin = Input(Bool())
-        val addr = Input(UInt(32.W))
-    })
-    setInline("LSU_DPIC.v",
-    """module LSU_DPIC(
-      | input  LS_begin,
-      | input  [31:0] addr
-      |);
-      |import "DPI-C" function void LS_differtest_catch(input int addr);
-      |
-      |  always @ (posedge LS_begin) begin
-      |     LS_differtest_catch(addr);
-      |  end
-      |endmodule
-    """.stripMargin)
-}
-
 class LSU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val LS = Input(Bool())
@@ -45,26 +26,6 @@ class LSU_catch extends BlackBox with HasBlackBoxInline {
     |  import "DPI-C" function void LSU_catch(input int unsigned diff_skip);
     |  always @(posedge LS) begin
     |       LSU_catch({31'h00000000, diff_skip});
-    |  end
-    |endmodule
-    """.stripMargin)
-}
-
-class LSU_PC extends BlackBox with HasBlackBoxInline {
-    val io = IO(new Bundle{
-        val clock = Input(Clock())
-        val valid = Input(Bool())
-    })
-    setInline("LSU_PC.v",
-    """module LSU_PC(
-    |    input clock,
-    |    input valid
-    |);
-    |  import "DPI-C" function void LSU_finished();
-    |  always @(posedge clock) begin
-    |    if(valid) begin
-    |      LSU_finished();
-    |    end
     |  end
     |endmodule
     """.stripMargin)
@@ -196,16 +157,6 @@ class LSU extends Module{
     ))
 
     io.out.bits.Mem_rdata := mem_rd
-
-    if(Config.DPIC_on){
-        val LS_DPIC = Module(new LSU_DPIC)
-        LS_DPIC.io.LS_begin  := io.AXI.ar.valid || io.AXI.aw.valid
-        LS_DPIC.io.addr      := io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm
-
-        val LSU_PC = Module(new LSU_PC)
-        LSU_PC.io.clock := clock
-        LSU_PC.io.valid := io.out.fire && !reset.asBool
-    }
 
     if(Config.Simulate){
         val Catch = Module(new LSU_catch)

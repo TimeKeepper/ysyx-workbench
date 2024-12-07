@@ -12,58 +12,6 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import freechips.rocketchip.util.Annotated.srams
 
-class IFU_TRACE extends BlackBox with HasBlackBoxInline {
-    val io = IO(new Bundle {
-        val clock = Input(Clock())
-        val valid = Input(Bool())
-        val addr  = Input(UInt(32.W))
-        val data  = Input(UInt(32.W))
-    })
-    setInline("IFU_TRACE.v",
-    """module IFU_TRACE(
-    |    input clock,
-    |    input valid,
-    |    input [31:0] addr,
-    |    input [31:0] data
-    |);
-    | import "DPI-C" function void check_special_inst(input int unsigned inst);
-    | import "DPI-C" function void itrace_catch(input int unsigned addr, input int unsigned inst);
-    | 
-    | always @(posedge clock) begin
-    |     if(valid) begin
-    |         check_special_inst(data);
-    |         itrace_catch(addr, data);
-    |     end
-    | end
-    |
-    |endmodule
-    """.stripMargin)
-}
-
-class IFU_PC extends BlackBox with HasBlackBoxInline {
-    val io = IO(new Bundle{
-        val clock = Input(Clock())
-        val valid = Input(Bool())
-        val cache_hit = Input(Bool())
-        val map_hit = Input(Bool())
-    })
-    setInline("IFU_PC.v",
-    """module IFU_PC(
-    |    input clock,
-    |    input valid,
-    |    input cache_hit,
-    |    input map_hit
-    |);
-    |  import "DPI-C" function void IFU_finished(input int unsigned cache_hit, input int unsigned map_hit);
-    |  always @(posedge clock) begin
-    |    if(valid) begin
-    |      IFU_finished({31'h0, cache_hit}, {31'h0, map_hit});
-    |    end
-    |  end
-    |endmodule
-    """.stripMargin)
-}
-
 class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
@@ -220,23 +168,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             Catch.io.clock := clock
             Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
             Catch.io.inst := io.IFU_2_IDU.bits.data
-        }
-
-        if(Config.DPIC_on){
-            def mapBegin = Config.Icache_Param.offsetWidth + Config.Icache_Param.indexWidth + Config.Icache_Param.tagWidth
-            def map = Config.Icache_Param.mapAddr.U(32.W)(31, mapBegin)
-            val trace = Module(new IFU_TRACE)
-
-            trace.io.clock := clock
-            trace.io.valid := io.IFU_2_IDU.fire && !reset.asBool
-            trace.io.addr := io.REG_2_IFU.Next_PC
-            trace.io.data := io.IFU_2_IDU.bits.data
-
-            val IFU_PC = Module(new IFU_PC)
-            IFU_PC.io.clock := clock
-            IFU_PC.io.valid := io.IFU_2_IDU.fire && !reset.asBool
-            IFU_PC.io.cache_hit := RegNext(Icache.io.cache_hit)
-            IFU_PC.io.map_hit := RegNext(io.REG_2_IFU.Next_PC(31, mapBegin) === map)
         }
     }
 }

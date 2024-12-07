@@ -7,18 +7,12 @@ import freechips.rocketchip.diplomacy.AddressSet
 object Config {
   var Reset_Vector = "h80000000".U(32.W)
 
-  var DPIC_on: Boolean = false
-
   var Simulate: Boolean = false
 
   var diff_mis_map: Seq[AddressSet] = AddressSet.misaligned(0, 0)
 
   def setResetVector(addr: UInt): Unit = {
     Reset_Vector := addr
-  }
-
-  def setDPIC(on: Boolean): Unit = {
-    DPIC_on = on
   }
 
   def setSimulate(on: Boolean): Unit = {

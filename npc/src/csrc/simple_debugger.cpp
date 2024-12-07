@@ -361,7 +361,7 @@ void simple_debugger::LSU_catch(uint32_t diff_skip){
     if(diff_skip == 0) return;
     
     #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_step(this->emulator->cpu.pc);
+    this->difftest->difftest_skip_ref();
     #endif
 }
 

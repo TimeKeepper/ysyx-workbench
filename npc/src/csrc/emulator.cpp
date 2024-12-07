@@ -221,6 +221,8 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
 
     this->load_image();
 
+    Log("debug!");
+
     init_disasm("riscv32");
 
     #ifdef CONFIG_DIFFTEST
@@ -228,8 +230,6 @@ Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
         this->memorys["flash"].get(), &this->npc_state, \
         [&](int a0) { this->Emulator_trap(a0); });
     #endif
-
-    Log("debug!");
 
     this->perf = std::make_unique<performence>();
 

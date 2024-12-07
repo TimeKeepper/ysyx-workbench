@@ -321,6 +321,12 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t inst){
+    switch(inst){
+        case 0x00000000: this->Emulator_trap(1);   break; // ecall
+        case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
+        case 0x00100073: this->Emulator_trap(cpu.gpr[10]);   break; // ebreak
+        default: break;
+    }
 
     this->perf->coponent_count("IFU");
 

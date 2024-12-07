@@ -67,7 +67,7 @@ extern "C" {
             default: Assert(0, "Invalid strb: %d", strb);
         }
 
-        emulator->memorys["sram"]->write(addr, len, data);
+        emulator->memorys["sram"]->write(addr - CONFIG_LOAD_MEMORY_BASE, len, data);
     }
     
     extern void Uart_putc(int32_t ch){

@@ -10,9 +10,11 @@ config LOAD_MEMORY_SIZE
   hex "Load memory(The memory store program) size"
   default 0x8000000
 
-endmenu #MEMORY
+config RESET_VECTOR
+  hex "RESET_VECTOR"
+  default LOAD_MEMORY_BASE
 
-menu "Testing and Debugging"
+endmenu #MEMORY
 
 config DIFFTEST
   bool "Enable differential testing"
@@ -21,27 +23,3 @@ config DIFFTEST
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NPC.
 
-config WATCHPOINT
-  bool "Enable watch point and break point"
-  default n
-
-config TRACE
-  bool "Enable tracer"
-  default y
-
-config ITRACE
-depends on TRACE
-bool "Enable instruction tracer"
-default n
-
-config FTRACE
-depends on TRACE
-bool "Enable function tracer"
-default n
-
-config WTRACE
-depends on TRACE
-bool "Enable wave tracer"
-default n
-
-endmenu

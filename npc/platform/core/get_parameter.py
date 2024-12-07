@@ -19,15 +19,6 @@ def get_latest_commit_message():
 
 def read_report():
     data = {}
-    # data pattern
-    # CSR:	0 0
-    # LS:	548400 6687
-    # Cal:	118796 13313
-    # GP:	667368 20000
-    # ALU:	13313
-    # LSU:	6687
-    # IFU:	20000
-    # Inst:	0 0
 
     with open("./build/report.txt", 'r') as file:
         for line in file:

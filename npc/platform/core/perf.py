@@ -1,20 +1,40 @@
+from decimal import getcontext
 from matplotlib import gridspec
 import get_parameter as gp
 from tabulate import tabulate
 import matplotlib.pyplot as plt
+from typing import TypeVar, Union, List
 
 data = gp.read_report()
 Freq = float(gp.get_Freq())
+
+T = TypeVar('T', int, float, complex)
+
+def safe_divide(numerator: Union[T, List[T]], denominator: Union[T, List[T]], precision: int = 100) -> Union[T, List[T], float]:
+    getcontext().prec = precision 
+
+    try:
+        if isinstance(numerator, list) and isinstance(denominator, list):
+            return [safe_divide(n, d) for n, d in zip(numerator, denominator)]
+        elif isinstance(numerator, list):
+            return [safe_divide(n, denominator) for n in numerator]
+        elif isinstance(denominator, list):
+            return [safe_divide(numerator, d) for d in denominator]
+        else:
+            return numerator / denominator
+    except ZeroDivisionError:
+        return 0  
+
 
 def tabulate_show():
     df = {
         'Commit': [gp.get_commit_id()],
         'Message': [gp.get_commit_message()],
-        'Performance Index': [data['GP'][1] / data['GP'][0] * Freq],
+        'Performance Index': [safe_divide(data['GP'][1], data['GP'][0] * Freq)],
         'Chip area(um^2)': [gp.get_Chip_area()],
-        'IPC': [data['CSR'][1] / data['CSR'][0]],
+        'IPC': [safe_divide(data['GP'][1], data['GP'][0])],
         'Freq(MHz)': [Freq],
-        'Icache hit rate': [data['Inst'][0] / data['GP'][0]],
+        'Icache hit rate': [safe_divide(data['Inst'][0], data['GP'][1])],
         'Simulation clk_cnt': [data['GP'][0]],
     }
 
@@ -29,7 +49,7 @@ def ui():
 
     clk_nums = [data['CSR'][0], data['LS'][0], data['Cal'][0]]
     inst_nums = [data['CSR'][1], data['LS'][1], data['Cal'][1]]
-    a_cycle = inst_nums / clk_nums
+    a_cycle = safe_divide(inst_nums, clk_nums)
     labels = ['LS', 'CSR', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 

@@ -55,17 +55,25 @@ extern "C" {
     }
 
     extern void sram_write(int32_t addr, int32_t data, int32_t strb){
-        Log("sram_write: addr = 0x%x, data = 0x%x, strb = 0x%x", addr, data, strb);
+        // Log("sram_write: addr = 0x%x, data = 0x%x, strb = 0x%x", addr, data, strb);
         int32_t len;
         switch(strb){
             case 0b0001:
             case 0b0010:
-            case 0b0100:
+            case 0b0100: 
             case 0b1000: len = 1; break;
             case 0b0011:
             case 0b1100: len = 2; break;
             case 0b1111: len = 4; break;
             default: Assert(0, "Invalid strb: %d", strb);
+        }
+
+        switch(strb){
+            case 0b0010: data >>= 8; break;
+            case 0b0100:
+            case 0b1100: data >>= 16; break;
+            case 0b1000: data >>= 24; break;
+            default: break;
         }
 
         emulator->memorys["sram"]->write(addr - CONFIG_LOAD_MEMORY_BASE, len, data);

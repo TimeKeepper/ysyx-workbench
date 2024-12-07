@@ -41,6 +41,10 @@ performence::~performence(){
         report << i.first << ":\t" << i.second << std::endl;
     }
 
+    for(auto &i : this->cache_cntrs){
+        report << i.first << ":\t" << i.second.first << " " << i.second.second << std::endl;
+    }
+
     this->inst_cntrs.clear();
     this->conpo_cntrs.clear();
     this->cache_cntrs.clear();

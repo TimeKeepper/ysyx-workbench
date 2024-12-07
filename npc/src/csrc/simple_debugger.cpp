@@ -367,7 +367,7 @@ void simple_debugger::LSU_catch(uint32_t diff_skip){
 
 void simple_debugger::WBU_catch(void) {
     #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_step(cpu.pc);
+    this->difftest->difftest_step(this->emulator->cpu.pc);
     #endif
 
     if(this->wpm->check_watch_points() || this->wpm->check_break_points()){

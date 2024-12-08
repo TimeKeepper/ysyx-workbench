@@ -303,7 +303,7 @@ static char* rl_gets() {
         line_read = NULL;
     }
 
-    line_read = readline("(npc) ");
+    line_read = readline(("(" + std::string(CONFIG_PLATFORM) + ") ").c_str());
 
     if(history_length != 0){
         HIST_ENTRY *last_cmd = history_get(history_length);

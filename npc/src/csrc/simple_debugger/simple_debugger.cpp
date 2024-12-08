@@ -277,11 +277,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     this->wpm = std::make_unique<Watch_Point_Manager>(this->expr.get());
 
     #ifdef CONFIG_DIFFTEST
-    #ifdef PLATFORM_YSYXSOC
+    #ifdef CONFIG_PLATFORM_YSYXSOC
     this->difftest = std::make_unique<Differtest>(this->emulator->diff_so_file, this->emulator->img_size, 1234, &this->emulator->cpu, \
         this->emulator->memorys["flash"].get(), &this->emulator->npc_state, \
         [&](int a0) { this->emulator->Emulator_trap(a0); }, this->emulator);
-    #elif defined (PLATFORM_NPC)
+    #elif defined (CONFIG_PLATFORM_NPC)
     this->difftest = std::make_unique<Differtest>(this->emulator->diff_so_file, this->emulator->img_size, 1234, &this->emulator->cpu, \
         this->emulator->memorys["sram"].get(), &this->emulator->npc_state, \
         [&](int a0) { this->emulator->Emulator_trap(a0); }, this->emulator);

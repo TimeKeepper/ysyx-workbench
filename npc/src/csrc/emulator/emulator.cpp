@@ -148,13 +148,13 @@ void Emulator::init_rand() {
 }
 
 void Emulator::init_mem() {
-    #ifdef PLATFORM_YSYXSOC
+    #ifdef CONFIG_PLATFORM_YSYXSOC
     memorys.emplace("psram", std::make_unique<Memory>(CONFIG_PSRAM_BASE, CONFIG_PSRAM_SIZE));
     memorys.emplace("sdram", std::make_unique<Memory>(CONFIG_SDRAM_BASE, CONFIG_SDRAM_SIZE));
     memorys.emplace("mrom", std::make_unique<Memory>(CONFIG_MROM_BASE, CONFIG_MROM_SIZE));
     memorys.emplace("flash", std::make_unique<Memory>(CONFIG_FLASH_BASE, CONFIG_FLASH_SIZE, Memory::Little_endian));
     memorys.emplace("vga", std::make_unique<Memory>(CONFIG_VGA_FRAME_BUFFER_BASE, CONFIG_VGA_FRAME_BUFFER_SIZE));
-    #elif defined (PLATFORM_NPC)
+    #elif defined (CONFIG_PLATFORM_NPC)
     memorys.emplace("sram", std::make_unique<Memory>(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_SIZE));
     #endif
 }
@@ -179,9 +179,9 @@ void Emulator::load_image() {
     Log("The image is %s, size = %ld", this->img_file, size);
 
     fseek(fp, 0, SEEK_SET);
-    #ifdef PLATFORM_YSYXSOC
+    #ifdef CONFIG_PLATFORM_YSYXSOC
     int ret = fread(this->memorys["flash"]->get_memory(), size, 1, fp);
-    #elif defined (PLATFORM_NPC)
+    #elif defined (CONFIG_PLATFORM_NPC)
     int ret = fread(this->memorys["sram"]->get_memory(), size, 1, fp);
     #endif
     assert(ret == 1);

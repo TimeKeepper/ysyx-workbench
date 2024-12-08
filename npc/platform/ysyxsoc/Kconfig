@@ -86,6 +86,19 @@ config WAVEFORM
   default "vcd" if waveForm_vcd
   default "none"
 
+choice
+  prompt "PLATFORM"
+  default ysyxsoc
+config PLATFORM_YSYXSOC
+  bool "ysyxsoc"
+config PLATFORM_NPC
+  bool "npc"
+endchoice
+
+config PLATFORM
+  string
+  default "ysyxsoc" if PLATFORM_YSYXSOC
+  default "npc" if PLATFORM_NPC
 
 config NVBOARD
   bool "Enable Virtual FPGA NVBOARD"

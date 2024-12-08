@@ -71,6 +71,35 @@ config DIFFTEST
     Enable differential testing with a reference design.
     Note that this will significantly reduce the performance of NPC.
 
+choice
+  prompt "GENERATE_WAVE_FORM"
+  default waveForm_fst
+config waveForm_fst
+  bool "fst"
+config waveForm_vcd
+  bool "vcd"
+endchoice
+
+config WAVEFORM
+  string
+  default "fst" if waveForm_fst
+  default "vcd" if waveForm_vcd
+  default "none"
+
+choice
+  prompt "PLATFORM"
+  default ysyxsoc
+config PLATFORM_YSYXSOC
+  bool "ysyxsoc"
+config PLATFORM_NPC
+  bool "npc"
+endchoice
+
+config PLATFORM
+  string
+  default "ysyxsoc" if PLATFORM_YSYXSOC
+  default "npc" if PLATFORM_NPC
+
 config NVBOARD
   bool "Enable Virtual FPGA NVBOARD"
   default n

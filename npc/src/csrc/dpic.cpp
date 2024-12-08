@@ -9,7 +9,7 @@ extern simple_debugger* sdb;
 
 extern "C" {
 
-#ifdef PLATFORM_YSYXSOC
+#ifdef CONFIG_PLATFORM_YSYXSOC
     extern void flash_read(int32_t addr, int32_t* data) {
         *data = emulator->memorys["flash"]->read(addr, 4);
     }
@@ -49,7 +49,7 @@ extern "C" {
         uint32_t raddr = (y_addr * 640 + x_addr) * 4;
         *rdata = emulator->memorys["vga"]->read((raddr & ~0x3u), 4);
     }
-#elif defined (PLATFORM_NPC)
+#elif defined (CONFIG_PLATFORM_NPC)
     extern void sram_read(int32_t addr, int32_t* data) {
         *data = emulator->memorys["sram"]->read((addr & ~0x3u) - CONFIG_LOAD_MEMORY_BASE, 4);
     }

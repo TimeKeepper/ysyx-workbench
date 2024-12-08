@@ -1,6 +1,6 @@
 #include <numeric>
 #include <simple_debugger.hpp>
-
+#include <expr.hpp>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <algorithm>

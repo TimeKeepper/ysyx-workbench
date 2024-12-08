@@ -8,6 +8,15 @@
 #include <unordered_map>
 #include <performence.hpp>
 
+#include "verilated.h"
+
+#ifdef CONFIG_waveForm_vcd
+#include "verilated_vcd_c.h"
+#endif
+#ifdef CONFIG_waveForm_fst
+#include "verilated_fst_c.h"
+#endif
+
 class Emulator {
     public:
         int argc;
@@ -24,7 +33,12 @@ class Emulator {
 
         const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
         TOP_NAME* top = new TOP_NAME;
+        #ifdef CONFIG_waveForm_vcd
         VerilatedVcdC* tfp = new VerilatedVcdC;
+        #endif
+        #ifdef CONFIG_waveForm_fst
+        VerilatedFstC* tfp = new VerilatedFstC;
+        #endif
         bool wave_trace_on = false;
         void wave_trace_once();
 

@@ -11,8 +11,6 @@
 
 #include <utils.hpp>
 #include <nvboard.h>
-#include "verilated.h"
-#include "verilated_vcd_c.h"
 
 #define ADDR_MSTATUS 0x300
 #define ADDR_MTVEC 0x305
@@ -36,29 +34,5 @@ extern std::map<uint32_t, std::string> csr_key;
 
 const char* gpr_id2name(int id);
 const char* csr_id2name(int id);
-
-// void clk_exec(uint64_t n);
-// void cpu_exec(uint64_t n);
-// void cpu_reset(int n);
-// void Init_wavetrace(int argc, char **argv);
-// void wave_Trace_once();
-// void wave_Trace_close();
-// char* reg_id2name(int id);
-// int reg_name2id(char *reg_name);
-// void isa_reg_display(char *reg_name);
-// extern "C" void init_disasm(const char *triple);
-// extern "C" void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-// void init_difftest(char *ref_so_file, long img_size, int port);
-// void difftest_step(vaddr_t pc, vaddr_t npc);
-// int npc_trap (int ra);
-
-// extern CPU_State cpu;
-
-// extern uint64_t IFU_pc, LSU_pc, ALU_pc;
-// extern uint64_t i_CSR,  i_LS,  i_Cal;
-// extern uint64_t c_CSR,  c_LS,  c_Cal;
-// extern uint64_t clk_cnt, inst_cnt, num_of_inst_to_end;
-// extern bool is_itrace_printf;
-// extern uint64_t icache_hit, icache_map_hit;
 
 #endif

@@ -22,7 +22,7 @@ TOPNAME ?= top
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
-				--trace 
+				--trace --trace-fst 
 
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BVSRC_DIR = $(BUILD_DIR)/vsrc

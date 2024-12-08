@@ -242,8 +242,6 @@ Emulator::~Emulator() {
     #ifdef CONFIG_NVBOARD
     nvboard_quit();
     #endif
-    std::cout << "You should implement some exit code later";
-    std::cout << "Such as Close Wave trace, close nvboard, Generate Performence report etc..." << std::endl;
 }
 
 void Emulator::reset(uint64_t n) {

@@ -16,8 +16,6 @@ void SDL_handle(int SIGNAL){
 }
 
 int main(int argc, char **argv) {
-  Log(ANSI_FMT("REBUILD", ANSI_FG_GREEN));
-
   emulator = new Emulator(argc, argv);
 
   signal(SIGINT, SDL_handle);

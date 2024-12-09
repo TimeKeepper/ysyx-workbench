@@ -108,7 +108,15 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     io.AXI.r.ready := state === Icache_state.busy
 
     io.data.bits.addr := RegEnable(io.addr.bits, io.addr.fire)
-    io.data.bits.data := RegEnable(cache_data, io.AXI.r.fire || io.addr.fire)
+    val data = RegInit(0.U(32.W))
+
+    when(io.addr.fire){
+        data := cache_data
+    }.elsewhen(io.AXI.r.fire){
+        data := io.AXI.r.bits.data
+    }
+
+    io.data.bits.data := data
 
     io.AXI.ar.bits.addr := io.data.bits.addr
 

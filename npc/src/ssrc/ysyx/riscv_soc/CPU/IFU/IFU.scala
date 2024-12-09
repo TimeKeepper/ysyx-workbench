@@ -96,6 +96,9 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     val cache_size = 1 + map_tag_width + (block_size * 8)
     val cache = Mem(block_num, UInt(cache_size.W))
 
+    printf("block_num: %d\n", block_num.U)
+    printf("cache_size: %d\n", cache_size.U)
+
     val cache_data = cache(index)(block_size * 8 - 1, 0)
     val cache_tag = cache(index)(cache_size - 1 - 1, block_size * 8)
     val cache_valid = cache(index)(cache_size - 1)

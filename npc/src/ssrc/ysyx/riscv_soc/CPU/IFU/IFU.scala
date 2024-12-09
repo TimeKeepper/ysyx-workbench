@@ -70,6 +70,65 @@ class Icache(offsetWidth : Int, indexWidth : Int, tagWidth : Int, mapAddr : Stri
     }
 }
 
+object Icache_state extends ChiselEnum{
+    val idle, busy, get = Value
+}
+
+class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) extends Module {
+    val io = IO(new Bundle{
+        val AXI = Flipped(new AXI4Bundle(CPUAXI4BundleParameters()))
+        val addr = Flipped(Decoupled(Input(UInt(32.W))))
+        val data = Decoupled(Output(UInt(32.W)))
+    })
+    val offset_width = log2Ceil(block_size)
+    val index_width = log2Ceil(block_num)
+    
+    val offset = io.addr.bits(offset_width - 1, 0)
+    val index = io.addr.bits(index_width + offset_width - 1, offset_width)
+    val tag = io.addr.bits(31, index_width + offset_width)
+
+    val map_tag_width = log2Ceil(address.map(_.mask).reduce(_ max _))
+    val cache_size = 1 + map_tag_width + (block_size * 8)
+    val cache = Mem(block_num, UInt(cache_size.W))
+
+    val cache_data = cache(index)(block_size * 8 - 1, 0)
+    val cache_tag = cache(index)(cache_size - 1 - 1, block_size * 8)
+    val cache_valid = cache(index)(cache_size - 1)
+
+    val map_hit = address.map(_.contains(io.addr.bits)).reduce(_ || _)
+
+    val cache_hit = cache_valid && cache_tag === tag && map_hit
+
+    val state = RegInit(Icache_state.idle)
+
+    state := MuxLookup(state, Icache_state.idle){
+        Seq(
+            Icache_state.idle -> Mux(io.addr.valid, Mux(cache_hit, Icache_state.get, Icache_state.busy), Icache_state.idle),
+            Icache_state.busy -> Mux(io.AXI.r.fire, Icache_state.get, Icache_state.busy),
+            Icache_state.get  -> Mux(io.data.ready, Icache_state.idle, Icache_state.get)
+        )
+    }
+
+    io.addr.ready := state === Icache_state.idle
+    io.data.valid := state === Icache_state.get
+
+    // val tag_size = address.map(_.mask).reduce(_ max _)
+    // val tag_width = log2Ceil(tag_size)
+    // val cache_width = 1 + tag_width + block_width
+    // val block_num = Math.pow(2, index_width).toInt
+
+    // val cache = Mem(block_num, UInt(cache_width.W))
+
+    // val offset_pos = log2Ceil(block_width) - 1
+    // val index_pos = offset_pos + index_width
+    // val tag_pos = block_width - 1
+
+    // val offset = io.addr(log2Ceil(block_width) - 1, 0)
+    // val index = io.addr(log2Ceil(block_num) + log2Ceil(block_width) - 1, log2Ceil(block_width))
+
+    // val map_hit = address.map(_.contains(io.addr)).reduce(_ || _)
+}
+
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(

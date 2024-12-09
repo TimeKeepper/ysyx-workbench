@@ -62,7 +62,8 @@ git submodule update --init --recursive
 ```
 进入url找到对应二进制文件https://github.com/chipsalliance/espresso
 curl -JLO <url>
-sudo mv ./espresso /usr/local/bin/
+sudo mv <file_name> ./espresso
+sudo install ./espresso /usr/local/bin
 ```
 安装BtorMC模型检测器(基于Boolector SMT求解器)
 ```
@@ -86,7 +87,7 @@ make ARCH=riscv32e-ysyxsoc
 如果你遇到了找不到gnu/stubs-ilp32.h文件的错误，需要手动在/usr/riscv64-linux-gnu/include/gnu/stubs.h中将该include注释掉\
 安装yosys综合器
 ```
-pip install pandas tabulate gitpython wcwidth
+conda install pandas tabulate gitpython wcwidth
 sudo apt-get install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 tcl-dev
 
 git clone git@github.com:YosysHQ/yosys.git
@@ -102,22 +103,15 @@ sudo make install
 
 安装python依赖
 ```
-pip install matplotlib
+conda install matplotlib
 在npc下运行make perf查看效果
+如果报错error while loading shared libraries: libyaml-cpp.so.0.7: cannot open shared object file: No such file or directory
+你需要在url https://packages.debian.org/bookworm/amd64/libyaml-cpp0.7/download下载deb包并安装
 ```
 
 代码提示(metals)
 ```
-安装coursier
-curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs
-chmod +x cs
-sudo mv cs /usr/bin/
-cs setup
-cs install bloop
-bloop
-
-中途如果爆UNZIP什么错的话
-rm -r ~/.cache/coursier
+安装metals并在设置中指定mill的路径
 ```
 
 [lecture note]: https://ysyx.oscc.cc/docs/

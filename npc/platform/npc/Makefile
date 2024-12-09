@@ -59,7 +59,7 @@ ifdef EXTRA_DEFILE
 CXXFLAGS += $(EXTRA_DEFILE)
 endif
 CXXFLAGS += -g -DTRACE
-LDFLAGS += $(shell llvm-config --libs)
+LDFLAGS += $(shell llvm-config-14 --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk

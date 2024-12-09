@@ -86,7 +86,7 @@ ifdef EXTRA_DEFILE
 CXXFLAGS += $(EXTRA_DEFILE)
 endif
 CXXFLAGS += -g -DTRACE -fexceptions
-LDFLAGS += $(shell llvm-config --libs)
+LDFLAGS += $(shell llvm-config-14 --libs)
 LDFLAGS += -lreadline -ldl -pie -lelf -lmuparser
 
 $(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)

@@ -168,7 +168,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         })
         val (master, _) = masterNode.out(0)
 
-        val Icache = Module(new Icache_axi(AddressSet.misaligned(0xa0000000L, 0x2000000), 4, 32))
+        val Icache = Module(new Icache_axi(AddressSet.misaligned(0x80000000L, 0x8000000), 4, 32))
 
         Icache.io.AXI <> master
 

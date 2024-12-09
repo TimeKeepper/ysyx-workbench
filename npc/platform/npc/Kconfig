@@ -41,10 +41,10 @@ config WAVEFORM
 choice
   prompt "PLATFORM"
   default npc
-config PLATFORM_YSYXSOC
-  bool "ysyxsoc"
 config PLATFORM_NPC
   bool "npc"
+config PLATFORM_YSYXSOC
+  bool "ysyxsoc"
 endchoice
 
 config PLATFORM

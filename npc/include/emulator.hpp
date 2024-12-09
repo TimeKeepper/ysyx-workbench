@@ -79,6 +79,7 @@ class Emulator {
         void Emulator_trap(uint32_t a0);
 
         void IFU_catch(uint32_t inst);
+        void Icache_catch(uint32_t map_hit, uint32_t cache_hit);
         void IDU_catch(performence::Inst_Type type);
         void ALU_catch();
         void LSU_catch();

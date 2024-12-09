@@ -75,3 +75,12 @@ void performence::coponent_count(const std::string& name){
     }
     this->conpo_cntrs[name] += 1;
 }
+
+void performence::cache_count(const std::string& name, bool map_hit, bool cache_hit){
+    if(this->cache_cntrs.find(name) == this->cache_cntrs.end()){ 
+        Log("Unknown cache name: %s", name.c_str());
+        return;
+    }
+    this->cache_cntrs[name].first += map_hit;
+    this->cache_cntrs[name].second += cache_hit;
+}

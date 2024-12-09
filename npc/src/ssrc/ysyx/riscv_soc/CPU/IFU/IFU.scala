@@ -37,6 +37,28 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class Icache_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle{
+        val Icache = Input(Bool())
+        val map_hit = Input(Bool())
+        val cache_hit = Input(Bool())
+    })
+    setInline("Icache_catch.v",
+    """module Icache_catch(
+    |   input Icache,
+    |   input map_hit,
+    |   input cache_hit
+    |);
+    |
+    |   import "DPI-C" function void Icache_catch(input int unsigned map_hit, input int unsigned cache_hit);
+    |   always @(posedge Icache) begin
+    |       Icache_catch({31'b0, map_hit}, {31'b0, cache_hit});
+    |   end
+    |
+    |endmodule
+    """.stripMargin)
+}
+
 class Icache(offsetWidth : Int, indexWidth : Int, tagWidth : Int, mapAddr : String) extends Module{
     val io = IO(new Bundle{
         val addr = Input(UInt(32.W))
@@ -127,6 +149,14 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
 
     when(io.AXI.r.fire){
         cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width), io.AXI.r.bits.data)
+    }
+    
+
+    if(Config.Simulate){
+        val Catch = Module(new Icache_catch)
+        Catch.io.Icache := io.addr.fire
+        Catch.io.map_hit := map_hit
+        Catch.io.cache_hit := cache_hit
     }
 
     // AXI ignore

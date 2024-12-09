@@ -87,6 +87,10 @@ extern "C" {
         emulator->IFU_catch(inst);
     }
 
+    extern void Icache_catch(uint32_t map_hit, uint32_t cache_hit){
+        emulator->Icache_catch(map_hit, cache_hit);
+    }
+
     extern void IDU_catch(uint32_t type){
         performence::Inst_Type inst_type;
         switch(type){

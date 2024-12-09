@@ -26,6 +26,8 @@ class performence {
     void inst_type_set(Inst_Type type);
 
     void coponent_count(const std::string& name);
+
+    void cache_count(const std::string& name, bool map_hit, bool cache_hit);
 };
 
 #endif

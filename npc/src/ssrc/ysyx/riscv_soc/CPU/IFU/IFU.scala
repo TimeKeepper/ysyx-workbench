@@ -95,10 +95,7 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     val map_tag_width = log2Ceil(address.map(_.mask).reduce(_ max _))
     val cache_size = 1 + map_tag_width + (block_size * 8)
     val cache = Mem(block_num, UInt(cache_size.W))
-
-    print("block_num: %d\n", block_num.U)
-    print("cache_size: %d\n", cache_size.U)
-
+    
     val cache_data = cache(index)(block_size * 8 - 1, 0)
     val cache_tag = cache(index)(cache_size - 1 - 1, block_size * 8)
     val cache_valid = cache(index)(cache_size - 1)
@@ -126,6 +123,8 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     io.data.bits.data := RegEnable(io.AXI.r.bits.data, io.AXI.r.fire)
 
     io.AXI.ar.bits.addr := io.data.bits.addr
+
+    cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(map_tag_width - 1, index_width + offset_width - 1), io.AXI.r.bits.data)
 
     // AXI ignore
 

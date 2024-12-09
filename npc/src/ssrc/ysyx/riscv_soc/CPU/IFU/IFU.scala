@@ -11,7 +11,6 @@ import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import freechips.rocketchip.util.Annotated.srams
-import config.Config.Icache_Param.offsetWidth
 
 class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
@@ -57,40 +56,6 @@ class Icache_catch extends BlackBox with HasBlackBoxInline {
     |
     |endmodule
     """.stripMargin)
-}
-
-class Icache(offsetWidth : Int, indexWidth : Int, tagWidth : Int, mapAddr : String) extends Module{
-    val io = IO(new Bundle{
-        val addr = Input(UInt(32.W))
-        val data = Output(UInt(32.W))
-        
-        val cache_hit = Output(Bool())
-        val wdata = Input(UInt(32.W))
-        val wen = Input(Bool())
-    })
-    def mapBegin = offsetWidth + indexWidth + tagWidth
-    def map = mapAddr.U(32.W)(31, mapBegin)
-    def dataWidth = Math.pow(2, offsetWidth).toInt * 8
-    def offsetPos = offsetWidth - 1
-    def indexPos = offsetWidth + indexWidth - 1
-    def tagPos = dataWidth + tagWidth - 1
-    def dataPos = dataWidth - 1
-    def validPos = tagPos + 1
-
-    val icache = Mem(Math.pow(2, indexWidth).toInt, UInt((32 + tagWidth + 1).W))
-
-    val index = io.addr(indexPos, offsetPos + 1)
-    val tag = io.addr(31, indexPos + 1)
-    val cache_tag = icache(index)(tagPos, dataPos + 1)
-    io.data := icache(index)(dataPos, 0)
-
-    val tag_hit = tag === Cat(map, cache_tag)
-    val valid = icache(index)(validPos)
-    io.cache_hit := valid && tag_hit
-
-    when(io.wen){
-        icache(index) := Cat(true.B, io.addr(24, 6), io.wdata)
-    }
 }
 
 object Icache_state extends ChiselEnum{
@@ -203,7 +168,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         })
         val (master, _) = masterNode.out(0)
 
-        val Icache = Module(new Icache_axi(AddressSet.misaligned(0x80000000L, 0x8000000), 4, 32))
+        val Icache = Module(new Icache_axi(Config.Icache_Param.address, Config.Icache_Param.block_size, Config.Icache_Param.block_num))
 
         Icache.io.AXI <> master
 

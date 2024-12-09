@@ -24,16 +24,14 @@ object Config {
   }
 
   object Icache_Param {
-    var offsetWidth = 2
-    var indexWidth = 4
-    var tagWidth = 19
-    var mapAddr = "ha0000000"
+    var address = AddressSet.misaligned(0x80000000L, 0x8000000)
+    var block_size = 4
+    var block_num = 32
   }
 
-  def setIcacheParam(offsetWidth: Int, indexWidth: Int, tagWidth: Int, mapAddr: String): Unit = {
-    Icache_Param.offsetWidth = offsetWidth
-    Icache_Param.indexWidth = indexWidth
-    Icache_Param.tagWidth = tagWidth
-    Icache_Param.mapAddr = mapAddr
+  def setIcacheParam(address: Seq[AddressSet], block_size : Int, block_num : Int): Unit = {
+    Icache_Param.address = address
+    Icache_Param.block_size = block_size
+    Icache_Param.block_num = block_num
   }
 }

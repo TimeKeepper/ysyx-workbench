@@ -16,7 +16,7 @@ object Elaborateysyxsoc extends App {
   
   Config.Reset_Vector = "h30000000".U(32.W)
   Config.setSimulate(true)
-  Config.setIcacheParam(2, 4, 19, "ha0000000")
+  Config.setIcacheParam(AddressSet.misaligned(0xa0000000L, 0x2000000), 4, 32)
   Config.setDiffMisMap( AddressSet.misaligned(0x10000000, 0x1000) ++
                         AddressSet.misaligned(0x10002000, 0x10) ++
                         AddressSet.misaligned(0x10011000, 0x8) ++
@@ -40,7 +40,7 @@ object Elaboratenpc extends App {
   
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setSimulate(true)
-  Config.setIcacheParam(2, 4, 19, "h80000000")
+  Config.setIcacheParam(AddressSet.misaligned(0x80000000L, 0x8000000), 4, 32)
   Config.setDiffMisMap(AddressSet.misaligned(0x10000000, 0x1000))
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.top(), args, firtoolOptions)
@@ -59,7 +59,7 @@ object Elaboratecore extends App {
   
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setSimulate(false)
-  Config.setIcacheParam(2, 4, 19, "h80000000")
+  Config.setIcacheParam(AddressSet.misaligned(0xa0000000L, 0x2000000), 4, 32)
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)
 }
@@ -100,7 +100,6 @@ object ElaborateZyqn extends App {
   
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setSimulate(false)
-  Config.setIcacheParam(2, 4, 19, "h80000000")
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new ssrc.Zyqn.top, args, firtoolOptions)
 }

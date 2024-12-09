@@ -92,9 +92,9 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     
     val offset = io.addr.bits(offset_width - 1, 0)
     val index = io.addr.bits(index_width + offset_width - 1, offset_width)
-    val tag = io.addr.bits(tag_width + index_width + offset_width - 1, index_width + offset_width)
+    val tag = io.addr.bits(tag_width - 1, index_width + offset_width)
 
-    val cache_size = 1 + tag_width + (block_size * 8)
+    val cache_size = 1 + tag_width - (index_width + offset_width) + (block_size * 8)
     val cache = Mem(block_num, UInt(cache_size.W))
     
     val cache_data = cache(index)(block_size * 8 - 1, 0)
@@ -121,11 +121,13 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     io.AXI.r.ready := state === Icache_state.busy
 
     io.data.bits.addr := RegEnable(io.addr.bits, io.addr.fire)
-    io.data.bits.data := RegEnable(io.AXI.r.bits.data, io.AXI.r.fire)
+    io.data.bits.data := cache_data
 
     io.AXI.ar.bits.addr := io.data.bits.addr
 
-    cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width - 1), io.AXI.r.bits.data)
+    when(io.AXI.r.fire){
+        cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width - 1), io.AXI.r.bits.data)
+    }
 
     // AXI ignore
 

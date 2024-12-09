@@ -81,7 +81,7 @@ class Icache_output extends Bundle {
 
 class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) extends Module {
     val io = IO(new Bundle{
-        val AXI = Flipped(new AXI4Bundle(CPUAXI4BundleParameters()))
+        val AXI = AXI4Bundle(CPUAXI4BundleParameters())
         val addr = Flipped(Decoupled(Input(UInt(32.W))))
         val data = Decoupled(new Icache_output)
     })
@@ -166,84 +166,98 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
             val IFU_2_REG = Output(new BUS_IFU_2_REG)
         })
-        val AXI = Wire(AXI4Bundle(CPUAXI4BundleParameters()))
         val (master, _) = masterNode.out(0)
-        master <> AXI
 
-        io.IFU_2_IDU.bits.PC := RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire)
+        val Icache = Module(new Icache_axi(AddressSet.misaligned(0xa0000000L, 0x2000000), 4, 32))
 
-        val state = RegInit(bus_state.s_wait_valid)
+        Icache.io.AXI <> master
 
-        val Icache = Module(new Icache(Config.Icache_Param.offsetWidth, Config.Icache_Param.indexWidth, Config.Icache_Param.tagWidth, Config.Icache_Param.mapAddr))
-        Icache.io.addr := Mux(io.WBU_2_IFU.fire, io.REG_2_IFU.Next_PC, io.IFU_2_IDU.bits.PC)
+        Icache.io.addr.valid <> io.WBU_2_IFU.valid
+        Icache.io.addr.ready <> io.WBU_2_IFU.ready
+        Icache.io.addr.bits <> io.REG_2_IFU.Next_PC
+
+        Icache.io.data.valid <> io.IFU_2_IDU.valid
+        Icache.io.data.ready <> io.IFU_2_IDU.ready
+        Icache.io.data.bits.addr <> io.IFU_2_IDU.bits.PC
+        Icache.io.data.bits.data <> io.IFU_2_IDU.bits.data
+
+        io.IFU_2_REG.GPR_Aaddr := Icache.io.data.bits.data(19, 15)
+        io.IFU_2_REG.GPR_Baddr := Icache.io.data.bits.data(24, 20)
+
+        // io.IFU_2_IDU.bits.PC := RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire)
+
+        // val state = RegInit(bus_state.s_wait_valid)
+
+        // val Icache = Module(new Icache(Config.Icache_Param.offsetWidth, Config.Icache_Param.indexWidth, Config.Icache_Param.tagWidth, Config.Icache_Param.mapAddr))
+        // Icache.io.addr := Mux(io.WBU_2_IFU.fire, io.REG_2_IFU.Next_PC, io.IFU_2_IDU.bits.PC)
         
-        state := MuxLookup(state, bus_state.s_wait_valid)(
-            Seq(
-                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.valid, Mux(Icache.io.cache_hit, bus_state.s_wait_ready, bus_state.s_busy), bus_state.s_wait_valid),
-                bus_state.s_busy -> Mux(AXI.r.fire, bus_state.s_wait_ready, bus_state.s_busy),
-                bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
-            )
-        )
+        // state := MuxLookup(state, bus_state.s_wait_valid)(
+        //     Seq(
+        //         bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.valid, Mux(Icache.io.cache_hit, bus_state.s_wait_ready, bus_state.s_busy), bus_state.s_wait_valid),
+        //         bus_state.s_busy -> Mux(AXI.r.fire, bus_state.s_wait_ready, bus_state.s_busy),
+        //         bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready)
+        //     )
+        // )
 
-        io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
-        io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
+        // io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
+        // io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
 
-        Icache.io.wen := state === bus_state.s_busy && AXI.r.fire
-        Icache.io.wdata := AXI.r.bits.data
+        // Icache.io.wen := state === bus_state.s_busy && AXI.r.fire
+        // Icache.io.wdata := AXI.r.bits.data
 
-        AXI.aw.valid := false.B
-        AXI.aw.bits.addr := 0.U
-        AXI.aw.bits.size := 0.U
-        AXI.aw.bits.id    := 0.U
-        AXI.aw.bits.len   := 0.U
-        AXI.aw.bits.burst := 0.U
-        AXI.aw.bits.lock  := 0.U
-        AXI.aw.bits.cache := 0.U
-        AXI.aw.bits.prot  := 0.U
-        AXI.aw.bits.qos   := 0.U
-        AXI.w.valid := false.B
-        AXI.w.bits.data := 0.U
-        AXI.w.bits.strb := 0.U
-        AXI.w.bits.last  := 1.U
-        AXI.b.ready := false.B
+        // AXI.aw.valid := false.B
+        // AXI.aw.bits.addr := 0.U
+        // AXI.aw.bits.size := 0.U
+        // AXI.aw.bits.id    := 0.U
+        // AXI.aw.bits.len   := 0.U
+        // AXI.aw.bits.burst := 0.U
+        // AXI.aw.bits.lock  := 0.U
+        // AXI.aw.bits.cache := 0.U
+        // AXI.aw.bits.prot  := 0.U
+        // AXI.aw.bits.qos   := 0.U
+        // AXI.w.valid := false.B
+        // AXI.w.bits.data := 0.U
+        // AXI.w.bits.strb := 0.U
+        // AXI.w.bits.last  := 1.U
+        // AXI.b.ready := false.B
 
-        AXI.ar.bits.size  := 2.U
-        AXI.ar.bits.id    := 0.U
-        AXI.ar.bits.len   := 0.U
-        AXI.ar.bits.burst := 0.U
-        AXI.ar.bits.lock  := 0.U
-        AXI.ar.bits.cache := 0.U
-        AXI.ar.bits.prot  := 0.U
-        AXI.ar.bits.qos   := 0.U
+        // AXI.ar.bits.size  := 2.U
+        // AXI.ar.bits.id    := 0.U
+        // AXI.ar.bits.len   := 0.U
+        // AXI.ar.bits.burst := 0.U
+        // AXI.ar.bits.lock  := 0.U
+        // AXI.ar.bits.cache := 0.U
+        // AXI.ar.bits.prot  := 0.U
+        // AXI.ar.bits.qos   := 0.U
 
-        AXI.r.ready := io.IFU_2_IDU.ready
+        // AXI.r.ready := io.IFU_2_IDU.ready
 
-        val axi_state = RegInit(bus_state.s_wait_ready)
+        // val axi_state = RegInit(bus_state.s_wait_ready)
 
-        axi_state := MuxLookup(axi_state, bus_state.s_wait_ready)(
-            Seq(
-                bus_state.s_wait_ready -> Mux(state === bus_state.s_busy && AXI.ar.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
-                bus_state.s_wait_valid -> Mux(AXI.r.valid, bus_state.s_wait_ready, bus_state.s_wait_valid)
-            )
-        )
+        // axi_state := MuxLookup(axi_state, bus_state.s_wait_ready)(
+        //     Seq(
+        //         bus_state.s_wait_ready -> Mux(state === bus_state.s_busy && AXI.ar.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
+        //         bus_state.s_wait_valid -> Mux(AXI.r.valid, bus_state.s_wait_ready, bus_state.s_wait_valid)
+        //     )
+        // )
 
-        AXI.ar.valid := state === bus_state.s_busy && axi_state === bus_state.s_wait_ready
-        AXI.ar.bits.addr := io.IFU_2_IDU.bits.PC
+        // AXI.ar.valid := state === bus_state.s_busy && axi_state === bus_state.s_wait_ready
+        // AXI.ar.bits.addr := io.IFU_2_IDU.bits.PC
 
-        io.REG_2_IFU.Next_PC <> AXI.ar.bits.addr
+        // io.REG_2_IFU.Next_PC <> AXI.ar.bits.addr
 
-        io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
-        io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
+        // io.IFU_2_REG.GPR_Aaddr <> io.IFU_2_IDU.bits.data(19, 15)
+        // io.IFU_2_REG.GPR_Baddr <> io.IFU_2_IDU.bits.data(24, 20)
 
-        val inst = RegInit(0.U(32.W))
+        // val inst = RegInit(0.U(32.W))
 
-        when(io.WBU_2_IFU.fire){
-            inst := Icache.io.data
-        }.elsewhen(AXI.r.fire){
-            inst := AXI.r.bits.data
-        }
+        // when(io.WBU_2_IFU.fire){
+        //     inst := Icache.io.data
+        // }.elsewhen(AXI.r.fire){
+        //     inst := AXI.r.bits.data
+        // }
 
-        io.IFU_2_IDU.bits.data := inst
+        // io.IFU_2_IDU.bits.data := inst
 
         if(Config.Simulate){
             val Catch = Module(new IFU_catch)

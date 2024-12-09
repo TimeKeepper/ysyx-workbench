@@ -126,7 +126,7 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     io.AXI.ar.bits.addr := io.data.bits.addr
 
     when(io.AXI.r.fire){
-        cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width - 1), io.AXI.r.bits.data)
+        cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width), io.AXI.r.bits.data)
     }
 
     // AXI ignore

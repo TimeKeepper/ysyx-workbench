@@ -11,6 +11,7 @@ import freechips.rocketchip.amba.axi4._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import freechips.rocketchip.util.Annotated.srams
+import config.Config.Icache_Param.offsetWidth
 
 class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
@@ -87,13 +88,13 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     })
     val offset_width = log2Ceil(block_size)
     val index_width = log2Ceil(block_num)
+    val tag_width = log2Ceil(address.map(_.mask).reduce(_ max _))
     
     val offset = io.addr.bits(offset_width - 1, 0)
     val index = io.addr.bits(index_width + offset_width - 1, offset_width)
-    val tag = io.addr.bits(31, index_width + offset_width)
+    val tag = io.addr.bits(tag_width + index_width + offset_width - 1, index_width + offset_width)
 
-    val map_tag_width = log2Ceil(address.map(_.mask).reduce(_ max _))
-    val cache_size = 1 + map_tag_width + (block_size * 8)
+    val cache_size = 1 + tag_width + (block_size * 8)
     val cache = Mem(block_num, UInt(cache_size.W))
     
     val cache_data = cache(index)(block_size * 8 - 1, 0)
@@ -124,7 +125,7 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
 
     io.AXI.ar.bits.addr := io.data.bits.addr
 
-    cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(map_tag_width - 1, index_width + offset_width - 1), io.AXI.r.bits.data)
+    cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width - 1), io.AXI.r.bits.data)
 
     // AXI ignore
 

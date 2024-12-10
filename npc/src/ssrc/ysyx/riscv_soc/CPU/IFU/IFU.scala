@@ -67,7 +67,7 @@ class Icache_output extends Bundle {
     val addr = Output(UInt(32.W))
 }
 
-class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) extends Module {
+class Icache(address: Seq[AddressSet], block_size : Int, block_num : Int) extends Module {
     val io = IO(new Bundle{
         val AXI = AXI4Bundle(CPUAXI4BundleParameters())
         val addr = Flipped(Decoupled(Input(UInt(32.W))))
@@ -160,6 +160,10 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     io.AXI.ar.bits.qos   := 0.U
 }
 
+class Icache_Test extends Module{
+
+}
+
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(
@@ -176,7 +180,11 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         })
         val (master, _) = masterNode.out(0)
 
-        val Icache = Module(new Icache_axi(Config.Icache_Param.address, Config.Icache_Param.block_size, Config.Icache_Param.block_num))
+        val Icache = Module(new Icache(
+            Config.Icache_Param.address, 
+            Config.Icache_Param.block_size, 
+            Config.Icache_Param.block_num
+        ))
 
         Icache.io.AXI <> master
 

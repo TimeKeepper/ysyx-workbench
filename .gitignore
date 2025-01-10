@@ -6,6 +6,9 @@
 !/nanos-lite/*
 !/navy-apps/*
 !/npc/*
+!/ysyx/**
+ysyx/cache/.rl_history
+ysyx/target
 !Makefile
 !README.md
 !.gitignore

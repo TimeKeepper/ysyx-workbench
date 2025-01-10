@@ -1,0 +1,14 @@
+[package]
+name = "ysyx"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.26", features = ["derive", "cargo", "color"] }
+owo-colors = "4.1.0"
+rand = "0.8.5"
+rustyline = "15.0.0"
+
+[lib]
+name = "ysyx"
+path = "src/lib/ysyx.rs"

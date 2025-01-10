@@ -484,6 +484,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
+name = "winnow"
+version = "0.6.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39281189af81c07ec09db316b302a3e67bf9bd7cbf6c820b50e35fee9c2fa980"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "ysyx"
 version = "0.1.0"
 dependencies = [
@@ -491,6 +500,7 @@ dependencies = [
  "owo-colors",
  "rand",
  "rustyline",
+ "winnow",
 ]
 
 [[package]]

@@ -87,7 +87,7 @@ impl CommandManager {
     pub fn new(name: &str) -> Self {
         let mut rl = DefaultEditor::new().unwrap();
 
-        if rl.load_history("cache/.rl_history").is_err() {
+        if rl.load_history("target/.rl_history").is_err() {
             println!(
                 "{}",
                 msgr::respstring("No previous history.", msgr::RespType::Warning)
@@ -103,11 +103,12 @@ impl CommandManager {
 
 impl Drop for CommandManager {
     fn drop(&mut self) {
-        if self.rl.save_history("cache/.rl_history").is_err() {
+        if self.rl.save_history("target/.rl_history").is_err() {
             println!(
                 "{}",
-                msgr::respstring("Failed to save history.", msgr::RespType::Error)
+                msgr::respstring("History not exist, Creating...", msgr::RespType::Warning)
             );
+            std::fs::File::create("target/.rl_history").unwrap();
         }
     }
 }

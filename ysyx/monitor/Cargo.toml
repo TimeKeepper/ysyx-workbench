@@ -1,0 +1,14 @@
+[package]
+name = "monitor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ysyx_macro = { path = "../ysyx_macro" }
+msg_resp = { path = "../msg_resp" }
+clap = { version = "4.5.26", features = ["derive", "cargo", "color"] }
+slog = { version = "2.7.0", features = ["max_level_trace", "release_max_level_warn"] }
+slog-async = "2.8.0"
+slog-term = "2.9.1"
+rustyline = "15.0.0"
+owo-colors = {workspace = true}

@@ -1,22 +1,22 @@
-use crate::commands as cmd;
-use crate::msg_resp as msgr;
-use crate::cli as cli;
+use msg_resp as msgr;
 use clap::Parser;
+
+ysyx_macro::mod_pub!(monitor_parser);
 
 pub struct Monitor {
     pub name: String,
 
     pub msgr: msgr::Resper,
-    pub cli_parser: cli::Cli,
-    pub cmd_manager: cmd::CommandManager,
+    pub cli_parser: monitor_parser::Cli,
+    pub cmd_manager: monitor_parser::CommandManager,
 }
 
 impl Monitor {
     pub fn new(name: &str) -> Self {
-        let cli_parser = cli::Cli::parse();
+        let cli_parser = monitor_parser::Cli::parse();
 
         let msgr = msgr::Resper::new(cli_parser.log.clone());
-        let cmd_manager = cmd::CommandManager::new(name);
+        let cmd_manager = monitor_parser::CommandManager::new(name);
 
         Self {
             name: name.to_string(),
@@ -42,7 +42,7 @@ impl Monitor {
             self.msgr.function_log("batch", self.cli_parser.batch);
             let cmd = self.cmd_manager.get_parser();
             match cmd {
-                cmd::Commands::Quit {} => break,
+                monitor_parser::Commands::Quit {} => break,
                 _ => self.msgr.error("Command not implemented yet"),
             }
         }

@@ -14,7 +14,7 @@ pub struct RiscvInst {
     pub pseudo: Vec<String>,
 }
 
-use crate::msg_resp as msgr;
+use msg_resp as msgr;
 
 impl RiscvInst {
     pub fn new(name: &str, parser: &str, pseudo: Vec<&str>) -> Self {
@@ -218,7 +218,7 @@ mod tests {
     }
 
     fn get_testfile() -> std::io::Lines<std::io::BufReader<std::fs::File>> {
-        let file= "src/lib/rtthread-riscv32e-ysyxsoc.txt";
+        let file= "src/rtthread-riscv32e-ysyxsoc.txt";
         let file = std::fs::File::open(file).unwrap();
         let reader = std::io::BufReader::new(file);
         reader.lines()

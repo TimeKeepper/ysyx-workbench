@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
-pub struct Cli {
+pub struct Command {
     #[command(subcommand)]
     command: Commands,
 }
@@ -43,7 +43,7 @@ impl CommandManager {
 
             input.insert(0, ""); // Insert a dummy value
 
-            let cli = Cli::try_parse_from(input);
+            let cli = Command::try_parse_from(input);
 
             if cli.is_ok() {
                 return cli.unwrap().command;

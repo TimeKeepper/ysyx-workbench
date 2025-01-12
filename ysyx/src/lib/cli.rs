@@ -3,7 +3,7 @@ use clap::Parser;
 /// CLI options for nemu / npc
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
-struct Cli {
+pub struct Cli {
     /// Batch mode
     #[arg(short, long)]
     pub batch: bool,
@@ -19,9 +19,4 @@ struct Cli {
     /// ELF file path
     #[arg(short, long)]
     pub elf: Option<String>,
-}
-
-pub fn parser() -> (bool, Option<String>, Option<String>, Option<String>) {
-    let parse = Cli::parse();
-    (parse.batch, parse.log, parse.dut, parse.elf)
 }

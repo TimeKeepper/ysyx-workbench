@@ -125,6 +125,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 
 [[package]]
+name = "core"
+version = "0.1.0"
+dependencies = [
+ "monitor",
+ "msg_resp",
+ "ysyx_macro",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -302,6 +311,7 @@ dependencies = [
  "slog",
  "slog-async",
  "slog-term",
+ "winnow",
  "ysyx_macro",
 ]
 
@@ -313,16 +323,6 @@ dependencies = [
  "slog",
  "slog-async",
  "slog-term",
-]
-
-[[package]]
-name = "nemu"
-version = "0.1.0"
-dependencies = [
- "monitor",
- "msg_resp",
- "winnow",
- "ysyx_macro",
 ]
 
 [[package]]

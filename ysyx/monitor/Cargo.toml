@@ -12,3 +12,4 @@ slog-async = "2.8.0"
 slog-term = "2.9.1"
 rustyline = "15.0.0"
 owo-colors = {workspace = true}
+winnow = "0.6.24"

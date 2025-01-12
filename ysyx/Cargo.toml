@@ -1,22 +1,5 @@
 [workspace]
-members = [ "monitor", "msg_resp", "nemu", "ysyx_macro"]
-
-# [package]
-# name = "ysyx"
-# version = "0.1.0"
-# edition = "2021"
+members = [ "monitor", "msg_resp", "core", "ysyx_macro"]
 
 [workspace.dependencies]
-# clap = { version = "4.5.26", features = ["derive", "cargo", "color"] }
-# env_logger = "0.11.6"
 owo-colors = "4.1.0"
-# rand = "0.8.5"
-# rustyline = "15.0.0"
-# slog = { version = "2.7.0", features = ["max_level_trace", "release_max_level_warn"] }
-# slog-async = "2.8.0"
-# slog-term = "2.9.1"
-# winnow = "0.6.24"
-
-# [lib]
-# name = "ysyx"
-# path = "src/lib/ysyx.rs"

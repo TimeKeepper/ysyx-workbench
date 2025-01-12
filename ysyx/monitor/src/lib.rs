@@ -1,7 +1,7 @@
 use msg_resp as msgr;
 use clap::Parser;
 
-ysyx_macro::mod_pub!(monitor_parser);
+ysyx_macro::mod_pub!(monitor_parser, executer);
 
 pub struct Monitor {
     pub name: String,

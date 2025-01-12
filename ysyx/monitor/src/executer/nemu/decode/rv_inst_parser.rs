@@ -173,7 +173,8 @@ impl RvInstParser {
 #[cfg(test)]
 mod tests {
     use std::io::BufRead;
-    use crate::elf_parser::ElfParser;
+    use crate::executer::nemu::decode::elf_parser::ElfParser;
+    // use crate::decode::elf_parser::ElfParser;
     use super::*;
 
     #[test]
@@ -218,7 +219,7 @@ mod tests {
     }
 
     fn get_testfile() -> std::io::Lines<std::io::BufReader<std::fs::File>> {
-        let file= "src/rtthread-riscv32e-ysyxsoc.txt";
+        let file= "src/decode/rtthread-riscv32e-ysyxsoc.txt";
         let file = std::fs::File::open(file).unwrap();
         let reader = std::io::BufReader::new(file);
         reader.lines()

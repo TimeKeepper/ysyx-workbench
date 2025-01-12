@@ -1,0 +1,1 @@
+ysyx_macro::mod_pub!(nemu);

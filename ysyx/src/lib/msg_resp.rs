@@ -17,28 +17,39 @@ pub enum RespType {
 
 pub fn respstring(tar: &str, msg_type: RespType) -> String {
     match msg_type {
-        RespType::Trace => format!("{}⏮️", tar),
-        RespType::Debug => format!("{}🐞", tar.magenta()),
-        RespType::Info => format!("{}ℹ️", tar.blue()),
-        RespType::Warning => format!("{}⚠️", tar.yellow()),
-        RespType::Error => format!("{}❌", tar.red()),
-        RespType::Important => format!("{}✨", tar.purple()),
-        RespType::Success => format!("{}✅", tar.green()),
+        RespType::Trace => format!("⏮️ {}", tar),
+        RespType::Debug => format!("🐞 {}", tar.magenta()),
+        RespType::Info => format!("ℹ️ {}", tar.blue()),
+        RespType::Warning => format!("⚠️ {}", tar.yellow()),
+        RespType::Error => format!("❌ {}", tar.red()),
+        RespType::Important => format!("✨ {}", tar.purple()),
+        RespType::Success => format!("✅ {}", tar.green()),
     }
 }
 
+pub fn print_respstring(tar: &str, msg_type: RespType) {
+    println!("{}", respstring(tar, msg_type));
+}
+
 pub struct Resper {
-    logger: slog::Logger,
+    logger: Option<slog::Logger>,
 }
 
 impl Resper {
-    pub fn new() -> Self {
-        let log_path = "target/.log";
+    pub fn new(log_path: Option<String>) -> Self {
+
+        if log_path.is_none() {
+            print_respstring("Log file no specified", RespType::Warning);
+            return Self { logger: None };
+        }
+
+        print_respstring("Log file specified", RespType::Info);
+
         let file = OpenOptions::new()
            .create(true)
            .write(true)
            .truncate(true)
-           .open(log_path)
+           .open(log_path.unwrap())
            .unwrap();
         
         let decorator = slog_term::PlainDecorator::new(file);
@@ -46,42 +57,56 @@ impl Resper {
         let drain = slog_async::Async::new(drain).build().fuse();
 
         Self {
-            logger: slog::Logger::root(drain, slog::o!()),
+            logger: Some(slog::Logger::root(drain, slog::o!())),
+        }
+    }
+    
+    fn log(&self, msg: &str) {
+        if let Some(logger) = &self.logger {
+            slog::trace!(logger, "{}", msg);
         }
     }
 
-    pub fn trace(&self, msg: &str) -> String {
-        slog::trace!(self.logger, "{}", msg);
-        respstring(msg, RespType::Trace)
+    pub fn trace(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Trace);
     }
 
-    pub fn debug(&self, msg: &str) -> String {
-        slog::debug!(self.logger, "{}", msg);
-        respstring(msg, RespType::Debug)
+    pub fn debug(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Debug);
     }
 
-    pub fn info(&self, msg: &str) -> String {
-        slog::info!(self.logger, "{}", msg);
-        respstring(msg, RespType::Info)
+    pub fn info(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Info);
     }
 
-    pub fn warning(&self, msg: &str) -> String {
-        slog::warn!(self.logger, "{}", msg);
-        respstring(msg, RespType::Warning)
+    pub fn warning(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Warning);
     }
 
-    pub fn error(&self, msg: &str) -> String {
-        slog::error!(self.logger, "{}", msg);
-        respstring(msg, RespType::Error)
+    pub fn error(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Error);
     }
 
-    pub fn important(&self, msg: &str) -> String {
-        slog::info!(self.logger, "{}", msg);
-        respstring(msg, RespType::Important)
+    pub fn important(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Important);
     }
 
-    pub fn success(&self, msg: &str) -> String {
-        slog::info!(self.logger, "{}", msg);
-        respstring(msg, RespType::Success)
+    pub fn success(&self, msg: &str) {
+        self.log(msg);
+        print_respstring(msg, RespType::Success);
+    }
+
+    pub fn function_log(&self, fuc: &str, onor_off: bool) {
+        if onor_off {
+            self.info(&format!("{} function is enabled", fuc));
+        } else {
+            self.info(&format!("{} function is disabled", fuc));
+        }
     }
 }

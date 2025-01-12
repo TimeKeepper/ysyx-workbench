@@ -13,8 +13,9 @@ pub struct Monitor {
 
 impl Monitor {
     pub fn new(name: &str) -> Self {
-        let msgr = msgr::Resper::new();
         let cli_parser = cli::Cli::parse();
+
+        let msgr = msgr::Resper::new(cli_parser.log.clone());
         let cmd_manager = cmd::CommandManager::new(name);
 
         Self {
@@ -28,19 +29,15 @@ impl Monitor {
 
     pub fn init(&self) {
         if self.cli_parser.batch {
-            println!("{}", self.msgr.error("Batch mode is not implemented yet"));
-        }
-
-        if self.cli_parser.log.is_some() {
-            println!("{}", self.msgr.error("Log file path is not implemented yet"));
+            self.msgr.error("Batch mode is not implemented yet");
         }
 
         if self.cli_parser.dut.is_some() {
-            println!("{}", self.msgr.error("DUT file path is not implemented yet"));
+            self.msgr.error("DUT file path is not implemented yet");
         }
 
         if self.cli_parser.elf.is_some() {
-            println!("{}", self.msgr.error("ELF file path is not implemented yet"));
+            self.msgr.error("ELF file path is not implemented yet");
         }
     }
 
@@ -49,7 +46,7 @@ impl Monitor {
             let cmd = self.cmd_manager.get_parser();
             match cmd {
                 cmd::Commands::Quit {} => break,
-                _ => println!("{}", self.msgr.error("Command not implemented yet")),
+                _ => self.msgr.error("Command not implemented yet"),
             }
         }
     }

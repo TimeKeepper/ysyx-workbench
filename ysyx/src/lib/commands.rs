@@ -1,5 +1,5 @@
 use crate::msg_resp as msgr;
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -22,6 +22,15 @@ pub enum Commands {
     /// quit the program, not need any arguments
     #[clap(visible_alias = "q")]
     Quit {},
+
+    /// run single instrcution in the emulator
+    #[clap(visible_alias = "si")]
+    SingleInstrcution(SingleInstrcutionArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct SingleInstrcutionArgs {
+    count: Option<u32>,
 }
 
 use owo_colors::OwoColorize;

@@ -28,10 +28,6 @@ impl Monitor {
     }
 
     pub fn init(&self) {
-        if self.cli_parser.batch {
-            self.msgr.error("Batch mode is not implemented yet");
-        }
-
         if self.cli_parser.dut.is_some() {
             self.msgr.error("DUT file path is not implemented yet");
         }
@@ -43,6 +39,7 @@ impl Monitor {
 
     pub fn main_loop(&mut self) {
         loop {
+            self.msgr.function_log("batch", self.cli_parser.batch);
             let cmd = self.cmd_manager.get_parser();
             match cmd {
                 cmd::Commands::Quit {} => break,

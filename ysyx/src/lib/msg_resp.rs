@@ -104,9 +104,9 @@ impl Resper {
 
     pub fn function_log(&self, fuc: &str, onor_off: bool) {
         if onor_off {
-            self.info(&format!("{} function is enabled", fuc));
+            self.info(&format!("[{}]: {}", fuc.magenta(), "On".green()));
         } else {
-            self.info(&format!("{} function is disabled", fuc));
+            self.info(&format!("[{}]: {}", fuc.magenta(), "Off".red()));
         }
     }
 }

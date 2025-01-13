@@ -21,16 +21,26 @@ impl Simulator{
             mmu,
         }
     }
+
+    pub fn init(&mut self, bin_path: Option<String>) -> Result<(), simulator::SimulatorError> {
+        if bin_path.is_none() { return Err(simulator::SimulatorError::NoBinaryFile) };
+        let bin = std::fs::read(bin_path.unwrap());
+        if bin.is_err() { return Err(simulator::SimulatorError::BinaryFileNotFound) };
+        let bin = bin.unwrap();
+        self.mmu.load("sdram", &bin).unwrap();
+        return Ok(());
+    }
 }
 
 impl simulator::Simulator for Simulator {
     fn single_instruction(&mut self, time: u32) -> Result<String, simulator::SimulatorError> {
+        let mut result: String = String::new();
         for _ in 0..time {
             let addr = self.execute.PC;
             let inst = self.mmu.read(addr)?;
             let inst = self.decode.decode(inst)?;
-            self.execute.execute(&inst)?;
+            result = self.execute.execute(&inst)?;
         }
-        Ok("".to_string())
+        Ok(result)
     }
 }

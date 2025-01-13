@@ -18,7 +18,7 @@ impl Monitor {
     pub fn new(name: &str) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
-        let msgr = msgr::Resper::new(cli_parser.log.clone());
+        let msgr = msgr::Resper::new();
         let cmd_manager = monitor_parser::CommandManager::new(name);
 
         Self {
@@ -31,7 +31,25 @@ impl Monitor {
         }
     }
 
-    pub fn init(&self) {
+    pub fn init(&mut self) {
+        if self.cli_parser.log {
+            self.msgr.init();
+        } else {
+            self.msgr.function_log("log", false);
+        }
+
+        match self.sim.init(self.cli_parser.bin.clone()) {
+            Ok(_) => self.msgr.info("Binary file loaded"),
+            Err(err) => {
+                match err {
+                    simulator::SimulatorError::NoBinaryFile => self.msgr.error("No binary file"),
+                    simulator::SimulatorError::BinaryFileNotFound => self.msgr.error("Binary file not found"),
+                    _ => self.msgr.error("Unknown error"),
+                }
+            },
+            _ => self.msgr.error("Unknown error"),
+        }
+
         if self.cli_parser.dut.is_some() {
             self.msgr.error("DUT file path is not implemented yet");
         }
@@ -67,6 +85,8 @@ impl Monitor {
                 simulator::SimulatorError::NoMatchingMemoryByAddress{addr} => self.msgr.error(format!("No matching memory {}", addr).as_str()),
                 simulator::SimulatorError::NoMatchingMemoryByName{name} => self.msgr.error(format!("No matching memory {}", name).as_str()),
                 simulator::SimulatorError::InstrctionDecodeFailed => self.msgr.error("Instruction decode failed"),
+
+                _ => self.msgr.error("Unknown error"),
             }
         }
     }

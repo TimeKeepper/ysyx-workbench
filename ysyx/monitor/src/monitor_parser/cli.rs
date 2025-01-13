@@ -10,11 +10,15 @@ pub struct Cli {
 
     /// Log file path
     #[arg(short, long)]
-    pub log: Option<String>,
+    pub log: bool,
 
     /// differtest dut file
     #[arg(short, long)]
     pub dut: Option<String>,
+
+    /// bin file path
+    #[arg(long)]
+    pub bin: Option<String>,
 
     /// ELF file path
     #[arg(short, long)]

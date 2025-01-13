@@ -16,6 +16,8 @@ pub struct RiscvInst {
 
 use msg_resp as msgr;
 
+use crate::simulator;
+
 impl RiscvInst {
     pub fn new(name: &str, parser: &str, pseudo: Vec<&str>) -> Self {
         let parser = parser.replace(" ", "");
@@ -61,6 +63,7 @@ impl RiscvInst {
     }
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct RvInstParser {
     insts: Vec<RiscvInst>,
 }
@@ -78,7 +81,7 @@ impl RvInstParser {
         inst.to_string()
     }
 
-    pub fn parse(&self, inst: u32) -> Result<String, String> {
+    pub fn parse(&self, inst: u32) -> Result<String, simulator::SimulatorError> {
         for i in &self.insts {
             match i.parse(inst) {
                 Ok(name) => return Ok(name),
@@ -86,7 +89,7 @@ impl RvInstParser {
             }
         }
 
-        Err(msgr::respstring("Invalid instruction", msgr::RespType::Error))
+        Err(simulator::SimulatorError::InstrctionDecodeFailed)
     }
 
     pub fn new() -> Self {
@@ -173,8 +176,8 @@ impl RvInstParser {
 #[cfg(test)]
 mod tests {
     use std::io::BufRead;
-    use crate::executer::nemu::decode::elf_parser::ElfParser;
-    // use crate::decode::elf_parser::ElfParser;
+    use super::super::elf_parser::ElfParser;
+    // use crate::executer::nemu::decode::elf_parser::ElfParser;
     use super::*;
 
     #[test]

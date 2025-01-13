@@ -1,7 +1,8 @@
 use msg_resp as msgr;
 use clap::Parser;
+use simulator::Simulator;
 
-ysyx_macro::mod_pub!(monitor_parser, executer);
+ysyx_macro::mod_pub!(monitor_parser, nemu, mmu, simulator);
 
 pub struct Monitor {
     pub name: String,
@@ -9,6 +10,8 @@ pub struct Monitor {
     pub msgr: msgr::Resper,
     pub cli_parser: monitor_parser::Cli,
     pub cmd_manager: monitor_parser::CommandManager,
+
+    pub sim: nemu::Simulator,
 }
 
 impl Monitor {
@@ -24,6 +27,7 @@ impl Monitor {
             msgr,
             cli_parser,
             cmd_manager,
+            sim: nemu::Simulator::new(),
         }
     }
 
@@ -38,12 +42,31 @@ impl Monitor {
     }
 
     pub fn main_loop(&mut self) {
+        self.msgr.function_log("batch", self.cli_parser.batch);
         loop {
-            self.msgr.function_log("batch", self.cli_parser.batch);
             let cmd = self.cmd_manager.get_parser();
+            
+            let result: Result<String, simulator::SimulatorError>;
+            
             match cmd {
                 monitor_parser::Commands::Quit {} => break,
-                _ => self.msgr.error("Command not implemented yet"),
+                monitor_parser::Commands::SingleInstrcution(time) => {
+                    result = self.sim.single_instruction(if time.count.is_some() { time.count.unwrap() } else { 1 });
+                }
+                _ => result = Err(simulator::SimulatorError::NotImplemented),
+            }
+
+            if result.is_ok() {
+                self.msgr.info(&result.unwrap());
+                continue;
+            }
+            let result = result.err().unwrap();
+
+            match result {
+                simulator::SimulatorError::NotImplemented => self.msgr.error("Not implemented yet"),
+                simulator::SimulatorError::NoMatchingMemory => self.msgr.error("No matching memory"),
+                simulator::SimulatorError::InstrctionDecodeFailed => self.msgr.error("Instruction decode failed"),
+                _ => self.msgr.error("Unknown error"),
             }
         }
     }

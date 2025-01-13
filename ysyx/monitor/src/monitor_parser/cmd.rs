@@ -30,7 +30,7 @@ pub enum Commands {
 
 #[derive(Args, Debug)]
 pub struct SingleInstrcutionArgs {
-    count: Option<u32>,
+    pub count: Option<u32>,
 }
 
 use owo_colors::OwoColorize;

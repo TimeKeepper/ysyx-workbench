@@ -47,7 +47,7 @@ impl Monitor {
             let cmd = self.cmd_manager.get_parser();
             
             let result: Result<String, simulator::SimulatorError>;
-            
+
             match cmd {
                 monitor_parser::Commands::Quit {} => break,
                 monitor_parser::Commands::SingleInstrcution(time) => {
@@ -64,9 +64,9 @@ impl Monitor {
 
             match result {
                 simulator::SimulatorError::NotImplemented => self.msgr.error("Not implemented yet"),
-                simulator::SimulatorError::NoMatchingMemory => self.msgr.error("No matching memory"),
+                simulator::SimulatorError::NoMatchingMemoryByAddress{addr} => self.msgr.error(format!("No matching memory {}", addr).as_str()),
+                simulator::SimulatorError::NoMatchingMemoryByName{name} => self.msgr.error(format!("No matching memory {}", name).as_str()),
                 simulator::SimulatorError::InstrctionDecodeFailed => self.msgr.error("Instruction decode failed"),
-                _ => self.msgr.error("Unknown error"),
             }
         }
     }

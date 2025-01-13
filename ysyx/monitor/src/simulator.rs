@@ -2,7 +2,8 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorError {
     NotImplemented,
-    NoMatchingMemory,
+    NoMatchingMemoryByAddress  {addr: u32},
+    NoMatchingMemoryByName {name: String},
     InstrctionDecodeFailed,
 }
 

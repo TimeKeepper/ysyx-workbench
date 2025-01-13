@@ -25,9 +25,12 @@ impl Simulator{
 
 impl simulator::Simulator for Simulator {
     fn single_instruction(&mut self, time: u32) -> Result<String, simulator::SimulatorError> {
-        let addr = self.execute.PC;
-        let inst = self.mmu.read(addr)?;
-        let inst = self.decode.decode(inst)?;
-        self.execute.execute(&inst)
+        for _ in 0..time {
+            let addr = self.execute.PC;
+            let inst = self.mmu.read(addr)?;
+            let inst = self.decode.decode(inst)?;
+            self.execute.execute(&inst)?;
+        }
+        Ok("".to_string())
     }
 }

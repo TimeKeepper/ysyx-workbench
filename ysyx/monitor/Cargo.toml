@@ -14,3 +14,4 @@ rustyline = "15.0.0"
 owo-colors = {workspace = true}
 winnow = "0.6.24"
 bitfield = "0.17.0"
+circular-queue = "0.2.6"

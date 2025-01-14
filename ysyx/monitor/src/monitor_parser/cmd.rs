@@ -26,11 +26,32 @@ pub enum Commands {
     /// run single instrcution in the emulator
     #[clap(visible_alias = "si")]
     SingleInstrcution(SingleInstrcutionArgs),
+
+    /// show info about the simulator
+    #[clap(visible_alias = "i")]
+    Info {
+        #[command(subcommand)]
+        command: InfoCommands,
+    },
+
+    /// control function of the simulator
+    #[clap(visible_alias = "f")]
+    Function {
+        on_or_off: Option<String>,
+        target: Option<String>,
+    },
 }
 
 #[derive(Args, Debug)]
 pub struct SingleInstrcutionArgs {
     pub count: Option<u32>,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum InfoCommands {
+    /// show info about the register
+    #[clap(visible_alias = "r")]
+    Register {},
 }
 
 use owo_colors::OwoColorize;

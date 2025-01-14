@@ -1,8 +1,11 @@
 use msg_resp as msgr;
 use clap::Parser;
+use owo_colors::OwoColorize;
 use simulator::Simulator;
 
 ysyx_macro::mod_pub!(monitor_parser, nemu, mmu, simulator);
+
+use simulator::SimulatorError as simErr;
 
 pub struct Monitor {
     pub name: String,
@@ -42,12 +45,11 @@ impl Monitor {
             Ok(_) => self.msgr.info("Binary file loaded"),
             Err(err) => {
                 match err {
-                    simulator::SimulatorError::NoBinaryFile => self.msgr.error("No binary file"),
-                    simulator::SimulatorError::BinaryFileNotFound => self.msgr.error("Binary file not found"),
+                    simErr::NoBinaryFile => self.msgr.error("No binary file"),
+                    simErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
                     _ => self.msgr.error("Unknown error"),
                 }
             },
-            _ => self.msgr.error("Unknown error"),
         }
 
         if self.cli_parser.dut.is_some() {
@@ -64,14 +66,54 @@ impl Monitor {
         loop {
             let cmd = self.cmd_manager.get_parser();
             
-            let result: Result<simulator::SimulatorOk, simulator::SimulatorError>;
+            let result: Result<simulator::SimulatorOk, simErr>;
 
             match cmd {
                 monitor_parser::Commands::Quit {} => break,
+                monitor_parser::Commands::Info { command } => {
+                    match command {
+                        monitor_parser::InfoCommands::Register { } => {
+                            for r in self.sim.executer.gpr.iter().enumerate() {
+                                self.msgr.trace(format!("x{}: \t0x{:08x}", r.0, r.1).as_str());
+                            }
+                            self.msgr.trace(format!("PC: \t0x{:08x}", self.sim.executer.pc).as_str());
+                        }
+                    }
+                    result = Ok(simulator::SimulatorOk::Nothing);
+                }
+                monitor_parser::Commands::Function { on_or_off, target } => {
+                    if target.is_none() {
+                        self.msgr.error("No target specified");
+                        continue;
+                    }
+                    if on_or_off.is_none() {
+                        self.msgr.error("No on/off specified");
+                        continue;
+                    }
+                    let on: bool = on_or_off.unwrap() == "on";
+                    let target: &str = &target.unwrap();
+                    let status = |feature: &str| format!("{} is {}", 
+                        feature, 
+                        if on { "on".green().to_string() } else { "off".red().to_string() }
+                    );
+
+                    match target {
+                        "it" => {
+                            self.sim.inst_trace = on;
+                            self.msgr.info(&status("Instruction trace"));
+                        },
+                        "ir" => {
+                            self.sim.inst_trace_buffer.0 = on;
+                            self.msgr.info(&status("Instruction trace buffer"));
+                        },
+                        _ => self.msgr.error("Unknown target"),
+                    }
+                    result = Ok(simulator::SimulatorOk::Nothing);
+                }
                 monitor_parser::Commands::SingleInstrcution(time) => {
                     result = self.sim.single_instruction(if time.count.is_some() { time.count.unwrap() } else { 1 });
                 }
-                _ => result = Err(simulator::SimulatorError::NotImplemented),
+                _ => result = Err(simErr::NotImplemented),
             }
 
             if result.is_ok() {
@@ -80,10 +122,11 @@ impl Monitor {
             let result = result.err().unwrap();
 
             match result {
-                simulator::SimulatorError::NotImplemented => self.msgr.error("Not implemented yet"),
-                simulator::SimulatorError::NoMatchingMemoryByAddress{addr} => self.msgr.error(format!("No matching memory {}", addr).as_str()),
-                simulator::SimulatorError::NoMatchingMemoryByName{name} => self.msgr.error(format!("No matching memory {}", name).as_str()),
-                simulator::SimulatorError::InstrctionDecodeFailed => self.msgr.error("Instruction decode failed"),
+                simErr::NotImplemented => self.msgr.error("Not implemented yet"),
+                simErr::NoMatchingMemoryByAddress{addr} => self.msgr.error(format!("No matching memory {}", addr).as_str()),
+                simErr::NoMatchingMemoryByName{name} => self.msgr.error(format!("No matching memory {}", name).as_str()),
+                simErr::InstrctionDecodeFailed{inst} => self.msgr.error(format!("Instruction decode failed {:08x} : {:08x}", self.sim.executer.pc, inst).as_str()),
+                simErr::UnknownInstruction{name} => self.msgr.error(format!("Unknown instruction {}", name.purple()).as_str()),
 
                 _ => self.msgr.error("Unknown error"),
             }

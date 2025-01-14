@@ -1,6 +1,7 @@
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorOk {
+    Nothing,
     InstructionExecuted,
 }
 
@@ -11,7 +12,8 @@ pub enum SimulatorError {
     BinaryFileNotFound,
     NoMatchingMemoryByAddress  {addr: u32},
     NoMatchingMemoryByName {name: String},
-    InstrctionDecodeFailed,
+    InstrctionDecodeFailed {inst: u32},
+    UnknownInstruction {name: String},
 }
 
 pub trait Simulator {

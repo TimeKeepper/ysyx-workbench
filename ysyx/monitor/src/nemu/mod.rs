@@ -1,12 +1,15 @@
 use crate::{mmu::MMU, simulator};
 
 ysyx_macro::mod_pub!(decode, execute);
-
+use circular_queue::CircularQueue;
 pub struct Simulator {
-    pub decode: decode::Decoder,
-    pub execute: execute::Executor,
+    pub decoder: decode::Decoder,
+    pub executer: execute::Executor,
 
     pub mmu: MMU,
+
+    pub inst_trace_buffer: (bool, CircularQueue<ExecuteInst>),
+    pub inst_trace: bool
 }
 
 impl Simulator{
@@ -15,10 +18,12 @@ impl Simulator{
         mmu.add_memory("sdram", 0x8000_0000, 0x0800_0000);
 
         Self {
-            decode: decode::Decoder::new(),
-            execute: execute::Executor::new(0x8000_0000),
+            decoder: decode::Decoder::new(),
+            executer: execute::Executor::new(0x8000_0000),
 
             mmu,
+            inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
+            inst_trace: false,
         }
     }
 
@@ -30,20 +35,35 @@ impl Simulator{
         self.mmu.load("sdram", &bin).unwrap();
         return Ok(());
     }
+
+    fn execute(&mut self, inst: ExecuteInst) -> Result<(), simulator::SimulatorError> {
+        self.executer.execute(inst.clone())?;
+
+        if self.inst_trace {
+            println!("{:?}", inst);
+        }
+
+        if self.inst_trace_buffer.0 {
+            self.inst_trace_buffer.1.push(inst.clone());
+        }
+        
+        Ok(())
+    }
 }
 
 impl simulator::Simulator for Simulator {
     fn single_instruction(&mut self, time: u32) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         for _ in 0..time {
-            let addr = self.execute.PC;
+            let addr = self.executer.pc;
             let inst = self.mmu.read(addr)?;
-            let inst = self.decode.decode(inst)?;
-            self.execute.execute(inst)?;
+            let inst = self.decoder.decode(inst)?;
+            self.execute(inst)?;
         }
         Ok(simulator::SimulatorOk::InstructionExecuted)
     }
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct ExecuteInst {
     pub name: String,
     pub rs1: u8,

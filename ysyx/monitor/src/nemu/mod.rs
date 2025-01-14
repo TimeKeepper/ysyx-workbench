@@ -2,6 +2,10 @@ use crate::{mmu::MMU, simulator};
 
 ysyx_macro::mod_pub!(decode, execute);
 use circular_queue::CircularQueue;
+use owo_colors::OwoColorize;
+
+use super::disassembler;
+
 pub struct Simulator {
     pub decoder: decode::Decoder,
     pub executer: execute::Executor,
@@ -9,7 +13,9 @@ pub struct Simulator {
     pub mmu: MMU,
 
     pub inst_trace_buffer: (bool, CircularQueue<ExecuteInst>),
-    pub inst_trace: bool
+    pub inst_trace: bool,
+    
+    pub disasm: disassembler::Disassembler,
 }
 
 impl Simulator{
@@ -24,6 +30,7 @@ impl Simulator{
             mmu,
             inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
             inst_trace: false,
+            disasm: disassembler::Disassembler::new("riscv64-unknown-linux-gnu"),
         }
     }
 
@@ -49,13 +56,27 @@ impl Simulator{
         
         Ok(())
     }
+
+    fn disasm(&self, inst: u32) {
+        let result = self.disasm.disasm(&inst.to_le_bytes(), self.executer.pc as u64)
+            .replace("\0", "")
+            .trim()
+            .split_ascii_whitespace()
+            .map(|x| format!("{} ", x))
+            .collect::<String>();
+        println!("{:08x}: {:08x} {}", self.executer.pc.purple(), inst.red(), result.green());
+    }
 }
 
 impl simulator::Simulator for Simulator {
+
     fn single_instruction(&mut self, time: u32) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         for _ in 0..time {
             let addr = self.executer.pc;
             let inst = self.mmu.read(addr)?;
+            if time < 10 {
+                self.disasm(inst);
+            }
             let inst = self.decoder.decode(inst)?;
             self.execute(inst)?;
         }

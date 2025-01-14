@@ -3,9 +3,11 @@ use clap::Parser;
 use owo_colors::OwoColorize;
 use simulator::Simulator;
 
-ysyx_macro::mod_pub!(monitor_parser, nemu, mmu, simulator);
+ysyx_macro::mod_pub!(monitor_parser, nemu, mmu, simulator, disassembler);
 
+use simulator::SimulatorOk as simOk;
 use simulator::SimulatorError as simErr;
+use monitor_parser::Commands as Cmd;
 
 pub struct Monitor {
     pub name: String,
@@ -35,22 +37,9 @@ impl Monitor {
     }
 
     pub fn init(&mut self) {
-        if self.cli_parser.log {
-            self.msgr.init();
-        } else {
-            self.msgr.function_log("log", false);
-        }
+        self.init_log();
 
-        match self.sim.init(self.cli_parser.bin.clone()) {
-            Ok(_) => self.msgr.info("Binary file loaded"),
-            Err(err) => {
-                match err {
-                    simErr::NoBinaryFile => self.msgr.error("No binary file"),
-                    simErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
-                    _ => self.msgr.error("Unknown error"),
-                }
-            },
-        }
+        self.init_sim();
 
         if self.cli_parser.dut.is_some() {
             self.msgr.error("DUT file path is not implemented yet");
@@ -66,70 +55,106 @@ impl Monitor {
         loop {
             let cmd = self.cmd_manager.get_parser();
             
-            let result: Result<simulator::SimulatorOk, simErr>;
+            let result = self.execute(cmd);
 
-            match cmd {
-                monitor_parser::Commands::Quit {} => break,
-                monitor_parser::Commands::Info { command } => {
-                    match command {
-                        monitor_parser::InfoCommands::Register { } => {
-                            for r in self.sim.executer.gpr.iter().enumerate() {
-                                self.msgr.trace(format!("x{}: \t0x{:08x}", r.0, r.1).as_str());
-                            }
-                            self.msgr.trace(format!("PC: \t0x{:08x}", self.sim.executer.pc).as_str());
+            if result == Ok(simOk::Quit) {
+                break;
+            }
+
+            self.deal_result(result);
+        }
+    }
+
+    fn init_log(&mut self) {
+        if self.cli_parser.log {
+            self.msgr.init();
+        }
+        self.msgr.function_log("log", self.cli_parser.log);
+    }
+
+    fn init_sim(&mut self) {
+        if let Err(err) = self.sim.init(self.cli_parser.bin.clone()) {
+            let error_message = match err {
+                simErr::NoBinaryFile => "No binary file",
+                simErr::BinaryFileNotFound => "Binary file not found",
+                _ => "Unknown error",
+            };
+            self.msgr.error(error_message);
+        } else {
+            self.msgr.info("Binary file loaded");
+        }
+    }
+
+    fn execute(&mut self, cmd: Cmd) -> Result<simOk, simErr> {
+        match cmd {
+            Cmd::Quit {} => {
+                self.msgr.info("Quitting...");
+                return Ok(simOk::Quit);
+            },
+            Cmd::Info { command } => {
+                match command {
+                    monitor_parser::InfoCommands::Register {} => {
+                        for r in self.sim.executer.gpr.iter().enumerate() {
+                            self.msgr.trace(format!("x{}: \t0x{:08x}", r.0, r.1).as_str());
                         }
+                        self.msgr.trace(format!("PC: \t0x{:08x}", self.sim.executer.pc).as_str());
                     }
-                    result = Ok(simulator::SimulatorOk::Nothing);
                 }
-                monitor_parser::Commands::Function { on_or_off, target } => {
-                    if target.is_none() {
-                        self.msgr.error("No target specified");
-                        continue;
-                    }
-                    if on_or_off.is_none() {
-                        self.msgr.error("No on/off specified");
-                        continue;
-                    }
-                    let on: bool = on_or_off.unwrap() == "on";
-                    let target: &str = &target.unwrap();
-                    let status = |feature: &str| format!("{} is {}", 
-                        feature, 
-                        if on { "on".green().to_string() } else { "off".red().to_string() }
-                    );
-
-                    match target {
-                        "it" => {
-                            self.sim.inst_trace = on;
-                            self.msgr.info(&status("Instruction trace"));
-                        },
-                        "ir" => {
-                            self.sim.inst_trace_buffer.0 = on;
-                            self.msgr.info(&status("Instruction trace buffer"));
-                        },
-                        _ => self.msgr.error("Unknown target"),
-                    }
-                    result = Ok(simulator::SimulatorOk::Nothing);
+                return Ok(simOk::Nothing);
+            },
+            Cmd::Function { on_or_off, target } => {
+                if target.is_none() {
+                    self.msgr.error("No target specified");
+                    return Err(simErr::InvalidCommand);
                 }
-                monitor_parser::Commands::SingleInstrcution(time) => {
-                    result = self.sim.single_instruction(if time.count.is_some() { time.count.unwrap() } else { 1 });
+                if on_or_off.is_none() {
+                    self.msgr.error("No on/off specified");
+                    return Err(simErr::InvalidCommand);
                 }
-                _ => result = Err(simErr::NotImplemented),
-            }
+                let on: bool = on_or_off.unwrap() == "on";
+                let target: &str = &target.unwrap();
+                let status = |feature: &str| format!("{} is {}", 
+                    feature, 
+                    if on { "on".green().to_string() } else { "off".red().to_string() }
+                );
 
-            if result.is_ok() {
-                continue;
-            }
-            let result = result.err().unwrap();
+                match target {
+                    "it" => {
+                        self.sim.inst_trace = on;
+                        self.msgr.info(&status("Instruction trace"));
+                        return Ok(simOk::Nothing);
+                    },
+                    "ir" => {
+                        self.sim.inst_trace_buffer.0 = on;
+                        self.msgr.info(&status("Instruction trace buffer"));
+                        return Ok(simOk::Nothing);
+                    },
+                    _ => {
+                        self.msgr.error("You should input valid target from [it, ir]");
+                        return Err(simErr::InvalidCommand);
+                    },
+                }
+            },
+            Cmd::SingleInstrcution(time) => {
+                return self.sim.single_instruction(if time.count.is_some() { time.count.unwrap() } else { 1 });
+            },
+            _ => return Err(simErr::NotImplemented),
+        }
 
-            match result {
+    }
+
+    fn deal_result(&mut self, result: Result<simOk, simErr>) {
+        match result {
+            Ok(_) => return,
+            Err(err) => match err {
                 simErr::NotImplemented => self.msgr.error("Not implemented yet"),
+                simErr::InvalidCommand => self.msgr.error("Invalid command"),
                 simErr::NoMatchingMemoryByAddress{addr} => self.msgr.error(format!("No matching memory {}", addr).as_str()),
                 simErr::NoMatchingMemoryByName{name} => self.msgr.error(format!("No matching memory {}", name).as_str()),
-                simErr::InstrctionDecodeFailed{inst} => self.msgr.error(format!("Instruction decode failed {:08x} : {:08x}", self.sim.executer.pc, inst).as_str()),
+                simErr::InstrctionDecodeFailed{inst} => self.msgr.error(format!("Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}", self.sim.executer.pc, inst).as_str()),
                 simErr::UnknownInstruction{name} => self.msgr.error(format!("Unknown instruction {}", name.purple()).as_str()),
-
                 _ => self.msgr.error("Unknown error"),
-            }
+            },
         }
     }
 }

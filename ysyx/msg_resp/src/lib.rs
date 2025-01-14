@@ -50,15 +50,13 @@ impl Resper {
            .write(true)
            .truncate(true)
            .open(log_path)
-           .unwrap();
+           .expect("Failed to open log file");
 
         let decorator = slog_term::PlainDecorator::new(file);
         let drain = slog_term::FullFormat::new(decorator).build().fuse();
         let drain = slog_async::Async::new(drain).build().fuse();
 
         self.logger = Some(slog::Logger::root(drain, slog::o!()));
-
-        self.function_log("log", true);
     }
     
     fn log(&self, msg: &str) {

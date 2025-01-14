@@ -2,12 +2,14 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorOk {
     Nothing,
+    Quit,
     InstructionExecuted,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorError {
     NotImplemented,
+    InvalidCommand,
     NoBinaryFile,
     BinaryFileNotFound,
     NoMatchingMemoryByAddress  {addr: u32},

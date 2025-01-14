@@ -33,14 +33,33 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-    fn single_instruction(&mut self, time: u32) -> Result<String, simulator::SimulatorError> {
-        let mut result: String = String::new();
+    fn single_instruction(&mut self, time: u32) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         for _ in 0..time {
             let addr = self.execute.PC;
             let inst = self.mmu.read(addr)?;
             let inst = self.decode.decode(inst)?;
-            result = self.execute.execute(&inst)?;
+            self.execute.execute(inst)?;
         }
-        Ok(result)
+        Ok(simulator::SimulatorOk::InstructionExecuted)
+    }
+}
+
+pub struct ExecuteInst {
+    pub name: String,
+    pub rs1: u8,
+    pub rs2: u8,
+    pub rd: u8,
+    pub imm: u32,
+}
+
+impl ExecuteInst {
+    pub fn new(name: &str, rs1: u8, rs2: u8, rd: u8, imm: u32) -> Self {
+        Self {
+            name: name.to_string(),
+            rs1,
+            rs2,
+            rd,
+            imm,
+        }
     }
 }

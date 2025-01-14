@@ -1,5 +1,7 @@
 use crate::simulator;
 
+use super::ExecuteInst;
+
 ysyx_macro::mod_flat!(elf_parser, rv_inst_parser);
 
 pub struct Decoder{
@@ -13,7 +15,7 @@ impl Decoder{
         }
     }
 
-    pub fn decode(&self, inst: u32) -> Result<String, simulator::SimulatorError> {
+    pub fn decode(&self, inst: u32) -> Result<ExecuteInst, simulator::SimulatorError> {
         self.inst_parser.parse(inst)
     }
 }

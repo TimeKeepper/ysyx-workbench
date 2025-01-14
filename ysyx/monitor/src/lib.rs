@@ -64,7 +64,7 @@ impl Monitor {
         loop {
             let cmd = self.cmd_manager.get_parser();
             
-            let result: Result<String, simulator::SimulatorError>;
+            let result: Result<simulator::SimulatorOk, simulator::SimulatorError>;
 
             match cmd {
                 monitor_parser::Commands::Quit {} => break,
@@ -75,7 +75,6 @@ impl Monitor {
             }
 
             if result.is_ok() {
-                self.msgr.info(&result.unwrap());
                 continue;
             }
             let result = result.err().unwrap();

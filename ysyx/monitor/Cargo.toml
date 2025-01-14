@@ -13,3 +13,4 @@ slog-term = "2.9.1"
 rustyline = "15.0.0"
 owo-colors = {workspace = true}
 winnow = "0.6.24"
+bitfield = "0.17.0"

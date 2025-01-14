@@ -1,5 +1,10 @@
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum SimulatorOk {
+    InstructionExecuted,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorError {
     NotImplemented,
     NoBinaryFile,
@@ -10,5 +15,5 @@ pub enum SimulatorError {
 }
 
 pub trait Simulator {
-    fn single_instruction(&mut self, time: u32) -> Result<String, SimulatorError>;
+    fn single_instruction(&mut self, time: u32) -> Result<SimulatorOk, SimulatorError>;
 }

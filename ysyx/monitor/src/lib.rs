@@ -93,14 +93,29 @@ impl Monitor {
             },
             Cmd::Info { command } => {
                 match command {
-                    monitor_parser::InfoCommands::Register {} => {
-                        for r in self.sim.executer.gpr.iter().enumerate() {
-                            self.msgr.trace(format!("x{}: \t0x{:08x}", r.0, r.1).as_str());
+                    monitor_parser::InfoCommands::Register {target} => {
+                        if target.is_none(){
+                            for r in self.sim.executer.gpr.iter() {
+                                self.msgr.trace(format!("{}: \t0x{:08x}", r.name.purple(), r.value.red()).as_str());
+                            }
+                            self.msgr.trace(format!("{}: \t0x{:08x}", self.sim.executer.pc.name.purple(), self.sim.executer.pc.value.red()).as_str());
+                            return Ok(simOk::Nothing);
                         }
-                        self.msgr.trace(format!("PC: \t0x{:08x}", self.sim.executer.pc).as_str());
+                        let target = target.unwrap();
+                        for r in self.sim.executer.gpr.iter() {
+                            if r.name == target {
+                                self.msgr.trace(format!("{}: \t0x{:08x}", r.name.purple(), r.value.red()).as_str());
+                                return Ok(simOk::Nothing);
+                            }
+                        }
+                        if target == self.sim.executer.pc.name {
+                            self.msgr.trace(format!("{}: \t0x{:08x}", self.sim.executer.pc.name.purple(), self.sim.executer.pc.value.red()).as_str());
+                            return Ok(simOk::Nothing);
+                        }
+                        self.msgr.error("No matching register");
+                        return Err(simErr::InvalidCommand);
                     }
                 }
-                return Ok(simOk::Nothing);
             },
             Cmd::Function { on_or_off, target } => {
                 if target.is_none() {
@@ -135,8 +150,8 @@ impl Monitor {
                     },
                 }
             },
-            Cmd::SingleInstrcution(time) => {
-                return self.sim.single_instruction(if time.count.is_some() { time.count.unwrap() } else { 1 });
+            Cmd::SingleInstrcution { count } => {
+                return self.sim.single_instruction(if count.is_some() { count.unwrap() } else { 1 });
             },
             _ => return Err(simErr::NotImplemented),
         }
@@ -151,7 +166,7 @@ impl Monitor {
                 simErr::InvalidCommand => self.msgr.error("Invalid command"),
                 simErr::NoMatchingMemoryByAddress{addr} => self.msgr.error(format!("No matching memory {}", addr).as_str()),
                 simErr::NoMatchingMemoryByName{name} => self.msgr.error(format!("No matching memory {}", name).as_str()),
-                simErr::InstrctionDecodeFailed{inst} => self.msgr.error(format!("Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}", self.sim.executer.pc, inst).as_str()),
+                simErr::InstrctionDecodeFailed{inst} => self.msgr.error(format!("Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}", self.sim.executer.pc.value, inst).as_str()),
                 simErr::UnknownInstruction{name} => self.msgr.error(format!("Unknown instruction {}", name.purple()).as_str()),
                 _ => self.msgr.error("Unknown error"),
             },

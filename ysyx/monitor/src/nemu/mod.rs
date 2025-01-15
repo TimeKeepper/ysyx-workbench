@@ -46,10 +46,6 @@ impl Simulator{
     fn execute(&mut self, inst: ExecuteInst) -> Result<(), simulator::SimulatorError> {
         self.executer.execute(inst.clone())?;
 
-        if self.inst_trace {
-            println!("{:?}", inst);
-        }
-
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst.clone());
         }
@@ -58,13 +54,14 @@ impl Simulator{
     }
 
     fn disasm(&self, inst: u32) {
-        let result = self.disasm.disasm(&inst.to_le_bytes(), self.executer.pc as u64)
+        let result = self.disasm
+            .disasm(&inst.to_le_bytes(), self.executer.pc.value as u64)
             .replace("\0", "")
             .trim()
             .split_ascii_whitespace()
             .map(|x| format!("{} ", x))
             .collect::<String>();
-        println!("{:08x}: {:08x} {}", self.executer.pc.purple(), inst.red(), result.green());
+        println!("{:08x}: {:08x} {}", self.executer.pc.value.purple(), inst.red(), result.green());
     }
 }
 
@@ -72,9 +69,9 @@ impl simulator::Simulator for Simulator {
 
     fn single_instruction(&mut self, time: u32) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         for _ in 0..time {
-            let addr = self.executer.pc;
+            let addr = self.executer.pc.value;
             let inst = self.mmu.read(addr)?;
-            if time < 10 {
+            if time < 10 && self.inst_trace {
                 self.disasm(inst);
             }
             let inst = self.decoder.decode(inst)?;

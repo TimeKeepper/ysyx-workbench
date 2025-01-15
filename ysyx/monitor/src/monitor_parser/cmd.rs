@@ -1,5 +1,5 @@
 use msg_resp as msgr;
-use clap::{Args, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -25,7 +25,9 @@ pub enum Commands {
 
     /// run single instrcution in the emulator
     #[clap(visible_alias = "si")]
-    SingleInstrcution(SingleInstrcutionArgs),
+    SingleInstrcution {
+        count: Option<u32>,
+    },
 
     /// show info about the simulator
     #[clap(visible_alias = "i")]
@@ -42,25 +44,27 @@ pub enum Commands {
     },
 }
 
-#[derive(Args, Debug)]
-pub struct SingleInstrcutionArgs {
-    pub count: Option<u32>,
-}
-
 #[derive(Debug, Subcommand)]
 pub enum InfoCommands {
     /// show info about the register
     #[clap(visible_alias = "r")]
-    Register {},
+    Register {
+        target: Option<String>,
+    },
 }
 
 use owo_colors::OwoColorize;
+
+use rustyline::completion::FilenameCompleter;
+use rustyline::highlight::MatchingBracketHighlighter;
+use rustyline::hint::HistoryHinter;
+use rustyline::validate::MatchingBracketValidator;
+use rustyline::{Cmd, CompletionType, Config, EditMode, Editor, KeyEvent};
 pub struct CommandManager {
     name: String,
-    rl: rustyline::DefaultEditor,
+    rl: Editor<super::MyHelper, rustyline::history::FileHistory>,
 }
 
-use rustyline::DefaultEditor;
 impl CommandManager {
     pub fn get_parser(&mut self) -> Commands {
         loop {
@@ -94,15 +98,16 @@ impl CommandManager {
     }
 
     fn rl_get(&mut self) -> String {
-        let mut readline = self.rl.readline(&format!(
+        let p = &format!(
             "({}) ",
             msgr::respstring(&self.name, msgr::RespType::Important)
-        ));
+        );
+        self.rl.helper_mut().expect("No helper").colored_prompt = format!("{p}");
+
+        let readline = self.rl.readline(&p);
         if readline.is_err() {
             return "".to_string();
         }
-
-        readline = Ok(readline.unwrap());
 
         let line = readline.unwrap();
         let _ = self.rl.add_history_entry(&line);
@@ -115,8 +120,23 @@ impl CommandManager {
     }
 
     pub fn new(name: &str) -> Self {
-        let mut rl = DefaultEditor::new().unwrap();
+        let config = Config::builder()
+            .history_ignore_space(true)
+            .completion_type(CompletionType::List)
+            .edit_mode(EditMode::Emacs)
+            .build();
+        let h = super::MyHelper {
+            completer: FilenameCompleter::new(),
+            highlighter: MatchingBracketHighlighter::new(),
+            hinter: HistoryHinter::new(),
+            colored_prompt: "".to_owned(),
+            validator: MatchingBracketValidator::new(),
+        };
+        let mut rl = Editor::with_config(config).unwrap();
 
+        rl.set_helper(Some(h));
+        rl.bind_sequence(KeyEvent::alt('n'), Cmd::HistorySearchForward);
+        rl.bind_sequence(KeyEvent::alt('p'), Cmd::HistorySearchBackward);
         if rl.load_history("target/.rl_history").is_err() {
             println!(
                 "{}",

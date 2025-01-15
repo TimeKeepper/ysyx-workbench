@@ -1,1 +1,1 @@
-ysyx_macro::mod_flat!(cli, cmd);
+ysyx_macro::mod_flat!(cli, cmd, readline);

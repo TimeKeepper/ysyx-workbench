@@ -26,6 +26,7 @@ pub enum SimulatorError {
     NotImplemented,
     InvalidCommand,
     NoBinaryFile,
+    DiffertestFailed,
     BinaryFileNotFound,
     NoMatchingMemoryByAddress  {addr: u32},
     NoMatchingMemoryByName {name: String},
@@ -34,5 +35,5 @@ pub enum SimulatorError {
 }
 
 pub trait Simulator {
-    fn single_instruction(&mut self, time: u32) -> Result<SimulatorOk, SimulatorError>;
+    fn single_instruction(&mut self) -> Result<SimulatorOk, SimulatorError>;
 }

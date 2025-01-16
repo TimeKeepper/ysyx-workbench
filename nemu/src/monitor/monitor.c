@@ -13,6 +13,7 @@
  * See the Mulan PSL v2 for more details.
  ***************************************************************************************/
 
+#include "debug.h"
 #include <fcntl.h>
 #include <gelf.h>
 #include <isa.h>

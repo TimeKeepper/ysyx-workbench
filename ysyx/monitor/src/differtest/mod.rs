@@ -1,0 +1,85 @@
+use libloading::{Library, Symbol};
+use std::{sync::OnceLock, os::raw::c_void, path::Path};
+
+pub enum DiffertestDirection {
+    ToDut = 0,
+    ToRef = 1,
+}
+
+// case DiffertestDirection to bool
+impl From<DiffertestDirection> for bool {
+    fn from(direction: DiffertestDirection) -> Self {
+        match direction {
+            DiffertestDirection::ToDut => false,
+            DiffertestDirection::ToRef => true,
+        }
+    }
+}
+
+type RefDifftestMemcpyFunc = unsafe extern "C" fn(addr: u64, buf: *mut c_void, n: u64, direction: bool);
+type RefDifftestRegcpyFunc = unsafe extern "C" fn(buf: *mut c_void, direction: bool);
+type RefDifftestExecFunc = unsafe extern "C" fn(n: u64);
+type RefDifftestRaiseIntrFunc = unsafe extern "C" fn(n: u64);
+type RefDifftestInit = unsafe extern "C" fn(port: u32);
+
+static LIBRARY: OnceLock<Library> = OnceLock::new();
+static REF_DIFTEST_MEMCPY: OnceLock<Symbol<'static, RefDifftestMemcpyFunc>> = OnceLock::new();
+static REF_DIFTEST_REGCPY: OnceLock<Symbol<'static, RefDifftestRegcpyFunc>> = OnceLock::new();
+static REF_DIFTEST_EXEC: OnceLock<Symbol<'static, RefDifftestExecFunc>> = OnceLock::new();
+static REF_DIFTEST_RAISE_INTR: OnceLock<Symbol<'static, RefDifftestRaiseIntrFunc>> = OnceLock::new();
+static REF_DIFTEST_INIT: OnceLock<Symbol<'static, RefDifftestInit>> = OnceLock::new();
+
+pub struct Differtest;
+
+impl Differtest {
+    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+        unsafe {
+            let path = Path::new("/home/wenjiu/ysyx-workbench/nemu/tools/spike-diff/build/riscv32-spike-so");
+            let lib = Library::new(path)?;
+            LIBRARY.set(lib).unwrap();
+            let ref_difftest_memcpy: Symbol<RefDifftestMemcpyFunc> = LIBRARY.get().unwrap().get(b"difftest_memcpy")?;
+            let ref_difftest_regcpy: Symbol<RefDifftestRegcpyFunc> = LIBRARY.get().unwrap().get(b"difftest_regcpy")?;
+            let ref_difftest_exec: Symbol<RefDifftestExecFunc> = LIBRARY.get().unwrap().get(b"difftest_exec")?;
+            let ref_difftest_raise_intr: Symbol<RefDifftestRaiseIntrFunc> = LIBRARY.get().unwrap().get(b"difftest_raise_intr")?;
+            let ref_difftest_init: Symbol<RefDifftestInit> = LIBRARY.get().unwrap().get(b"difftest_init")?;
+
+            REF_DIFTEST_MEMCPY.set(ref_difftest_memcpy).unwrap();
+            REF_DIFTEST_REGCPY.set(ref_difftest_regcpy).unwrap();
+            REF_DIFTEST_EXEC.set(ref_difftest_exec).unwrap();
+            REF_DIFTEST_RAISE_INTR.set(ref_difftest_raise_intr).unwrap();
+            REF_DIFTEST_INIT.set(ref_difftest_init).unwrap();
+        }
+
+        Ok(Self)
+    }
+
+    pub fn ref_difftest_memcpy(&self, addr: u64, buf: *mut c_void, n: u64, direction: DiffertestDirection) {
+        unsafe {
+            REF_DIFTEST_MEMCPY.get().unwrap()(addr, buf, n, direction.into());
+        }
+    }
+
+    pub fn ref_difftest_regcpy(&self, buf: *mut c_void, direction: DiffertestDirection) {
+        unsafe {
+            REF_DIFTEST_REGCPY.get().unwrap()(buf, direction.into());
+        }
+    }
+
+    pub fn ref_difftest_exec(&self, n: u64) {
+        unsafe {
+            REF_DIFTEST_EXEC.get().unwrap()(n);
+        }
+    }
+
+    pub fn ref_difftest_raise_intr(&self, n: u64) {
+        unsafe {
+            REF_DIFTEST_RAISE_INTR.get().unwrap()(n);
+        }
+    }
+
+    pub fn ref_difftest_init(&self, port: u32) {
+        unsafe {
+            REF_DIFTEST_INIT.get().unwrap()(port);
+        }
+    }
+}

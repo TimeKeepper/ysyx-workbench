@@ -3,7 +3,7 @@ use clap::Parser;
 use owo_colors::OwoColorize;
 use simulator::Simulator;
 
-ysyx_macro::mod_pub!(monitor_parser, nemu, mmu, simulator, disassembler);
+ysyx_macro::mod_pub!(monitor_parser, nemu, mmu, simulator, disassembler, differtest);
 
 use simulator::SimulatorOk as simOk;
 use simulator::SimulatorError as simErr;

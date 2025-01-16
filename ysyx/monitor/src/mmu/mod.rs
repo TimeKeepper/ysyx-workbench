@@ -1,9 +1,9 @@
 use crate::simulator::SimulatorError;
 
-struct MemoryManagementUnit {
+pub struct MemoryManagementUnit {
     name: String,
     base: u32,
-    memory: Box<[u8]>,
+    pub memory: Box<[u8]>,
 }
 
 pub enum Mask{
@@ -63,7 +63,7 @@ impl MMU {
         self.memory.push(MemoryManagementUnit::new(name, base, size));
     }
 
-    fn match_memory_by_addr(&mut self, addr: u32) -> Result<&mut MemoryManagementUnit, SimulatorError> {
+    pub fn match_memory_by_addr(&mut self, addr: u32) -> Result<&mut MemoryManagementUnit, SimulatorError> {
         for i in &mut self.memory {
             if addr >= i.base && addr < i.base + i.memory.len() as u32 {
                 return Ok(i);
@@ -72,7 +72,7 @@ impl MMU {
         Err(SimulatorError::NoMatchingMemoryByAddress { addr: (addr) })
     }
 
-    fn match_memory_by_name(&mut self, name: &str) -> Result<&mut MemoryManagementUnit, SimulatorError> {
+    pub fn match_memory_by_name(&mut self, name: &str) -> Result<&mut MemoryManagementUnit, SimulatorError> {
         for i in &mut self.memory {
             if i.name == name {
                 return Ok(i);

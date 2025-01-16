@@ -1,10 +1,14 @@
+use std::os::raw::c_void;
+
 use crate::{mmu::MMU, simulator};
 
 ysyx_macro::mod_pub!(decode, execute);
 use circular_queue::CircularQueue;
 use owo_colors::OwoColorize;
+use rustyline::line_buffer::Direction;
 
 use super::disassembler;
+use super::differtest;
 
 pub struct Simulator {
     pub decoder: decode::Decoder,
@@ -16,21 +20,27 @@ pub struct Simulator {
     pub inst_trace: bool,
     
     pub disasm: disassembler::Disassembler,
+    pub differtest: differtest::Differtest,
 }
 
 impl Simulator{
     pub fn new() -> Self {
         let mut mmu = MMU::new();
-        mmu.add_memory("sdram", 0x8000_0000, 0x0800_0000);
+        mmu.add_memory("sram",  0x0f00_0000, 0x0000_2000);
+        mmu.add_memory("mrom",  0x2000_0000, 0x0000_1000);
+        mmu.add_memory("flash", 0x3000_0000, 0x1000_0000);
+        mmu.add_memory("psram", 0x8000_0000, 0x0800_0000);
+        mmu.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
         Self {
             decoder: decode::Decoder::new(),
-            executer: execute::Executor::new(0x8000_0000),
+            executer: execute::Executor::new(0x3000_0000),
 
             mmu,
             inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
             inst_trace: false,
             disasm: disassembler::Disassembler::new("riscv64-unknown-linux-gnu"),
+            differtest: differtest::Differtest::new().unwrap(),
         }
     }
 
@@ -39,7 +49,9 @@ impl Simulator{
         let bin = std::fs::read(bin_path.unwrap());
         if bin.is_err() { return Err(simulator::SimulatorError::BinaryFileNotFound) };
         let bin = bin.unwrap();
-        self.mmu.load("sdram", &bin).unwrap();
+        self.mmu.load("flash", &bin).unwrap();
+        self.differtest.ref_difftest_init(1234);
+        self.differtest.ref_difftest_memcpy(0x3000_0000, self.mmu.match_memory_by_addr(0x3000_0000).ok().unwrap().memory.as_mut_ptr() as *mut c_void, bin.len() as u64, differtest::DiffertestDirection::ToRef);
         return Ok(());
     }
 
@@ -75,6 +87,7 @@ impl simulator::Simulator for Simulator {
                 self.disasm(inst);
             }
             let inst = self.decoder.decode(inst)?;
+            println!("{:?}", inst);
             self.execute(inst)?;
         }
         Ok(simulator::SimulatorOk::InstructionExecuted)

@@ -1,0 +1,6 @@
+[workspace]
+members = [ "monitor", "msg_resp", "core", "ysyx_macro"]
+resolver = "2"
+
+[workspace.dependencies]
+owo-colors = "4.1.0"

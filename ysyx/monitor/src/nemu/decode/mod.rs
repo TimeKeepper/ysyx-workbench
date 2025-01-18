@@ -1,0 +1,1 @@
+ysyx_macro::mod_flat!(elf_parser, rv_inst_parser);

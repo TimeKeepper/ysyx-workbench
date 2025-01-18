@@ -15,9 +15,15 @@ impl Register {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum Monitor_state {
+    RUNNING,
+    QUIT,
+    ABORT,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorOk {
     Nothing,
-    Quit,
     InstructionExecuted,
 }
 

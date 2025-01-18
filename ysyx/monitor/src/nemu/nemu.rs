@@ -43,45 +43,6 @@ impl Simulator{
         self.inst_parser.parse(inst)
     }
 
-    fn execute(&mut self, inst: ExecuteInst) -> Result<(), simulator::SimulatorError> {
-        let name: &str = &inst.name;
-        let mut npc = self.cpu_state.pc.value + 4;
-        let cpu_state = &mut self.cpu_state;
-
-        match name {
-            "lui" => {
-                cpu_state.gpr[inst.rd as usize].value = inst.imm;
-            },
-            "auipc" => {
-                cpu_state.gpr[inst.rd as usize].value = cpu_state.pc.value + inst.imm;
-            },
-
-            "jal" => {
-                cpu_state.gpr[inst.rd as usize].value = npc;
-                npc = cpu_state.pc.value.wrapping_add(inst.imm);
-            },
-            "jalr" => {
-                cpu_state.gpr[inst.rd as usize].value = cpu_state.pc.value;
-                npc = cpu_state.gpr[inst.rs1 as usize].value.wrapping_add(inst.imm) & !1;
-            },
-
-            "sb" => {
-            },
-
-            "addi" => {
-                cpu_state.gpr[inst.rd as usize].value = cpu_state.gpr[inst.rs1 as usize].value.wrapping_add(inst.imm);
-            },
-            _ => return Err(simulator::SimulatorError::UnknownInstruction { name: name.to_string() }),
-        }
-        cpu_state.pc.value = npc;
-
-        if self.inst_trace_buffer.0 {
-            self.inst_trace_buffer.1.push(inst);
-        }
-        
-        Ok(())
-    }
-
     fn disasm(&self, inst: u32) {
         let result = self.disasm
             .disasm(&inst.to_le_bytes(), self.cpu_state.pc.value as u64)

@@ -6,7 +6,7 @@ git submodule update
 
 安装依赖
 ```
-sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libelf-dev bison flex llvm llvm-14 llvm-14-dev libmuparser-dev libmuparser-dev
+sudo apt-get install build-essential man gcc-doc gdb git libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libelf-dev bison flex llvm llvm-14 llvm-14-dev libmuparser-dev libmuparser-dev device-tree-compiler
 ```
 
 安装mill,注意必须安装至少0.11以上的版本
@@ -47,6 +47,8 @@ ysyxsoc目录下运行make dev-init make verilog
 ```
 在nemu目录下运行make menuconfig
 然后make
+如果你发现了奇怪的连接错误并且路径中包含miniconda的话，是因为沟槽的miniconda抢占了包路径，使用conda deactivate退出虚拟环境即可
+sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"安装llvm
 ```
 初始化rocket-chip
 ```

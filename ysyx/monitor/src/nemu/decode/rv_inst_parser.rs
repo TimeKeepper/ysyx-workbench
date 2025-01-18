@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 #[derive(Debug, PartialEq, Clone)]
 enum ImmType {
     I,
@@ -7,6 +5,8 @@ enum ImmType {
     B,
     U,
     J,
+    R,
+    N,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -20,6 +20,8 @@ struct RiscvInst {
 use msg_resp as msgr;
 
 use crate::{nemu::ExecuteInst, simulator};
+
+use super::super::{extract_bits, sig_extend};
 
 impl RiscvInst {
     pub fn new(name: &str, imm_type: ImmType, parser: &str, pseudo: Vec<&str>) -> Self {
@@ -53,49 +55,42 @@ impl RiscvInst {
         }
     }
 
-    fn extract_bits(input: u32, range: Range<u8>) -> u32 {
-        let mask = (1 << (range.end - range.start + 1)) - 1;
-        (input >> range.start) & mask
-    }
-
-    fn sig_extend(imm: u32, size: u8) -> u32 {
-        if imm & (1 << (size - 1)) != 0 {
-            imm | !((1 << size) - 1)
-        } else {
-            imm
-        }
-    }
-
     fn get_imm(&self, input: u32) -> u32 {
         match self.imm_type {
             ImmType::I => {
                 let range = 20..31;
-                let imm = RiscvInst::extract_bits(input, range.clone());
-                RiscvInst::sig_extend(imm, range.end as u8 - range.start as u8)
+                let imm = extract_bits(input, range.clone());
+                sig_extend(imm, range.end as u8 - range.start as u8 + 1)
             },
             ImmType::S => {
-                let imm = (RiscvInst::extract_bits(input, 25..31) << 5) | RiscvInst::extract_bits(input, 7..12);
-                RiscvInst::sig_extend(imm, 12)
+                let imm = (extract_bits(input, 25..31) << 5) | extract_bits(input, 7..12);
+                sig_extend(imm, 12)
             },
             ImmType::B => {
-                let imm = (RiscvInst::extract_bits(input, 31..31) << 12) | (RiscvInst::extract_bits(input, 25..30) << 5) | (RiscvInst::extract_bits(input, 8..11) << 1) | (RiscvInst::extract_bits(input, 7..7) << 11);
-                RiscvInst::sig_extend(imm, 13)
+                let imm = (extract_bits(input, 31..31) << 12) | (extract_bits(input, 25..30) << 5) | (extract_bits(input, 8..11) << 1) | (extract_bits(input, 7..7) << 11);
+                sig_extend(imm, 13)
             },
             ImmType::U => {
-                RiscvInst::extract_bits(input, 12..31) << 12
+                extract_bits(input, 12..31) << 12
             },
             ImmType::J => {
-                let imm = (RiscvInst::extract_bits(input, 31..31) << 20) | (RiscvInst::extract_bits(input, 12..19) << 12) | (RiscvInst::extract_bits(input, 20..20) << 11) | (RiscvInst::extract_bits(input, 21..30) << 1);
+                let imm = (extract_bits(input, 31..31) << 20) | (extract_bits(input, 12..19) << 12) | (extract_bits(input, 20..20) << 11) | (extract_bits(input, 21..30) << 1);
                 
                 // fn repeat_char(c: char, n: usize) -> String {
                 //     vec![c; n].into_iter().collect()
                 // }
-                // println!("{}{:01b}", repeat_char(' ', 31 - 31), RiscvInst::extract_bits(input, 31..31));
-                // println!("{}{:08b}", repeat_char(' ', 31 - 19), RiscvInst::extract_bits(input, 12..19));
-                // println!("{}{:01b}", repeat_char(' ', 31 - 20), RiscvInst::extract_bits(input, 20..20));
-                // println!("{}{:010b}", repeat_char(' ', 31 - 30), RiscvInst::extract_bits(input, 21..30));
+                // println!("{}{:01b}", repeat_char(' ', 31 - 31), extract_bits(input, 31..31));
+                // println!("{}{:08b}", repeat_char(' ', 31 - 19), extract_bits(input, 12..19));
+                // println!("{}{:01b}", repeat_char(' ', 31 - 20), extract_bits(input, 20..20));
+                // println!("{}{:010b}", repeat_char(' ', 31 - 30), extract_bits(input, 21..30));
                 // println!("{:021b}: {:08x}", imm, imm);
-                RiscvInst::sig_extend(imm, 21)
+                sig_extend(imm, 21)
+            },
+            ImmType::R => {
+                0
+            },
+            ImmType::N => {
+                0
             },
         }
     }
@@ -104,9 +99,9 @@ impl RiscvInst {
         if input & self.parser.0 == self.parser.1 {
             return Ok(ExecuteInst::new(
                 &self.name,
-                RiscvInst::extract_bits(input, 15..19) as u8,
-                RiscvInst::extract_bits(input, 20..24) as u8,
-                RiscvInst::extract_bits(input, 7..11) as u8,
+                extract_bits(input, 15..19) as u8,
+                extract_bits(input, 20..24) as u8,
+                extract_bits(input, 7..11) as u8,
                 self.get_imm(input),
             ));
         }
@@ -151,12 +146,12 @@ impl RvInstParser {
             RiscvInst::new("jal",       ImmType::J, "??????? ????? ????? ??? ????? 11011 11", vec!["j"]),
             RiscvInst::new("jalr",      ImmType::J, "??????? ????? ????? ??? ????? 11001 11", vec!["jr", "ret"]),
             
-            RiscvInst::new("beq",       ImmType::I, "??????? ????? ????? 000 ????? 11000 11", vec!["beqz"]),
-            RiscvInst::new("bne",       ImmType::S, "??????? ????? ????? 001 ????? 11000 11", vec!["bnez"]),
+            RiscvInst::new("beq",       ImmType::B, "??????? ????? ????? 000 ????? 11000 11", vec!["beqz"]),
+            RiscvInst::new("bne",       ImmType::B, "??????? ????? ????? 001 ????? 11000 11", vec!["bnez"]),
             RiscvInst::new("blt",       ImmType::B, "??????? ????? ????? 100 ????? 11000 11", vec!["bltz", "bgtz"]),
-            RiscvInst::new("bge",       ImmType::U, "??????? ????? ????? 101 ????? 11000 11", vec!["blez", "bgez"]),
-            RiscvInst::new("bltu",      ImmType::J, "??????? ????? ????? 110 ????? 11000 11", vec![]),
-            RiscvInst::new("bgeu",      ImmType::U, "??????? ????? ????? 111 ????? 11000 11", vec![]),
+            RiscvInst::new("bge",       ImmType::B, "??????? ????? ????? 101 ????? 11000 11", vec!["blez", "bgez"]),
+            RiscvInst::new("bltu",      ImmType::B, "??????? ????? ????? 110 ????? 11000 11", vec![]),
+            RiscvInst::new("bgeu",      ImmType::B, "??????? ????? ????? 111 ????? 11000 11", vec![]),
             
             RiscvInst::new("lb",        ImmType::I, "??????? ????? ????? 000 ????? 00000 11", vec![]),
             RiscvInst::new("lh",        ImmType::I, "??????? ????? ????? 001 ????? 00000 11", vec![]),
@@ -170,40 +165,40 @@ impl RvInstParser {
 
             RiscvInst::new("addi",      ImmType::I, "??????? ????? ????? 000 ????? 00100 11", vec!["nop", "li", "mv"]),
 
-            RiscvInst::new("slti",      ImmType::U, "??????? ????? ????? 010 ????? 00100 11", vec![]),
-            RiscvInst::new("sltiu",     ImmType::U, "??????? ????? ????? 011 ????? 00100 11", vec!["seqz"]),
+            RiscvInst::new("slti",      ImmType::I, "??????? ????? ????? 010 ????? 00100 11", vec![]),
+            RiscvInst::new("sltiu",     ImmType::I, "??????? ????? ????? 011 ????? 00100 11", vec!["seqz"]),
 
-            RiscvInst::new("xori",      ImmType::U, "??????? ????? ????? 100 ????? 00100 11", vec!["not"]),
-            RiscvInst::new("ori",       ImmType::U, "??????? ????? ????? 110 ????? 00100 11", vec![]),
-            RiscvInst::new("andi",      ImmType::U, "??????? ????? ????? 111 ????? 00100 11", vec!["zext"]),
+            RiscvInst::new("xori",      ImmType::I, "??????? ????? ????? 100 ????? 00100 11", vec!["not"]),
+            RiscvInst::new("ori",       ImmType::I, "??????? ????? ????? 110 ????? 00100 11", vec![]),
+            RiscvInst::new("andi",      ImmType::I, "??????? ????? ????? 111 ????? 00100 11", vec!["zext"]),
             
-            RiscvInst::new("slli",      ImmType::U, "0000000 ????? ????? 001 ????? 00100 11", vec![]),
-            RiscvInst::new("srli",      ImmType::U, "0000000 ????? ????? 101 ????? 00100 11", vec![]),
-            RiscvInst::new("srai",      ImmType::U, "0100000 ????? ????? 101 ????? 00100 11", vec![]),
+            RiscvInst::new("slli",      ImmType::I, "0000000 ????? ????? 001 ????? 00100 11", vec![]),
+            RiscvInst::new("srli",      ImmType::I, "0000000 ????? ????? 101 ????? 00100 11", vec![]),
+            RiscvInst::new("srai",      ImmType::I, "0100000 ????? ????? 101 ????? 00100 11", vec![]),
             
-            RiscvInst::new("add",       ImmType::U, "0000000 ????? ????? 000 ????? 01100 11", vec![]),
-            RiscvInst::new("sub",       ImmType::U, "0100000 ????? ????? 000 ????? 01100 11", vec!["neg"]),
+            RiscvInst::new("add",       ImmType::R, "0000000 ????? ????? 000 ????? 01100 11", vec![]),
+            RiscvInst::new("sub",       ImmType::R, "0100000 ????? ????? 000 ????? 01100 11", vec!["neg"]),
 
-            RiscvInst::new("and",       ImmType::U, "0000000 ????? ????? 111 ????? 01100 11", vec![]),
-            RiscvInst::new("or",        ImmType::U, "0000000 ????? ????? 110 ????? 01100 11", vec![]),
-            RiscvInst::new("xor",       ImmType::U, "0000000 ????? ????? 100 ????? 01100 11", vec![]),
+            RiscvInst::new("xor",       ImmType::R, "0000000 ????? ????? 100 ????? 01100 11", vec![]),
+            RiscvInst::new("or",        ImmType::R, "0000000 ????? ????? 110 ????? 01100 11", vec![]),
+            RiscvInst::new("and",       ImmType::R, "0000000 ????? ????? 111 ????? 01100 11", vec![]),
 
-            RiscvInst::new("slt",       ImmType::U, "0000000 ????? ????? 010 ????? 01100 11", vec!["sltz", "sgtz"]),
-            RiscvInst::new("sltu",      ImmType::U, "0000000 ????? ????? 011 ????? 01100 11", vec!["snez"]),
+            RiscvInst::new("slt",       ImmType::R, "0000000 ????? ????? 010 ????? 01100 11", vec!["sltz", "sgtz"]),
+            RiscvInst::new("sltu",      ImmType::R, "0000000 ????? ????? 011 ????? 01100 11", vec!["snez"]),
             
-            RiscvInst::new("sll",       ImmType::U, "0000000 ????? ????? 001 ????? 01100 11", vec![]),
-            RiscvInst::new("srl",       ImmType::U, "0000000 ????? ????? 101 ????? 01100 11", vec![]),
-            RiscvInst::new("sra",       ImmType::U, "0100000 ????? ????? 101 ????? 01100 11", vec![]),
+            RiscvInst::new("sll",       ImmType::R, "0000000 ????? ????? 001 ????? 01100 11", vec![]),
+            RiscvInst::new("srl",       ImmType::R, "0000000 ????? ????? 101 ????? 01100 11", vec![]),
+            RiscvInst::new("sra",       ImmType::R, "0100000 ????? ????? 101 ????? 01100 11", vec![]),
             
-            RiscvInst::new("fence",     ImmType::U, "0000??? ????? 00000 000 00000 00011 11", vec![]),
-            RiscvInst::new("ecall",     ImmType::U, "0000000 00000 00000 000 00000 11100 11", vec![]),
-            RiscvInst::new("ebreak",    ImmType::U, "0000000 00001 00000 000 00000 11100 11", vec![]),
+            RiscvInst::new("fence",     ImmType::N, "0000??? ????? 00000 000 00000 00011 11", vec![]),
+            RiscvInst::new("ecall",     ImmType::N, "0000000 00000 00000 000 00000 11100 11", vec![]),
+            RiscvInst::new("ebreak",    ImmType::N, "0000000 00001 00000 000 00000 11100 11", vec![]),
         ];
 
         let zicsr = vec![
-            RiscvInst::new("csrrw",     ImmType::U, "??????? ????? ????? 001 ????? 11100 11", vec!["csrw"]),
-            RiscvInst::new("csrrs",     ImmType::U, "??????? ????? ????? 010 ????? 11100 11", vec!["csrr", "csrs"]),
-            RiscvInst::new("csrrc",     ImmType::U, "??????? ????? ????? 011 ????? 11100 11", vec!["csrc"]),
+            RiscvInst::new("csrrw",     ImmType::I, "??????? ????? ????? 001 ????? 11100 11", vec!["csrw"]),
+            RiscvInst::new("csrrs",     ImmType::I, "??????? ????? ????? 010 ????? 11100 11", vec!["csrr", "csrs"]),
+            RiscvInst::new("csrrc",     ImmType::I, "??????? ????? ????? 011 ????? 11100 11", vec!["csrc"]),
 
             RiscvInst::new("csrrwi",    ImmType::U, "??????? ????? ????? 101 ????? 11100 11", vec!["csrwi"]),
             RiscvInst::new("csrrsi",    ImmType::U, "??????? ????? ????? 110 ????? 11100 11", vec!["csrsi"]),
@@ -211,7 +206,7 @@ impl RvInstParser {
         ];
 
         let r#priv = vec![
-            RiscvInst::new("mret",      ImmType::U, "0011000 00010 00000 000 00000 11100 11", vec![]),
+            RiscvInst::new("mret",      ImmType::N, "0011000 00010 00000 000 00000 11100 11", vec![]),
         ];
 
         let mut inst = rv32_i_inst;

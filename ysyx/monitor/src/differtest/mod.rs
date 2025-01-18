@@ -77,15 +77,15 @@ impl Differtest {
         }
     }
 
-    pub fn difftest_step(&self, executor: &nemuState) -> Result<(), simErr> {
+    pub fn difftest_step(&self, state: &nemuState) -> Result<(), simErr> {
         let dut_r = Riscv32CpuState {
             gpr: {
                 let mut gpr_array = [0u32; 32];
-                let gpr_vec = executor.gpr.iter().map(|r| r.value).collect::<Vec<u32>>();
+                let gpr_vec = state.gpr.iter().map(|r| r.value).collect::<Vec<u32>>();
                 gpr_array.copy_from_slice(&gpr_vec[..32]);
                 gpr_array
             },
-            pc: executor.pc.value
+            pc: state.pc.value
         };
 
         let ref_r = self.get_ref_reg();

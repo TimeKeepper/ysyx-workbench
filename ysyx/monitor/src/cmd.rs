@@ -11,7 +11,11 @@ use super::{simErr, simOk};
 
 impl Monitor {
     pub fn cmd_q(&mut self) -> Result<simOk, simErr> {
-        self.state = MonitorState::QUIT;
+        self.state = if self.state == MonitorState::TRAP {
+            MonitorState::ABORT
+        } else {
+            MonitorState::QUIT
+        };
         Ok(simOk::Nothing)
     }
 
@@ -107,6 +111,10 @@ impl Monitor {
     }
 
     pub fn cmd_si(&mut self, count: Option<u32>) -> Result<simOk, simErr> {
+        if self.state == MonitorState::TRAP {
+            self.msgr.error("Monitor is in trap state");
+            return Err(simErr::InvalidCommand);
+        }
         for _ in 0..if count.is_none() { 1 } else { count.unwrap() } {
             self.sim.single_instruction()?;
             self.differtest.ref_difftest_exec(1);

@@ -141,19 +141,19 @@ impl Monitor {
 
                 simErr::DiffertestFailed => {
                     self.msgr.error("Differtest failed");
-                    self.state = MonitorState::ABORT
+                    self.state = MonitorState::TRAP
                 },
                 simErr::NoMatchingMemoryByAddress { addr } => {
                     self
                     .msgr
                     .error(format!("No matching memory {}", addr).as_str());
-                    self.state = MonitorState::ABORT
+                    self.state = MonitorState::TRAP
                 },
                 simErr::NoMatchingMemoryByName { name } => {
                     self
                     .msgr
                     .error(format!("No matching memory {}", name).as_str());
-                    self.state = MonitorState::ABORT
+                    self.state = MonitorState::TRAP
                 },
                 simErr::InstrctionDecodeFailed { inst } => {
                     self.msgr.error(
@@ -163,13 +163,13 @@ impl Monitor {
                         )
                         .as_str(),
                     );
-                    self.state = MonitorState::ABORT
+                    self.state = MonitorState::TRAP
                 },
                 simErr::InstrctionExecuteFailed { name } => {
                     self
                     .msgr
                     .error(format!("Failed to execute instrcution {}", name.purple()).as_str());
-                    self.state = MonitorState::ABORT
+                    self.state = MonitorState::TRAP
                 },
             },
         }

@@ -29,6 +29,24 @@ impl MemoryManagementUnit {
         u32::from_le_bytes(self.memory[offset..offset + 4].try_into().unwrap())
     }
 
+    fn read_with_mask(&self, addr: u32, mask: Mask) -> u32 {
+        if addr % 4 != 0 {
+            panic!("Unaligned memory access");
+        }
+        let offset = (addr - self.base) as usize;
+        match mask {
+            Mask::Byte => {
+                self.memory[offset] as u32
+            }
+            Mask::Half => {
+                u32::from_le_bytes(self.memory[offset..offset + 2].try_into().unwrap())
+            }
+            Mask::Word => {
+                u32::from_le_bytes(self.memory[offset..offset + 4].try_into().unwrap())
+            }
+        }
+    }
+
     fn write(&mut self, addr: u32, data: u32, mask: Mask) {
         if addr % 4 != 0 {
             panic!("Unaligned memory access");
@@ -81,9 +99,14 @@ impl MMU {
         Err(SimulatorError::NoMatchingMemoryByName { name: name.to_string() })
     }
 
-    pub fn read(&mut self, addr: u32) -> Result<u32, SimulatorError> {
+    pub fn read(&mut self, addr: u32) -> Result<u32, SimulatorError> { // read have not mask in hardware
         let memory = self.match_memory_by_addr(addr)?;
         Ok(memory.read(addr))
+    }
+
+    pub fn read_with_mask(&mut self, addr: u32, mask: Mask) -> Result<u32, SimulatorError> {
+        let memory = self.match_memory_by_addr(addr)?;
+        Ok(memory.read_with_mask(addr, mask))
     }
 
     pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), SimulatorError> {

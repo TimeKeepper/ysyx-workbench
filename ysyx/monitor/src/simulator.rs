@@ -17,6 +17,7 @@ impl Register {
 #[derive(Debug, PartialEq, Clone)]
 pub enum MonitorState {
     RUNNING,
+    TRAP,
     QUIT,
     ABORT,
 }

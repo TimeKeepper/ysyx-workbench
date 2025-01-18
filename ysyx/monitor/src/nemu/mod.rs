@@ -1,2 +1,2 @@
 ysyx_macro::mod_pub!(decode);
-ysyx_macro::mod_flat!(state, nemu);
+ysyx_macro::mod_flat!(state, nemu, execute);

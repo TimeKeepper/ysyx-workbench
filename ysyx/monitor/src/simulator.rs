@@ -15,9 +15,15 @@ impl Register {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+pub enum MonitorState {
+    RUNNING,
+    QUIT,
+    ABORT,
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorOk {
     Nothing,
-    Quit,
     InstructionExecuted,
 }
 
@@ -31,7 +37,7 @@ pub enum SimulatorError {
     NoMatchingMemoryByAddress  {addr: u32},
     NoMatchingMemoryByName {name: String},
     InstrctionDecodeFailed {inst: u32},
-    UnknownInstruction {name: String},
+    InstrctionExecuteFailed {name: String},
 }
 
 pub trait Simulator {

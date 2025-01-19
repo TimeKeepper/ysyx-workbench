@@ -20,6 +20,7 @@ bitfield = "0.17.0"
 circular-queue = "0.2.6"
 llvm-sys = "181.0.0"
 libloading = "0.8.6"
+rand = {workspace = true}
 
 [[bench]]
 name = "decode_bench"

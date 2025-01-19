@@ -134,7 +134,7 @@ impl RvInstParser {
                 Err(_) => {},
             }
         }
-
+        
         Err(simulator::SimulatorError::InstrctionDecodeFailed{inst})
     }
 

@@ -1,17 +1,32 @@
 use std::hint::black_box;
 use criterion::{criterion_group, criterion_main, Criterion};
 
-fn fibonacci(n: u64) -> u64 {
-    match n {
-        0 => 1,
-        1 => 1,
-        n => fibonacci(n-1) + fibonacci(n-2),
-    }
+use monitor::nemu::decode::RvInstParser as decoder;
+
+use rand::Rng;
+
+fn bench(c: &mut Criterion) {
+    let decoder = decoder::new();
+
+    let mut rng = rand::thread_rng();
+    let batch_size: u64 = 1000;
+
+    let mut group = c.benchmark_group("decode");
+
+    group.throughput(criterion::Throughput::Elements(batch_size));
+
+    group.bench_function("decode", |b| {
+        b.iter_batched(|| {
+            let mut test_data = vec![0; batch_size as usize];
+            rng.fill(test_data.as_mut_slice());
+            test_data
+        }, |key| {
+            for i in 0..batch_size {
+                let _ = black_box(decoder.parse(key[i as usize]));
+            }
+        }, criterion::BatchSize::NumBatches(batch_size));
+    });
 }
 
-fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("fib 20", |b| b.iter(|| fibonacci(black_box(20))));
-}
-
-criterion_group!(benches, criterion_benchmark);
+criterion_group!(benches, bench);
 criterion_main!(benches);

@@ -5,7 +5,10 @@ run :
 	cargo run --release --bin core --features=$(Feature) -- $(Mainargs)
 
 bench :
-	cargo bench --features=$(Feature)
+	cargo bench --features=$(Feature) --bench decode_bench
+
+bench_store :
+	cargo bench --features=$(Feature) --bench decode_bench -- --save-baseline master
 
 clean :
 	cargo clean

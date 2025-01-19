@@ -3,6 +3,9 @@ name = "monitor"
 version = "0.1.0"
 edition = "2021"
 
+[dev-dependencies]
+criterion = {workspace = true}
+
 [dependencies]
 ysyx_macro = { path = "../ysyx_macro" }
 msg_resp = { path = "../msg_resp" }
@@ -17,3 +20,8 @@ bitfield = "0.17.0"
 circular-queue = "0.2.6"
 llvm-sys = "181.0.0"
 libloading = "0.8.6"
+
+[[bench]]
+name = "decode_bench"
+harness = false
+path = "benches/nemu/decode_bench.rs"

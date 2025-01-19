@@ -29,6 +29,10 @@ pub enum Commands {
         count: Option<u32>,
     },
 
+    /// continue the emulator
+    #[clap(visible_alias = "c")]
+    Continue {},
+
     /// show info about the simulator
     #[clap(visible_alias = "i")]
     Info {

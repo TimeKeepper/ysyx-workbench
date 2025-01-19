@@ -115,11 +115,34 @@ impl Monitor {
             self.msgr.error("Monitor is in trap state");
             return Err(simErr::InvalidCommand);
         }
-        for _ in 0..if count.is_none() { 1 } else { count.unwrap() } {
+
+        let count = if count.is_none() {
+            1
+        } else {
+            count.unwrap()
+        };
+
+        let mut orig = || -> Result<(), simErr> {
             self.sim.single_instruction()?;
             self.differtest.ref_difftest_exec(1);
             self.differtest.difftest_step(&self.sim.cpu_state)?;
+            Ok(())
+        };
+
+        if count == 0 {
+            loop {
+                orig()?;
+            }
         }
+
+        for _ in 0..count {
+            orig()?;
+        }
+
         Ok(simOk::InstructionExecuted)
+    }
+
+    pub fn cmd_c(&mut self) -> Result<simOk, simErr> {
+        self.cmd_si(Some(0))
     }
 }

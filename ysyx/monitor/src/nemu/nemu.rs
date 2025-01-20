@@ -59,14 +59,14 @@ impl simulator::Simulator for Simulator {
 
     fn single_instruction(&mut self) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         let addr = self.cpu_state.pc.value;
-        let inst = self.mmu.read(addr)?;
-        // println!("{:032b}", inst);
+        let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
         
         if self.inst_trace {
             self.disasm(inst);
             println!("{:08x?}", exeu_inst.green());
         }
+
         self.execute(exeu_inst)?;
         
         Ok(simulator::SimulatorOk::InstructionExecuted)

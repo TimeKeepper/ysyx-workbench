@@ -7,15 +7,15 @@ use super::super::simErr;
 impl Simulator {
     pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
         let name: &str = &inst.name;
-        let mut npc = self.cpu_state.pc.value + 4;
-        let gpr = &mut self.cpu_state.gpr;
-        let pc = &mut self.cpu_state.pc;
-
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
         let rs2 = inst.rs2 as usize;
         let imm = inst.imm;
         
+        let mut npc = self.cpu_state.pc.value + 4;
+        let gpr = &mut self.cpu_state.gpr;
+        let pc = &mut self.cpu_state.pc;
+
         match name {
             "lui" => {
                 gpr[rd].value = inst.imm;
@@ -65,19 +65,19 @@ impl Simulator {
             }
 
             "lb" => {
-                gpr[rd].value = sig_extend(self.mmu.read_with_mask(gpr[rs1].value + imm, Mask::Byte)?, 8);
+                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value + imm, Mask::Byte)?, 8);
             }
             "lh" => {
-                gpr[rd].value = sig_extend(self.mmu.read_with_mask(gpr[rs1].value + imm, Mask::Half)?, 16);
+                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value + imm, Mask::Half)?, 16);
             }
             "lw" => {
-                gpr[rd].value = self.mmu.read_with_mask(gpr[rs1].value + imm, Mask::Word)?;
+                gpr[rd].value = self.mmu.read(gpr[rs1].value + imm, Mask::Word)?;
             }
             "lbu" => {
-                gpr[rd].value = self.mmu.read_with_mask(gpr[rs1].value + imm, Mask::Byte)?;
+                gpr[rd].value = self.mmu.read(gpr[rs1].value + imm, Mask::Byte)?;
             }
             "lhu" => {
-                gpr[rd].value = self.mmu.read_with_mask(gpr[rs1].value + imm, Mask::Half)?;
+                gpr[rd].value = self.mmu.read(gpr[rs1].value + imm, Mask::Half)?;
             }
 
             "sb" => {

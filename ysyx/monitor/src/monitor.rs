@@ -103,7 +103,7 @@ impl Monitor {
                 0x8000_0000,
                 self.sim
                     .mmu
-                    .match_memory_by_addr(0x8000_0000)
+                    .match_memory(crate::mmu::MatchMsg::ADDR { addr: 0x8000_0000})
                     .ok()
                     .unwrap()
                     .memory
@@ -144,16 +144,10 @@ impl Monitor {
                     self.msgr.error("Differtest failed");
                     self.state = MonitorState::TRAP
                 },
-                simErr::NoMatchingMemoryByAddress { addr } => {
+                simErr::NoMatchingMemory { msg } => {
                     self
                     .msgr
-                    .error(format!("No matching memory {}", addr).as_str());
-                    self.state = MonitorState::TRAP
-                },
-                simErr::NoMatchingMemoryByName { name } => {
-                    self
-                    .msgr
-                    .error(format!("No matching memory {}", name).as_str());
+                    .error(format!("No matching memory {}", msg).as_str());
                     self.state = MonitorState::TRAP
                 },
                 simErr::InstrctionDecodeFailed { inst } => {

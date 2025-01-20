@@ -1,4 +1,5 @@
-use super::memory::{Memory, Mask};
+use super::memory::Memory;
+use super::{Mask, MatchMsg, MMT};
 use super::super::simErr;
 
 pub struct MMU {
@@ -16,45 +17,31 @@ impl MMU {
         self.memory.push(Memory::new(name, base, size));
     }
 
-    pub fn match_memory_by_addr(&mut self, addr: u32) -> Result<&mut Memory, simErr> {
-        for i in &mut self.memory {
-            if addr >= i.base && addr < i.base + i.memory.len() as u32 {
-                return Ok(i);
+    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<&mut Memory, simErr> {
+        for memory in self.memory.iter_mut() {
+            if memory.match_memory(msg.clone()) {
+                return Ok(memory);
             }
         }
-        Err(simErr::NoMatchingMemoryByAddress { addr: (addr) })
+        Err(simErr::NoMatchingMemory { msg })
     }
 
-    pub fn match_memory_by_name(&mut self, name: &str) -> Result<&mut Memory, simErr> {
-        for i in &mut self.memory {
-            if i.name == name {
-                return Ok(i);
-            }
-        }
-        Err(simErr::NoMatchingMemoryByName { name: name.to_string() })
-    }
-
-    pub fn read(&mut self, addr: u32) -> Result<u32, simErr> { // read have not mask in hardware
-        let memory = self.match_memory_by_addr(addr)?;
-        Ok(memory.read(addr))
-    }
-
-    pub fn read_with_mask(&mut self, addr: u32, mask: Mask) -> Result<u32, simErr> {
-        let memory = self.match_memory_by_addr(addr)?;
-        Ok(memory.read_with_mask(addr, mask))
+    pub fn read(&mut self, addr: u32, mask: Mask) -> Result<u32, simErr> {
+        let memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+        Ok(memory.read(addr as u32, mask))
     }
 
     pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), simErr> {
-        let memory = self.match_memory_by_addr(addr)?;
-        memory.write(addr, data, mask);
+        let memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+        memory.write(addr as u32, data, mask);
         Ok(())
     }
 
-    pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), simErr>  {
-        let memory = self.match_memory_by_name(name)?;
+    pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), simErr> {
+        let memory = self.match_memory(MatchMsg::NAME { name: name.to_string() })?;
 
         if data.len() > memory.memory.len() {
-            return Err(simErr::NoMatchingMemoryByName { name: format!("Too long bin for {}", name) });
+            return Err(simErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", name) } });
         }
 
         memory.memory[..data.len()].copy_from_slice(data);
@@ -76,7 +63,7 @@ mod tests {
         assert!(mmu.load("sdram", &mem).is_ok());
         println!("length: {}", mem.len());
         for i in 0..10 {
-            println!("sdram: \t0x{:08x}", mmu.read(0x8000_0000 + 4*i).unwrap());
+            println!("sdram: \t0x{:08x}", mmu.read(0x8000_0000 + 4*i, Mask::None).unwrap());
             println!("mem: \t0x{:08x}", u32::from_be_bytes(mem[(4*i as usize)..(4*i as usize + 4)].try_into().unwrap()));
         }
     }

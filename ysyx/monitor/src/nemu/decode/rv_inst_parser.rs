@@ -75,15 +75,6 @@ impl RiscvInst {
             },
             ImmType::J => {
                 let imm = (extract_bits(input, 31..31) << 20) | (extract_bits(input, 12..19) << 12) | (extract_bits(input, 20..20) << 11) | (extract_bits(input, 21..30) << 1);
-                
-                // fn repeat_char(c: char, n: usize) -> String {
-                //     vec![c; n].into_iter().collect()
-                // }
-                // println!("{}{:01b}", repeat_char(' ', 31 - 31), extract_bits(input, 31..31));
-                // println!("{}{:08b}", repeat_char(' ', 31 - 19), extract_bits(input, 12..19));
-                // println!("{}{:01b}", repeat_char(' ', 31 - 20), extract_bits(input, 20..20));
-                // println!("{}{:010b}", repeat_char(' ', 31 - 30), extract_bits(input, 21..30));
-                // println!("{:021b}: {:08x}", imm, imm);
                 sig_extend(imm, 21)
             },
             ImmType::R => {

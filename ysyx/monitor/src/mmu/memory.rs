@@ -5,13 +5,7 @@ pub struct Memory {
     pub memory: Box<[u8]>,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-#[repr(u8)]
-pub enum Mask{
-    Byte = 1,
-    Half = 2,
-    Word = 4,
-}
+use super::{Mask, MMT};
 
 impl Memory {
     pub fn new(name: &str, base: u32, size: u32) -> Self {
@@ -21,16 +15,29 @@ impl Memory {
             memory: vec![0; size.try_into().unwrap()].into_boxed_slice(),
         }
     }
+}
 
-    pub fn read(&self, addr: u32) -> u32 {
-        if addr % 4 != 0 {
-            panic!("Unaligned memory access");
+impl MMT for Memory {
+    fn match_memory(&mut self, msg: super::MatchMsg) -> bool {
+        match msg {
+            super::MatchMsg::ADDR { addr } => {
+                if addr >= self.base && addr < self.base + self.memory.len() as u32 {
+                    true
+                } else {
+                    false
+                }
+            }
+            super::MatchMsg::NAME { name } => {
+                if self.name == name {
+                    true
+                } else {
+                    false
+                }
+            }
         }
-        let offset = (addr - self.base) as usize;
-        u32::from_le_bytes(self.memory[offset..offset + 4].try_into().unwrap())
     }
 
-    pub fn read_with_mask(&self, addr: u32, mask: Mask) -> u32 {
+    fn read(&self, addr: u32, mask: Mask) -> u32 {
         let offset = (addr - self.base) as usize;
         match mask {
             Mask::Byte => {
@@ -42,13 +49,13 @@ impl Memory {
             Mask::Word => {
                 u32::from_le_bytes(self.memory[offset..offset + 4].try_into().unwrap())
             }
+            Mask::None => {
+                u32::from_le_bytes(self.memory[offset..offset + 4].try_into().unwrap())
+            }
         }
     }
 
-    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) {
-        if addr % mask.clone() as u32 != 0 {
-            panic!("Unaligned memory access");
-        }
+    fn write(&mut self, addr: u32, data: u32, mask: Mask) {
         let offset = (addr - self.base) as usize;
         match mask {
             Mask::Byte => {
@@ -58,6 +65,9 @@ impl Memory {
                 self.memory[offset..offset + 2].copy_from_slice(&data.to_le_bytes()[..2]);
             }
             Mask::Word => {
+                self.memory[offset..offset + 4].copy_from_slice(&data.to_le_bytes());
+            }
+            Mask::None => {
                 self.memory[offset..offset + 4].copy_from_slice(&data.to_le_bytes());
             }
         }

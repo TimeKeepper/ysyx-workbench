@@ -1,3 +1,5 @@
+use crate::mmu::MatchMsg;
+
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Register {
@@ -35,8 +37,7 @@ pub enum SimulatorError {
     NoBinaryFile,
     DiffertestFailed,
     BinaryFileNotFound,
-    NoMatchingMemoryByAddress  {addr: u32},
-    NoMatchingMemoryByName {name: String},
+    NoMatchingMemory {msg: MatchMsg},
     InstrctionDecodeFailed {inst: u32},
     InstrctionExecuteFailed {name: String},
 }

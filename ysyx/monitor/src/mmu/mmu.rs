@@ -3,7 +3,7 @@ use super::{Mask, MatchMsg, MMT};
 use super::super::simErr;
 
 pub struct MMU {
-    memory: Vec<Memory>,
+    memory: Vec<Box<dyn MMT>>,
 }
 
 impl MMU {
@@ -14,13 +14,13 @@ impl MMU {
     }
 
     pub fn add_memory(&mut self, name: &str, base: u32, size: u32) {
-        self.memory.push(Memory::new(name, base, size));
+        self.memory.push(Box::new(Memory::new(name, base, size)));
     }
 
-    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<&mut Memory, simErr> {
+    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<&mut dyn MMT, simErr> {
         for memory in self.memory.iter_mut() {
             if memory.match_memory(msg.clone()) {
-                return Ok(memory);
+                return Ok(memory.as_mut());
             }
         }
         Err(simErr::NoMatchingMemory { msg })
@@ -40,12 +40,13 @@ impl MMU {
     pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), simErr> {
         let memory = self.match_memory(MatchMsg::NAME { name: name.to_string() })?;
 
-        if data.len() > memory.memory.len() {
-            return Err(simErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", name) } });
-        }
+        memory.load(data)
+        // if data.len() > memory.get_range().len() {
+        //     return Err(simErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", name) } });
+        // }
 
-        memory.memory[..data.len()].copy_from_slice(data);
-        Ok(())
+        // memory.get_memory()[..data.len()].copy_from_slice(data);
+        // Ok(())
     }
 }
 

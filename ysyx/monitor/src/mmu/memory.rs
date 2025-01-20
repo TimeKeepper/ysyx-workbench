@@ -6,6 +6,7 @@ pub struct Memory {
 }
 
 use super::{Mask, MMT};
+use super::super::simErr;
 
 impl Memory {
     pub fn new(name: &str, base: u32, size: u32) -> Self {
@@ -37,7 +38,7 @@ impl MMT for Memory {
         }
     }
 
-    fn read(&self, addr: u32, mask: Mask) -> u32 {
+    fn read(&mut self, addr: u32, mask: Mask) -> u32 {
         let offset = (addr - self.base) as usize;
         match mask {
             Mask::Byte => {
@@ -71,5 +72,18 @@ impl MMT for Memory {
                 self.memory[offset..offset + 4].copy_from_slice(&data.to_le_bytes());
             }
         }
+    }
+
+    fn load(&mut self, data: &[u8]) -> Result<(), crate::SimulatorError> {
+        if data.len() > self.memory.len() {
+            return Err(simErr::NoMatchingMemory { msg: super::MatchMsg::NAME { name: format!("Too long bin for {}", self.name) } });
+        }
+
+        self.memory[..data.len()].copy_from_slice(data);
+        Ok(())
+    }
+
+    fn get_memory(&mut self) -> &mut [u8] {
+        &mut self.memory
     }
 }

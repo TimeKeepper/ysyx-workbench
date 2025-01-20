@@ -106,7 +106,7 @@ impl Monitor {
                     .match_memory(crate::mmu::MatchMsg::ADDR { addr: 0x8000_0000})
                     .ok()
                     .unwrap()
-                    .memory
+                    .get_memory()
                     .as_mut_ptr() as *mut c_void,
                 bin.len() as u64,
                 differtest::DiffertestDirection::ToRef,

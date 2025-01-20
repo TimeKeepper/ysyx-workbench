@@ -1,0 +1,21 @@
+[package]
+name = "simulator"
+version = "0.1.0"
+edition = "2021"
+
+[dev-dependencies]
+criterion = {workspace = true}
+
+[dependencies]
+ysyx_macro = { path = "../ysyx_macro" }
+msg_resp = { path = "../msg_resp" }
+winnow = "0.6.24"
+llvm-sys = "181.0.0"
+rand = {workspace = true}
+circular-queue = "0.2.6"
+owo-colors = {workspace = true}
+
+[[bench]]
+name = "decode_bench"
+harness = false
+path = "benches/nemu/decode_bench.rs"

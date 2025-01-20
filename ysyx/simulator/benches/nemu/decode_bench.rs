@@ -1,7 +1,7 @@
 use std::hint::black_box;
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use monitor::nemu::decode::RvInstParser as decoder;
+use simulator::nemu::decode::RvInstParser as decoder;
 
 use rand::Rng;
 

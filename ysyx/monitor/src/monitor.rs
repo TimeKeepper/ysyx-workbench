@@ -8,13 +8,24 @@ use super::monitor_parser::Commands as Cmd;
 use super::monitor_parser::Cli as Cli;
 use super::monitor_parser::CommandManager as CmM;
 
-use super::simulator::MonitorState as MonitorState;
-use super::{simOk, simErr};
-
-use super::nemu;
 use super::differtest;
 
 use std::os::raw::c_void;
+
+use simulator::nemu;
+
+use simulator::SimulatorError as simErr;
+use simulator::SimulatorOk as simOk;
+use simulator::mmu;
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum MonitorState {
+    RUNNING,
+    TRAP,
+    QUIT,
+    ABORT,
+}
+
 
 pub struct Monitor {
     pub name: String,
@@ -103,7 +114,7 @@ impl Monitor {
                 0x8000_0000,
                 self.sim
                     .mmu
-                    .match_memory(crate::mmu::MatchMsg::ADDR { addr: 0x8000_0000})
+                    .match_memory(mmu::MatchMsg::ADDR { addr: 0x8000_0000})
                     .ok()
                     .unwrap()
                     .get_memory()

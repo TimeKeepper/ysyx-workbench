@@ -1,29 +1,5 @@
 use crate::mmu::MatchMsg;
 
-
-#[derive(Debug, PartialEq, Clone)]
-pub struct Register {
-    pub name: &'static str,
-    pub value: u32,
-}
-
-impl Register {
-    pub fn new(name: &'static str, value: u32) -> Self {
-        Self {
-            name,
-            value,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum MonitorState {
-    RUNNING,
-    TRAP,
-    QUIT,
-    ABORT,
-}
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorOk {
     Nothing,
@@ -44,4 +20,19 @@ pub enum SimulatorError {
 
 pub trait Simulator {
     fn single_instruction(&mut self) -> Result<SimulatorOk, SimulatorError>;
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Register {
+    pub name: &'static str,
+    pub value: u32,
+}
+
+impl Register {
+    pub fn new(name: &'static str, value: u32) -> Self {
+        Self {
+            name,
+            value,
+        }
+    }
 }

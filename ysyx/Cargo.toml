@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "monitor", "msg_resp", "core", "ysyx_macro"]
+members = [ "monitor", "msg_resp", "core", "ysyx_macro", "simulator"]
 
 [profile.release]
 codegen-units = 1

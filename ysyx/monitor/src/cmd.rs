@@ -1,13 +1,14 @@
+use simulator::Simulator;
+use simulator::SimulatorError as simErr;
+use simulator::SimulatorOk as simOk;
 use std::result::Result;
 
 use owo_colors::OwoColorize;
 
 use crate::{
     monitor_parser::{self, InfoCommands},
-    Monitor, MonitorState, Simulator,
+    Monitor, MonitorState,
 };
-
-use super::{simErr, simOk};
 
 impl Monitor {
     pub fn cmd_q(&mut self) -> Result<simOk, simErr> {
@@ -116,11 +117,7 @@ impl Monitor {
             return Err(simErr::InvalidCommand);
         }
 
-        let count = if count.is_none() {
-            1
-        } else {
-            count.unwrap()
-        };
+        let count = if count.is_none() { 1 } else { count.unwrap() };
 
         let mut orig = || -> Result<(), simErr> {
             self.sim.single_instruction()?;

@@ -1,52 +1,90 @@
-use super::memory::Memory;
-use super::{Mask, MatchMsg, MMT};
 use super::super::simErr;
+use super::memory::Memory;
+use super::{Device, Mask, MatchMsg};
+
+pub enum MMT<'a> {
+    Memory(&'a mut Memory),
+    Device(&'a mut Device),
+}
+
+impl<'a> MMT<'a> {
+    pub fn read(&mut self, addr: u32, mask: Mask) -> u32 {
+        match self {
+            MMT::Memory(memory) => memory.read(addr, mask),
+            MMT::Device(device) => device.read(addr, mask),
+        }
+    }
+
+    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) {
+        match self {
+            MMT::Memory(memory) => memory.write(addr, data, mask),
+            MMT::Device(device) => device.write(addr, data, mask),
+        }
+    }
+}
 
 pub struct MMU {
-    memory: Vec<Box<dyn MMT>>,
+    memory: Vec<Memory>,
+    device: Vec<Device>,
 }
 
 impl MMU {
     pub fn new() -> Self {
         MMU {
             memory: Vec::new(),
+            device: Vec::new(),
         }
     }
 
     pub fn add_memory(&mut self, name: &str, base: u32, size: u32) {
-        self.memory.push(Box::new(Memory::new(name, base, size)));
+        self.memory.push(Memory::new(name, base, size));
     }
 
-    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<&mut dyn MMT, simErr> {
+    pub fn add_device(&mut self, device: Device) {
+        self.device.push(device);
+    }
+
+    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<MMT, simErr> {
         for memory in self.memory.iter_mut() {
             if memory.match_memory(msg.clone()) {
-                return Ok(memory.as_mut());
+                return Ok(MMT::Memory(memory));
             }
         }
+
+        for device in self.device.iter_mut() {
+            if device.match_memory(msg.clone()) {
+                return Ok(MMT::Device(device));
+            }
+        }
+
         Err(simErr::NoMatchingMemory { msg })
     }
 
     pub fn read(&mut self, addr: u32, mask: Mask) -> Result<u32, simErr> {
-        let memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+        let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
         Ok(memory.read(addr as u32, mask))
     }
 
     pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), simErr> {
-        let memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+        let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
         memory.write(addr as u32, data, mask);
         Ok(())
     }
 
     pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), simErr> {
-        let memory = self.match_memory(MatchMsg::NAME { name: name.to_string() })?;
+        let memory = self.match_memory(MatchMsg::NAME {
+            name: name.to_string(),
+        })?;
 
-        memory.load(data)
-        // if data.len() > memory.get_range().len() {
-        //     return Err(simErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", name) } });
-        // }
-
-        // memory.get_memory()[..data.len()].copy_from_slice(data);
-        // Ok(())
+        match memory {
+            MMT::Memory(memory) => {
+                memory.load(data)?;
+                Ok(())
+            }
+            MMT::Device(device) => Err(simErr::DeviceCannotBeLoad {
+                name: device.name.clone(),
+            }),
+        }
     }
 }
 
@@ -64,8 +102,18 @@ mod tests {
         assert!(mmu.load("sdram", &mem).is_ok());
         println!("length: {}", mem.len());
         for i in 0..10 {
-            println!("sdram: \t0x{:08x}", mmu.read(0x8000_0000 + 4*i, Mask::None).unwrap());
-            println!("mem: \t0x{:08x}", u32::from_be_bytes(mem[(4*i as usize)..(4*i as usize + 4)].try_into().unwrap()));
+            println!(
+                "sdram: \t0x{:08x}",
+                mmu.read(0x8000_0000 + 4 * i, Mask::None).unwrap()
+            );
+            println!(
+                "mem: \t0x{:08x}",
+                u32::from_be_bytes(
+                    mem[(4 * i as usize)..(4 * i as usize + 4)]
+                        .try_into()
+                        .unwrap()
+                )
+            );
         }
     }
 }

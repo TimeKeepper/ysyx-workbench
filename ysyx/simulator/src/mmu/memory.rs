@@ -5,7 +5,7 @@ pub struct Memory {
     pub memory: Box<[u8]>,
 }
 
-use super::{Mask, MMT};
+use super::Mask;
 use super::super::simErr;
 
 impl Memory {
@@ -16,10 +16,8 @@ impl Memory {
             memory: vec![0; size.try_into().unwrap()].into_boxed_slice(),
         }
     }
-}
-
-impl MMT for Memory {
-    fn match_memory(&mut self, msg: super::MatchMsg) -> bool {
+    
+    pub fn match_memory(&mut self, msg: super::MatchMsg) -> bool {
         match msg {
             super::MatchMsg::ADDR { addr } => {
                 if addr >= self.base && addr < self.base + self.memory.len() as u32 {
@@ -38,7 +36,7 @@ impl MMT for Memory {
         }
     }
 
-    fn read(&mut self, addr: u32, mask: Mask) -> u32 {
+    pub fn read(&mut self, addr: u32, mask: Mask) -> u32 {
         let offset = (addr - self.base) as usize;
         match mask {
             Mask::Byte => {
@@ -56,7 +54,7 @@ impl MMT for Memory {
         }
     }
 
-    fn write(&mut self, addr: u32, data: u32, mask: Mask) {
+    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) {
         let offset = (addr - self.base) as usize;
         match mask {
             Mask::Byte => {
@@ -74,16 +72,12 @@ impl MMT for Memory {
         }
     }
 
-    fn load(&mut self, data: &[u8]) -> Result<(), crate::SimulatorError> {
+    pub fn load(&mut self, data: &[u8]) -> Result<(), crate::SimulatorError> {
         if data.len() > self.memory.len() {
             return Err(simErr::NoMatchingMemory { msg: super::MatchMsg::NAME { name: format!("Too long bin for {}", self.name) } });
         }
 
         self.memory[..data.len()].copy_from_slice(data);
         Ok(())
-    }
-
-    fn get_memory(&mut self) -> &mut [u8] {
-        &mut self.memory
     }
 }

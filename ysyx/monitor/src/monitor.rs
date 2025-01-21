@@ -2,6 +2,7 @@
 use clap::Parser;
 use msg_resp as msgr;
 use owo_colors::OwoColorize;
+use simulator::mmu::MMT;
 
 use super::monitor_parser;
 use super::monitor_parser::Commands as Cmd;
@@ -112,13 +113,20 @@ impl Monitor {
             self.differtest.ref_difftest_init(1234);
             self.differtest.ref_difftest_memcpy(
                 0x8000_0000,
-                self.sim
+                {let mmt = self.sim
                     .mmu
                     .match_memory(mmu::MatchMsg::ADDR { addr: 0x8000_0000})
                     .ok()
-                    .unwrap()
-                    .get_memory()
-                    .as_mut_ptr() as *mut c_void,
+                    .unwrap();
+                    let memory = match mmt {
+                        MMT::Memory(memory) => memory,
+                        _ => panic!("No memory"),
+                    };
+                    memory
+                    .memory
+                    .as_mut_ptr() 
+                    as *mut c_void
+                },
                 bin.len() as u64,
                 differtest::DiffertestDirection::ToRef,
             );
@@ -150,6 +158,10 @@ impl Monitor {
 
                 simErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
                 simErr::NoBinaryFile => self.msgr.error("No binary file"),
+
+                simErr::DeviceCannotBeLoad { name } => {
+                    self.msgr.error(format!("Device {} cannot be loaded", name).as_str())
+                },
 
                 simErr::DiffertestFailed => {
                     self.msgr.error("Differtest failed");

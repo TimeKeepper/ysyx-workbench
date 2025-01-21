@@ -1,5 +1,4 @@
 use std::fmt::Display;
-use super::super::simErr;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MatchMsg {
@@ -23,12 +22,4 @@ pub enum Mask{
     Byte = 1,
     Half = 2,
     Word = 4,
-}
-
-pub trait MMT {
-    fn match_memory(&mut self, msg: MatchMsg) -> bool;
-    fn read(&mut self, addr: u32, mask: Mask) -> u32;
-    fn write(&mut self, addr: u32, data: u32, mask: Mask);
-    fn load(&mut self, data: &[u8]) -> Result<(), simErr>;
-    fn get_memory(&mut self) -> &mut [u8];
 }

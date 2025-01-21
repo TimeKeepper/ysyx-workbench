@@ -13,6 +13,7 @@ pub enum SimulatorError {
     NoBinaryFile,
     DiffertestFailed,
     BinaryFileNotFound,
+    DeviceCannotBeLoad {name: String},
     NoMatchingMemory {msg: MatchMsg},
     InstrctionDecodeFailed {inst: u32},
     InstrctionExecuteFailed {name: String},

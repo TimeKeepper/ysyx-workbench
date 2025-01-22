@@ -1,18 +1,25 @@
+use simulator::Simulator;
+use simulator::SimulatorError as simErr;
+use simulator::SimulatorOk as simOk;
+use std::os::raw::c_void;
 use std::result::Result;
 
 use owo_colors::OwoColorize;
 
+use crate::differtest::DiffertestDirection;
+use crate::differtest::Riscv32CpuState;
 use crate::{
     monitor_parser::{self, InfoCommands},
-    Monitor, Monitor_state, Simulator,
+    Monitor, MonitorState,
 };
-
-use super::{simErr, simOk};
 
 impl Monitor {
     pub fn cmd_q(&mut self) -> Result<simOk, simErr> {
-        self.msgr.info("Quitting...");
-        self.state = Monitor_state::QUIT;
+        self.state = if self.state == MonitorState::TRAP {
+            MonitorState::ABORT
+        } else {
+            MonitorState::QUIT
+        };
         Ok(simOk::Nothing)
     }
 
@@ -108,11 +115,57 @@ impl Monitor {
     }
 
     pub fn cmd_si(&mut self, count: Option<u32>) -> Result<simOk, simErr> {
-        for _ in 0..if count.is_none() { 1 } else { count.unwrap() } {
-            self.sim.single_instruction()?;
-            self.differtest.ref_difftest_exec(1);
-            self.differtest.difftest_step(&self.sim.cpu_state)?;
+        if self.state == MonitorState::TRAP {
+            self.msgr.error("Monitor is in trap state");
+            return Err(simErr::InvalidCommand);
         }
+
+        let count = if count.is_none() { 1 } else { count.unwrap() };
+
+        let mut orig = || -> Result<(), simErr> {
+            self.sim.single_instruction()?;
+            if self.sim.mmu.is_attch_device == false {
+                self.differtest.ref_difftest_exec(1);
+                self.differtest.difftest_step(&self.sim.cpu_state)?;
+            } else {
+                let mut regcpy = Riscv32CpuState {
+                    gpr: {
+                        let gpr_vec = self.sim.cpu_state.gpr.clone().into_iter().map(|gpr| gpr.value).collect::<Vec<u32>>();
+                        let mut gpr_array = [0u32; 32];
+                        gpr_array.copy_from_slice(&gpr_vec[..32]);
+                        gpr_array
+                    },
+                    pc: self.sim.cpu_state.pc.value,
+                };
+                self.differtest.ref_difftest_regcpy(&mut regcpy as *mut _ as *mut c_void, DiffertestDirection::ToRef);
+            }
+            Ok(())
+        };
+
+        if count == 0 {
+            loop {
+                orig()?;
+            }
+        }
+
+        for _ in 0..count {
+            orig()?;
+        }
+
         Ok(simOk::InstructionExecuted)
+    }
+
+    pub fn cmd_c(&mut self) -> Result<simOk, simErr> {
+        self.cmd_si(Some(0))
+    }
+
+    pub fn cmd_ir(&mut self) -> Result<simOk, simErr> {
+        self.sim.instruction_ring_buffer();
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_t(&mut self) -> Result<simOk, simErr> {
+        self.sim.times();
+        Ok(simOk::Nothing)
     }
 }

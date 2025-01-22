@@ -1,3 +1,4 @@
+use crate::mmu::SerialFactory;
 use crate::{mmu::MMU, simulator};
 
 use circular_queue::CircularQueue;
@@ -15,6 +16,7 @@ pub struct Simulator {
 
     pub inst_trace_buffer: (bool, CircularQueue<ExecuteInst>),
     pub inst_trace: bool,
+    pub execte_times: u32,
     
     pub disasm: disassembler::Disassembler,
 }
@@ -28,13 +30,18 @@ impl Simulator{
         mmu.add_memory("psram", 0x8000_0000, 0x0800_0000);
         mmu.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
+        mmu.add_device(SerialFactory::new(0x1000_0000));
+
         Self {
             inst_parser: RvInstParser::new(),
             cpu_state: Riscv32CpuState::new(0x8000_0000),
 
             mmu,
+
             inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
             inst_trace: false,
+            execte_times: 0,
+
             disasm: disassembler::Disassembler::new("riscv64-unknown-linux-gnu"),
         }
     }
@@ -56,19 +63,31 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-
     fn single_instruction(&mut self) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
-        let addr = self.cpu_state.pc.value;
-        let inst = self.mmu.read(addr)?;
+        let addr: u32 = self.cpu_state.pc.value;
+        let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
+        let exeu_inst = self.decode(inst)?;
+        
         if self.inst_trace {
             self.disasm(inst);
+            println!("{:08x?}", exeu_inst.green());
         }
-        // println!("{:032b}", inst);
-        let inst = self.decode(inst)?;
-        println!("{:08x?}", inst);
-        self.execute(inst)?;
+
+        self.execute(exeu_inst)?;
         
+        self.execte_times += 1;
+
         Ok(simulator::SimulatorOk::InstructionExecuted)
+    }
+    
+    fn instruction_ring_buffer(&mut self) {
+        for i in self.inst_trace_buffer.1.iter().rev() {
+            println!("{:?}", i);
+        }
+    }
+
+    fn times(&mut self) {
+        println!("Execute times: {}", self.execte_times.purple());
     }
 }
 

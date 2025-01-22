@@ -1,6 +1,14 @@
 [workspace]
-members = [ "monitor", "msg_resp", "core", "ysyx_macro"]
 resolver = "2"
+members = [ "monitor", "msg_resp", "core", "ysyx_macro", "simulator"]
+
+[profile.release]
+codegen-units = 1
+lto           = true
+panic         = "abort"
+strip         = true
 
 [workspace.dependencies]
+criterion = "0.5.1"
 owo-colors = "4.1.0"
+rand = "0.8.4"

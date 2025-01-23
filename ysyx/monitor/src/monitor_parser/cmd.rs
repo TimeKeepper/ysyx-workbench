@@ -11,14 +11,6 @@ pub struct Command {
 #[derive(Debug, Subcommand)]
 #[command(author, version, about)]
 pub enum Commands {
-    /// does testing things
-    #[clap(visible_alias = "t")]
-    Test {
-        /// lists test values
-        #[arg(short, long)]
-        list: bool,
-    },
-
     /// quit the program, not need any arguments
     #[clap(visible_alias = "q")]
     Quit {},
@@ -39,6 +31,14 @@ pub enum Commands {
         #[command(subcommand)]
         command: InfoCommands,
     },
+
+    /// show instruction ringbuffer
+    #[clap(visible_alias = "ir")]
+    InstructionRingBuffer {},
+
+    /// Times printf
+    #[clap(visible_alias = "t")]
+    Times {},
 
     /// control function of the simulator
     #[clap(visible_alias = "f")]

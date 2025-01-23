@@ -142,10 +142,11 @@ impl Monitor {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
             Cmd::Info { command } => self.cmd_info(command),
+            Cmd::InstructionRingBuffer {  } => self.cmd_ir(),
+            Cmd::Times {  } => self.cmd_t(),
             Cmd::Function { on_or_off, target } => self.cmd_func(on_or_off, target),
             Cmd::SingleInstrcution { count } => self.cmd_si(count),
             Cmd::Continue {  } => self.cmd_c(),
-            _ => Err(simErr::NotImplemented),
         }
     }
 

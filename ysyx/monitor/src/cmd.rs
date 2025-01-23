@@ -1,10 +1,13 @@
 use simulator::Simulator;
 use simulator::SimulatorError as simErr;
 use simulator::SimulatorOk as simOk;
+use std::os::raw::c_void;
 use std::result::Result;
 
 use owo_colors::OwoColorize;
 
+use crate::differtest::DiffertestDirection;
+use crate::differtest::Riscv32CpuState;
 use crate::{
     monitor_parser::{self, InfoCommands},
     Monitor, MonitorState,
@@ -121,8 +124,21 @@ impl Monitor {
 
         let mut orig = || -> Result<(), simErr> {
             self.sim.single_instruction()?;
-            self.differtest.ref_difftest_exec(1);
-            self.differtest.difftest_step(&self.sim.cpu_state)?;
+            if self.sim.mmu.is_attch_device == false {
+                self.differtest.ref_difftest_exec(1);
+                self.differtest.difftest_step(&self.sim.cpu_state)?;
+            } else {
+                let mut regcpy = Riscv32CpuState {
+                    gpr: {
+                        let gpr_vec = self.sim.cpu_state.gpr.clone().into_iter().map(|gpr| gpr.value).collect::<Vec<u32>>();
+                        let mut gpr_array = [0u32; 32];
+                        gpr_array.copy_from_slice(&gpr_vec[..32]);
+                        gpr_array
+                    },
+                    pc: self.sim.cpu_state.pc.value,
+                };
+                self.differtest.ref_difftest_regcpy(&mut regcpy as *mut _ as *mut c_void, DiffertestDirection::ToRef);
+            }
             Ok(())
         };
 
@@ -141,5 +157,15 @@ impl Monitor {
 
     pub fn cmd_c(&mut self) -> Result<simOk, simErr> {
         self.cmd_si(Some(0))
+    }
+
+    pub fn cmd_ir(&mut self) -> Result<simOk, simErr> {
+        self.sim.instruction_ring_buffer();
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_t(&mut self) -> Result<simOk, simErr> {
+        self.sim.times();
+        Ok(simOk::Nothing)
     }
 }

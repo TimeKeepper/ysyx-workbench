@@ -26,6 +26,8 @@ impl<'a> MMT<'a> {
 pub struct MMU {
     memory: Vec<Memory>,
     device: Vec<Device>,
+
+    pub is_attch_device: bool,
 }
 
 impl MMU {
@@ -33,6 +35,8 @@ impl MMU {
         MMU {
             memory: Vec::new(),
             device: Vec::new(),
+
+            is_attch_device: false,
         }
     }
 
@@ -47,12 +51,14 @@ impl MMU {
     pub fn match_memory(&mut self, msg: MatchMsg) -> Result<MMT, simErr> {
         for memory in self.memory.iter_mut() {
             if memory.match_memory(msg.clone()) {
+                self.is_attch_device = false;
                 return Ok(MMT::Memory(memory));
             }
         }
 
         for device in self.device.iter_mut() {
             if device.match_memory(msg.clone()) {
+                self.is_attch_device = true;
                 return Ok(MMT::Device(device));
             }
         }

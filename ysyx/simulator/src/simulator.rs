@@ -4,6 +4,7 @@ use crate::mmu::MatchMsg;
 pub enum SimulatorOk {
     Nothing,
     InstructionExecuted,
+    DeviceAttached,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -21,6 +22,10 @@ pub enum SimulatorError {
 
 pub trait Simulator {
     fn single_instruction(&mut self) -> Result<SimulatorOk, SimulatorError>;
+
+    fn instruction_ring_buffer(&mut self);
+
+    fn times(&mut self);
 }
 
 #[derive(Debug, PartialEq, Clone)]

@@ -92,6 +92,7 @@ impl SerialFactory {
                     match SerialReg::from(addr) {
                         SerialReg::TXR => {
                             print!("{}", data.unwrap() as u8 as char);
+                            
                             regs.insert(addr, data.unwrap());
                         }
                     }

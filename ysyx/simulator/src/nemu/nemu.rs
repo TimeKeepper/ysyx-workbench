@@ -16,6 +16,7 @@ pub struct Simulator {
 
     pub inst_trace_buffer: (bool, CircularQueue<ExecuteInst>),
     pub inst_trace: bool,
+    pub execte_times: u32,
     
     pub disasm: disassembler::Disassembler,
 }
@@ -36,8 +37,11 @@ impl Simulator{
             cpu_state: Riscv32CpuState::new(0x8000_0000),
 
             mmu,
+
             inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
             inst_trace: false,
+            execte_times: 0,
+
             disasm: disassembler::Disassembler::new("riscv64-unknown-linux-gnu"),
         }
     }
@@ -59,9 +63,8 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-
     fn single_instruction(&mut self) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
-        let addr = self.cpu_state.pc.value;
+        let addr: u32 = self.cpu_state.pc.value;
         let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
         
@@ -72,7 +75,19 @@ impl simulator::Simulator for Simulator {
 
         self.execute(exeu_inst)?;
         
+        self.execte_times += 1;
+
         Ok(simulator::SimulatorOk::InstructionExecuted)
+    }
+    
+    fn instruction_ring_buffer(&mut self) {
+        for i in self.inst_trace_buffer.1.iter().rev() {
+            println!("{:?}", i);
+        }
+    }
+
+    fn times(&mut self) {
+        println!("Execute times: {}", self.execte_times.purple());
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::mmu::SerialFactory;
+use crate::mmu::devices::{SerialFactory, TimerFactory};
 use crate::{mmu::MMU, simulator};
 
 use circular_queue::CircularQueue;
@@ -31,6 +31,7 @@ impl Simulator{
         mmu.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
         mmu.add_device(SerialFactory::new(0x1000_0000));
+        mmu.add_device(TimerFactory::new(0x1000_2000));
 
         Self {
             inst_parser: RvInstParser::new(),

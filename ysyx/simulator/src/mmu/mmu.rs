@@ -1,6 +1,6 @@
 use super::super::simErr;
 use super::memory::Memory;
-use super::{Device, Mask, MatchMsg};
+use super::{devices::Device, Mask, MatchMsg};
 
 pub enum MMT<'a> {
     Memory(&'a mut Memory),

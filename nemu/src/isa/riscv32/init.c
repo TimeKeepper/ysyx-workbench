@@ -28,7 +28,7 @@ static const uint32_t img [] = {
 
 static void restart() {
   /* Set the initial program counter. */
-  cpu.pc = RESET_VECTOR;
+  cpu.pc = 0x80000000;
 
   /* Set the initial status register. */
   cpu.sr[ADDR_MSTATUS] = 0x1800;

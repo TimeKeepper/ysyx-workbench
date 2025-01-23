@@ -59,13 +59,13 @@ impl Device {
 
 #[repr(u32)]
 pub enum SerialReg {
-    TXR = 0x3f8,
+    TXR,
 }
 
 impl From<u32> for SerialReg {
     fn from(val: u32) -> Self {
         match val {
-            0x3f8 => SerialReg::TXR,
+            0x000 => SerialReg::TXR,
             _ => panic!("Invalid SerialReg value: {:x}", val),
         }
     }
@@ -76,7 +76,7 @@ pub struct SerialFactory;
 impl SerialFactory {
     pub fn new(base: u32) -> Device {
         let mut regs = HashMap::new();
-        regs.insert(0x000003f8, 0);
+        regs.insert(0x00000000, 0);
         
         let mut serial = Device::new("Serial", (base)..(base+0x1000), None);
         serial.callback = Some(Box::new(move |dir, addr, data, _| {

@@ -29,7 +29,7 @@ impl Simulator {
                 npc = pc.value.wrapping_add(inst.imm);
             }
             "jalr" => {
-                gpr[rd].value = pc.value;
+                gpr[rd].value = npc;
                 npc = gpr[rs1].value.wrapping_add(inst.imm) & !1;
             }
 

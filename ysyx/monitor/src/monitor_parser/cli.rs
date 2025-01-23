@@ -8,6 +8,10 @@ pub struct Cli {
     #[arg(short, long)]
     pub batch: bool,
 
+    /// Debug mode
+    #[arg(long)]
+    pub debug: bool,
+
     /// Log file path
     #[arg(short, long)]
     pub log: bool,

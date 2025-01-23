@@ -70,24 +70,21 @@ impl Monitor {
 
     pub fn cmd_func(
         &mut self,
-        on_or_off: Option<String>,
+        on_or_off: bool,
         target: Option<String>,
     ) -> Result<simOk, simErr> {
         if target.is_none() {
-            self.msgr.error("No target specified");
-            return Err(simErr::InvalidCommand);
+            self.msgr.function_log("instruction trace", self.sim.inst_trace);
+            self.msgr.function_log("instruction trace buffer", self.sim.inst_trace_buffer.0);
+            return Ok(simOk::Nothing);
         }
-        if on_or_off.is_none() {
-            self.msgr.error("No on/off specified");
-            return Err(simErr::InvalidCommand);
-        }
-        let on: bool = on_or_off.unwrap() == "on";
+        
         let target: &str = &target.unwrap();
         let status = |feature: &str| {
             format!(
                 "{} is {}",
                 feature,
-                if on {
+                if on_or_off {
                     "on".green().to_string()
                 } else {
                     "off".red().to_string()
@@ -97,12 +94,12 @@ impl Monitor {
 
         match target {
             "it" => {
-                self.sim.inst_trace = on;
+                self.sim.inst_trace = on_or_off;
                 self.msgr.info(&status("Instruction trace"));
                 return Ok(simOk::Nothing);
             }
             "ir" => {
-                self.sim.inst_trace_buffer.0 = on;
+                self.sim.inst_trace_buffer.0 = on_or_off;
                 self.msgr.info(&status("Instruction trace buffer"));
                 return Ok(simOk::Nothing);
             }
@@ -122,8 +119,8 @@ impl Monitor {
 
         let count = if count.is_none() { 1 } else { count.unwrap() };
 
-        let mut orig = || -> Result<(), simErr> {
-            self.sim.single_instruction()?;
+        let mut orig = |trace: bool| -> Result<(), simErr> {
+            self.sim.single_instruction(trace)?;
             if self.sim.mmu.is_attch_device == false {
                 self.differtest.ref_difftest_exec(1);
                 self.differtest.difftest_step(&self.sim.cpu_state)?;
@@ -144,12 +141,12 @@ impl Monitor {
 
         if count == 0 {
             loop {
-                orig()?;
+                orig(false)?;
             }
         }
 
         for _ in 0..count {
-            orig()?;
+            orig(count < 10)?;
         }
 
         Ok(simOk::InstructionExecuted)

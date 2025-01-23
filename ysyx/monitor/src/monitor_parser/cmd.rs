@@ -1,11 +1,17 @@
 use msg_resp as msgr;
-use clap::{Parser, Subcommand};
+use clap::{command, ArgGroup, Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Command {
     #[command(subcommand)]
     command: Commands,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+pub enum OperationMode {
+    On,
+    Off,
 }
 
 #[derive(Debug, Subcommand)]
@@ -41,9 +47,18 @@ pub enum Commands {
     Times {},
 
     /// control function of the simulator
-    #[clap(visible_alias = "f")]
+    #[clap(visible_alias = "f", group(
+        ArgGroup::new("Function")
+            .args(&["on_or_off", "target"])
+            .multiple(true)
+            .required(false)
+    ))]
     Function {
-        on_or_off: Option<String>,
+        /// Sets the operation mode to on or off
+        #[arg(value_enum)]
+        on_or_off: Option<OperationMode>,
+        
+        /// The target string
         target: Option<String>,
     },
 }

@@ -64,12 +64,12 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-    fn single_instruction(&mut self) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
+    fn single_instruction(&mut self, trace: bool) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         let addr: u32 = self.cpu_state.pc.value;
         let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
         
-        if self.inst_trace {
+        if self.inst_trace && trace {
             self.disasm(inst);
             println!("{:08x?}", exeu_inst.green());
         }

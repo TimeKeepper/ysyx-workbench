@@ -4,6 +4,9 @@ Mainargs = --bin ./monitor/src/test/microbench-riscv32-nemu.bin --log -d ../nemu
 run :
 	cargo run --release --bin core --features=$(Feature) -- $(Mainargs)
 
+debug :
+	cargo run --release --bin core --features=$(Feature) -- $(Mainargs) --debug
+
 bench :
 	cargo bench --features=$(Feature) --benches
 

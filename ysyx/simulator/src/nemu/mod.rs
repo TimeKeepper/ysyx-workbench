@@ -1,7 +1,7 @@
 use std::ops::Range;
 
-ysyx_macro::mod_pub!(decode);
-ysyx_macro::mod_flat!(state, nemu, execute);
+ysyx_macro::mod_pub!(decode, execute);
+ysyx_macro::mod_flat!(state, nemu);
 
 
 fn extract_bits(input: u32, range: Range<u8>) -> u32 {

@@ -1,11 +1,17 @@
 use crate::mmu::Mask;
 
-use super::{ExecuteInst, Simulator, sig_extend};
+use super::super::{ExecuteInst, Simulator, sig_extend};
 
-use super::super::simErr;
+use super::super::super::simErr;
+
+#[derive(Debug, PartialEq, Clone)]
+enum ExecuteResult {
+    UnknownInst,
+    Ok,
+}
 
 impl Simulator {
-    pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
+    fn rv32i_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
         let name: &str = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -155,16 +161,24 @@ impl Simulator {
                 gpr[rd].value = (gpr[rs1].value as i32 >> (gpr[rs2].value & 0x1f)) as u32;
             }
 
-            _ => return Err(simErr::InstrctionExecuteFailed { name: name.to_string() }),
+            _ => return Ok(ExecuteResult::UnknownInst),
         }
 
         pc.value = npc;
         gpr[0].value = 0; // x0 is hardwired to zero
 
         if self.inst_trace_buffer.0 {
-            self.inst_trace_buffer.1.push(inst);
+            self.inst_trace_buffer.1.push(inst.clone());
         }
         
-        Ok(())
+        Ok(ExecuteResult::Ok)
+    }
+
+    pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
+        if self.rv32i_execute(&inst)? == ExecuteResult::Ok {
+            return Ok(());
+        }
+
+        Err(simErr::InstrctionExecuteFailed { name:inst.name.to_string() })
     }
 }

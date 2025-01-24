@@ -10,6 +10,7 @@ use super::super::disassembler;
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
+
     pub cpu_state: Riscv32CpuState,
 
     pub mmu: MMU,

@@ -1,3 +1,4 @@
+use simulator::mmu::Mask;
 use simulator::Simulator;
 use simulator::SimulatorError as simErr;
 use simulator::SimulatorOk as simOk;
@@ -158,6 +159,23 @@ impl Monitor {
 
     pub fn cmd_ir(&mut self) -> Result<simOk, simErr> {
         self.sim.instruction_ring_buffer();
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_x(&mut self, addr: u32, length: u32) -> Result<simOk, simErr> {
+        let mut addr = addr;
+        for _ in 0..length {
+            addr = addr + 4;
+            let data = self.sim.mmu.read(addr, Mask::None)?;
+            self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+        }
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_mm(&mut self) -> Result<simOk, simErr> {
+        for (name, range) in self.sim.mmu.memory_map() {
+            self.msgr.trace(format!("{}: \t0x{:08x} - 0x{:08x}", name.red(), range.start.green(), range.end.green()).as_str());
+        }
         Ok(simOk::Nothing)
     }
 

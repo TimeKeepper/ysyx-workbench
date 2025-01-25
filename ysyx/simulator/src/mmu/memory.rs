@@ -13,7 +13,7 @@ impl Memory {
         Memory {
             name: name.to_string(),
             base,
-            memory: vec![0; size.try_into().unwrap()].into_boxed_slice(),
+            memory: vec![0; size as usize].into_boxed_slice(),
         }
     }
     
@@ -43,7 +43,7 @@ impl Memory {
                 self.memory[offset] as u32
             }
             Mask::Half => {
-                u32::from_le_bytes(self.memory[offset..offset + 2].try_into().unwrap())
+                u16::from_le_bytes(self.memory[offset..offset + 2].try_into().unwrap()) as u32
             }
             Mask::Word => {
                 u32::from_le_bytes(self.memory[offset..offset + 4].try_into().unwrap())

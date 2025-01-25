@@ -147,9 +147,14 @@ impl Monitor {
     fn execute(&mut self, cmd: Cmd) -> Result<simOk, simErr> {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
+
             Cmd::Info { command } => self.cmd_info(command),
-            Cmd::InstructionRingBuffer {  } => self.cmd_ir(),
+
+            Cmd::Examine { addr, length } => self.cmd_x(addr, length),
+            Cmd::MemoryMap {  } => self.cmd_mm(),
+
             Cmd::Times {  } => self.cmd_t(),
+
             Cmd::Function { on_or_off, target } => {
                 let on_or_off = match on_or_off {
                     Some(OperationMode::On) => true,
@@ -157,7 +162,10 @@ impl Monitor {
                 };
                 self.cmd_func(on_or_off, target)
             },
+
             Cmd::SingleInstrcution { count } => self.cmd_si(count),
+            Cmd::InstructionRingBuffer {  } => self.cmd_ir(),
+            
             Cmd::Continue {  } => self.cmd_c(),
         }
     }

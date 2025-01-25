@@ -11,6 +11,18 @@ enum ExecuteResult {
 }
 
 impl Simulator {
+    pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
+        if self.rv32i_execute(&inst)? == ExecuteResult::Ok {
+            return Ok(());
+        }
+
+        if self.rv32m_execute(&inst)? == ExecuteResult::Ok {
+            return Ok(());
+        }
+
+        Err(simErr::InstrctionExecuteFailed { name:inst.name.to_string() })
+    }
+
     fn rv32i_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
         let name: &str = &inst.name;
         let rd = inst.rd as usize;
@@ -174,11 +186,74 @@ impl Simulator {
         Ok(ExecuteResult::Ok)
     }
 
-    pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
-        if self.rv32i_execute(&inst)? == ExecuteResult::Ok {
-            return Ok(());
+    fn rv32m_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+        let name: &str = &inst.name;
+        let rd = inst.rd as usize;
+        let rs1 = inst.rs1 as usize;
+        let rs2 = inst.rs2 as usize;
+        
+        let npc = self.cpu_state.pc.value + 4;
+        let gpr = &mut self.cpu_state.gpr;
+        let pc = &mut self.cpu_state.pc;
+
+        match name {
+            "mul" => {
+                gpr[rd].value = gpr[rs1].value.wrapping_mul(gpr[rs2].value);
+            }
+
+            "mulh" => {
+                let result = (gpr[rs1].value as i64).wrapping_mul(gpr[rs2].value as i64);
+                gpr[rd].value = (result >> 32) as u32;
+            }
+            "mulhsu" => {
+                let result = (gpr[rs1].value as i64).wrapping_mul((gpr[rs2].value as u64).try_into().unwrap());
+                gpr[rd].value = (result >> 32) as u32;
+            }
+            "mulhu" => {
+                let result = (gpr[rs1].value as u64).wrapping_mul(gpr[rs2].value as u64);
+                gpr[rd].value = (result >> 32) as u32;
+            }
+
+            "div" => {
+                if gpr[rs2].value == 0 {
+                    gpr[rd].value = 0xffffffff;
+                } else {
+                    gpr[rd].value = (gpr[rs1].value as i32).wrapping_div(gpr[rs2].value as i32) as u32;
+                }
+            }
+            "divu" => {
+                if gpr[rs2].value == 0 {
+                    gpr[rd].value = 0xffffffff;
+                } else {
+                    gpr[rd].value = gpr[rs1].value.wrapping_div(gpr[rs2].value);
+                }
+            }
+
+            "rem" => {
+                if gpr[rs2].value == 0 {
+                    gpr[rd].value = gpr[rs1].value;
+                } else {
+                    gpr[rd].value = (gpr[rs1].value as i32).wrapping_rem(gpr[rs2].value as i32) as u32;
+                }
+            }
+            "remu" => {
+                if gpr[rs2].value == 0 {
+                    gpr[rd].value = gpr[rs1].value;
+                } else {
+                    gpr[rd].value = gpr[rs1].value.wrapping_rem(gpr[rs2].value);
+                }
+            }
+
+            _ => return Ok(ExecuteResult::UnknownInst),
         }
 
-        Err(simErr::InstrctionExecuteFailed { name:inst.name.to_string() })
+        pc.value = npc;
+        gpr[0].value = 0; // x0 is hardwired to zero
+
+        if self.inst_trace_buffer.0 {
+            self.inst_trace_buffer.1.push(inst.clone());
+        }
+
+        Ok(ExecuteResult::Ok)
     }
 }

@@ -1,11 +1,28 @@
 use msg_resp as msgr;
-use clap::{Parser, Subcommand};
+use clap::{command, ArgGroup, Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
 pub struct Command {
     #[command(subcommand)]
     command: Commands,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+pub enum OperationMode {
+    On,
+    Off,
+}
+
+use std::num::ParseIntError;
+// hex parser
+fn parse_hex(src: &str) -> Result<u32, ParseIntError> {
+    if src.starts_with("0x") || src.starts_with("0X") {
+        u32::from_str_radix(&src[2..], 16)
+    } else {
+        // 如果没有提供 0x 前缀，则尝试直接解析为十进制
+        src.parse::<u32>()
+    }
 }
 
 #[derive(Debug, Subcommand)]
@@ -40,10 +57,33 @@ pub enum Commands {
     #[clap(visible_alias = "t")]
     Times {},
 
+    /// Memory examine
+    #[clap(visible_alias = "x")]
+    Examine {
+        /// The target address(hex) and length
+        #[arg(value_parser = parse_hex)]
+        addr: u32,
+
+        length: u32,
+    },
+
+    /// Show mmio map
+    #[clap(visible_alias = "mm")]
+    MemoryMap {},
+
     /// control function of the simulator
-    #[clap(visible_alias = "f")]
+    #[clap(visible_alias = "f", group(
+        ArgGroup::new("Function")
+            .args(&["on_or_off", "target"])
+            .multiple(true)
+            .required(false)
+    ))]
     Function {
-        on_or_off: Option<String>,
+        /// Sets the operation mode to on or off
+        #[arg(value_enum)]
+        on_or_off: Option<OperationMode>,
+        
+        /// The target string
         target: Option<String>,
     },
 }

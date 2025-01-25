@@ -21,7 +21,7 @@ pub enum SimulatorError {
 }
 
 pub trait Simulator {
-    fn single_instruction(&mut self) -> Result<SimulatorOk, SimulatorError>;
+    fn single_instruction(&mut self, trace: bool) -> Result<SimulatorOk, SimulatorError>;
 
     fn instruction_ring_buffer(&mut self);
 

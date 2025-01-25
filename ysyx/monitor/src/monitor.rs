@@ -4,6 +4,8 @@ use msg_resp as msgr;
 use owo_colors::OwoColorize;
 use simulator::mmu::MMT;
 
+use crate::monitor_parser::OperationMode;
+
 use super::monitor_parser;
 use super::monitor_parser::Commands as Cmd;
 use super::monitor_parser::Cli as Cli;
@@ -26,7 +28,6 @@ pub enum MonitorState {
     QUIT,
     ABORT,
 }
-
 
 pub struct Monitor {
     pub name: String,
@@ -75,6 +76,11 @@ impl Monitor {
 
         if self.cli_parser.elf.is_some() {
             self.msgr.error("ELF file path is not implemented yet");
+        }
+
+        if self.cli_parser.debug {
+            self.sim.inst_trace = true;
+            self.sim.inst_trace_buffer.0 = true;
         }
     }
 
@@ -141,11 +147,25 @@ impl Monitor {
     fn execute(&mut self, cmd: Cmd) -> Result<simOk, simErr> {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
+
             Cmd::Info { command } => self.cmd_info(command),
-            Cmd::InstructionRingBuffer {  } => self.cmd_ir(),
+
+            Cmd::Examine { addr, length } => self.cmd_x(addr, length),
+            Cmd::MemoryMap {  } => self.cmd_mm(),
+
             Cmd::Times {  } => self.cmd_t(),
-            Cmd::Function { on_or_off, target } => self.cmd_func(on_or_off, target),
+
+            Cmd::Function { on_or_off, target } => {
+                let on_or_off = match on_or_off {
+                    Some(OperationMode::On) => true,
+                    _ => false,
+                };
+                self.cmd_func(on_or_off, target)
+            },
+
             Cmd::SingleInstrcution { count } => self.cmd_si(count),
+            Cmd::InstructionRingBuffer {  } => self.cmd_ir(),
+            
             Cmd::Continue {  } => self.cmd_c(),
         }
     }
@@ -177,8 +197,11 @@ impl Monitor {
                 simErr::InstrctionDecodeFailed { inst } => {
                     self.msgr.error(
                     format!(
-                        "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}",
-                            self.sim.cpu_state.pc.value, inst
+                        "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}
+                        disassembler result: {}",
+                            self.sim.cpu_state.pc.value, 
+                            inst, 
+                            self.sim.disasm.disasm(&inst.to_le_bytes(), self.sim.cpu_state.pc.value as u64)
                         )
                         .as_str(),
                     );

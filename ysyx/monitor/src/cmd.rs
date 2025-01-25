@@ -1,3 +1,4 @@
+use simulator::mmu::Mask;
 use simulator::Simulator;
 use simulator::SimulatorError as simErr;
 use simulator::SimulatorOk as simOk;
@@ -43,6 +44,21 @@ impl Monitor {
                     return Ok(simOk::Nothing);
                 }
                 let target = target.unwrap();
+
+                if let Ok(i) = target.parse::<u32>() {
+                    if (0..32).contains(&i) {
+                        self.msgr.trace(
+                            format!(
+                                "{}: \t0x{:08x}",
+                                self.sim.cpu_state.gpr[i as usize].name.purple(),
+                                self.sim.cpu_state.gpr[i as usize].value.red()
+                            )
+                            .as_str(),
+                        );
+                        return Ok(simOk::Nothing);
+                    }
+                }
+
                 for r in self.sim.cpu_state.gpr.iter() {
                     if r.name == target {
                         self.msgr.trace(
@@ -70,24 +86,21 @@ impl Monitor {
 
     pub fn cmd_func(
         &mut self,
-        on_or_off: Option<String>,
+        on_or_off: bool,
         target: Option<String>,
     ) -> Result<simOk, simErr> {
         if target.is_none() {
-            self.msgr.error("No target specified");
-            return Err(simErr::InvalidCommand);
+            self.msgr.function_log("instruction trace", self.sim.inst_trace);
+            self.msgr.function_log("instruction trace buffer", self.sim.inst_trace_buffer.0);
+            return Ok(simOk::Nothing);
         }
-        if on_or_off.is_none() {
-            self.msgr.error("No on/off specified");
-            return Err(simErr::InvalidCommand);
-        }
-        let on: bool = on_or_off.unwrap() == "on";
+        
         let target: &str = &target.unwrap();
         let status = |feature: &str| {
             format!(
                 "{} is {}",
                 feature,
-                if on {
+                if on_or_off {
                     "on".green().to_string()
                 } else {
                     "off".red().to_string()
@@ -97,12 +110,12 @@ impl Monitor {
 
         match target {
             "it" => {
-                self.sim.inst_trace = on;
+                self.sim.inst_trace = on_or_off;
                 self.msgr.info(&status("Instruction trace"));
                 return Ok(simOk::Nothing);
             }
             "ir" => {
-                self.sim.inst_trace_buffer.0 = on;
+                self.sim.inst_trace_buffer.0 = on_or_off;
                 self.msgr.info(&status("Instruction trace buffer"));
                 return Ok(simOk::Nothing);
             }
@@ -122,8 +135,8 @@ impl Monitor {
 
         let count = if count.is_none() { 1 } else { count.unwrap() };
 
-        let mut orig = || -> Result<(), simErr> {
-            self.sim.single_instruction()?;
+        let mut orig = |trace: bool| -> Result<(), simErr> {
+            self.sim.single_instruction(trace)?;
             if self.sim.mmu.is_attch_device == false {
                 self.differtest.ref_difftest_exec(1);
                 self.differtest.difftest_step(&self.sim.cpu_state)?;
@@ -144,12 +157,12 @@ impl Monitor {
 
         if count == 0 {
             loop {
-                orig()?;
+                orig(false)?;
             }
         }
 
         for _ in 0..count {
-            orig()?;
+            orig(count < 10)?;
         }
 
         Ok(simOk::InstructionExecuted)
@@ -161,6 +174,23 @@ impl Monitor {
 
     pub fn cmd_ir(&mut self) -> Result<simOk, simErr> {
         self.sim.instruction_ring_buffer();
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_x(&mut self, addr: u32, length: u32) -> Result<simOk, simErr> {
+        let mut addr = addr;
+        for _ in 0..length {
+            addr = addr + 4;
+            let data = self.sim.mmu.read(addr, Mask::None)?;
+            self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+        }
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_mm(&mut self) -> Result<simOk, simErr> {
+        for (name, range) in self.sim.mmu.memory_map() {
+            self.msgr.trace(format!("{}: \t0x{:08x} - 0x{:08x}", name.red(), range.start.green(), range.end.green()).as_str());
+        }
         Ok(simOk::Nothing)
     }
 

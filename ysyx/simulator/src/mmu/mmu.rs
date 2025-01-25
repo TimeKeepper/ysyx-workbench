@@ -1,6 +1,8 @@
+use std::ops::Range;
+
 use super::super::simErr;
 use super::memory::Memory;
-use super::{Device, Mask, MatchMsg};
+use super::{devices::Device, Mask, MatchMsg};
 
 pub enum MMT<'a> {
     Memory(&'a mut Memory),
@@ -91,6 +93,14 @@ impl MMU {
                 name: device.name.clone(),
             }),
         }
+    }
+
+    pub fn memory_map(&self) -> Vec<(&str, Range<u32>)> {
+        let mut memory_map = Vec::new();
+        for memory in self.memory.iter() {
+            memory_map.push((memory.name.as_str(), (memory.base)..(memory.base + memory.memory.len() as u32)));
+        }
+        memory_map
     }
 }
 

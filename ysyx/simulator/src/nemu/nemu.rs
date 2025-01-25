@@ -1,4 +1,4 @@
-use crate::mmu::SerialFactory;
+use crate::mmu::devices::{SerialFactory, TimerFactory};
 use crate::{mmu::MMU, simulator};
 
 use circular_queue::CircularQueue;
@@ -10,6 +10,7 @@ use super::super::disassembler;
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
+
     pub cpu_state: Riscv32CpuState,
 
     pub mmu: MMU,
@@ -31,6 +32,7 @@ impl Simulator{
         mmu.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
         mmu.add_device(SerialFactory::new(0x1000_0000));
+        mmu.add_device(TimerFactory::new(0x1000_2000));
 
         Self {
             inst_parser: RvInstParser::new(),
@@ -63,12 +65,12 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-    fn single_instruction(&mut self) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
+    fn single_instruction(&mut self, trace: bool) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
         let addr: u32 = self.cpu_state.pc.value;
         let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
         
-        if self.inst_trace {
+        if self.inst_trace && trace {
             self.disasm(inst);
             println!("{:08x?}", exeu_inst.green());
         }

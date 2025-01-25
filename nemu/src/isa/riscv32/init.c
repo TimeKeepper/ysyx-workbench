@@ -39,7 +39,7 @@ static void restart() {
   cpu.gpr[0] = 0;
 }
 
-#define Guest_2_host_CODE(x) guest_to_host_flash(x)
+#define Guest_2_host_CODE(x) guest_to_host_psram(x)
 
 void init_isa() {
   /* Load built-in image. */

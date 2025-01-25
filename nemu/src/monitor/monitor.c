@@ -151,7 +151,7 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_host_flash(RESET_VECTOR), size, 1, fp);
+  int ret = fread(guest_to_host_psram(RESET_VECTOR), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);
@@ -233,11 +233,11 @@ void init_monitor(int argc, char *argv[]) {
   /* Perform ISA dependent initialization. */
   init_isa();
 
-  Log("debug");
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
 
   /* Load the ELF file. */
+  Log("debug");
   load_elf();
 
   /* Initialize differential testing. */

@@ -227,6 +227,8 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize memory. */
   init_mem();
 
+  Log("debug");
+
   /* Initialize devices. */
   IFDEF(CONFIG_DEVICE, init_device());
 

@@ -12,7 +12,7 @@ run :
 	cargo run $(Job) --release --bin core --features=$(Feature) -- $(Mainargs)
 
 debug :
-	cargo run $(Job) --release --bin core --features=$(Feature) -- $(Mainargs) --debug
+	cargo run $(Job) --bin core --features=$(Feature) -- $(Mainargs) --debug
 
 bench :
 	cargo bench $(Job) --features=$(Feature) --benches

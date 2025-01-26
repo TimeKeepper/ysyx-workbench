@@ -38,6 +38,7 @@ pub struct Monitor {
 
     pub sim: nemu::Simulator,
     pub differtest: differtest::Differtest,
+    pub differtest_watchpoints: Vec<u32>,
 
     pub state: MonitorState,
 }
@@ -57,6 +58,7 @@ impl Monitor {
             cmd_manager,
             sim: nemu::Simulator::new(),
             differtest: differtest::Differtest::new(),
+            differtest_watchpoints: Vec::new(),
 
             state: MonitorState::RUNNING,
         }
@@ -136,10 +138,10 @@ impl Monitor {
                 bin.len() as u64,
                 differtest::DiffertestDirection::ToRef,
             );
+            self.differtest.set_ref_reg(&self.sim.cpu_state);
         }
         self.msgr
             .function_log("differtest", self.cli_parser.dut.is_some());
-        self.differtest.set_ref_reg(&self.sim.cpu_state);
 
         Ok(())
     }
@@ -152,6 +154,7 @@ impl Monitor {
 
             Cmd::Examine { addr, length } => self.cmd_x(addr, length),
             Cmd::MemoryMap {  } => self.cmd_mm(),
+            Cmd::MemoryDiffertestWatchpoint { addr } => self.cmd_mdw(addr),
 
             Cmd::Times {  } => self.cmd_t(),
 

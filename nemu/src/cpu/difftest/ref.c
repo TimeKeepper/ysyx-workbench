@@ -26,7 +26,6 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if(direction == DIFFTEST_TO_REF) {
     // memcpy(Guest_2_host_CODE(addr), buf, n);
-    printf("REF memory copy\n addr: %x, n: %ld\n", addr, n);
     memcpy(guest_to_host(addr), buf, n);
   } else {
     memcpy(buf, guest_to_host(addr), n);
@@ -40,7 +39,6 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     memcpy(dut, &cpu, sizeof(CPU_state));
   } else {
     memcpy(&cpu, dut, sizeof(CPU_state));
-    printf("pc: %x\n", cpu.pc);
   }
 }
 
@@ -54,7 +52,6 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 }
 
 __EXPORT void difftest_init(int port) {
-  printf("REF init\n");
   void init_mem();
   init_mem();
   /* Perform ISA dependent initialization. */

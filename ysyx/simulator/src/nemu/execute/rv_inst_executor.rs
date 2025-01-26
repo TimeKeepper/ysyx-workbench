@@ -39,7 +39,7 @@ impl Simulator {
                 gpr[rd].value = inst.imm;
             }
             "auipc" => {
-                gpr[rd].value = pc.value + inst.imm;
+                gpr[rd].value = pc.value.wrapping_add(inst.imm);
             }
 
             "jal" => {
@@ -83,29 +83,29 @@ impl Simulator {
             }
 
             "lb" => {
-                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value + imm, Mask::Byte)?, 8);
+                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Byte)?, 8);
             }
             "lh" => {
-                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value + imm, Mask::Half)?, 16);
+                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Half)?, 16);
             }
             "lw" => {
-                gpr[rd].value = self.mmu.read(gpr[rs1].value + imm, Mask::Word)?;
+                gpr[rd].value = self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Word)?;
             }
             "lbu" => {
-                gpr[rd].value = self.mmu.read(gpr[rs1].value + imm, Mask::Byte)?;
+                gpr[rd].value = self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Byte)?;
             }
             "lhu" => {
-                gpr[rd].value = self.mmu.read(gpr[rs1].value + imm, Mask::Half)?;
+                gpr[rd].value = self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Half)?;
             }
 
             "sb" => {
-                self.mmu.write(gpr[rs1].value + imm, gpr[rs2].value, Mask::Byte)?
+                self.mmu.write(gpr[rs1].value.wrapping_add(imm), gpr[rs2].value, Mask::Byte)?
             }
             "sh" => {
-                self.mmu.write(gpr[rs1].value + imm, gpr[rs2].value, Mask::Half)?
+                self.mmu.write(gpr[rs1].value.wrapping_add(imm), gpr[rs2].value, Mask::Half)?
             }
             "sw" => {
-                self.mmu.write(gpr[rs1].value + imm, gpr[rs2].value, Mask::Word)?
+                self.mmu.write(gpr[rs1].value.wrapping_add(imm), gpr[rs2].value, Mask::Word)?
             }
 
             "addi" => {

@@ -56,7 +56,7 @@ impl Differtest {
 
         let ref_r_ptr = &ref_r as *const Riscv32CpuState as *mut c_void;
         unsafe {
-            REF_DIFTEST_REGCPY.get().unwrap()(ref_r_ptr, DiffertestDirection::ToDut.into());
+            REF_DIFTEST_REGCPY.get().expect("wtf")(ref_r_ptr, DiffertestDirection::ToDut.into());
         }
 
         ref_r

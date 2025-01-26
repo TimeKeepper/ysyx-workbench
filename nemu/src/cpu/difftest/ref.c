@@ -26,9 +26,9 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if(direction == DIFFTEST_TO_REF) {
     // memcpy(Guest_2_host_CODE(addr), buf, n);
+    printf("nemu to ref");
     memcpy(guest_to_host(addr), buf, n);
   } else {
-    printf("nemu to dut");
     memcpy(buf, guest_to_host(addr), n);
   }
 }

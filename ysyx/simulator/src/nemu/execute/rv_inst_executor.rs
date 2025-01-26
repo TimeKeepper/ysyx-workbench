@@ -173,6 +173,10 @@ impl Simulator {
                 gpr[rd].value = (gpr[rs1].value as i32 >> (gpr[rs2].value & 0x1f)) as u32;
             }
 
+            "ebreak" => {
+                return Err(simErr::Ebreak { is_good: (gpr[10].value == 0)});
+            }
+
             _ => return Ok(ExecuteResult::UnknownInst),
         }
 

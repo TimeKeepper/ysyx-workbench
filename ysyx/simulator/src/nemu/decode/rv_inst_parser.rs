@@ -63,7 +63,7 @@ impl RiscvInst {
                 sig_extend(imm, range.end as u8 - range.start as u8 + 1)
             },
             ImmType::S => {
-                let imm = (extract_bits(input, 25..31) << 5) | extract_bits(input, 7..12);
+                let imm = (extract_bits(input, 25..31) << 5) | extract_bits(input, 7..11);
                 sig_extend(imm, 12)
             },
             ImmType::B => {

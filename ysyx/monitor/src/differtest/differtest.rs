@@ -39,6 +39,7 @@ static REF_DIFTEST_INIT: OnceLock<Symbol<'static, RefDifftestInit>> = OnceLock::
 pub struct Riscv32CpuState {
     pub gpr: [u32; 32],
     pub pc: u32,
+    pub csr: [u32; 4096],
 }
 
 pub struct Differtest;
@@ -52,11 +53,12 @@ impl Differtest {
         let ref_r = Riscv32CpuState {
             gpr: [0; 32],
             pc: 0,
+            csr: [0; 4096],
         };
 
         let ref_r_ptr = &ref_r as *const Riscv32CpuState as *mut c_void;
         unsafe {
-            REF_DIFTEST_REGCPY.get().unwrap()(ref_r_ptr, DiffertestDirection::ToDut.into());
+            REF_DIFTEST_REGCPY.get().expect("wtf")(ref_r_ptr, DiffertestDirection::ToDut.into());
         }
 
         ref_r
@@ -67,6 +69,7 @@ impl Differtest {
             let mut ref_r = Riscv32CpuState {
                 gpr: [0; 32],
                 pc: 0,
+                csr: [0; 4096],
             };
 
             ref_r

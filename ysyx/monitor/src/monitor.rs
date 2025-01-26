@@ -24,7 +24,12 @@ use simulator::mmu;
 #[derive(Debug, PartialEq, Clone)]
 pub enum MonitorState {
     RUNNING,
+
+    // Done state
+    DONE,
     TRAP,
+
+    // Quit state
     QUIT,
     ABORT,
 }
@@ -177,6 +182,15 @@ impl Monitor {
         match result {
             Ok(_) => return,
             Err(err) => match err {
+                simErr::Ebreak { is_good } => {
+                    self.state = if is_good {
+                        self.msgr.success("Hit Good TRAP");
+                        MonitorState::DONE
+                    } else {
+                        self.msgr.error("Hit Bad TRAP");
+                        MonitorState::TRAP
+                    }
+                },
                 simErr::NotImplemented => self.msgr.error("Not implemented yet"),
                 simErr::InvalidCommand => self.msgr.error("Invalid command"),
 

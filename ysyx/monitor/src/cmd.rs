@@ -131,6 +131,9 @@ impl Monitor {
         if self.state == MonitorState::TRAP {
             self.msgr.error("Monitor is in trap state");
             return Err(simErr::InvalidCommand);
+        } else if self.state == MonitorState::DONE {
+            self.msgr.error("Monitor is in done state");
+            return Err(simErr::InvalidCommand);
         }
 
         let count = if count.is_none() { 1 } else { count.unwrap() };
@@ -151,6 +154,7 @@ impl Monitor {
                         gpr_array
                     },
                     pc: self.sim.cpu_state.pc.value,
+                    csr: [0; 4096],
                 };
                 self.differtest.ref_difftest_regcpy(&mut regcpy as *mut _ as *mut c_void, DiffertestDirection::ToRef);
             }
@@ -183,9 +187,9 @@ impl Monitor {
         let mut addr = addr;
         let length = if length.is_none() { 1 } else { length.unwrap() };
         for _ in 0..length {
-            addr = addr + 4;
             let data = self.sim.mmu.read(addr, Mask::None)?;
             self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+            addr = addr + 4;
         }
         
         Ok(simOk::Nothing)

@@ -9,6 +9,7 @@ pub enum SimulatorOk {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimulatorError {
+    Ebreak {is_good: bool},
     NotImplemented,
     InvalidCommand,
     NoBinaryFile,

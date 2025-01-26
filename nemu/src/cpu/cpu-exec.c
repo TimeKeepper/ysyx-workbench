@@ -129,8 +129,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 static void execute(uint64_t n) {
   Decode s;
-  printf("nemu: executing %ld instructions\n", n);
   for (;n > 0; n --) {
+    printf("nemu: executing %ld instructions in for\n", n);
     inst_counter++;
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;

@@ -18,6 +18,7 @@ impl Monitor {
                 gpr_array
             },
             pc: self.sim.cpu_state.pc.value,
+            csr: [0; 4096],
         };
 
         let ref_r = self.differtest.get_ref_reg();

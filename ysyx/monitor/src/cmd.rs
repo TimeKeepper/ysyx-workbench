@@ -151,6 +151,7 @@ impl Monitor {
                         gpr_array
                     },
                     pc: self.sim.cpu_state.pc.value,
+                    csr: [0; 4096],
                 };
                 self.differtest.ref_difftest_regcpy(&mut regcpy as *mut _ as *mut c_void, DiffertestDirection::ToRef);
             }

@@ -26,7 +26,6 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if(direction == DIFFTEST_TO_REF) {
     // memcpy(Guest_2_host_CODE(addr), buf, n);
-    printf("nemu to ref\n");
     memcpy(guest_to_host(addr), buf, n);
   } else {
     memcpy(buf, guest_to_host(addr), n);
@@ -37,6 +36,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 // `direction`为`DIFFTEST_TO_REF`时, 设置REF的寄存器状态为`dut`;
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   if(direction == DIFFTEST_TO_DUT) {
+    printf("nemu to dut\n");
     memcpy(dut, &cpu, sizeof(CPU_state));
   } else {
     memcpy(&cpu, dut, sizeof(CPU_state));

@@ -129,6 +129,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 static void execute(uint64_t n) {
   Decode s;
+  printf("nemu: executing %ld instructions\n", n);
   for (;n > 0; n --) {
     inst_counter++;
     exec_once(&s, cpu.pc);
@@ -157,7 +158,6 @@ void instr_buf_printf(void);
 
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
-  printf("nemu: executing %ld instructions\n", n);
   g_print_step = (n <= MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:

@@ -184,9 +184,9 @@ impl Monitor {
         let mut addr = addr;
         let length = if length.is_none() { 1 } else { length.unwrap() };
         for _ in 0..length {
-            addr = addr + 4;
             let data = self.sim.mmu.read(addr, Mask::None)?;
             self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+            addr = addr + 4;
         }
         
         Ok(simOk::Nothing)

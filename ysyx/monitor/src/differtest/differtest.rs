@@ -76,6 +76,9 @@ impl Differtest {
                 .gpr
                 .copy_from_slice(&executor.gpr.iter().map(|r| r.value).collect::<Vec<u32>>()[..]);
             ref_r.pc = executor.pc.value;
+            ref_r
+                .csr
+                .copy_from_slice(&executor.csr.iter().map(|r| r.value).collect::<Vec<u32>>()[..]);
 
             let ref_r_ptr = &ref_r as *const Riscv32CpuState as *mut c_void;
             REF_DIFTEST_REGCPY.get().unwrap()(ref_r_ptr, DiffertestDirection::ToRef.into());

@@ -18,7 +18,12 @@ impl Monitor {
                 gpr_array
             },
             pc: self.sim.cpu_state.pc.value,
-            csr: [0; 4096],
+            csr: {
+                let mut csr_array = [0u32; 4096];
+                let csr_vec = self.sim.cpu_state.csr.iter().map(|r| r.value).collect::<Vec<u32>>();
+                csr_array.copy_from_slice(&csr_vec[..4096]);
+                csr_array
+            },
         };
 
         let ref_r = self.differtest.get_ref_reg();
@@ -36,6 +41,14 @@ impl Monitor {
             println!("DUT pc: {:08x}", dut_r.pc.purple());
             println!("REF pc: {:08x}", ref_r.pc.purple());
             return Err(simErr::DiffertestFailed);
+        }
+        for csr in 0..4096 {
+            if dut_r.csr[csr] != ref_r.csr[csr] {
+                println!("Differtest failed");
+                println!("DUT csr[{}]: {:08x}", csr.red(), dut_r.csr[csr].purple());
+                println!("REF csr[{}]: {:08x}", csr.red(), ref_r.csr[csr].purple());
+                return Err(simErr::DiffertestFailed);
+            }
         }
 
         for w in self.differtest_watchpoints.iter() {

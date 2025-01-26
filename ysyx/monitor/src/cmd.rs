@@ -4,13 +4,13 @@ use simulator::SimulatorError as simErr;
 use simulator::SimulatorOk as simOk;
 use std::os::raw::c_void;
 use std::result::Result;
+use std::sync::atomic::Ordering;
 
 use owo_colors::OwoColorize;
 
 use crate::differtest::DiffertestDirection;
 use crate::differtest::Riscv32CpuState;
 use crate::{
-    monitor_parser::{self, InfoCommands},
     Monitor, MonitorState,
 };
 
@@ -24,61 +24,94 @@ impl Monitor {
         Ok(simOk::Nothing)
     }
 
-    pub fn cmd_info(&mut self, command: InfoCommands) -> Result<simOk, simErr> {
-        match command {
-            monitor_parser::InfoCommands::Register { target } => {
-                if target.is_none() {
+    pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> Result<simOk, simErr> {
+        match target.as_str() {
+            "gpr" => {
+                if specify.is_none() {
                     for r in self.sim.cpu_state.gpr.iter() {
                         self.msgr.trace(
                             format!("{}: \t0x{:08x}", r.name.purple(), r.value.red()).as_str(),
                         );
                     }
+                    return Ok(simOk::Nothing);
+                }
+
+                let specify = specify.unwrap();
+                
+                let index = specify.parse::<u32>();
+                if index.is_ok() && (0..32).contains(&index.clone().unwrap()) {
+                    let index = index.unwrap();
                     self.msgr.trace(
                         format!(
                             "{}: \t0x{:08x}",
-                            self.sim.cpu_state.pc.name.purple(),
-                            self.sim.cpu_state.pc.value.red()
+                            self.sim.cpu_state.gpr[index as usize].name.purple(),
+                            self.sim.cpu_state.gpr[index as usize].value.red()
                         )
                         .as_str(),
                     );
                     return Ok(simOk::Nothing);
                 }
-                let target = target.unwrap();
-
-                if let Ok(i) = target.parse::<u32>() {
-                    if (0..32).contains(&i) {
-                        self.msgr.trace(
-                            format!(
-                                "{}: \t0x{:08x}",
-                                self.sim.cpu_state.gpr[i as usize].name.purple(),
-                                self.sim.cpu_state.gpr[i as usize].value.red()
-                            )
-                            .as_str(),
-                        );
-                        return Ok(simOk::Nothing);
-                    }
-                }
-
+                
                 for r in self.sim.cpu_state.gpr.iter() {
-                    if r.name == target {
+                    if r.name == specify {
                         self.msgr.trace(
                             format!("{}: \t0x{:08x}", r.name.purple(), r.value.red()).as_str(),
                         );
                         return Ok(simOk::Nothing);
                     }
                 }
-                if target == self.sim.cpu_state.pc.name {
-                    self.msgr.trace(
-                        format!(
-                            "{}: \t0x{:08x}",
-                            self.sim.cpu_state.pc.name.purple(),
-                            self.sim.cpu_state.pc.value.red()
-                        )
-                        .as_str(),
-                    );
-                    return Ok(simOk::Nothing);
+
+                self.msgr.error("Invalid index");
+                return Err(simErr::InvalidCommand);
+            }
+
+            "pc" => {
+                self.msgr.trace(
+                    format!(
+                        "{}: \t0x{:08x}",
+                        self.sim.cpu_state.pc.name.purple(),
+                        self.sim.cpu_state.pc.value.red()
+                    )
+                    .as_str(),
+                );
+                return Ok(simOk::Nothing);
+            }
+
+            "csr" => {
+                if specify.is_none() {
+                    self.msgr.error("You Have to specify csr index");
+                    return Err(simErr::InvalidCommand);
                 }
-                self.msgr.error("No matching register");
+
+                let specify = specify.unwrap();
+
+                let index = specify.parse::<u32>();
+
+                if index.is_err() {
+                    self.msgr.error("index parse error(to u32)");
+                    return Err(simErr::InvalidCommand);
+                }
+
+                let index = index.unwrap();
+                if !(0..4096).contains(&index) {
+                    self.msgr.error("Invalid index, should be in 0..4096");
+                    return Err(simErr::InvalidCommand);
+                }
+
+                self.msgr.trace(
+                    format!(
+                        "{}: \t0x{:08x}",
+                        self.sim.cpu_state.csr[index as usize].name.purple(),
+                        self.sim.cpu_state.csr[index as usize].value.red()
+                    )
+                    .as_str(),
+                );
+
+                return Ok(simOk::Nothing);
+            }
+
+            _ => {
+                self.msgr.error("Invalid target");
                 return Err(simErr::InvalidCommand);
             }
         }
@@ -136,13 +169,21 @@ impl Monitor {
             return Err(simErr::InvalidCommand);
         }
 
+        self.state = MonitorState::RUNNING;
+
         let count = if count.is_none() { 1 } else { count.unwrap() };
 
         let mut orig = |trace: bool| -> Result<(), simErr> {
+            if self.signal.load(Ordering::SeqCst) {
+                return Err(simErr::Signal);
+            }
+
             self.sim.single_instruction(trace)?;
+
             if self.cli_parser.dut.is_none() {
                 return Ok(());
             }
+
             if self.sim.mmu.is_attch_device == false {
                 self.difftest_step()?;
             } else {
@@ -154,10 +195,16 @@ impl Monitor {
                         gpr_array
                     },
                     pc: self.sim.cpu_state.pc.value,
-                    csr: [0; 4096],
+                    csr: {
+                        let csr_vec = self.sim.cpu_state.csr.clone().into_iter().map(|csr| csr.value).collect::<Vec<u32>>();
+                        let mut csr_array = [0u32; 4096];
+                        csr_array.copy_from_slice(&csr_vec[..4096]);
+                        csr_array
+                    }
                 };
                 self.differtest.ref_difftest_regcpy(&mut regcpy as *mut _ as *mut c_void, DiffertestDirection::ToRef);
             }
+
             Ok(())
         };
 

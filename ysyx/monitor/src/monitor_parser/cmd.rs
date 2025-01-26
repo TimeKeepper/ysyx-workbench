@@ -81,7 +81,7 @@ pub enum Commands {
 
     /// control function of the simulator
     #[clap(visible_alias = "f", group(
-        ArgGroup::new("Function")
+        ArgGroup::new("Target")
             .args(&["on_or_off", "target"])
             .multiple(true)
             .required(false)

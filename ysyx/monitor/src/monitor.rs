@@ -93,6 +93,14 @@ impl Monitor {
 
     pub fn main_loop(&mut self) {
         self.msgr.function_log("batch", self.cli_parser.batch);
+
+        if self.cli_parser.batch {
+            let result = self.cmd_c();
+            self.deal_result(result);
+            let _ = self.cmd_q();
+            return;
+        }
+
         while (self.state != MonitorState::QUIT) && (self.state != MonitorState::ABORT) {
             let cmd = self.cmd_manager.get_parser();
 

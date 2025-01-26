@@ -10,6 +10,18 @@ enum ExecuteResult {
     Ok,
 }
 
+#[derive(Debug, PartialEq, Clone)]
+#[allow(dead_code)]
+enum CsrAddr {
+    MSTATUS = 0x300,
+    MTVEC = 0x305,
+    MSCRATCH = 0x340,
+    MEPC = 0x341,
+    MCAUSE = 0x342,
+    MVENDORID = 0xf11,
+    MARCHID = 0xf12,
+}
+
 impl Simulator {
     pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
         if self.rv32i_execute(&inst)? == ExecuteResult::Ok {
@@ -17,6 +29,14 @@ impl Simulator {
         }
 
         if self.rv32m_execute(&inst)? == ExecuteResult::Ok {
+            return Ok(());
+        }
+
+        if self.zicsr_execute(&inst)? == ExecuteResult::Ok {
+            return Ok(());
+        }
+
+        if self.r#priv_execute(&inst)? == ExecuteResult::Ok {
             return Ok(());
         }
 
@@ -32,7 +52,8 @@ impl Simulator {
         
         let mut npc = self.cpu_state.pc.value + 4;
         let gpr = &mut self.cpu_state.gpr;
-        let pc = &mut self.cpu_state.pc;
+        let pc: &mut crate::Register = &mut self.cpu_state.pc;
+        let csr = &mut self.cpu_state.csr;
 
         match name {
             "lui" => {
@@ -173,6 +194,11 @@ impl Simulator {
                 gpr[rd].value = (gpr[rs1].value as i32 >> (gpr[rs2].value & 0x1f)) as u32;
             }
 
+            "ecall" => {
+                csr[CsrAddr::MEPC as usize].value = pc.value;
+                csr[CsrAddr::MCAUSE as usize].value = 0x0000000b;
+                npc = csr[CsrAddr::MTVEC as usize].value;
+            }
             "ebreak" => {
                 return Err(simErr::Ebreak { is_good: (gpr[10].value == 0)});
             }
@@ -246,6 +272,69 @@ impl Simulator {
                 } else {
                     gpr[rd].value = gpr[rs1].value.wrapping_rem(gpr[rs2].value);
                 }
+            }
+
+            _ => return Ok(ExecuteResult::UnknownInst),
+        }
+
+        pc.value = npc;
+        gpr[0].value = 0; // x0 is hardwired to zero
+
+        if self.inst_trace_buffer.0 {
+            self.inst_trace_buffer.1.push(inst.clone());
+        }
+
+        Ok(ExecuteResult::Ok)
+    }
+
+    fn zicsr_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+        let name: &str = &inst.name;
+        let rd = inst.rd as usize;
+        let rs1 = inst.rs1 as usize;
+        
+        let npc = self.cpu_state.pc.value + 4;
+        let gpr = &mut self.cpu_state.gpr;
+        let pc = &mut self.cpu_state.pc;
+        let csr = &mut self.cpu_state.csr;
+
+        match name {
+            "csrrw" => {
+                let csr_t = csr[inst.imm as usize].value;
+
+                csr[inst.imm as usize].value = gpr[rs1].value;
+                gpr[rd].value = csr_t;
+            }
+            "csrrs" => {
+                let csr_t = csr[inst.imm as usize].value;
+
+                csr[inst.imm as usize].value |= gpr[rs1].value;
+                gpr[rd].value = csr_t;
+            }
+
+            _ => return Ok(ExecuteResult::UnknownInst),
+        }
+
+        pc.value = npc;
+        gpr[0].value = 0; // x0 is hardwired to zero
+
+        if self.inst_trace_buffer.0 {
+            self.inst_trace_buffer.1.push(inst.clone());
+        }
+
+        Ok(ExecuteResult::Ok)
+    }
+
+    fn r#priv_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+        let name: &str = &inst.name;
+        
+        let npc: u32;
+        let gpr = &mut self.cpu_state.gpr;
+        let pc = &mut self.cpu_state.pc;
+        let csr = &mut self.cpu_state.csr;
+
+        match name {
+            "mret" => {
+                npc = csr[CsrAddr::MEPC as usize].value;
             }
 
             _ => return Ok(ExecuteResult::UnknownInst),

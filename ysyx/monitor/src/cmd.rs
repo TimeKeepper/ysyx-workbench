@@ -44,6 +44,21 @@ impl Monitor {
                     return Ok(simOk::Nothing);
                 }
                 let target = target.unwrap();
+
+                if let Ok(i) = target.parse::<u32>() {
+                    if (0..32).contains(&i) {
+                        self.msgr.trace(
+                            format!(
+                                "{}: \t0x{:08x}",
+                                self.sim.cpu_state.gpr[i as usize].name.purple(),
+                                self.sim.cpu_state.gpr[i as usize].value.red()
+                            )
+                            .as_str(),
+                        );
+                        return Ok(simOk::Nothing);
+                    }
+                }
+
                 for r in self.sim.cpu_state.gpr.iter() {
                     if r.name == target {
                         self.msgr.trace(
@@ -122,9 +137,11 @@ impl Monitor {
 
         let mut orig = |trace: bool| -> Result<(), simErr> {
             self.sim.single_instruction(trace)?;
+            if self.cli_parser.dut.is_none() {
+                return Ok(());
+            }
             if self.sim.mmu.is_attch_device == false {
-                self.differtest.ref_difftest_exec(1);
-                self.differtest.difftest_step(&self.sim.cpu_state)?;
+                self.difftest_step()?;
             } else {
                 let mut regcpy = Riscv32CpuState {
                     gpr: {
@@ -162,13 +179,15 @@ impl Monitor {
         Ok(simOk::Nothing)
     }
 
-    pub fn cmd_x(&mut self, addr: u32, length: u32) -> Result<simOk, simErr> {
+    pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> Result<simOk, simErr> {
         let mut addr = addr;
+        let length = if length.is_none() { 1 } else { length.unwrap() };
         for _ in 0..length {
             addr = addr + 4;
             let data = self.sim.mmu.read(addr, Mask::None)?;
             self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
         }
+        
         Ok(simOk::Nothing)
     }
 
@@ -176,6 +195,19 @@ impl Monitor {
         for (name, range) in self.sim.mmu.memory_map() {
             self.msgr.trace(format!("{}: \t0x{:08x} - 0x{:08x}", name.red(), range.start.green(), range.end.green()).as_str());
         }
+        Ok(simOk::Nothing)
+    }
+
+    pub fn cmd_mdw(&mut self, addr: u32) -> Result<simOk, simErr> {
+        if self.cli_parser.dut.is_none() {
+            self.msgr.error("No differtest");
+            return Err(simErr::InvalidCommand);
+        }
+
+        let _ = self.sim.mmu.match_memory(simulator::mmu::MatchMsg::ADDR { addr: addr })?;
+
+        self.differtest_watchpoints.push(addr);
+
         Ok(simOk::Nothing)
     }
 

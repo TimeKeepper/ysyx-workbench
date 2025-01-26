@@ -64,12 +64,20 @@ pub enum Commands {
         #[arg(value_parser = parse_hex)]
         addr: u32,
 
-        length: u32,
+        length: Option<u32>,
     },
 
     /// Show mmio map
     #[clap(visible_alias = "mm")]
     MemoryMap {},
+
+    /// Set memory differtest watchpoint
+    #[clap(visible_alias = "mdw")]
+    MemoryDiffertestWatchpoint {
+        /// The target address(hex)
+        #[arg(value_parser = parse_hex)]
+        addr: u32,
+    },
 
     /// control function of the simulator
     #[clap(visible_alias = "f", group(

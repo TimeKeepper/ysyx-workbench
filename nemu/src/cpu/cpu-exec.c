@@ -132,9 +132,9 @@ static void execute(uint64_t n) {
   for (;n > 0; n --) {
     inst_counter++;
     exec_once(&s, cpu.pc);
-    printf("nemu: executing %ld instructions after exec\n", n);
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
+    printf("nemu: executing %ld instructions after trace\n", n);
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
   }

@@ -63,9 +63,6 @@ impl RiscvInst {
                 sig_extend(imm, range.end as u8 - range.start as u8 + 1)
             },
             ImmType::S => {
-                // println!("input: {:032b}", input);
-                // println!("{:07b}", extract_bits(input, 25..31));
-                // println!("{:06b}", extract_bits(input, 7..11));
                 let imm = (extract_bits(input, 25..31) << 5) | extract_bits(input, 7..11);
                 sig_extend(imm, 12)
             },

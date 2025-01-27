@@ -33,10 +33,10 @@ impl TimerFactory {
             if dir == AttchDirection::Read {
                 match TimerReg::from(addr) {
                     TimerReg::MtimeH => {
-                        mask.transform((start.elapsed().as_micros() >> 32) as u32)
+                        mask.transform((start.elapsed().as_micros() & 0xFFFFFFFF) as u32)
                     }
                     TimerReg::MtimeL => {
-                        mask.transform((start.elapsed().as_micros() & 0xFFFFFFFF) as u32)
+                        mask.transform((start.elapsed().as_micros() >> 32) as u32)
                     }
                 }
             } else {

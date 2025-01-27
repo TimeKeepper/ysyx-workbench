@@ -43,10 +43,17 @@ pub enum Commands {
     Continue {},
 
     /// show info about the simulator
-    #[clap(visible_alias = "i")]
+    #[clap(visible_alias = "i", group(
+        ArgGroup::new("Target")
+            .args(&["target", "index"])
+            .multiple(true)
+            .required(false)
+    ))]
     Info {
-        #[command(subcommand)]
-        command: InfoCommands,
+        /// The target string
+        target: String,
+        /// The target index
+        index: Option<String>,
     },
 
     /// show instruction ringbuffer
@@ -81,7 +88,7 @@ pub enum Commands {
 
     /// control function of the simulator
     #[clap(visible_alias = "f", group(
-        ArgGroup::new("Function")
+        ArgGroup::new("Target")
             .args(&["on_or_off", "target"])
             .multiple(true)
             .required(false)
@@ -92,15 +99,6 @@ pub enum Commands {
         on_or_off: Option<OperationMode>,
         
         /// The target string
-        target: Option<String>,
-    },
-}
-
-#[derive(Debug, Subcommand)]
-pub enum InfoCommands {
-    /// show info about the register
-    #[clap(visible_alias = "r")]
-    Register {
         target: Option<String>,
     },
 }

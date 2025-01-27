@@ -12,9 +12,10 @@ LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
                 --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   := -T $(AM_HOME)/scripts/linker_mem.ld $(LDFLAGS) 
 LDFLAGS   += --gc-sections -e _start
+
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 NEMUFLAGS += -e $(IMAGE).elf
-NEMU_BATCH_FLAG = $(NPCFLAGS)
+NEMU_BATCH_FLAG = $(NEMUFLAGS)
 NEMU_BATCH_FLAG += -b
 
 CFLAGS += -DMAINARGS=\"$(mainargs)\"#通过这个宏传递主函数参数
@@ -27,10 +28,13 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	@$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin
 
 batch: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMU_BATCH_FLAG)" IMG=$(IMAGE).bin
+	@$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin ExtraArgs=-b
+
+debug: image
+	@$(MAKE) -C $(YSYX_HOME) debug Binfile=$(IMAGE).bin
 
 gdb: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin

@@ -54,19 +54,19 @@ impl Simulator{
 
     fn disasm(&self, inst: u32) {
         let result = self.disasm
-            .disasm(&inst.to_le_bytes(), self.cpu_state.pc.value as u64)
+            .disasm(&inst.to_le_bytes(), self.cpu_state.pc as u64)
             .replace("\0", "")
             .trim()
             .split_ascii_whitespace()
             .map(|x| format!("{} ", x))
             .collect::<String>();
-        println!("{:08x}: {:08x} {}", self.cpu_state.pc.value.purple(), inst.red(), result.green());
+        println!("{:08x}: {:08x} {}", self.cpu_state.pc.purple(), inst.red(), result.green());
     }
 }
 
 impl simulator::Simulator for Simulator {
     fn single_instruction(&mut self, trace: bool) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
-        let addr: u32 = self.cpu_state.pc.value;
+        let addr: u32 = self.cpu_state.pc;
         let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
         

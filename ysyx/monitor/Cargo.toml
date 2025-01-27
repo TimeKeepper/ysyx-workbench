@@ -15,3 +15,4 @@ rustyline = { version = "15.0.0", features = ["derive"] }
 bitfield = "0.17.0"
 libloading = "0.8.6"
 owo-colors = {workspace = true}
+ctrlc = "3.4.5"

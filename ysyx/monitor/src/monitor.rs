@@ -14,6 +14,7 @@ use super::monitor_parser::CommandManager as CmM;
 use super::differtest;
 
 use std::os::raw::c_void;
+use std::sync::atomic::AtomicBool;
 
 use simulator::nemu;
 
@@ -24,7 +25,13 @@ use simulator::mmu;
 #[derive(Debug, PartialEq, Clone)]
 pub enum MonitorState {
     RUNNING,
+    STOP,
+
+    // Done state
+    DONE,
     TRAP,
+
+    // Quit state
     QUIT,
     ABORT,
 }
@@ -41,6 +48,8 @@ pub struct Monitor {
     pub differtest_watchpoints: Vec<u32>,
 
     pub state: MonitorState,
+
+    pub signal: std::sync::Arc<AtomicBool>,
 }
 
 impl Monitor {
@@ -50,6 +59,7 @@ impl Monitor {
         let msgr = msgr::Resper::new();
         let cmd_manager = monitor_parser::CommandManager::new(name);
 
+        let signal = std::sync::Arc::new(AtomicBool::new(false));
         Self {
             name: name.to_string(),
 
@@ -60,11 +70,15 @@ impl Monitor {
             differtest: differtest::Differtest::new(),
             differtest_watchpoints: Vec::new(),
 
-            state: MonitorState::RUNNING,
+            state: MonitorState::STOP,
+
+            signal,
         }
     }
 
     pub fn init(&mut self) {
+        self.init_signal();
+
         self.init_log();
 
         match self.init_sim() {
@@ -87,7 +101,14 @@ impl Monitor {
     }
 
     pub fn main_loop(&mut self) {
-        self.msgr.function_log("batch", self.cli_parser.batch);
+        if self.cli_parser.batch {
+            self.msgr.info("Execute in Batch mode");
+            let result = self.cmd_c();
+            self.deal_result(result);
+            let _ = self.cmd_q();
+            return;
+        }
+
         while (self.state != MonitorState::QUIT) && (self.state != MonitorState::ABORT) {
             let cmd = self.cmd_manager.get_parser();
 
@@ -95,6 +116,15 @@ impl Monitor {
 
             self.deal_result(result);
         }
+    }
+
+    fn init_signal(&mut self) {
+        let signal = self.signal.clone();
+        ctrlc::set_handler(move || {
+            println!("received Ctrl+C!");
+            signal.store(true, std::sync::atomic::Ordering::SeqCst);
+        })
+        .expect("Error setting Ctrl-C handler");
     }
 
     fn init_log(&mut self) {
@@ -150,7 +180,7 @@ impl Monitor {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
 
-            Cmd::Info { command } => self.cmd_info(command),
+            Cmd::Info { target, index } => self.cmd_info(target, index),
 
             Cmd::Examine { addr, length } => self.cmd_x(addr, length),
             Cmd::MemoryMap {  } => self.cmd_mm(),
@@ -177,6 +207,19 @@ impl Monitor {
         match result {
             Ok(_) => return,
             Err(err) => match err {
+                simErr::Signal => {
+                    self.state = MonitorState::STOP;
+                }
+                simErr::Ebreak { is_good } => {
+                    self.state = if is_good {
+                        self.msgr.success("Hit Good TRAP");
+                        MonitorState::DONE
+                    } else {
+                        self.msgr.error("Hit Bad TRAP");
+                        MonitorState::TRAP
+                    }
+                },
+
                 simErr::NotImplemented => self.msgr.error("Not implemented yet"),
                 simErr::InvalidCommand => self.msgr.error("Invalid command"),
 
@@ -202,9 +245,9 @@ impl Monitor {
                     format!(
                         "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}
                         disassembler result: {}",
-                            self.sim.cpu_state.pc.value, 
+                            self.sim.cpu_state.pc, 
                             inst, 
-                            self.sim.disasm.disasm(&inst.to_le_bytes(), self.sim.cpu_state.pc.value as u64)
+                            self.sim.disasm.disasm(&inst.to_le_bytes(), self.sim.cpu_state.pc as u64)
                         )
                         .as_str(),
                     );

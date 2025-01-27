@@ -6,19 +6,27 @@ REF_Path_nemu  = /home/wenjiu/ysyx-workbench/nemu/build/riscv32-nemu-interpreter
 REF_Path = $(REF_Path_nemu)
 
 Feature = llvm-sys/prefer-dynamic
-Mainargs = --bin ./monitor/src/test/microbench-riscv32-nemu.bin --log -d $(REF_Path)
+Binfile = ./monitor/src/test/microbench-riscv32-nemu.bin
+
+ExtraArgs ?=
+
+Mainargs = --bin $(Binfile) $(ExtraArgs)
+Debugargs = $(Mainargs) --log -d $(REF_Path) --debug
 
 run :
 	cargo run $(Job) --release --bin core --features=$(Feature) -- $(Mainargs)
 
 debug :
-	cargo run $(Job) --bin core --features=$(Feature) -- $(Mainargs) --debug
+	RUST_BACKTRACE=full cargo run $(Job) --bin core --features=$(Feature) -- $(Debugargs)
 
 bench :
 	cargo bench $(Job) --features=$(Feature) --benches
 
 bench_store :
 	cargo bench $(Job) --features=$(Feature) --bench decode_bench -- --save-baseline master
+
+help:
+	cargo run $(Job) --release --bin core --features=$(Feature) -- --help
 
 clean :
 	cargo clean

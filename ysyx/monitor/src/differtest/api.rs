@@ -1,6 +1,5 @@
 use std::os::raw::c_void;
 
-use super::Riscv32CpuState;
 use simulator::SimulatorError as simErr;
 use owo_colors::OwoColorize;
 
@@ -10,17 +9,7 @@ impl Monitor {
     pub fn difftest_step(&mut self) -> Result<(), simErr> {
         self.differtest.ref_difftest_exec(1);
         
-        let dut_r = Riscv32CpuState {
-            gpr: {
-                let mut gpr_array = [0u32; 32];
-                let gpr_vec = self.sim.cpu_state.gpr.iter().map(|r| r.value).collect::<Vec<u32>>();
-                gpr_array.copy_from_slice(&gpr_vec[..32]);
-                gpr_array
-            },
-            pc: self.sim.cpu_state.pc.value,
-            csr: [0; 4096],
-        };
-
+        let dut_r = &self.sim.cpu_state;
         let ref_r = self.differtest.get_ref_reg();
 
         for gpr in 0..32 {
@@ -36,6 +25,14 @@ impl Monitor {
             println!("DUT pc: {:08x}", dut_r.pc.purple());
             println!("REF pc: {:08x}", ref_r.pc.purple());
             return Err(simErr::DiffertestFailed);
+        }
+        for csr in 0..4096 {
+            if dut_r.csr[csr] != ref_r.csr[csr] {
+                println!("Differtest failed");
+                println!("DUT csr[{}]: {:08x}", csr.red(), dut_r.csr[csr].purple());
+                println!("REF csr[{}]: {:08x}", csr.red(), ref_r.csr[csr].purple());
+                return Err(simErr::DiffertestFailed);
+            }
         }
 
         for w in self.differtest_watchpoints.iter() {

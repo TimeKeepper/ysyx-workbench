@@ -245,9 +245,9 @@ impl Monitor {
                     format!(
                         "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}
                         disassembler result: {}",
-                            self.sim.cpu_state.pc.value, 
+                            self.sim.cpu_state.pc, 
                             inst, 
-                            self.sim.disasm.disasm(&inst.to_le_bytes(), self.sim.cpu_state.pc.value as u64)
+                            self.sim.disasm.disasm(&inst.to_le_bytes(), self.sim.cpu_state.pc as u64)
                         )
                         .as_str(),
                     );

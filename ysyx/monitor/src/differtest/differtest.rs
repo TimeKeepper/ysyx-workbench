@@ -2,7 +2,7 @@
 use libloading::{Library, Symbol};
 use std::{os::raw::c_void, path::Path, sync::OnceLock};
 
-use simulator::nemu::Riscv32CpuState as nemuState;
+use simulator::nemu::Riscv32CpuState;
 
 pub enum DiffertestDirection {
     ToDut = 0,
@@ -34,14 +34,6 @@ static REF_DIFTEST_RAISE_INTR: OnceLock<Symbol<'static, RefDifftestRaiseIntrFunc
     OnceLock::new();
 static REF_DIFTEST_INIT: OnceLock<Symbol<'static, RefDifftestInit>> = OnceLock::new();
 
-#[derive(Debug, PartialEq)]
-#[repr(C)]
-pub struct Riscv32CpuState {
-    pub gpr: [u32; 32],
-    pub pc: u32,
-    pub csr: [u32; 4096],
-}
-
 pub struct Differtest;
 
 impl Differtest {
@@ -64,23 +56,9 @@ impl Differtest {
         ref_r
     }
 
-    pub fn set_ref_reg(&self, executor: &nemuState) {
+    pub fn set_ref_reg(&self, executor: &Riscv32CpuState) {
         unsafe {
-            let mut ref_r = Riscv32CpuState {
-                gpr: [0; 32],
-                pc: 0,
-                csr: [0; 4096],
-            };
-
-            ref_r
-                .gpr
-                .copy_from_slice(&executor.gpr.iter().map(|r| r.value).collect::<Vec<u32>>()[..]);
-            ref_r.pc = executor.pc.value;
-            ref_r
-                .csr
-                .copy_from_slice(&executor.csr.iter().map(|r| r.value).collect::<Vec<u32>>()[..]);
-
-            let ref_r_ptr = &ref_r as *const Riscv32CpuState as *mut c_void;
+            let ref_r_ptr = executor as *const Riscv32CpuState as *mut c_void;
             REF_DIFTEST_REGCPY.get().unwrap()(ref_r_ptr, DiffertestDirection::ToRef.into());
         }
     }

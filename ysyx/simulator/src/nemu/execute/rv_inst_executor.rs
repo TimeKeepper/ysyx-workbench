@@ -50,164 +50,164 @@ impl Simulator {
         let rs2 = inst.rs2 as usize;
         let imm = inst.imm;
         
-        let mut npc = self.cpu_state.pc.value + 4;
+        let mut npc = self.cpu_state.pc + 4;
         let gpr = &mut self.cpu_state.gpr;
-        let pc: &mut crate::Register = &mut self.cpu_state.pc;
+        let pc= &mut self.cpu_state.pc;
         let csr = &mut self.cpu_state.csr;
 
         match name {
             "lui" => {
-                gpr[rd].value = inst.imm;
+                gpr[rd] = inst.imm;
             }
             "auipc" => {
-                gpr[rd].value = pc.value.wrapping_add(inst.imm);
+                gpr[rd] = pc.wrapping_add(inst.imm);
             }
 
             "jal" => {
-                gpr[rd].value = npc;
-                npc = pc.value.wrapping_add(inst.imm);
+                gpr[rd] = npc;
+                npc = pc.wrapping_add(inst.imm);
             }
             "jalr" => {
-                gpr[rd].value = npc;
-                npc = gpr[rs1].value.wrapping_add(inst.imm) & !1;
+                gpr[rd] = npc;
+                npc = gpr[rs1].wrapping_add(inst.imm) & !1;
             }
 
             "beq" => {
-                if gpr[rs1].value == gpr[rs2].value {
-                    npc = pc.value.wrapping_add(inst.imm);
+                if gpr[rs1] == gpr[rs2] {
+                    npc = pc.wrapping_add(inst.imm);
                 }
             }
             "bne" => {
-                if gpr[rs1].value != gpr[rs2].value {
-                    npc = pc.value.wrapping_add(inst.imm);
+                if gpr[rs1] != gpr[rs2] {
+                    npc = pc.wrapping_add(inst.imm);
                 }
             }
             "blt" => {
-                if (gpr[rs1].value as i32) < (gpr[rs2].value as i32) {
-                    npc = pc.value.wrapping_add(inst.imm);
+                if (gpr[rs1] as i32) < (gpr[rs2] as i32) {
+                    npc = pc.wrapping_add(inst.imm);
                 }
             }
             "bge" => {
-                if (gpr[rs1].value as i32) >= (gpr[rs2].value as i32) {
-                    npc = pc.value.wrapping_add(inst.imm);
+                if (gpr[rs1] as i32) >= (gpr[rs2] as i32) {
+                    npc = pc.wrapping_add(inst.imm);
                 }
             }
             "bltu" => {
-                if gpr[rs1].value < gpr[rs2].value {
-                    npc = pc.value.wrapping_add(inst.imm);
+                if gpr[rs1] < gpr[rs2] {
+                    npc = pc.wrapping_add(inst.imm);
                 }
             }
             "bgeu" => {
-                if gpr[rs1].value >= gpr[rs2].value {
-                    npc = pc.value.wrapping_add(inst.imm);
+                if gpr[rs1] >= gpr[rs2] {
+                    npc = pc.wrapping_add(inst.imm);
                 }
             }
 
             "lb" => {
-                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Byte)?, 8);
+                gpr[rd] = sig_extend(self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Byte)?, 8);
             }
             "lh" => {
-                gpr[rd].value = sig_extend(self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Half)?, 16);
+                gpr[rd] = sig_extend(self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Half)?, 16);
             }
             "lw" => {
-                gpr[rd].value = self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Word)?;
+                gpr[rd] = self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Word)?;
             }
             "lbu" => {
-                gpr[rd].value = self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Byte)?;
+                gpr[rd] = self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Byte)?;
             }
             "lhu" => {
-                gpr[rd].value = self.mmu.read(gpr[rs1].value.wrapping_add(imm), Mask::Half)?;
+                gpr[rd] = self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Half)?;
             }
 
             "sb" => {
-                self.mmu.write(gpr[rs1].value.wrapping_add(imm), gpr[rs2].value, Mask::Byte)?
+                self.mmu.write(gpr[rs1].wrapping_add(imm), gpr[rs2], Mask::Byte)?
             }
             "sh" => {
-                self.mmu.write(gpr[rs1].value.wrapping_add(imm), gpr[rs2].value, Mask::Half)?
+                self.mmu.write(gpr[rs1].wrapping_add(imm), gpr[rs2], Mask::Half)?
             }
             "sw" => {
-                self.mmu.write(gpr[rs1].value.wrapping_add(imm), gpr[rs2].value, Mask::Word)?
+                self.mmu.write(gpr[rs1].wrapping_add(imm), gpr[rs2], Mask::Word)?
             }
 
             "addi" => {
-                gpr[rd].value = gpr[rs1].value.wrapping_add(inst.imm);
+                gpr[rd] = gpr[rs1].wrapping_add(inst.imm);
             }
 
             "slti" => {
-                gpr[rd].value = if (gpr[rs1].value as i32) < (inst.imm as i32) { 1 } else { 0 };
+                gpr[rd] = if (gpr[rs1] as i32) < (inst.imm as i32) { 1 } else { 0 };
             }
             "sltiu" => {
-                gpr[rd].value = if gpr[rs1].value < inst.imm { 1 } else { 0 };
+                gpr[rd] = if gpr[rs1] < inst.imm { 1 } else { 0 };
             }
 
             "xori" => {
-                gpr[rd].value = gpr[rs1].value ^ inst.imm;
+                gpr[rd] = gpr[rs1] ^ inst.imm;
             }
             "ori" => {
-                gpr[rd].value = gpr[rs1].value | inst.imm;
+                gpr[rd] = gpr[rs1] | inst.imm;
             }
             "andi" => {
-                gpr[rd].value = gpr[rs1].value & inst.imm;
+                gpr[rd] = gpr[rs1] & inst.imm;
             }
 
             "slli" => {
-                gpr[rd].value = gpr[rs1].value << (inst.imm & 0x1f);
+                gpr[rd] = gpr[rs1] << (inst.imm & 0x1f);
             }
             "srli" => {
-                gpr[rd].value = gpr[rs1].value >> (inst.imm & 0x1f);
+                gpr[rd] = gpr[rs1] >> (inst.imm & 0x1f);
             }
             "srai" => {
-                gpr[rd].value = (gpr[rs1].value as i32 >> (inst.imm & 0x1f)) as u32;
+                gpr[rd] = (gpr[rs1] as i32 >> (inst.imm & 0x1f)) as u32;
             }
 
             "add" => {
-                gpr[rd].value = gpr[rs1].value.wrapping_add(gpr[rs2].value);
+                gpr[rd] = gpr[rs1].wrapping_add(gpr[rs2]);
             }
             "sub" => {
-                gpr[rd].value = gpr[rs1].value.wrapping_sub(gpr[rs2].value);
+                gpr[rd] = gpr[rs1].wrapping_sub(gpr[rs2]);
             }
 
             "xor" => {
-                gpr[rd].value = gpr[rs1].value ^ gpr[rs2].value;
+                gpr[rd] = gpr[rs1] ^ gpr[rs2];
             }
             "or" => {
-                gpr[rd].value = gpr[rs1].value | gpr[rs2].value;
+                gpr[rd] = gpr[rs1] | gpr[rs2];
             }
             "and" => {
-                gpr[rd].value = gpr[rs1].value & gpr[rs2].value;
+                gpr[rd] = gpr[rs1] & gpr[rs2];
             }
 
             "slt" => {
-                gpr[rd].value = if (gpr[rs1].value as i32) < (gpr[rs2].value as i32) { 1 } else { 0 };
+                gpr[rd] = if (gpr[rs1] as i32) < (gpr[rs2] as i32) { 1 } else { 0 };
             }
             "sltu" => {
-                gpr[rd].value = if gpr[rs1].value < gpr[rs2].value { 1 } else { 0 };
+                gpr[rd] = if gpr[rs1] < gpr[rs2] { 1 } else { 0 };
             }
 
             "sll" => {
-                gpr[rd].value = gpr[rs1].value << (gpr[rs2].value & 0x1f);
+                gpr[rd] = gpr[rs1] << (gpr[rs2] & 0x1f);
             }
             "srl" => {
-                gpr[rd].value = gpr[rs1].value >> (gpr[rs2].value & 0x1f);
+                gpr[rd] = gpr[rs1] >> (gpr[rs2] & 0x1f);
             }
             "sra" => {
-                gpr[rd].value = (gpr[rs1].value as i32 >> (gpr[rs2].value & 0x1f)) as u32;
+                gpr[rd] = (gpr[rs1] as i32 >> (gpr[rs2] & 0x1f)) as u32;
             }
 
             "ecall" => {
-                csr[CsrAddr::MEPC as usize].value = pc.value;
-                csr[CsrAddr::MCAUSE as usize].value = 0x0000000b;
-                npc = csr[CsrAddr::MTVEC as usize].value;
+                csr[CsrAddr::MEPC as usize] = *pc;
+                csr[CsrAddr::MCAUSE as usize] = 0x0000000b;
+                npc = csr[CsrAddr::MTVEC as usize];
             }
             "ebreak" => {
-                return Err(simErr::Ebreak { is_good: (gpr[10].value == 0)});
+                return Err(simErr::Ebreak { is_good: (gpr[10] == 0)});
             }
 
             _ => return Ok(ExecuteResult::UnknownInst),
         }
 
-        pc.value = npc;
-        gpr[0].value = 0; // x0 is hardwired to zero
+        *pc = npc;
+        gpr[0] = 0; // x0 is hardwired to zero
 
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst.clone());
@@ -222,63 +222,63 @@ impl Simulator {
         let rs1 = inst.rs1 as usize;
         let rs2 = inst.rs2 as usize;
         
-        let npc = self.cpu_state.pc.value + 4;
+        let npc = self.cpu_state.pc + 4;
         let gpr = &mut self.cpu_state.gpr;
-        let pc = &mut self.cpu_state.pc;
+        let pc= &mut self.cpu_state.pc;
 
         match name {
             "mul" => {
-                gpr[rd].value = gpr[rs1].value.wrapping_mul(gpr[rs2].value);
+                gpr[rd] = gpr[rs1].wrapping_mul(gpr[rs2]);
             }
 
             "mulh" => {
-                let result = (gpr[rs1].value as i64).wrapping_mul(gpr[rs2].value as i64);
-                gpr[rd].value = (result >> 32) as u32;
+                let result = (gpr[rs1] as i64).wrapping_mul(gpr[rs2] as i64);
+                gpr[rd] = (result >> 32) as u32;
             }
             "mulhsu" => {
-                let result = (gpr[rs1].value as i64).wrapping_mul((gpr[rs2].value as u64).try_into().unwrap());
-                gpr[rd].value = (result >> 32) as u32;
+                let result = (gpr[rs1] as i64).wrapping_mul((gpr[rs2] as u64).try_into().unwrap());
+                gpr[rd] = (result >> 32) as u32;
             }
             "mulhu" => {
-                let result = (gpr[rs1].value as u64).wrapping_mul(gpr[rs2].value as u64);
-                gpr[rd].value = (result >> 32) as u32;
+                let result = (gpr[rs1] as u64).wrapping_mul(gpr[rs2] as u64);
+                gpr[rd] = (result >> 32) as u32;
             }
 
             "div" => {
-                if gpr[rs2].value == 0 {
-                    gpr[rd].value = 0xffffffff;
+                if gpr[rs2] == 0 {
+                    gpr[rd] = 0xffffffff;
                 } else {
-                    gpr[rd].value = (gpr[rs1].value as i32).wrapping_div(gpr[rs2].value as i32) as u32;
+                    gpr[rd] = (gpr[rs1] as i32).wrapping_div(gpr[rs2] as i32) as u32;
                 }
             }
             "divu" => {
-                if gpr[rs2].value == 0 {
-                    gpr[rd].value = 0xffffffff;
+                if gpr[rs2] == 0 {
+                    gpr[rd] = 0xffffffff;
                 } else {
-                    gpr[rd].value = gpr[rs1].value.wrapping_div(gpr[rs2].value);
+                    gpr[rd] = gpr[rs1].wrapping_div(gpr[rs2]);
                 }
             }
 
             "rem" => {
-                if gpr[rs2].value == 0 {
-                    gpr[rd].value = gpr[rs1].value;
+                if gpr[rs2] == 0 {
+                    gpr[rd] = gpr[rs1];
                 } else {
-                    gpr[rd].value = (gpr[rs1].value as i32).wrapping_rem(gpr[rs2].value as i32) as u32;
+                    gpr[rd] = (gpr[rs1] as i32).wrapping_rem(gpr[rs2] as i32) as u32;
                 }
             }
             "remu" => {
-                if gpr[rs2].value == 0 {
-                    gpr[rd].value = gpr[rs1].value;
+                if gpr[rs2] == 0 {
+                    gpr[rd] = gpr[rs1];
                 } else {
-                    gpr[rd].value = gpr[rs1].value.wrapping_rem(gpr[rs2].value);
+                    gpr[rd] = gpr[rs1].wrapping_rem(gpr[rs2]);
                 }
             }
 
             _ => return Ok(ExecuteResult::UnknownInst),
         }
 
-        pc.value = npc;
-        gpr[0].value = 0; // x0 is hardwired to zero
+        *pc = npc;
+        gpr[0] = 0; // x0 is hardwired to zero
 
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst.clone());
@@ -292,30 +292,30 @@ impl Simulator {
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
         
-        let npc = self.cpu_state.pc.value + 4;
+        let npc = self.cpu_state.pc + 4;
         let gpr = &mut self.cpu_state.gpr;
-        let pc = &mut self.cpu_state.pc;
+        let pc= &mut self.cpu_state.pc;
         let csr = &mut self.cpu_state.csr;
 
         match name {
             "csrrw" => {
-                let csr_t = csr[inst.imm as usize].value;
+                let csr_t = csr[inst.imm as usize];
 
-                csr[inst.imm as usize].value = gpr[rs1].value;
-                gpr[rd].value = csr_t;
+                csr[inst.imm as usize] = gpr[rs1];
+                gpr[rd] = csr_t;
             }
             "csrrs" => {
-                let csr_t = csr[inst.imm as usize].value;
+                let csr_t = csr[inst.imm as usize];
 
-                csr[inst.imm as usize].value |= gpr[rs1].value;
-                gpr[rd].value = csr_t;
+                csr[inst.imm as usize] |= gpr[rs1];
+                gpr[rd] = csr_t;
             }
 
             _ => return Ok(ExecuteResult::UnknownInst),
         }
 
-        pc.value = npc;
-        gpr[0].value = 0; // x0 is hardwired to zero
+        *pc = npc;
+        gpr[0] = 0; // x0 is hardwired to zero
 
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst.clone());
@@ -329,19 +329,19 @@ impl Simulator {
         
         let npc: u32;
         let gpr = &mut self.cpu_state.gpr;
-        let pc = &mut self.cpu_state.pc;
+        let pc= &mut self.cpu_state.pc;
         let csr = &mut self.cpu_state.csr;
 
         match name {
             "mret" => {
-                npc = csr[CsrAddr::MEPC as usize].value;
+                npc = csr[CsrAddr::MEPC as usize];
             }
 
             _ => return Ok(ExecuteResult::UnknownInst),
         }
 
-        pc.value = npc;
-        gpr[0].value = 0; // x0 is hardwired to zero
+        *pc = npc;
+        gpr[0] = 0; // x0 is hardwired to zero
 
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst.clone());

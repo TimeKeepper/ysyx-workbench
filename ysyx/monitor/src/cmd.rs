@@ -9,10 +9,15 @@ use std::sync::atomic::Ordering;
 use owo_colors::OwoColorize;
 
 use crate::differtest::DiffertestDirection;
-use crate::differtest::Riscv32CpuState;
 use crate::{
     Monitor, MonitorState,
 };
+
+const RV32GPR_NAME: [&'static str; 32] = [
+    "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1", "a0", "a1", "a2", "a3", "a4",
+    "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4",
+    "t5", "t6",
+];
 
 impl Monitor {
     pub fn cmd_q(&mut self) -> Result<simOk, simErr> {
@@ -28,9 +33,11 @@ impl Monitor {
         match target.as_str() {
             "gpr" => {
                 if specify.is_none() {
-                    for r in self.sim.cpu_state.gpr.iter() {
+                    for (i, r) in self.sim.cpu_state.gpr.iter().enumerate() {
                         self.msgr.trace(
-                            format!("{}: \t0x{:08x}", r.name.purple(), r.value.red()).as_str(),
+                            format!("{}: \t0x{:08x}", 
+                            RV32GPR_NAME[i].purple(), 
+                            r.red()).as_str(),
                         );
                     }
                     return Ok(simOk::Nothing);
@@ -44,21 +51,27 @@ impl Monitor {
                     self.msgr.trace(
                         format!(
                             "{}: \t0x{:08x}",
-                            self.sim.cpu_state.gpr[index as usize].name.purple(),
-                            self.sim.cpu_state.gpr[index as usize].value.red()
+                            "have to impl".purple(),
+                            self.sim.cpu_state.gpr[index as usize].red()
                         )
                         .as_str(),
                     );
                     return Ok(simOk::Nothing);
                 }
                 
-                for r in self.sim.cpu_state.gpr.iter() {
-                    if r.name == specify {
+                for name in RV32GPR_NAME.iter() {
+                    if name == &specify {
                         self.msgr.trace(
-                            format!("{}: \t0x{:08x}", r.name.purple(), r.value.red()).as_str(),
+                            format!(
+                                "{}: \t0x{:08x}",
+                                specify.purple(),
+                                self.sim.cpu_state.gpr[RV32GPR_NAME.iter().position(|&r| r == specify).unwrap()].red()
+                            )
+                            .as_str(),
                         );
                         return Ok(simOk::Nothing);
                     }
+                    
                 }
 
                 self.msgr.error("Invalid index");
@@ -69,8 +82,8 @@ impl Monitor {
                 self.msgr.trace(
                     format!(
                         "{}: \t0x{:08x}",
-                        self.sim.cpu_state.pc.name.purple(),
-                        self.sim.cpu_state.pc.value.red()
+                        "pc".purple(),
+                        self.sim.cpu_state.pc.red()
                     )
                     .as_str(),
                 );
@@ -100,9 +113,10 @@ impl Monitor {
 
                 self.msgr.trace(
                     format!(
-                        "{}: \t0x{:08x}",
-                        self.sim.cpu_state.csr[index as usize].name.purple(),
-                        self.sim.cpu_state.csr[index as usize].value.red()
+                        "{}{}: \t0x{:08x}",
+                        "csr".purple(),
+                        index.red(),
+                        self.sim.cpu_state.csr[index as usize].red()
                     )
                     .as_str(),
                 );
@@ -187,22 +201,7 @@ impl Monitor {
             if self.sim.mmu.is_attch_device == false {
                 self.difftest_step()?;
             } else {
-                let mut regcpy = Riscv32CpuState {
-                    gpr: {
-                        let gpr_vec = self.sim.cpu_state.gpr.clone().into_iter().map(|gpr| gpr.value).collect::<Vec<u32>>();
-                        let mut gpr_array = [0u32; 32];
-                        gpr_array.copy_from_slice(&gpr_vec[..32]);
-                        gpr_array
-                    },
-                    pc: self.sim.cpu_state.pc.value,
-                    csr: {
-                        let csr_vec = self.sim.cpu_state.csr.clone().into_iter().map(|csr| csr.value).collect::<Vec<u32>>();
-                        let mut csr_array = [0u32; 4096];
-                        csr_array.copy_from_slice(&csr_vec[..4096]);
-                        csr_array
-                    }
-                };
-                self.differtest.ref_difftest_regcpy(&mut regcpy as *mut _ as *mut c_void, DiffertestDirection::ToRef);
+                self.differtest.ref_difftest_regcpy(self.sim.cpu_state.gpr.as_ptr() as *mut c_void, DiffertestDirection::ToRef);
             }
 
             Ok(())

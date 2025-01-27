@@ -1,6 +1,5 @@
 use std::os::raw::c_void;
 
-use super::Riscv32CpuState;
 use simulator::SimulatorError as simErr;
 use owo_colors::OwoColorize;
 
@@ -10,22 +9,7 @@ impl Monitor {
     pub fn difftest_step(&mut self) -> Result<(), simErr> {
         self.differtest.ref_difftest_exec(1);
         
-        let dut_r = Riscv32CpuState {
-            gpr: {
-                let mut gpr_array = [0u32; 32];
-                let gpr_vec = self.sim.cpu_state.gpr.iter().map(|r| r.value).collect::<Vec<u32>>();
-                gpr_array.copy_from_slice(&gpr_vec[..32]);
-                gpr_array
-            },
-            pc: self.sim.cpu_state.pc.value,
-            csr: {
-                let mut csr_array = [0u32; 4096];
-                let csr_vec = self.sim.cpu_state.csr.iter().map(|r| r.value).collect::<Vec<u32>>();
-                csr_array.copy_from_slice(&csr_vec[..4096]);
-                csr_array
-            },
-        };
-
+        let dut_r = &self.sim.cpu_state;
         let ref_r = self.differtest.get_ref_reg();
 
         for gpr in 0..32 {

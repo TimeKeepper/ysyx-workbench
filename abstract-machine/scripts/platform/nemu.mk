@@ -28,7 +28,8 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	@$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin
 
 batch: image
 	@$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin ExtraArgs=-b

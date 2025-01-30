@@ -9,7 +9,7 @@ impl Monitor {
     pub fn difftest_step(&mut self) -> Result<(), simErr> {
         self.differtest.ref_difftest_exec(1);
         
-        let dut_r = &self.sim.cpu_state;
+        let dut_r = self.sim.get_reg_state();
         let ref_r = self.differtest.get_ref_reg();
 
         for gpr in 0..32 {
@@ -36,7 +36,7 @@ impl Monitor {
         }
 
         for w in self.differtest_watchpoints.iter() {
-            let dut_data = self.sim.mmu.read(*w, simulator::mmu::Mask::None)?;
+            let dut_data = self.sim.get_mem_state().read(*w, simulator::mmu::Mask::None)?;
             let ref_data = {
                 let mut data = 0u32;
                 self.differtest.ref_difftest_memcpy(*w as u64, &mut data as *mut u32 as *mut c_void, 4, super::DiffertestDirection::ToDut);

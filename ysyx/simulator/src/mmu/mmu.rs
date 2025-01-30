@@ -1,4 +1,4 @@
-use std::ops::Range;
+use owo_colors::OwoColorize;
 
 use super::super::simErr;
 use super::memory::Memory;
@@ -95,12 +95,25 @@ impl MMU {
         }
     }
 
-    pub fn memory_map(&self) -> Vec<(&str, Range<u32>)> {
-        let mut memory_map = Vec::new();
-        for memory in self.memory.iter() {
-            memory_map.push((memory.name.as_str(), (memory.base)..(memory.base + memory.memory.len() as u32)));
+    pub fn memory_map(&self) {
+        for m in &self.memory {
+            println!("{}", "Memory Map:".purple());
+            println!(
+                "{}: \t0x{:08x} - 0x{:08x}",
+                m.name.red(),
+                m.base.green(),
+                (m.base + m.memory.len() as u32).green()
+            );
         }
-        memory_map
+        for d in &self.device {
+            println!("{}", "Device Map:".purple());
+            println!(
+                "{}: \t0x{:08x} - 0x{:08x}",
+                d.name.red(),
+                d.range.start.green(),
+                d.range.end.green()
+            );
+        }
     }
 }
 

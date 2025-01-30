@@ -100,7 +100,7 @@ impl Resper {
         print_respstring(msg, RespType::Success);
     }
 
-    pub fn function_log(&self, fuc: &str, onor_off: bool) {
+    pub fn option_log(&self, fuc: &str, onor_off: bool) {
         if onor_off {
             self.info(&format!("[{}]: {}", fuc.magenta(), "On".green()));
         } else {

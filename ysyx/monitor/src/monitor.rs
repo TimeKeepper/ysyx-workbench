@@ -43,7 +43,7 @@ pub struct Monitor {
     pub cli_parser:Cli,
     pub cmd_manager: CmM,
 
-    pub sim: nemu::Simulator,
+    pub sim: Box<dyn simulator::Simulator>,
     pub differtest: differtest::Differtest,
     pub differtest_watchpoints: Vec<u32>,
 
@@ -66,7 +66,7 @@ impl Monitor {
             msgr,
             cli_parser,
             cmd_manager,
-            sim: nemu::Simulator::new(),
+            sim: Box::new(nemu::Simulator::new()),
             differtest: differtest::Differtest::new(),
             differtest_watchpoints: Vec::new(),
 
@@ -95,8 +95,8 @@ impl Monitor {
         }
 
         if self.cli_parser.debug {
-            self.sim.inst_trace = true;
-            self.sim.inst_trace_buffer.0 = true;
+            _ = self.sim.func_ctrl(true, Some("it"));
+            _ = self.sim.func_ctrl(true, Some("ir"));
         }
     }
 
@@ -131,7 +131,7 @@ impl Monitor {
         if self.cli_parser.log {
             self.msgr.init();
         }
-        self.msgr.function_log("log", self.cli_parser.log);
+        self.msgr.option_log("log", self.cli_parser.log);
     }
 
     fn init_sim(&mut self) -> Result<(), simErr> {
@@ -144,7 +144,7 @@ impl Monitor {
         }
         let bin = bin.unwrap();
 
-        self.sim.mmu.load("psram", &bin)?;
+        self.sim.get_mem_state().load("psram", &bin)?;
 
         if let Some(diffpath) = &self.cli_parser.dut {
             self.differtest.init(&diffpath);
@@ -152,7 +152,7 @@ impl Monitor {
             self.differtest.ref_difftest_memcpy(
                 0x8000_0000,
                 {let mmt = self.sim
-                    .mmu
+                    .get_mem_state()
                     .match_memory(mmu::MatchMsg::ADDR { addr: 0x8000_0000})
                     .ok()
                     .unwrap();
@@ -168,10 +168,10 @@ impl Monitor {
                 bin.len() as u64,
                 differtest::DiffertestDirection::ToRef,
             );
-            self.differtest.set_ref_reg(&self.sim.cpu_state);
+            self.differtest.set_ref_reg(&self.sim.get_reg_state());
         }
         self.msgr
-            .function_log("differtest", self.cli_parser.dut.is_some());
+            .option_log("differtest", self.cli_parser.dut.is_some());
 
         Ok(())
     }
@@ -243,11 +243,9 @@ impl Monitor {
                 simErr::InstrctionDecodeFailed { inst } => {
                     self.msgr.error(
                     format!(
-                        "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}
-                        disassembler result: {}",
-                            self.sim.cpu_state.pc, 
-                            inst, 
-                            self.sim.disasm.disasm(&inst.to_le_bytes(), self.sim.cpu_state.pc as u64)
+                        "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}",
+                            self.sim.get_reg_state().pc, 
+                            inst
                         )
                         .as_str(),
                     );

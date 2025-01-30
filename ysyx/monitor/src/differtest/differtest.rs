@@ -53,7 +53,7 @@ impl Differtest {
 
         let ref_r_ptr = &ref_r as *const Riscv32CpuState as *mut c_void;
         unsafe {
-            self.cont.as_ref().expect("?").difftest_regcpy(ref_r_ptr, DiffertestDirection::ToRef.into());
+            self.cont.as_ref().expect("?").difftest_regcpy(ref_r_ptr, DiffertestDirection::ToDut.into());
         }
 
         ref_r

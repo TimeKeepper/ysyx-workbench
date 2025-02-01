@@ -1,4 +1,5 @@
 use crate::mmu::devices::{SerialFactory, TimerFactory};
+use crate::{function_log, RV32GPR_NAME};
 use crate::{mmu::MMU, simulator};
 
 use circular_queue::CircularQueue;
@@ -7,6 +8,8 @@ use super::state::Riscv32CpuState;
 use owo_colors::OwoColorize;
 
 use super::super::disassembler;
+
+use msg_resp::{SimErr, SimOk, ResultMessage};
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
@@ -48,7 +51,7 @@ impl Simulator{
         }
     }
 
-    fn decode(&self, inst: u32) -> Result<ExecuteInst, simulator::SimulatorError> {
+    fn decode(&self, inst: u32) -> Result<ExecuteInst, SimErr> {
         self.inst_parser.parse(inst)
     }
 
@@ -65,7 +68,7 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-    fn single_instruction(&mut self, trace: bool) -> Result<simulator::SimulatorOk, simulator::SimulatorError> {
+    fn single_instruction(&mut self, trace: bool) -> ResultMessage {
         let addr: u32 = self.cpu_state.pc;
         let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
@@ -79,7 +82,7 @@ impl simulator::Simulator for Simulator {
         
         self.execte_times += 1;
 
-        Ok(simulator::SimulatorOk::InstructionExecuted)
+        Ok(SimOk::InstructionExecuted)
     }
     
     fn instruction_ring_buffer(&mut self) {
@@ -87,9 +90,117 @@ impl simulator::Simulator for Simulator {
             println!("{:?}", i);
         }
     }
-
+    
     fn times(&mut self) {
         println!("Execute times: {}", self.execte_times.purple());
+    }
+    
+    fn external_state_change(&mut self) -> bool {
+        self.mmu.is_attch_device == false
+    }
+
+    fn get_reg_state(&self) -> &Riscv32CpuState {
+        &self.cpu_state
+    }
+
+    fn get_mem_state(&mut self) -> &mut MMU {
+        &mut self.mmu
+    }
+    
+    fn state(&mut self, target: String, specify: Option<String>) -> ResultMessage {
+        match target.as_str() {
+            "gpr" => {
+                if specify.is_none() {
+                    for (i, r) in self.cpu_state.gpr.iter().enumerate() {
+                        println!("{}: \t0x{:08x}", RV32GPR_NAME[i].purple(), r.red());
+                    }
+                    return Ok(SimOk::Nothing);
+                }
+
+                let specify = specify.unwrap();
+                
+                let index = specify.parse::<u32>();
+                if index.is_ok() && (0..32).contains(&index.clone().unwrap()) {
+                    let index = index.unwrap();
+                    println!("{}: \t0x{:08x}", specify.purple(), self.cpu_state.gpr[index as usize].red());
+                    return Ok(SimOk::Nothing);
+                }
+                
+                for name in RV32GPR_NAME.iter() {
+                    if name == &specify {
+                        println!("{}: \t0x{:08x}", specify.purple(), self.cpu_state.gpr[RV32GPR_NAME.iter().position(|&r| r == specify).unwrap()].red());
+                        return Ok(SimOk::Nothing);
+                    }
+                    
+                }
+
+                println!("Invalid index");
+                return Err(SimErr::InvalidCommand);
+            }
+
+            "pc" => {
+                println!("{}: \t0x{:08x}", "pc".purple(), self.cpu_state.pc.red());
+                return Ok(SimOk::Nothing);
+            }
+
+            "csr" => {
+                if specify.is_none() {
+                    println!("{}", "You Have to specify csr index".red());
+                    return Err(SimErr::InvalidCommand);
+                }
+
+                let specify = specify.unwrap();
+
+                let index = specify.parse::<u32>();
+
+                if index.is_err() {
+                    println!("{}", "index parse error(to u32)".red());
+                    return Err(SimErr::InvalidCommand);
+                }
+
+                let index = index.unwrap();
+                if !(0..4096).contains(&index) {
+                    println!("{}", "Invalid index, should be in 0..4096".red());
+                    return Err(SimErr::InvalidCommand);
+                }
+
+                println!("{}{}: \t0x{:08x}", "csr".purple(), index.red(), self.cpu_state.csr[index as usize].red());
+
+                return Ok(SimOk::Nothing);
+            }
+
+            _ => {
+                println!("Invalid target");
+                return Err(SimErr::InvalidCommand);
+            }
+        }
+    }
+
+    fn func_ctrl(&mut self, on_or_off: bool, target: Option<&str>) -> ResultMessage {
+        if target.is_none() {
+            function_log("instruction trace", self.inst_trace);
+            function_log("instruction trace buffer", self.inst_trace_buffer.0);
+            return Ok(SimOk::Nothing);
+        }
+        
+        let target: &str = &target.unwrap();
+
+        match target {
+            "it" => {
+                self.inst_trace = on_or_off;
+                function_log("Instruction trace", on_or_off);
+                return Ok(SimOk::Nothing);
+            }
+            "ir" => {
+                self.inst_trace_buffer.0 = on_or_off;
+                function_log("Instruction trace buffer", on_or_off);
+                return Ok(SimOk::Nothing);
+            }
+            _ => {
+                println!("{}", "You should input valid target from [it, ir]".red());
+                return Err(SimErr::InvalidCommand);
+            }
+        }
     }
 }
 

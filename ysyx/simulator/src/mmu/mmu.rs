@@ -1,8 +1,8 @@
-use std::ops::Range;
+use owo_colors::OwoColorize;
 
-use super::super::simErr;
 use super::memory::Memory;
-use super::{devices::Device, Mask, MatchMsg};
+use super::{devices::Device, Mask};
+use msg_resp::{MatchMsg, SimErr};
 
 pub enum MMT<'a> {
     Memory(&'a mut Memory),
@@ -50,7 +50,7 @@ impl MMU {
         self.device.push(device);
     }
 
-    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<MMT, simErr> {
+    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<MMT, SimErr> {
         for memory in self.memory.iter_mut() {
             if memory.match_memory(msg.clone()) {
                 self.is_attch_device = false;
@@ -65,21 +65,21 @@ impl MMU {
             }
         }
 
-        Err(simErr::NoMatchingMemory { msg })
+        Err(SimErr::NoMatchingMemory { msg })
     }
 
-    pub fn read(&mut self, addr: u32, mask: Mask) -> Result<u32, simErr> {
+    pub fn read(&mut self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
         let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
         Ok(memory.read(addr as u32, mask))
     }
 
-    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), simErr> {
+    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), SimErr> {
         let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
         memory.write(addr as u32, data, mask);
         Ok(())
     }
 
-    pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), simErr> {
+    pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), SimErr> {
         let memory = self.match_memory(MatchMsg::NAME {
             name: name.to_string(),
         })?;
@@ -89,18 +89,31 @@ impl MMU {
                 memory.load(data)?;
                 Ok(())
             }
-            MMT::Device(device) => Err(simErr::DeviceCannotBeLoad {
+            MMT::Device(device) => Err(SimErr::DeviceCannotBeLoad {
                 name: device.name.clone(),
             }),
         }
     }
 
-    pub fn memory_map(&self) -> Vec<(&str, Range<u32>)> {
-        let mut memory_map = Vec::new();
-        for memory in self.memory.iter() {
-            memory_map.push((memory.name.as_str(), (memory.base)..(memory.base + memory.memory.len() as u32)));
+    pub fn memory_map(&self) {
+        for m in &self.memory {
+            println!("{}", "Memory Map:".purple());
+            println!(
+                "{}: \t0x{:08x} - 0x{:08x}",
+                m.name.red(),
+                m.base.green(),
+                (m.base + m.memory.len() as u32).green()
+            );
         }
-        memory_map
+        for d in &self.device {
+            println!("{}", "Device Map:".purple());
+            println!(
+                "{}: \t0x{:08x} - 0x{:08x}",
+                d.name.red(),
+                d.range.start.green(),
+                d.range.end.green()
+            );
+        }
     }
 }
 

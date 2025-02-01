@@ -2,7 +2,8 @@ use crate::mmu::Mask;
 
 use super::super::{ExecuteInst, Simulator, sig_extend};
 
-use super::super::super::simErr;
+use msg_resp::SimErr;
+
 
 #[derive(Debug, PartialEq, Clone)]
 enum ExecuteResult {
@@ -23,7 +24,7 @@ enum CsrAddr {
 }
 
 impl Simulator {
-    pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), simErr> {
+    pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), SimErr> {
         if self.rv32i_execute(&inst)? == ExecuteResult::Ok {
             return Ok(());
         }
@@ -40,10 +41,10 @@ impl Simulator {
             return Ok(());
         }
 
-        Err(simErr::InstrctionExecuteFailed { name:inst.name.to_string() })
+        Err(SimErr::InstrctionExecuteFailed { name:inst.name.to_string() })
     }
 
-    fn rv32i_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+    fn rv32i_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
         let name: &str = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -200,7 +201,7 @@ impl Simulator {
                 npc = csr[CsrAddr::MTVEC as usize];
             }
             "ebreak" => {
-                return Err(simErr::Ebreak { is_good: (gpr[10] == 0)});
+                return Err(SimErr::Ebreak { is_good: (gpr[10] == 0)});
             }
 
             _ => return Ok(ExecuteResult::UnknownInst),
@@ -216,7 +217,7 @@ impl Simulator {
         Ok(ExecuteResult::Ok)
     }
 
-    fn rv32m_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+    fn rv32m_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
         let name: &str = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -287,7 +288,7 @@ impl Simulator {
         Ok(ExecuteResult::Ok)
     }
 
-    fn zicsr_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+    fn zicsr_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
         let name: &str = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -324,7 +325,7 @@ impl Simulator {
         Ok(ExecuteResult::Ok)
     }
 
-    fn r#priv_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, simErr> {
+    fn r#priv_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
         let name: &str = &inst.name;
         
         let npc: u32;

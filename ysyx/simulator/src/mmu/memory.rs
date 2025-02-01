@@ -5,8 +5,9 @@ pub struct Memory {
     pub memory: Box<[u8]>,
 }
 
+use msg_resp::{MatchMsg, SimErr};
+
 use super::Mask;
-use super::super::simErr;
 
 impl Memory {
     pub fn new(name: &str, base: u32, size: u32) -> Self {
@@ -17,16 +18,16 @@ impl Memory {
         }
     }
     
-    pub fn match_memory(&mut self, msg: super::MatchMsg) -> bool {
+    pub fn match_memory(&mut self, msg: MatchMsg) -> bool {
         match msg {
-            super::MatchMsg::ADDR { addr } => {
+            MatchMsg::ADDR { addr } => {
                 if addr >= self.base && addr < self.base + self.memory.len() as u32 {
                     true
                 } else {
                     false
                 }
             }
-            super::MatchMsg::NAME { name } => {
+            MatchMsg::NAME { name } => {
                 if self.name == name {
                     true
                 } else {
@@ -72,9 +73,9 @@ impl Memory {
         }
     }
 
-    pub fn load(&mut self, data: &[u8]) -> Result<(), crate::SimulatorError> {
+    pub fn load(&mut self, data: &[u8]) -> Result<(), SimErr> {
         if data.len() > self.memory.len() {
-            return Err(simErr::NoMatchingMemory { msg: super::MatchMsg::NAME { name: format!("Too long bin for {}", self.name) } });
+            return Err(SimErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", self.name) } });
         }
 
         self.memory[..data.len()].copy_from_slice(data);

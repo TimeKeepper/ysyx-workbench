@@ -18,8 +18,9 @@ struct RiscvInst {
 }
 
 use msg_resp as msgr;
+use msg_resp::SimErr;
 
-use crate::{nemu::ExecuteInst, simulator};
+use crate::nemu::ExecuteInst;
 
 use super::super::{extract_bits, sig_extend};
 
@@ -118,7 +119,7 @@ impl RvInstParser {
         inst.to_string()
     }
 
-    pub fn parse(&self, inst: u32) -> Result<ExecuteInst, simulator::SimulatorError> {
+    pub fn parse(&self, inst: u32) -> Result<ExecuteInst, SimErr> {
         for i in &self.insts {
             match i.parse(inst) {
                 Ok(name) => return Ok(name),
@@ -126,7 +127,7 @@ impl RvInstParser {
             }
         }
         
-        Err(simulator::SimulatorError::InstrctionDecodeFailed{inst})
+        Err(SimErr::InstrctionDecodeFailed{inst})
     }
 
     pub fn new() -> Self {

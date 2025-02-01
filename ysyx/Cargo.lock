@@ -222,6 +222,7 @@ dependencies = [
  "monitor",
  "msg_resp",
  "simulator",
+ "state",
  "ysyx_macro",
 ]
 
@@ -566,6 +567,7 @@ dependencies = [
  "slog",
  "slog-async",
  "slog-term",
+ "state",
  "ysyx_macro",
 ]
 
@@ -923,6 +925,7 @@ dependencies = [
  "msg_resp",
  "owo-colors",
  "rand",
+ "state",
  "winnow",
  "ysyx_macro",
 ]
@@ -963,6 +966,15 @@ name = "smallvec"
 version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
+
+[[package]]
+name = "state"
+version = "0.1.0"
+dependencies = [
+ "msg_resp",
+ "owo-colors",
+ "ysyx_macro",
+]
 
 [[package]]
 name = "strsim"

@@ -96,19 +96,20 @@ impl Monitor {
     }
 
     pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> ResultMessage {
-        // let mut addr = addr;
-        // let length = if length.is_none() { 1 } else { length.unwrap() };
-        // for _ in 0..length {
-        //     let data = self.sim.get_mem_state().read(addr, Mask::None)?;
-        //     self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
-        //     addr = addr + 4;
-        // }
+        let mut addr = addr;
+        let length = if length.is_none() { 1 } else { length.unwrap() };
+
+        for _ in 0..length {
+            let data = self.shared_state.lock().unwrap().read(addr, state::mmu::Mask::None)?;
+            self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+            addr = addr + 4;
+        }
         
         Ok(SimOk::Nothing)
     }
 
     pub fn cmd_mm(&mut self) -> ResultMessage {
-        // self.sim.get_mem_state().memory_map();
+        self.shared_state.lock().unwrap().memory_map();
         Ok(SimOk::Nothing)
     }
 

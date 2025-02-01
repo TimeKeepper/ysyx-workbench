@@ -54,10 +54,13 @@ pub struct Monitor {
     
     pub cmd_sender: Sender<CtrlCommand>,
     pub result_receiver: Receiver<ResultMessage>,
+
+    pub shared_state: std::sync::Arc<std::sync::Mutex<state::mmu::MMU>>,
 }
 
 impl Monitor {
-    pub fn new(name: &str, cmd_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>) -> Self {
+    pub fn new(name: &str, cmd_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>, 
+        shared_state: std::sync::Arc<std::sync::Mutex<state::mmu::MMU>>) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
         let msgr = msgr::Resper::new();
@@ -80,10 +83,18 @@ impl Monitor {
 
             cmd_sender,
             result_receiver,
+
+            shared_state,
         }
     }
 
     pub fn init(&mut self) {
+        self.shared_state.lock().unwrap().add_memory("sram",  0x0f00_0000, 0x0000_2000);
+        self.shared_state.lock().unwrap().add_memory("mrom",  0x2000_0000, 0x0000_1000);
+        self.shared_state.lock().unwrap().add_memory("flash", 0x3000_0000, 0x1000_0000);
+        self.shared_state.lock().unwrap().add_memory("psram", 0x8000_0000, 0x0800_0000);
+        self.shared_state.lock().unwrap().add_memory("sdram", 0xa000_0000, 0x0200_0000);
+
         self.init_signal();
 
         self.init_log();

@@ -9,6 +9,7 @@ criterion = {workspace = true}
 [dependencies]
 ysyx_macro = { path = "../ysyx_macro" }
 msg_resp = { path = "../msg_resp" }
+state = { path = "../state" }
 winnow = "0.6.24"
 llvm-sys = "181.0.0"
 rand = {workspace = true}

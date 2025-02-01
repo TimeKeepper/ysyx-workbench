@@ -1,4 +1,3 @@
-#include <memory>
 #include <utils.hpp>
 #include <main.hpp>
 #include <simple_debugger.hpp>

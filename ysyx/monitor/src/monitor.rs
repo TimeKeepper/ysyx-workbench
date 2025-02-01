@@ -1,6 +1,5 @@
 
 use clap::Parser;
-use msg_resp::CtrlCommand;
 use msg_resp::MatchMsg;
 use msg_resp as msgr;
 use owo_colors::OwoColorize;
@@ -17,8 +16,6 @@ use super::differtest;
 
 use std::os::raw::c_void;
 use std::sync::atomic::AtomicBool;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
 
 use simulator::nemu;
 

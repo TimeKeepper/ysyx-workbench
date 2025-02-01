@@ -917,6 +917,7 @@ version = "0.1.0"
 dependencies = [
  "circular-queue",
  "criterion",
+ "dlopen2",
  "llvm-sys",
  "msg_resp",
  "owo-colors",

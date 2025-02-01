@@ -12,3 +12,4 @@ strip         = true
 criterion = "0.5.1"
 owo-colors = "4.1.0"
 rand = "0.8.4"
+dlopen2 = "0.7.0"

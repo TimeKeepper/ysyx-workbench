@@ -1,5 +1,5 @@
 use simulator::mmu::Mask;
-use msg_resp::{CtrlCommand, MatchMsg, ResultMessage, SimErr, SimOk};
+use msg_resp::{MatchMsg, ResultMessage, SimErr, SimOk};
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;

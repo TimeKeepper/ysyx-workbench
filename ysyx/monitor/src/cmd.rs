@@ -1,5 +1,6 @@
 use simulator::mmu::Mask;
 use msg_resp::{MatchMsg, CtrlCommand, ResultMessage, SimErr, SimOk};
+use state::reg::RegisterOps;
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;
@@ -25,8 +26,77 @@ impl Monitor {
     }
 
     pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> ResultMessage {
-        // self.sim.state(target, specify)
-        Ok(SimOk::Nothing)
+        match target.as_str() {
+            "gpr" => {
+                // if specify.is_none() {
+                //     for (i, r) in self.reg.lock().unwrap().gp.iter().enumerate() {
+                //         println!("{}: \t0x{:08x}", self.reg.lock().unwrap().index2name(i), r.red());
+                //     }
+                // }
+                // if specify.is_none() {
+                //     for (i, r) in self.reg.lock().unwrap().gp.iter().enumerate() {
+                //         println!("{}: \t0x{:08x}", self.reg.lock().unwrap().index2name(i), r.red());
+                //     }
+                //     return Ok(SimOk::Nothing);
+                // }
+
+                // let specify = specify.unwrap();
+                
+                // let index = specify.parse::<u32>();
+                // if index.is_ok() && (0..32).contains(&index.clone().unwrap()) {
+                //     let index = index.unwrap();
+                //     println!("{}: \t0x{:08x}", specify.purple(), self.cpu_state.gpr[index as usize].red());
+                //     return Ok(SimOk::Nothing);
+                // }
+                
+                // for name in RV32GPR_NAME.iter() {
+                //     if name == &specify {
+                //         println!("{}: \t0x{:08x}", specify.purple(), self.cpu_state.gpr[RV32GPR_NAME.iter().position(|&r| r == specify).unwrap()].red());
+                //         return Ok(SimOk::Nothing);
+                //     }
+                    
+                // }
+
+                // println!("Invalid index");
+                return Err(SimErr::InvalidCommand);
+            }
+
+            "pc" => {
+                println!("{}: \t0x{:08x}", "pc".purple(), self.reg.lock().unwrap().read_pc().red());
+                return Ok(SimOk::Nothing);
+            }
+
+            // "csr" => {
+            //     if specify.is_none() {
+            //         println!("{}", "You Have to specify csr index".red());
+            //         return Err(SimErr::InvalidCommand);
+            //     }
+
+            //     let specify = specify.unwrap();
+
+            //     let index = specify.parse::<u32>();
+
+            //     if index.is_err() {
+            //         println!("{}", "index parse error(to u32)".red());
+            //         return Err(SimErr::InvalidCommand);
+            //     }
+
+            //     let index = index.unwrap();
+            //     if !(0..4096).contains(&index) {
+            //         println!("{}", "Invalid index, should be in 0..4096".red());
+            //         return Err(SimErr::InvalidCommand);
+            //     }
+
+            //     println!("{}{}: \t0x{:08x}", "csr".purple(), index.red(), self.cpu_state.csr[index as usize].red());
+
+            //     return Ok(SimOk::Nothing);
+            // }
+
+            _ => {
+                println!("Invalid target");
+                return Err(SimErr::InvalidCommand);
+            }
+        }
     }
 
     pub fn cmd_func(
@@ -100,7 +170,7 @@ impl Monitor {
         let length = if length.is_none() { 1 } else { length.unwrap() };
 
         for _ in 0..length {
-            let data = self.shared_state.lock().unwrap().read(addr, state::mmu::Mask::None)?;
+            let data = self.mem.lock().unwrap().read(addr, state::mmu::Mask::None)?;
             self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
             addr = addr + 4;
         }
@@ -109,7 +179,7 @@ impl Monitor {
     }
 
     pub fn cmd_mm(&mut self) -> ResultMessage {
-        self.shared_state.lock().unwrap().memory_map();
+        self.mem.lock().unwrap().memory_map();
         Ok(SimOk::Nothing)
     }
 

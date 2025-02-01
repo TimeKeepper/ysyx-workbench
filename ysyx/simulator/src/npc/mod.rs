@@ -1,1 +1,1 @@
-ysyx_macro::mod_flat!(npc, state);
+ysyx_macro::mod_flat!(npc);

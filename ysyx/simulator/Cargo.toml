@@ -21,3 +21,9 @@ dlopen2 = {workspace = true}
 name = "decode_bench"
 harness = false
 path = "benches/nemu/decode_bench.rs"
+
+[features]
+default = ["nemu"]
+nemu = []
+npc = []
+ysyxsoc = []

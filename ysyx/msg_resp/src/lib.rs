@@ -140,6 +140,8 @@ pub enum SimErr {
     InstrctionExecuteFailed {name: String},
 }
 
+pub type ResultMessage = Result<SimOk, SimErr>;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum MatchMsg {
     ADDR {addr: u32},

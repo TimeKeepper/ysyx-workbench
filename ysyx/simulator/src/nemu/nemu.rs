@@ -9,7 +9,7 @@ use owo_colors::OwoColorize;
 
 use super::super::disassembler;
 
-use msg_resp::{SimErr, SimOk};
+use msg_resp::{SimErr, SimOk, ResultMessage};
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
@@ -68,7 +68,7 @@ impl Simulator{
 }
 
 impl simulator::Simulator for Simulator {
-    fn single_instruction(&mut self, trace: bool) -> Result<SimOk, SimErr> {
+    fn single_instruction(&mut self, trace: bool) -> ResultMessage {
         let addr: u32 = self.cpu_state.pc;
         let inst = self.mmu.read(addr, crate::mmu::Mask::None)?;
         let exeu_inst = self.decode(inst)?;
@@ -107,7 +107,7 @@ impl simulator::Simulator for Simulator {
         &mut self.mmu
     }
     
-    fn state(&mut self, target: String, specify: Option<String>) -> Result<SimOk, SimErr> {
+    fn state(&mut self, target: String, specify: Option<String>) -> ResultMessage {
         match target.as_str() {
             "gpr" => {
                 if specify.is_none() {
@@ -176,7 +176,7 @@ impl simulator::Simulator for Simulator {
         }
     }
 
-    fn func_ctrl(&mut self, on_or_off: bool, target: Option<&str>) -> Result<SimOk, SimErr> {
+    fn func_ctrl(&mut self, on_or_off: bool, target: Option<&str>) -> ResultMessage {
         if target.is_none() {
             function_log("instruction trace", self.inst_trace);
             function_log("instruction trace buffer", self.inst_trace_buffer.0);

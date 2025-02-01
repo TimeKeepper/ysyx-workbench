@@ -2,14 +2,14 @@ use owo_colors::OwoColorize;
 
 use crate::{mmu::MMU, nemu::Riscv32CpuState};
 
-use msg_resp::{SimOk, SimErr};
+use msg_resp::ResultMessage;
 
 pub fn function_log(feature: &str, status: bool) {
     println!("{} is [{}]", feature.purple(), if status { "on".green().to_string() } else { "off".red().to_string() });
 }
 
 pub trait Simulator {
-    fn single_instruction(&mut self, trace: bool) -> Result<SimOk, SimErr>;
+    fn single_instruction(&mut self, trace: bool) -> ResultMessage;
 
     fn instruction_ring_buffer(&mut self);
 
@@ -21,9 +21,9 @@ pub trait Simulator {
 
     fn get_mem_state(&mut self) -> &mut MMU;
 
-    fn state(&mut self, target: String, specify: Option<String>) -> Result<SimOk, SimErr>;
+    fn state(&mut self, target: String, specify: Option<String>) -> ResultMessage;
 
-    fn func_ctrl(&mut self, on_or_off: bool, target: Option<&str>) -> Result<SimOk, SimErr>;
+    fn func_ctrl(&mut self, on_or_off: bool, target: Option<&str>) -> ResultMessage;
 }
 
 #[derive(Debug, PartialEq, Clone)]

@@ -1,5 +1,5 @@
 use simulator::mmu::Mask;
-use msg_resp::{MatchMsg, SimOk, SimErr};
+use msg_resp::{CtrlCommand, MatchMsg, ResultMessage, SimErr, SimOk};
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;
@@ -12,16 +12,19 @@ use crate::{
 };
 
 impl Monitor {
-    pub fn cmd_q(&mut self) -> Result<SimOk, SimErr> {
+    pub fn cmd_q(&mut self) -> ResultMessage {
         self.state = if self.state == MonitorState::TRAP {
             MonitorState::ABORT
         } else {
             MonitorState::QUIT
         };
+
+        self.command_sender.send(CtrlCommand::QUIT).unwrap();
+
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> Result<SimOk, SimErr> {
+    pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> ResultMessage {
         self.sim.state(target, specify)
     }
 
@@ -29,11 +32,11 @@ impl Monitor {
         &mut self,
         on_or_off: bool,
         target: Option<String>,
-    ) -> Result<SimOk, SimErr> {
+    ) -> ResultMessage {
         self.sim.func_ctrl(on_or_off, target.as_deref())
     }
 
-    pub fn cmd_si(&mut self, count: Option<u32>) -> Result<SimOk, SimErr> {
+    pub fn cmd_si(&mut self, count: Option<u32>) -> ResultMessage {
         if self.state == MonitorState::TRAP {
             self.msgr.error("Monitor is in trap state");
             return Err(SimErr::InvalidCommand);
@@ -79,16 +82,16 @@ impl Monitor {
         Ok(SimOk::InstructionExecuted)
     }
 
-    pub fn cmd_c(&mut self) -> Result<SimOk, SimErr> {
+    pub fn cmd_c(&mut self) -> ResultMessage {
         self.cmd_si(Some(0))
     }
 
-    pub fn cmd_ir(&mut self) -> Result<SimOk, SimErr> {
+    pub fn cmd_ir(&mut self) -> ResultMessage {
         self.sim.instruction_ring_buffer();
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> Result<SimOk, SimErr> {
+    pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> ResultMessage {
         let mut addr = addr;
         let length = if length.is_none() { 1 } else { length.unwrap() };
         for _ in 0..length {
@@ -100,12 +103,12 @@ impl Monitor {
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_mm(&mut self) -> Result<SimOk, SimErr> {
+    pub fn cmd_mm(&mut self) -> ResultMessage {
         self.sim.get_mem_state().memory_map();
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_mdw(&mut self, addr: u32) -> Result<SimOk, SimErr> {
+    pub fn cmd_mdw(&mut self, addr: u32) -> ResultMessage {
         if self.cli_parser.dut.is_none() {
             self.msgr.error("No differtest");
             return Err(SimErr::InvalidCommand);
@@ -118,7 +121,7 @@ impl Monitor {
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_t(&mut self) -> Result<SimOk, SimErr> {
+    pub fn cmd_t(&mut self) -> ResultMessage {
         self.sim.times();
         Ok(SimOk::Nothing)
     }

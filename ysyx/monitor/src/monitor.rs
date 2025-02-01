@@ -1,5 +1,6 @@
 
 use clap::Parser;
+use msg_resp::CtrlCommand;
 use msg_resp::MatchMsg;
 use msg_resp as msgr;
 use owo_colors::OwoColorize;
@@ -16,10 +17,12 @@ use super::differtest;
 
 use std::os::raw::c_void;
 use std::sync::atomic::AtomicBool;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
 
 use simulator::nemu;
 
-use msg_resp::{SimOk, SimErr};
+use msg_resp::{SimErr, ResultMessage};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MonitorState {
@@ -49,10 +52,13 @@ pub struct Monitor {
     pub state: MonitorState,
 
     pub signal: std::sync::Arc<AtomicBool>,
+
+    pub command_sender: Sender<CtrlCommand>,
+    pub result_receiver: Receiver<ResultMessage>,
 }
 
 impl Monitor {
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, command_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
         let msgr = msgr::Resper::new();
@@ -72,6 +78,9 @@ impl Monitor {
             state: MonitorState::STOP,
 
             signal,
+
+            command_sender,
+            result_receiver,
         }
     }
 
@@ -175,7 +184,7 @@ impl Monitor {
         Ok(())
     }
 
-    fn execute(&mut self, cmd: Cmd) -> Result<SimOk, SimErr> {
+    fn execute(&mut self, cmd: Cmd) -> ResultMessage {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
 
@@ -202,7 +211,7 @@ impl Monitor {
         }
     }
 
-    fn deal_result(&mut self, result: Result<SimOk, SimErr>) {
+    fn deal_result(&mut self, result: ResultMessage) {
         match result {
             Ok(_) => return,
             Err(err) => match err {

@@ -1,7 +1,5 @@
 use simulator::mmu::Mask;
-use simulator::mmu::MatchMsg;
-use simulator::SimulatorError as simErr;
-use simulator::SimulatorOk as simOk;
+use msg_resp::{MatchMsg, SimOk, SimErr};
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;
@@ -14,16 +12,16 @@ use crate::{
 };
 
 impl Monitor {
-    pub fn cmd_q(&mut self) -> Result<simOk, simErr> {
+    pub fn cmd_q(&mut self) -> Result<SimOk, SimErr> {
         self.state = if self.state == MonitorState::TRAP {
             MonitorState::ABORT
         } else {
             MonitorState::QUIT
         };
-        Ok(simOk::Nothing)
+        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> Result<simOk, simErr> {
+    pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> Result<SimOk, SimErr> {
         self.sim.state(target, specify)
     }
 
@@ -31,26 +29,26 @@ impl Monitor {
         &mut self,
         on_or_off: bool,
         target: Option<String>,
-    ) -> Result<simOk, simErr> {
+    ) -> Result<SimOk, SimErr> {
         self.sim.func_ctrl(on_or_off, target.as_deref())
     }
 
-    pub fn cmd_si(&mut self, count: Option<u32>) -> Result<simOk, simErr> {
+    pub fn cmd_si(&mut self, count: Option<u32>) -> Result<SimOk, SimErr> {
         if self.state == MonitorState::TRAP {
             self.msgr.error("Monitor is in trap state");
-            return Err(simErr::InvalidCommand);
+            return Err(SimErr::InvalidCommand);
         } else if self.state == MonitorState::DONE {
             self.msgr.error("Monitor is in done state");
-            return Err(simErr::InvalidCommand);
+            return Err(SimErr::InvalidCommand);
         }
 
         self.state = MonitorState::RUNNING;
 
         let count = if count.is_none() { 1 } else { count.unwrap() };
 
-        let mut orig = |trace: bool| -> Result<(), simErr> {
+        let mut orig = |trace: bool| -> Result<(), SimErr> {
             if self.signal.load(Ordering::SeqCst) {
-                return Err(simErr::Signal);
+                return Err(SimErr::Signal);
             }
 
             self.sim.single_instruction(trace)?;
@@ -78,19 +76,19 @@ impl Monitor {
             orig(count < 10)?;
         }
 
-        Ok(simOk::InstructionExecuted)
+        Ok(SimOk::InstructionExecuted)
     }
 
-    pub fn cmd_c(&mut self) -> Result<simOk, simErr> {
+    pub fn cmd_c(&mut self) -> Result<SimOk, SimErr> {
         self.cmd_si(Some(0))
     }
 
-    pub fn cmd_ir(&mut self) -> Result<simOk, simErr> {
+    pub fn cmd_ir(&mut self) -> Result<SimOk, SimErr> {
         self.sim.instruction_ring_buffer();
-        Ok(simOk::Nothing)
+        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> Result<simOk, simErr> {
+    pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> Result<SimOk, SimErr> {
         let mut addr = addr;
         let length = if length.is_none() { 1 } else { length.unwrap() };
         for _ in 0..length {
@@ -99,29 +97,29 @@ impl Monitor {
             addr = addr + 4;
         }
         
-        Ok(simOk::Nothing)
+        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_mm(&mut self) -> Result<simOk, simErr> {
+    pub fn cmd_mm(&mut self) -> Result<SimOk, SimErr> {
         self.sim.get_mem_state().memory_map();
-        Ok(simOk::Nothing)
+        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_mdw(&mut self, addr: u32) -> Result<simOk, simErr> {
+    pub fn cmd_mdw(&mut self, addr: u32) -> Result<SimOk, SimErr> {
         if self.cli_parser.dut.is_none() {
             self.msgr.error("No differtest");
-            return Err(simErr::InvalidCommand);
+            return Err(SimErr::InvalidCommand);
         }
 
         let _ = self.sim.get_mem_state().match_memory(MatchMsg::ADDR { addr })?;
 
         self.differtest_watchpoints.push(addr);
 
-        Ok(simOk::Nothing)
+        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_t(&mut self) -> Result<simOk, simErr> {
+    pub fn cmd_t(&mut self) -> Result<SimOk, SimErr> {
         self.sim.times();
-        Ok(simOk::Nothing)
+        Ok(SimOk::Nothing)
     }
 }

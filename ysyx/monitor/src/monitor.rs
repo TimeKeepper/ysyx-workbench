@@ -1,5 +1,6 @@
 
 use clap::Parser;
+use msg_resp::MatchMsg;
 use msg_resp as msgr;
 use owo_colors::OwoColorize;
 use simulator::mmu::MMT;
@@ -18,9 +19,7 @@ use std::sync::atomic::AtomicBool;
 
 use simulator::nemu;
 
-use simulator::SimulatorError as simErr;
-use simulator::SimulatorOk as simOk;
-use simulator::mmu;
+use msg_resp::{SimOk, SimErr};
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MonitorState {
@@ -84,8 +83,8 @@ impl Monitor {
         match self.init_sim() {
             Ok(_) => self.msgr.info("Simulator initialized"),
             Err(err) => match err {
-                simErr::NoBinaryFile => self.msgr.error("No binary file"),
-                simErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
+                SimErr::NoBinaryFile => self.msgr.error("No binary file"),
+                SimErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
                 _ => self.msgr.error("Unknown error"),
             },
         }
@@ -134,13 +133,13 @@ impl Monitor {
         self.msgr.option_log("log", self.cli_parser.log);
     }
 
-    fn init_sim(&mut self) -> Result<(), simErr> {
+    fn init_sim(&mut self) -> Result<(), SimErr> {
         if self.cli_parser.bin.is_none() {
-            return Err(simErr::NoBinaryFile);
+            return Err(SimErr::NoBinaryFile);
         }
         let bin = std::fs::read(self.cli_parser.bin.clone().unwrap());
         if bin.is_err() {
-            return Err(simErr::BinaryFileNotFound);
+            return Err(SimErr::BinaryFileNotFound);
         }
         let bin = bin.unwrap();
 
@@ -153,7 +152,7 @@ impl Monitor {
                 0x8000_0000,
                 {let mmt = self.sim
                     .get_mem_state()
-                    .match_memory(mmu::MatchMsg::ADDR { addr: 0x8000_0000})
+                    .match_memory(MatchMsg::ADDR { addr: 0x8000_0000})
                     .ok()
                     .unwrap();
                     let memory = match mmt {
@@ -176,7 +175,7 @@ impl Monitor {
         Ok(())
     }
 
-    fn execute(&mut self, cmd: Cmd) -> Result<simOk, simErr> {
+    fn execute(&mut self, cmd: Cmd) -> Result<SimOk, SimErr> {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
 
@@ -203,14 +202,14 @@ impl Monitor {
         }
     }
 
-    fn deal_result(&mut self, result: Result<simOk, simErr>) {
+    fn deal_result(&mut self, result: Result<SimOk, SimErr>) {
         match result {
             Ok(_) => return,
             Err(err) => match err {
-                simErr::Signal => {
+                SimErr::Signal => {
                     self.state = MonitorState::STOP;
                 }
-                simErr::Ebreak { is_good } => {
+                SimErr::Ebreak { is_good } => {
                     self.state = if is_good {
                         self.msgr.success("Hit Good TRAP");
                         MonitorState::DONE
@@ -220,27 +219,27 @@ impl Monitor {
                     }
                 },
 
-                simErr::NotImplemented => self.msgr.error("Not implemented yet"),
-                simErr::InvalidCommand => self.msgr.error("Invalid command"),
+                SimErr::NotImplemented => self.msgr.error("Not implemented yet"),
+                SimErr::InvalidCommand => self.msgr.error("Invalid command"),
 
-                simErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
-                simErr::NoBinaryFile => self.msgr.error("No binary file"),
+                SimErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
+                SimErr::NoBinaryFile => self.msgr.error("No binary file"),
 
-                simErr::DeviceCannotBeLoad { name } => {
+                SimErr::DeviceCannotBeLoad { name } => {
                     self.msgr.error(format!("Device {} cannot be loaded", name).as_str())
                 },
 
-                simErr::DiffertestFailed => {
+                SimErr::DiffertestFailed => {
                     self.msgr.error("Differtest failed");
                     self.state = MonitorState::TRAP
                 },
-                simErr::NoMatchingMemory { msg } => {
+                SimErr::NoMatchingMemory { msg } => {
                     self
                     .msgr
                     .error(format!("No matching memory {}", msg).as_str());
                     self.state = MonitorState::TRAP
                 },
-                simErr::InstrctionDecodeFailed { inst } => {
+                SimErr::InstrctionDecodeFailed { inst } => {
                     self.msgr.error(
                     format!(
                         "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}",
@@ -251,7 +250,7 @@ impl Monitor {
                     );
                     self.state = MonitorState::TRAP
                 },
-                simErr::InstrctionExecuteFailed { name } => {
+                SimErr::InstrctionExecuteFailed { name } => {
                     self
                     .msgr
                     .error(format!("Failed to execute instrcution {}", name.purple()).as_str());

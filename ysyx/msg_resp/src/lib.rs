@@ -108,3 +108,50 @@ impl Resper {
         }
     }
 }
+
+pub enum CtrlCommand {
+    QUIT,
+    INFO { target: String, index: Option<u32> },
+    FUNC { on_or_off: bool, target: Option<String> },
+    SI { count: Option<u32> },
+    SC { count: Option<u32> },
+    T,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum SimOk {
+    Nothing,
+    InstructionExecuted,
+    DeviceAttached,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum SimErr {
+    Signal,
+    Ebreak {is_good: bool},
+    NotImplemented,
+    InvalidCommand,
+    NoBinaryFile,
+    DiffertestFailed,
+    BinaryFileNotFound,
+    DeviceCannotBeLoad {name: String},
+    NoMatchingMemory {msg: MatchMsg},
+    InstrctionDecodeFailed {inst: u32},
+    InstrctionExecuteFailed {name: String},
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum MatchMsg {
+    ADDR {addr: u32},
+    NAME {name: String},
+}
+
+use std::fmt::Display;
+impl Display for MatchMsg {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MatchMsg::ADDR {addr} => write!(f, "ADDR: 0x{:08x}", addr),
+            MatchMsg::NAME {name} => write!(f, "NAME: {}", name),
+        }
+    }
+}

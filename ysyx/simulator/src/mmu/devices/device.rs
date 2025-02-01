@@ -1,6 +1,8 @@
 use std::ops::Range;
 
-use super::super::{Mask, MatchMsg};
+use msg_resp::MatchMsg;
+
+use super::super::Mask;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum AttchDirection {

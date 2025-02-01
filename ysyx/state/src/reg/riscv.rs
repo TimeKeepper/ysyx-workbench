@@ -1,7 +1,10 @@
+use std::io::Write;
+
 #[cfg(feature = "riscv32")]
 use bimap::BiHashMap;
 use msg_resp::{ResultMessage, SimErr, SimOk};
 use owo_colors::OwoColorize;
+use tabwriter::TabWriter;
 
 #[cfg(feature = "riscv32")]
 pub struct RegisterBank {
@@ -45,7 +48,7 @@ impl RegisterBank {
     }
 }
 
-use super::{RegIdentifier, RegisterOps};
+use super::{RegIdentifier, RegisterOps, RegType};
 
 #[cfg(feature = "riscv32")]
 impl RegisterOps for RegisterBank {
@@ -87,20 +90,6 @@ impl RegisterOps for RegisterBank {
                 }
             }
         }
-    }
-
-    fn print_gpr(&self, specify: Option<String>) -> ResultMessage {
-        if specify.is_none() {
-            for (name, index) in self.gp_map.iter() {
-                println!("{:<}: \t0x{:<08x}", name.purple(), self.gp[*index].red());
-            }
-            return Ok(SimOk::Nothing);
-        }
-        println!("{:<}: \t0x{:<08x}", 
-            specify.clone().unwrap().purple(), 
-            self.read_gpr(RegIdentifier::Name(&specify.unwrap()))?.red()
-        );
-        return Ok(SimOk::Nothing);
     }
 
     fn read_pc(&self) -> u32 {
@@ -151,17 +140,55 @@ impl RegisterOps for RegisterBank {
         }
     }
 
-    fn print_csr(&self, specify: Option<String>) -> ResultMessage {
+    fn print_reg(&self, specify: Option<String>, r#type: RegType) -> ResultMessage {
+        let map = match r#type {
+            RegType::GPR => &self.gp_map,
+            RegType::CSR => &self.cs_map,
+        };
+
+        let read_reg: Box<dyn Fn(RegIdentifier) -> Result<u32, SimErr>> = match r#type {
+            RegType::GPR => Box::new(|id| self.read_gpr(id)),
+            RegType::CSR => Box::new(|id| self.read_csr(id)),
+        };
+
+        let mut tw = TabWriter::new(vec![]);
+
         if specify.is_none() {
-            for (name, index) in self.cs_map.iter() {
-                println!("{:<}: 0x{:<08x}", name.purple(), self.cs[*index].red());
+            for (name, index) in map.iter() {
+                writeln!(&mut tw, "{}\t0x{:08x}", 
+                    name.purple(), 
+                    read_reg(RegIdentifier::Index(*index)).unwrap().red())
+                .unwrap();
             }
+            tw.flush().unwrap();
+
+            print!("{}", String::from_utf8(tw.into_inner().unwrap()).unwrap());
             return Ok(SimOk::Nothing);
         }
-        println!("{:<}: 0x{:<08x}", 
-            specify.clone().unwrap().purple(), 
-            self.read_csr(RegIdentifier::Name(&specify.unwrap()))?.red()
-        );
+
+        let specify_str = specify.unwrap();
+        let index = specify_str.parse::<usize>();
+
+        if index.is_ok() {
+            let index = index.unwrap();
+
+            writeln!(&mut tw, "{}\t0x{:08x}", 
+                map.get_by_right(&index).unwrap().purple(),
+                read_reg(RegIdentifier::Index(index))?.red()
+            ).unwrap();
+            tw.flush().unwrap();
+
+            print!("{}", String::from_utf8(tw.into_inner().unwrap()).unwrap());
+            return Ok(SimOk::Nothing);
+        }
+
+        writeln!(&mut tw, "{}\t0x{:08x}", 
+            specify_str.purple(), 
+            read_reg(RegIdentifier::Name(&specify_str))?.red()
+        ).unwrap();
+        tw.flush().unwrap();
+        print!("{}", String::from_utf8(tw.into_inner().unwrap()).unwrap());
+        
         return Ok(SimOk::Nothing);
     }
 }

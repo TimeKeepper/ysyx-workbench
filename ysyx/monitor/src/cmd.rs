@@ -1,6 +1,6 @@
 use simulator::mmu::Mask;
 use msg_resp::{MatchMsg, CtrlCommand, ResultMessage, SimErr, SimOk};
-use state::reg::RegisterOps;
+use state::reg::{RegType, RegisterOps};
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;
@@ -28,7 +28,7 @@ impl Monitor {
     pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> ResultMessage {
         match target.as_str() {
             "gp" => {
-                self.reg.lock().unwrap().print_gpr(specify)
+                self.reg.lock().unwrap().print_reg(specify, RegType::GPR)
             }
 
             "pc" => {
@@ -37,7 +37,7 @@ impl Monitor {
             }
 
             "cs" => {
-                self.reg.lock().unwrap().print_csr(specify)
+                self.reg.lock().unwrap().print_reg(specify, RegType::CSR)
             }
 
             _ => {

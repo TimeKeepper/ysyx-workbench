@@ -52,13 +52,10 @@ pub struct Monitor {
     pub state: MonitorState,
 
     pub signal: std::sync::Arc<AtomicBool>,
-
-    pub command_sender: Sender<CtrlCommand>,
-    pub result_receiver: Receiver<ResultMessage>,
 }
 
 impl Monitor {
-    pub fn new(name: &str, command_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>) -> Self {
+    pub fn new(name: &str) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
         let msgr = msgr::Resper::new();
@@ -78,9 +75,6 @@ impl Monitor {
             state: MonitorState::STOP,
 
             signal,
-
-            command_sender,
-            result_receiver,
         }
     }
 

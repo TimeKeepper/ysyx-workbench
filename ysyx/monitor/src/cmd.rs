@@ -19,8 +19,6 @@ impl Monitor {
             MonitorState::QUIT
         };
 
-        self.command_sender.send(CtrlCommand::QUIT).unwrap();
-
         Ok(SimOk::Nothing)
     }
 

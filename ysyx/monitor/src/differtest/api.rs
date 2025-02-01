@@ -7,49 +7,49 @@ use crate::Monitor;
 
 impl Monitor {
     pub fn difftest_step(&mut self) -> Result<(), SimErr> {
-        self.differtest.ref_difftest_exec(1);
+        // self.differtest.ref_difftest_exec(1);
         
-        let dut_r = self.sim.get_reg_state();
-        let ref_r = self.differtest.get_ref_reg();
+        // let dut_r = self.sim.get_reg_state();
+        // let ref_r = self.differtest.get_ref_reg();
 
-        for gpr in 0..32 {
-            if dut_r.gpr[gpr] != ref_r.gpr[gpr] {
-                println!("Differtest failed");
-                println!("DUT x{}: {:08x}", gpr.red(), dut_r.gpr[gpr].purple());
-                println!("REF x{}: {:08x}", gpr.red(), ref_r.gpr[gpr].purple());
-                return Err(SimErr::DiffertestFailed);
-            }
-        }
-        if dut_r.pc != ref_r.pc {
-            println!("Differtest failed");
-            println!("DUT pc: {:08x}", dut_r.pc.purple());
-            println!("REF pc: {:08x}", ref_r.pc.purple());
-            return Err(SimErr::DiffertestFailed);
-        }
-        for csr in 0..4096 {
-            if dut_r.csr[csr] != ref_r.csr[csr] {
-                println!("Differtest failed");
-                println!("DUT csr[{}]: {:08x}", csr.red(), dut_r.csr[csr].purple());
-                println!("REF csr[{}]: {:08x}", csr.red(), ref_r.csr[csr].purple());
-                return Err(SimErr::DiffertestFailed);
-            }
-        }
+        // for gpr in 0..32 {
+        //     if dut_r.gpr[gpr] != ref_r.gpr[gpr] {
+        //         println!("Differtest failed");
+        //         println!("DUT x{}: {:08x}", gpr.red(), dut_r.gpr[gpr].purple());
+        //         println!("REF x{}: {:08x}", gpr.red(), ref_r.gpr[gpr].purple());
+        //         return Err(SimErr::DiffertestFailed);
+        //     }
+        // }
+        // if dut_r.pc != ref_r.pc {
+        //     println!("Differtest failed");
+        //     println!("DUT pc: {:08x}", dut_r.pc.purple());
+        //     println!("REF pc: {:08x}", ref_r.pc.purple());
+        //     return Err(SimErr::DiffertestFailed);
+        // }
+        // for csr in 0..4096 {
+        //     if dut_r.csr[csr] != ref_r.csr[csr] {
+        //         println!("Differtest failed");
+        //         println!("DUT csr[{}]: {:08x}", csr.red(), dut_r.csr[csr].purple());
+        //         println!("REF csr[{}]: {:08x}", csr.red(), ref_r.csr[csr].purple());
+        //         return Err(SimErr::DiffertestFailed);
+        //     }
+        // }
 
-        for w in self.differtest_watchpoints.iter() {
-            let dut_data = self.sim.get_mem_state().read(*w, simulator::mmu::Mask::None)?;
-            let ref_data = {
-                let mut data = 0u32;
-                self.differtest.ref_difftest_memcpy(*w as u64, &mut data as *mut u32 as *mut c_void, 4, super::DiffertestDirection::ToDut);
-                data
-            };
+        // for w in self.differtest_watchpoints.iter() {
+        //     let dut_data = self.sim.get_mem_state().read(*w, simulator::mmu::Mask::None)?;
+        //     let ref_data = {
+        //         let mut data = 0u32;
+        //         self.differtest.ref_difftest_memcpy(*w as u64, &mut data as *mut u32 as *mut c_void, 4, super::DiffertestDirection::ToDut);
+        //         data
+        //     };
 
-            if dut_data != ref_data {
-                println!("Differtest failed");
-                println!("DUT 0x{:08x}: {:08x}", w.red(), dut_data.purple());
-                println!("REF 0x{:08x}: {:08x}", w.red(), ref_data.purple());
-                return Err(SimErr::DiffertestFailed);
-            }
-        }
+        //     if dut_data != ref_data {
+        //         println!("Differtest failed");
+        //         println!("DUT 0x{:08x}: {:08x}", w.red(), dut_data.purple());
+        //         println!("REF 0x{:08x}: {:08x}", w.red(), ref_data.purple());
+        //         return Err(SimErr::DiffertestFailed);
+        //     }
+        // }
 
         Ok(())
     }

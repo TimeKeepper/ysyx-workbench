@@ -109,6 +109,7 @@ impl Resper {
     }
 }
 
+#[derive(Debug, PartialEq, Clone)]
 pub enum CtrlCommand {
     QUIT,
     INFO { target: String, index: Option<u32> },

@@ -1,5 +1,6 @@
 
 use clap::Parser;
+use msg_resp::CtrlCommand;
 use msg_resp::MatchMsg;
 use msg_resp as msgr;
 use owo_colors::OwoColorize;
@@ -16,6 +17,8 @@ use super::differtest;
 
 use std::os::raw::c_void;
 use std::sync::atomic::AtomicBool;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
 
 use simulator::nemu;
 
@@ -42,17 +45,19 @@ pub struct Monitor {
     pub cli_parser:Cli,
     pub cmd_manager: CmM,
 
-    pub sim: Box<dyn simulator::Simulator>,
     pub differtest: differtest::Differtest,
     pub differtest_watchpoints: Vec<u32>,
 
     pub state: MonitorState,
 
     pub signal: std::sync::Arc<AtomicBool>,
+    
+    pub cmd_sender: Sender<CtrlCommand>,
+    pub result_receiver: Receiver<ResultMessage>,
 }
 
 impl Monitor {
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, cmd_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
         let msgr = msgr::Resper::new();
@@ -65,13 +70,16 @@ impl Monitor {
             msgr,
             cli_parser,
             cmd_manager,
-            sim: Box::new(nemu::Simulator::new()),
+            // sim: Box::new(nemu::Simulator::new()),
             differtest: differtest::Differtest::new(),
             differtest_watchpoints: Vec::new(),
 
             state: MonitorState::STOP,
 
             signal,
+
+            cmd_sender,
+            result_receiver,
         }
     }
 
@@ -94,8 +102,8 @@ impl Monitor {
         }
 
         if self.cli_parser.debug {
-            _ = self.sim.func_ctrl(true, Some("it"));
-            _ = self.sim.func_ctrl(true, Some("ir"));
+            // _ = self.sim.func_ctrl(true, Some("it"));
+            // _ = self.sim.func_ctrl(true, Some("ir"));
         }
     }
 
@@ -143,31 +151,31 @@ impl Monitor {
         }
         let bin = bin.unwrap();
 
-        self.sim.get_mem_state().load("psram", &bin)?;
+        // self.sim.get_mem_state().load("psram", &bin)?;
 
         if let Some(diffpath) = &self.cli_parser.dut {
             self.differtest.init(&diffpath);
             self.differtest.ref_difftest_init(1234);
-            self.differtest.ref_difftest_memcpy(
-                0x8000_0000,
-                {let mmt = self.sim
-                    .get_mem_state()
-                    .match_memory(MatchMsg::ADDR { addr: 0x8000_0000})
-                    .ok()
-                    .unwrap();
-                    let memory = match mmt {
-                        MMT::Memory(memory) => memory,
-                        _ => panic!("No memory"),
-                    };
-                    memory
-                    .memory
-                    .as_mut_ptr() 
-                    as *mut c_void
-                },
-                bin.len() as u64,
-                differtest::DiffertestDirection::ToRef,
-            );
-            self.differtest.set_ref_reg(&self.sim.get_reg_state());
+            // self.differtest.ref_difftest_memcpy(
+            //     0x8000_0000,
+            //     {let mmt = self.sim
+            //         .get_mem_state()
+            //         .match_memory(MatchMsg::ADDR { addr: 0x8000_0000})
+            //         .ok()
+            //         .unwrap();
+            //         let memory = match mmt {
+            //             MMT::Memory(memory) => memory,
+            //             _ => panic!("No memory"),
+            //         };
+            //         memory
+            //         .memory
+            //         .as_mut_ptr() 
+            //         as *mut c_void
+            //     },
+            //     bin.len() as u64,
+            //     differtest::DiffertestDirection::ToRef,
+            // );
+            // self.differtest.set_ref_reg(&self.sim.get_reg_state());
         }
         self.msgr
             .option_log("differtest", self.cli_parser.dut.is_some());
@@ -240,14 +248,14 @@ impl Monitor {
                     self.state = MonitorState::TRAP
                 },
                 SimErr::InstrctionDecodeFailed { inst } => {
-                    self.msgr.error(
-                    format!(
-                        "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}",
-                            self.sim.get_reg_state().pc, 
-                            inst
-                        )
-                        .as_str(),
-                    );
+                    // self.msgr.error(
+                    // format!(
+                    //     "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}",
+                    //         // self.sim.get_reg_state().pc, 
+                    //         inst
+                    //     )
+                    //     .as_str(),
+                    // );
                     self.state = MonitorState::TRAP
                 },
                 SimErr::InstrctionExecuteFailed { name } => {

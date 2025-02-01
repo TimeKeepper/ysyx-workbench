@@ -132,6 +132,7 @@ pub enum SimErr {
     Ebreak {is_good: bool},
     NotImplemented,
     InvalidCommand,
+    InvalidRegIndentifier,
     NoBinaryFile,
     DiffertestFailed,
     BinaryFileNotFound,

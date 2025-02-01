@@ -243,6 +243,7 @@ impl Monitor {
 
                 SimErr::NotImplemented => self.msgr.error("Not implemented yet"),
                 SimErr::InvalidCommand => self.msgr.error("Invalid command"),
+                SimErr::InvalidRegIndentifier => self.msgr.error("Invalid register identifier"),
 
                 SimErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
                 SimErr::NoBinaryFile => self.msgr.error("No binary file"),

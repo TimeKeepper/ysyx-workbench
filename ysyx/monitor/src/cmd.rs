@@ -1,4 +1,3 @@
-use simulator::mmu::Mask;
 use msg_resp::{MatchMsg, CtrlCommand, ResultMessage, SimErr, SimOk};
 use state::reg::{RegType, RegisterOps};
 use state::ProcessState;

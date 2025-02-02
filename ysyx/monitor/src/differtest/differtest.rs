@@ -1,7 +1,5 @@
 use std::os::raw::c_void;
 
-use simulator::nemu::Riscv32CpuState;
-
 use dlopen2::wrapper::{Container, WrapperApi};
 
 pub enum DiffertestDirection {

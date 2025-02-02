@@ -1,4 +1,4 @@
-ysyx_macro::mod_pub!(mmu, nemu, npc, disassembler);
+ysyx_macro::mod_pub!(nemu, npc, disassembler);
 ysyx_macro::mod_flat!(simulator);
 
 const RV32GPR_NAME: [&'static str; 32] = [

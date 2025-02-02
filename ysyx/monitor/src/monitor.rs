@@ -4,8 +4,9 @@ use msg_resp::CtrlCommand;
 use msg_resp::MatchMsg;
 use msg_resp as msgr;
 use owo_colors::OwoColorize;
-use state::mmu::MMT;
 use state::reg::RegisterOps;
+use state::mmu::{MMU, devices::{SerialFactory, TimerFactory}};
+use state::reg::RegisterBank;
 use state::ProcessState;
 
 use crate::monitor_parser::OperationMode;
@@ -43,8 +44,8 @@ pub struct Monitor {
     pub cmd_sender: Sender<CtrlCommand>,
     pub result_receiver: Receiver<ResultMessage>,
 
-    pub mem: Arc<Mutex<state::mmu::MMU>>,
-    pub reg: Arc<Mutex<state::reg::RegisterBank>>,
+    pub mem: Arc<Mutex<MMU>>,
+    pub reg: Arc<Mutex<RegisterBank>>,
     pub state: Arc<Mutex<ProcessState>>,
 }
 
@@ -101,8 +102,8 @@ impl Monitor {
         }
 
         if self.cli_parser.debug {
-            // _ = self.sim.func_ctrl(true, Some("it"));
-            // _ = self.sim.func_ctrl(true, Some("ir"));
+            self.cmd_sender.send(CtrlCommand::FUNC { on_or_off: true, target: Some("it".to_string()) }).unwrap();
+            self.cmd_sender.send(CtrlCommand::FUNC { on_or_off: true, target: Some("ir".to_string()) }).unwrap();
         }
     }
 
@@ -136,6 +137,9 @@ impl Monitor {
         mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
         mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
         mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
+
+        mem.add_device(SerialFactory::new(0x1000_0000));
+        mem.add_device(TimerFactory::new(0x1000_2000));
 
         drop(mem);
     }

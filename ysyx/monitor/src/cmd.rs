@@ -1,6 +1,7 @@
 use simulator::mmu::Mask;
 use msg_resp::{MatchMsg, CtrlCommand, ResultMessage, SimErr, SimOk};
 use state::reg::{RegType, RegisterOps};
+use state::ProcessState;
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;
@@ -8,17 +9,17 @@ use std::sync::atomic::Ordering;
 use owo_colors::OwoColorize;
 
 use crate::differtest::DiffertestDirection;
-use crate::{
-    Monitor, MonitorState,
-};
+use crate::Monitor;
 
 impl Monitor {
     pub fn cmd_q(&mut self) -> ResultMessage {
-        self.state = if self.state == MonitorState::TRAP {
-            MonitorState::ABORT
+        let mut state = self.state.lock().unwrap();
+        if *state == ProcessState::TRAP {
+            *state = ProcessState::ABORT;
         } else {
-            MonitorState::QUIT
-        };
+            *state = ProcessState::QUIT;
+        }
+        drop(state);
 
         self.cmd_sender.send(CtrlCommand::QUIT).unwrap();
 

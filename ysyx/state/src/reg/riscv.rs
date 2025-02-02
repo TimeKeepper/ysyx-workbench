@@ -1,21 +1,18 @@
 use std::io::Write;
 
-#[cfg(feature = "riscv32")]
 use bimap::BiHashMap;
 use msg_resp::{ResultMessage, SimErr, SimOk};
 use owo_colors::OwoColorize;
 use tabwriter::TabWriter;
 
-#[cfg(feature = "riscv32")]
 pub struct RegisterBank {
     pub gp: [u32; 32],
-    gp_map: BiHashMap<&'static str, usize>,
     pub pc: u32,
     pub cs: [u32; 4096],
+    gp_map: BiHashMap<&'static str, usize>,
     cs_map: BiHashMap<&'static str, usize>,
 }
 
-#[cfg(feature = "riscv32")]
 impl RegisterBank {
     pub fn new() -> Self {
         let rvgpr_name: [&str; 32] = [
@@ -50,7 +47,6 @@ impl RegisterBank {
 
 use super::{RegIdentifier, RegisterOps, RegType};
 
-#[cfg(feature = "riscv32")]
 impl RegisterOps for RegisterBank {
     fn read_gpr(&self, reg: RegIdentifier) -> Result<u32, SimErr> {
         match reg {

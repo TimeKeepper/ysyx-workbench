@@ -2,15 +2,18 @@ use msg_resp::{ResultMessage, CtrlCommand};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{mpsc, Arc, Mutex};
 
+use state::{mmu::MMU, reg::RegisterBank, ProcessState};
+
 fn main() {
-    let mem = Arc::new(Mutex::new(state::mmu::MMU::new()));
-    let reg = Arc::new(Mutex::new(state::reg::RegisterBank::new()));
+    let mem = Arc::new(Mutex::new(MMU::new()));
+    let reg = Arc::new(Mutex::new(RegisterBank::new()));
+    let state = Arc::new(Mutex::new(ProcessState::STOP));
 
     let (cmd_sender, cmd_receiver) = mpsc::channel();  // B → A
     let (result_sender, result_receiver) = mpsc::channel(); // A → B
 
     let mut monitor = monitor::Monitor::new("nemu", cmd_sender, result_receiver, 
-        mem.clone(), reg.clone());
+        mem.clone(), reg.clone(), state.clone());
 
     let simulator = simulator::npc::Simulator::new(cmd_receiver, result_sender);
 

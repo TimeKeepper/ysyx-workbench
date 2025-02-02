@@ -16,8 +16,6 @@ use super::monitor_parser::Commands as Cmd;
 use super::monitor_parser::Cli as Cli;
 use super::monitor_parser::CommandManager as CmM;
 
-use super::differtest;
-
 use std::os::raw::c_void;
 use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
@@ -36,8 +34,8 @@ pub struct Monitor {
     pub cli_parser:Cli,
     pub cmd_manager: CmM,
 
-    pub differtest: differtest::Differtest,
-    pub differtest_watchpoints: Vec<u32>,
+    // pub differtest: differtest::Differtest,
+    // pub differtest_watchpoints: Vec<u32>,
 
     pub signal: Arc<AtomicBool>,
     
@@ -67,8 +65,8 @@ impl Monitor {
             cli_parser,
             cmd_manager,
             // sim: Box::new(nemu::Simulator::new()),
-            differtest: differtest::Differtest::new(),
-            differtest_watchpoints: Vec::new(),
+            // differtest: differtest::Differtest::new(),
+            // differtest_watchpoints: Vec::new(),
 
             signal,
 
@@ -175,8 +173,8 @@ impl Monitor {
         self.mem.lock().unwrap().load("psram", &bin)?;
 
         if let Some(diffpath) = &self.cli_parser.dut {
-            self.differtest.init(&diffpath);
-            self.differtest.ref_difftest_init(1234);
+            // self.differtest.init(&diffpath);
+            // self.differtest.ref_difftest_init(1234);
             // self.differtest.ref_difftest_memcpy(
             //     0x8000_0000,
             //     {let mmt = self.mem

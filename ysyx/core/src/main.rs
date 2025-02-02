@@ -1,6 +1,7 @@
 use msg_resp::{ResultMessage, CtrlCommand};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 
 use state::{mmu::MMU, reg::RegisterBank, ProcessState};
 
@@ -15,11 +16,15 @@ fn main() {
     let mut monitor = monitor::Monitor::new("nemu", cmd_sender, result_receiver, 
         mem.clone(), reg.clone(), state.clone());
 
-    let simulator = simulator::npc::Simulator::new(cmd_receiver, result_sender);
-
     monitor.init();
 
-    let handle = simulator.run();
+    let handle = thread::spawn(move || {
+        let mut simulator = simulator::nemu::Simulator::new(
+            cmd_receiver, result_sender, 
+            mem.clone(), reg.clone(), state.clone());
+
+        simulator.run();
+    });
 
     monitor.main_loop();
 

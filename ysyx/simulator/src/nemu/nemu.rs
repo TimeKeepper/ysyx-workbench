@@ -1,4 +1,5 @@
 use circular_queue::CircularQueue;
+use ysyx_macro::with_lock;
 use super::decode::RvInstParser;
 use owo_colors::OwoColorize;
 
@@ -6,12 +7,14 @@ use super::super::disassembler;
 
 use msg_resp::{SimErr, SimOk, ResultMessage, CtrlCommand};
 
+use std::result::Result;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
 use state::ProcessState;
-use state::mmu::MMU;
+use state::mmu::{MMU, Mask};
 use state::reg::RegisterBank;
 
 pub struct Simulator {
@@ -31,7 +34,7 @@ pub struct Simulator {
     pub state: Arc<Mutex<ProcessState>>,
 }
 
-impl Simulator{
+impl Simulator {
     pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
         mem: Arc<Mutex<state::mmu::MMU>>, 
         reg: Arc<Mutex<state::reg::RegisterBank>>,
@@ -70,6 +73,60 @@ impl Simulator{
             .map(|x| format!("{} ", x))
             .collect::<String>();
         println!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green());
+    }
+
+    fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
+        let mut orig = |trace: bool| -> Result<(), SimErr> {
+            let inst: u32;
+            with_lock!(self.reg, reg, {
+                inst = self.mem.lock().unwrap().read(reg.pc, Mask::None)?;
+            });
+            let exeu_inst = self.decode(inst)?;
+    
+            if trace {
+                self.disasm(inst);
+                println!("{:08x?}", exeu_inst.green());
+            }
+    
+            self.execute(exeu_inst)?;
+            
+            self.execte_times += 1;
+    
+            Ok(())
+        };
+
+        let count = if count.is_none() { 1 } else { count.unwrap() };
+
+        if count == 0 {
+            loop {
+                orig(false)?;
+            }
+        }
+
+        for _ in 0..count {
+            orig(count < 10)?;
+        }
+
+        Ok(SimOk::InstructionExecuted)
+    }
+
+    pub fn run(&mut self) {
+        // let disasm = self.disasm.clone();
+        // self.disasm = disasm;
+        loop {
+            match self.cmd_receiver.recv() {
+                Ok(CtrlCommand::QUIT) => {
+                    self.result_sender.send(Ok(SimOk::Nothing)).unwrap();
+                    break;
+                }
+
+                Ok(CtrlCommand::SI { count }) => {
+                    let result = self.single_instruction(count);
+                    self.result_sender.send(result).unwrap();
+                }
+                _ => {}
+            }
+        }
     }
 }
 

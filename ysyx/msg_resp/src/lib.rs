@@ -112,7 +112,6 @@ impl Resper {
 #[derive(Debug, PartialEq, Clone)]
 pub enum CtrlCommand {
     QUIT,
-    INFO { target: String, index: Option<u32> },
     FUNC { on_or_off: bool, target: Option<String> },
     SI { count: Option<u32> },
     SC { count: Option<u32> },

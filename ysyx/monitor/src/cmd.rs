@@ -7,7 +7,6 @@ use std::sync::atomic::Ordering;
 
 use owo_colors::OwoColorize;
 
-use crate::differtest::DiffertestDirection;
 use crate::Monitor;
 
 impl Monitor {
@@ -101,7 +100,8 @@ impl Monitor {
 
         // Ok(SimOk::InstructionExecuted)
         
-        Ok(SimOk::Nothing)
+        self.cmd_sender.send(CtrlCommand::SI { count }).unwrap();
+        self.result_receiver.recv().unwrap()
     }
 
     pub fn cmd_c(&mut self) -> ResultMessage {

@@ -74,41 +74,55 @@ impl Simulator {
                     npc = reg.read_pc().wrapping_add(imm);
                 });
             }
-            // "jalr" => {
-            //     gpr[rd] = npc;
-            //     npc = gpr[rs1].wrapping_add(inst.imm) & !1;
-            // }
+            "jalr" => {
+                with_lock!(self.reg, reg, {
+                    reg.write_gpr(RegIdentifier::Index(rd), npc)?;
+                    npc = (reg.read_gpr(RegIdentifier::Index(rs1))? + imm) & !1;
+                });
+            }
 
-            // "beq" => {
-            //     if gpr[rs1] == gpr[rs2] {
-            //         npc = pc.wrapping_add(inst.imm);
-            //     }
-            // }
-            // "bne" => {
-            //     if gpr[rs1] != gpr[rs2] {
-            //         npc = pc.wrapping_add(inst.imm);
-            //     }
-            // }
-            // "blt" => {
-            //     if (gpr[rs1] as i32) < (gpr[rs2] as i32) {
-            //         npc = pc.wrapping_add(inst.imm);
-            //     }
-            // }
-            // "bge" => {
-            //     if (gpr[rs1] as i32) >= (gpr[rs2] as i32) {
-            //         npc = pc.wrapping_add(inst.imm);
-            //     }
-            // }
-            // "bltu" => {
-            //     if gpr[rs1] < gpr[rs2] {
-            //         npc = pc.wrapping_add(inst.imm);
-            //     }
-            // }
-            // "bgeu" => {
-            //     if gpr[rs1] >= gpr[rs2] {
-            //         npc = pc.wrapping_add(inst.imm);
-            //     }
-            // }
+            "beq" => {
+                with_lock!(self.reg, reg, {
+                    if reg.read_gpr(RegIdentifier::Index(rs1))? == reg.read_gpr(RegIdentifier::Index(rs2))? {
+                        npc = reg.read_pc().wrapping_add(imm);
+                    }
+                });
+            }
+            "bne" => {
+                with_lock!(self.reg, reg, {
+                    if reg.read_gpr(RegIdentifier::Index(rs1))? != reg.read_gpr(RegIdentifier::Index(rs2))? {
+                        npc = reg.read_pc().wrapping_add(imm);
+                    }
+                });
+            }
+            "blt" => {
+                with_lock!(self.reg, reg, {
+                    if (reg.read_gpr(RegIdentifier::Index(rs1))? as i32) < (reg.read_gpr(RegIdentifier::Index(rs2))? as i32) {
+                        npc = reg.read_pc().wrapping_add(imm);
+                    }
+                });
+            }
+            "bge" => {
+                with_lock!(self.reg, reg, {
+                    if (reg.read_gpr(RegIdentifier::Index(rs1))? as i32) >= (reg.read_gpr(RegIdentifier::Index(rs2))? as i32) {
+                        npc = reg.read_pc().wrapping_add(imm);
+                    }
+                });
+            }
+            "bltu" => {
+                with_lock!(self.reg, reg, {
+                    if reg.read_gpr(RegIdentifier::Index(rs1))? < reg.read_gpr(RegIdentifier::Index(rs2))? {
+                        npc = reg.read_pc().wrapping_add(imm);
+                    }
+                });
+            }
+            "bgeu" => {
+                with_lock!(self.reg, reg, {
+                    if reg.read_gpr(RegIdentifier::Index(rs1))? >= reg.read_gpr(RegIdentifier::Index(rs2))? {
+                        npc = reg.read_pc().wrapping_add(imm);
+                    }
+                });
+            }
 
             // "lb" => {
             //     gpr[rd] = sig_extend(self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Byte)?, 8);

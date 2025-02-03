@@ -22,10 +22,10 @@ default = [
 ]
 
 riscv32-nemu = [
-    "state/riscv32",
-    "simulator/riscv32-nemu",
+    "riscv32",
+    "nemu",
 ]
 
 differtest = [
-    "simulator/differtest",
+    "differtest",
 ]

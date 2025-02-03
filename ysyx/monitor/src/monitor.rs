@@ -169,28 +169,6 @@ impl Monitor {
 
         if let Some(diffpath) = &self.cli_parser.dut {
             self.cmd_sender.send(CtrlCommand::DIFFERTEST { path: diffpath.clone(), length: bin.len() as u64 }).unwrap();
-            // self.differtest.init(&diffpath);
-            // self.differtest.ref_difftest_init(1234);
-            // self.differtest.ref_difftest_memcpy(
-            //     0x8000_0000,
-            //     {let mmt = self.mem
-            //             .lock().unwrap()
-            //             .match_memory(MatchMsg::ADDR { addr: 0x8000_0000})
-            //             .ok()
-            //             .unwrap();
-            //         let memory = match mmt {
-            //             MMT::Memory(memory) => memory,
-            //             _ => panic!("No memory"),
-            //         };
-            //         memory
-            //         .memory
-            //         .as_mut_ptr()
-            //         as *mut c_void
-            //     },
-            //     bin.len() as u64,
-            //     differtest::DiffertestDirection::ToRef,
-            // );
-        //     self.differtest.set_ref_reg(&self.reg.lock().unwrap());
         }
 
         Ok(())

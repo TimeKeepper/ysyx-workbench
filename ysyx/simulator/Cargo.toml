@@ -23,16 +23,6 @@ harness = false
 path = "benches/nemu/decode_bench.rs"
 
 [features]
-default = [
-    "riscv32-nemu",
-    "differtest",
-]
-
-riscv32-nemu = [
-    "riscv32",
-    "nemu",
-]
-
 nemu = []
 npc = []
 ysyxsoc = []

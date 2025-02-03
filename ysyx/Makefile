@@ -12,10 +12,10 @@ ExtraArgs ?=
 Mainargs = --bin $(Binfile) $(ExtraArgs)
 Debugargs = $(Mainargs) --log -d $(REF_Path) --debug
 
-Feature ?= riscv32-nemu
+Feature = riscv32-nemu
 
 run :
-	cargo run $(Job) --features $(Feature) --release --bin core -- $(Mainargs)
+	cargo run $(Job) --features $(Feature) --release --bin core -- $(Mainargs)-d $(REF_Path)
 
 debug :
 	RUST_BACKTRACE=full cargo run $(Job) --features $(Feature),differtest --bin core -- $(Debugargs)

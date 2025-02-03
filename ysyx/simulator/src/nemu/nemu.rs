@@ -164,6 +164,12 @@ impl Simulator {
                         with_rwlock_read!(self.reg, reg, {
                             self.differtest.set_ref_reg(&reg);
                         });
+                        println!("{}", "Differtest initialized".green());
+                    }
+
+                    #[cfg(not(feature = "differtest"))]
+                    {
+                        println!("{}", "Differtest feature is not enabled".red());
                     }
                 }
 

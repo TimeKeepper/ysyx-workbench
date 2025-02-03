@@ -137,6 +137,7 @@ pub enum SimErr {
     BinaryFileNotFound,
     DeviceCannotBeLoad {name: String},
     NoMatchingMemory {msg: MatchMsg},
+    NoMatchingDevice {msg: MatchMsg},
     InstrctionDecodeFailed {inst: u32},
     InstrctionExecuteFailed {name: String},
 }

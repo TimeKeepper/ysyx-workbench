@@ -5,24 +5,8 @@ use super::{devices::Device, Mask};
 use msg_resp::{MatchMsg, SimErr};
 
 pub enum MMT<'a> {
-    Memory(&'a mut Memory),
-    Device(&'a mut Device),
-}
-
-impl<'a> MMT<'a> {
-    pub fn read(&mut self, addr: u32, mask: Mask) -> u32 {
-        match self {
-            MMT::Memory(memory) => memory.read(addr, mask),
-            MMT::Device(device) => device.read(addr, mask),
-        }
-    }
-
-    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) {
-        match self {
-            MMT::Memory(memory) => memory.write(addr, data, mask),
-            MMT::Device(device) => device.write(addr, data, mask),
-        }
-    }
+    Memory(&'a Memory),
+    Device(&'a Device),
 }
 
 pub struct MMU {
@@ -50,49 +34,64 @@ impl MMU {
         self.device.push(device);
     }
 
-    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<MMT, SimErr> {
-        for memory in self.memory.iter_mut() {
+    pub fn match_memory(&self, msg: MatchMsg) -> Result<&Memory, SimErr> {
+        for memory in self.memory.iter() {
             if memory.match_memory(msg.clone()) {
-                self.is_attch_device = false;
-                return Ok(MMT::Memory(memory));
-            }
-        }
-
-        for device in self.device.iter_mut() {
-            if device.match_memory(msg.clone()) {
-                self.is_attch_device = true;
-                return Ok(MMT::Device(device));
+                return Ok(memory);
             }
         }
 
         Err(SimErr::NoMatchingMemory { msg })
     }
 
-    pub fn read(&mut self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
-        let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+    pub fn match_memory_mut(&mut self, msg: MatchMsg) -> Result<&mut Memory, SimErr> {
+        for memory in self.memory.iter_mut() {
+            if memory.match_memory(msg.clone()) {
+                return Ok(memory);
+            }
+        }
+
+        Err(SimErr::NoMatchingDevice { msg })
+    }
+
+    pub fn match_device(&mut self, msg: MatchMsg) -> Result<&mut Device, SimErr> { // Device always mutable
+        for device in self.device.iter_mut() {
+            if device.match_memory(msg.clone()) {
+                return Ok(device);
+            }
+        }
+
+        Err(SimErr::NoMatchingDevice { msg })
+    }
+
+    pub fn read(&self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
+        let memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
         Ok(memory.read(addr as u32, mask))
     }
 
     pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), SimErr> {
-        let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+        let memory = self.match_memory_mut(MatchMsg::ADDR { addr: addr as u32 })?;
         memory.write(addr as u32, data, mask);
         Ok(())
     }
 
+    pub fn read_device(&mut self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
+        let device = self.match_device(MatchMsg::ADDR { addr: addr as u32 })?;
+        Ok(device.read(addr as u32, mask))
+    }
+
+    pub fn write_device(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), SimErr> {
+        let device = self.match_device(MatchMsg::ADDR { addr: addr as u32 })?;
+        device.write(addr as u32, data, mask);
+        Ok(())
+    }
+
     pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), SimErr> {
-        let memory = self.match_memory(MatchMsg::NAME {
+        let memory = self.match_memory_mut(MatchMsg::NAME {
             name: name.to_string(),
         })?;
 
-        match memory {
-            MMT::Memory(memory) => {
-                memory.load(data)?;
-                Ok(())
-            }
-            MMT::Device(device) => Err(SimErr::DeviceCannotBeLoad {
-                name: device.name.clone(),
-            }),
-        }
+        memory.load(data)
     }
 
     pub fn memory_map(&self) {

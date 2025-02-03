@@ -1,6 +1,7 @@
 use msg_resp::{MatchMsg, CtrlCommand, ResultMessage, SimErr, SimOk};
 use state::reg::{RegType, RegisterOps};
 use state::ProcessState;
+use ysyx_macro::{with_rwlock_read, with_rwlock_write};
 use std::os::raw::c_void;
 use std::result::Result;
 use std::sync::atomic::Ordering;
@@ -11,13 +12,13 @@ use crate::Monitor;
 
 impl Monitor {
     pub fn cmd_q(&mut self) -> ResultMessage {
-        let mut state = self.state.lock().unwrap();
-        if *state == ProcessState::TRAP {
-            *state = ProcessState::ABORT;
-        } else {
-            *state = ProcessState::QUIT;
-        }
-        drop(state);
+        with_rwlock_write!(self.state, state, {
+            if *state == ProcessState::TRAP {
+                *state = ProcessState::ABORT;
+            } else {
+                *state = ProcessState::QUIT;
+            }
+        });
 
         self.cmd_sender.send(CtrlCommand::QUIT).unwrap();
 
@@ -27,16 +28,16 @@ impl Monitor {
     pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> ResultMessage {
         match target.as_str() {
             "gp" => {
-                self.reg.lock().unwrap().print_reg(specify, RegType::GPR)
+                self.reg.read().unwrap().print_reg(specify, RegType::GPR)
             }
 
             "pc" => {
-                println!("{}: \t0x{:08x}", "pc".purple(), self.reg.lock().unwrap().read_pc().red());
+                println!("{}: \t0x{:08x}", "pc".purple(), self.reg.read().unwrap().read_pc().red());
                 return Ok(SimOk::Nothing);
             }
 
             "cs" => {
-                self.reg.lock().unwrap().print_reg(specify, RegType::CSR)
+                self.reg.read().unwrap().print_reg(specify, RegType::CSR)
             }
 
             _ => {
@@ -118,7 +119,7 @@ impl Monitor {
         let length = if length.is_none() { 1 } else { length.unwrap() };
 
         for _ in 0..length {
-            let data = self.mem.lock().unwrap().read(addr, state::mmu::Mask::None)?;
+            let data = self.mem.read().unwrap().read(addr, state::mmu::Mask::None)?;
             self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
             addr = addr + 4;
         }
@@ -127,7 +128,9 @@ impl Monitor {
     }
 
     pub fn cmd_mm(&mut self) -> ResultMessage {
-        self.mem.lock().unwrap().memory_map();
+        with_rwlock_read!(self.mem, mem, {
+            mem.memory_map();
+        });
         Ok(SimOk::Nothing)
     }
 

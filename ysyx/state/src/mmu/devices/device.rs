@@ -27,7 +27,7 @@ impl Device {
         }
     }
     
-    pub fn match_memory(&mut self, msg: MatchMsg) -> bool {
+    pub fn match_memory(&self, msg: MatchMsg) -> bool {
         match msg {
             MatchMsg::ADDR { addr } => {
                 if addr >= self.range.start && addr < self.range.end {

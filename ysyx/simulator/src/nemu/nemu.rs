@@ -1,5 +1,7 @@
 use circular_queue::CircularQueue;
-use ysyx_macro::with_lock;
+use state::reg::RegisterOps;
+use ysyx_macro::with_mutex_lock;
+use ysyx_macro::with_rwlock_read;
 use super::decode::RvInstParser;
 use owo_colors::OwoColorize;
 
@@ -10,7 +12,7 @@ use msg_resp::{SimErr, SimOk, ResultMessage, CtrlCommand};
 use std::result::Result;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 
 use state::ProcessState;
@@ -29,16 +31,16 @@ pub struct Simulator {
     pub cmd_receiver: Receiver<CtrlCommand>,
     pub result_sender: Sender<ResultMessage>,
 
-    pub mem: Arc<Mutex<MMU>>,
-    pub reg: Arc<Mutex<RegisterBank>>,
-    pub state: Arc<Mutex<ProcessState>>,
+    pub mem: Arc<RwLock<MMU>>,
+    pub reg: Arc<RwLock<RegisterBank>>,
+    pub state: Arc<RwLock<ProcessState>>,
 }
 
 impl Simulator {
     pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
-        mem: Arc<Mutex<state::mmu::MMU>>, 
-        reg: Arc<Mutex<state::reg::RegisterBank>>,
-        state: Arc<Mutex<ProcessState>>) -> Self {
+        mem: Arc<RwLock<state::mmu::MMU>>, 
+        reg: Arc<RwLock<state::reg::RegisterBank>>,
+        state: Arc<RwLock<ProcessState>>) -> Self {
 
         Self {
             inst_parser: RvInstParser::new(),
@@ -63,8 +65,15 @@ impl Simulator {
     }
 
     fn disasm(&self, inst: u32) {
-        let pc = self.reg.lock().unwrap().pc;
+        // let pc: u32;
+        // with_rwlock_read!(self.reg, reg, {
+        //     pc = reg.pc;
+        // });
         
+        let pc = with_rwlock_read!(self.reg, reg, {
+            reg.read_pc()
+        });
+
         let result = self.disasm
             .disasm(&inst.to_le_bytes(), pc as u64)
             .replace("\0", "")
@@ -77,10 +86,12 @@ impl Simulator {
 
     fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
         let mut orig = |trace: bool| -> Result<(), SimErr> {
-            let inst: u32;
-            with_lock!(self.reg, reg, {
-                inst = self.mem.lock().unwrap().read(reg.pc, Mask::None)?;
+            let inst = with_rwlock_read!(self.reg, reg, {
+                with_rwlock_read!(self.mem, mem, {
+                    mem.read(reg.read_pc(), Mask::None)?
+                })
             });
+            
             let exeu_inst = self.decode(inst)?;
     
             if trace {

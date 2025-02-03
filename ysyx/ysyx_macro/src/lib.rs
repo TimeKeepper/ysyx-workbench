@@ -1,2 +1,2 @@
 mod module;
-mod mutex;
+mod locks;

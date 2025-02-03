@@ -8,6 +8,7 @@ use state::reg::RegisterOps;
 use state::mmu::{MMU, devices::{SerialFactory, TimerFactory}};
 use state::reg::RegisterBank;
 use state::ProcessState;
+use ysyx_macro::with_rwlock_write;
 
 use crate::monitor_parser::OperationMode;
 
@@ -25,7 +26,7 @@ use simulator::nemu;
 
 use msg_resp::{SimErr, ResultMessage};
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 
 pub struct Monitor {
     pub name: String,
@@ -34,24 +35,21 @@ pub struct Monitor {
     pub cli_parser:Cli,
     pub cmd_manager: CmM,
 
-    // pub differtest: differtest::Differtest,
-    // pub differtest_watchpoints: Vec<u32>,
-
     pub signal: Arc<AtomicBool>,
     
     pub cmd_sender: Sender<CtrlCommand>,
     pub result_receiver: Receiver<ResultMessage>,
 
-    pub mem: Arc<Mutex<MMU>>,
-    pub reg: Arc<Mutex<RegisterBank>>,
-    pub state: Arc<Mutex<ProcessState>>,
+    pub mem: Arc<RwLock<MMU>>,
+    pub reg: Arc<RwLock<RegisterBank>>,
+    pub state: Arc<RwLock<ProcessState>>,
 }
 
 impl Monitor {
     pub fn new(name: &str, cmd_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>, 
-        mem: Arc<Mutex<state::mmu::MMU>>, 
-        reg: Arc<Mutex<state::reg::RegisterBank>>,
-        state: Arc<Mutex<ProcessState>>) -> Self {
+        mem: Arc<RwLock<state::mmu::MMU>>, 
+        reg: Arc<RwLock<state::reg::RegisterBank>>,
+        state: Arc<RwLock<ProcessState>>) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
         let msgr = msgr::Resper::new();
@@ -64,9 +62,6 @@ impl Monitor {
             msgr,
             cli_parser,
             cmd_manager,
-            // sim: Box::new(nemu::Simulator::new()),
-            // differtest: differtest::Differtest::new(),
-            // differtest_watchpoints: Vec::new(),
 
             signal,
 
@@ -115,11 +110,9 @@ impl Monitor {
         }
 
         loop {
-            let state = self.state.lock().unwrap();
-            if *state == ProcessState::QUIT || *state == ProcessState::ABORT {
+            if *self.state.read().unwrap() == ProcessState::QUIT || *self.state.read().unwrap() == ProcessState::ABORT {
                 break;
             }
-            drop(state); // Release the lock before executing commands
 
             let cmd = self.cmd_manager.get_parser();
             let result = self.execute(cmd);
@@ -128,18 +121,16 @@ impl Monitor {
     }
 
     fn init_mem(&mut self) {
-        let mut mem = self.mem.lock().unwrap();
-        
-        mem.add_memory("sram",  0x0f00_0000, 0x0000_2000);
-        mem.add_memory("mrom",  0x2000_0000, 0x0000_1000);
-        mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
-        mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
-        mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
+        with_rwlock_write!(self.mem, mem, {
+            mem.add_memory("sram",  0x0f00_0000, 0x0000_2000);
+            mem.add_memory("mrom",  0x2000_0000, 0x0000_1000);
+            mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
+            mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
+            mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
-        mem.add_device(SerialFactory::new(0x1000_0000));
-        mem.add_device(TimerFactory::new(0x1000_2000));
-
-        drop(mem);
+            mem.add_device(SerialFactory::new(0x1000_0000));
+            mem.add_device(TimerFactory::new(0x1000_2000));
+        });
     }
 
     fn init_signal(&mut self) {
@@ -159,7 +150,9 @@ impl Monitor {
     }
 
     fn init_sim(&mut self) -> Result<(), SimErr> {
-        self.reg.lock().unwrap().write_pc(0x80000000);
+        with_rwlock_write!(self.reg, reg, {
+            reg.write_pc(0x8000_0000);
+        });
 
         if self.cli_parser.bin.is_none() {
             return Err(SimErr::NoBinaryFile);
@@ -170,7 +163,9 @@ impl Monitor {
         }
         let bin: Vec<u8> = bin.unwrap();
 
-        self.mem.lock().unwrap().load("psram", &bin)?;
+        with_rwlock_write!(self.mem, mem, {
+            mem.load("psram", &bin)?;
+        });
 
         if let Some(diffpath) = &self.cli_parser.dut {
             // self.differtest.init(&diffpath);
@@ -230,21 +225,24 @@ impl Monitor {
     }
 
     fn deal_result(&mut self, result: ResultMessage) {
-        let mut state = self.state.lock().unwrap();
         match result {
             Ok(_) => return,
             Err(err) => match err {
                 SimErr::Signal => {
-                    *state = ProcessState::STOP;
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::STOP;
+                    });
                 }
                 SimErr::Ebreak { is_good } => {
-                    *state = if is_good {
-                        self.msgr.success("Hit Good TRAP");
-                        ProcessState::DONE
-                    } else {
-                        self.msgr.error("Hit Bad TRAP");
-                        ProcessState::TRAP
-                    }
+                    with_rwlock_write!(self.state, state, {
+                        *state = if is_good {
+                            self.msgr.success("Hit Good TRAP");
+                            ProcessState::DONE
+                        } else {
+                            self.msgr.error("Hit Bad TRAP");
+                            ProcessState::TRAP
+                        }
+                    });
                 },
 
                 SimErr::NotImplemented => self.msgr.error("Not implemented yet"),
@@ -260,13 +258,27 @@ impl Monitor {
 
                 SimErr::DiffertestFailed => {
                     self.msgr.error("Differtest failed");
-                    *state = ProcessState::TRAP
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
                 },
                 SimErr::NoMatchingMemory { msg } => {
                     self
                     .msgr
                     .error(format!("No matching memory {}", msg).as_str());
-                    *state = ProcessState::TRAP
+
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
+                },
+                SimErr::NoMatchingDevice { msg } => {
+                    self
+                    .msgr
+                    .error(format!("No matching device {}", msg).as_str());
+
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
                 },
                 SimErr::InstrctionDecodeFailed { inst } => {
                     // self.msgr.error(
@@ -277,13 +289,17 @@ impl Monitor {
                     //     )
                     //     .as_str(),
                     // );
-                    *state = ProcessState::TRAP
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
                 },
                 SimErr::InstrctionExecuteFailed { name } => {
                     self
                     .msgr
                     .error(format!("Failed to execute instrcution {}", name.purple()).as_str());
-                    *state = ProcessState::TRAP
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
                 },
             },
         }
@@ -292,7 +308,7 @@ impl Monitor {
 
 impl Drop for Monitor {
     fn drop(&mut self) {
-        let state = self.state.lock().unwrap();
+        let state = self.state.read().unwrap();
 
         self.msgr.info("Exiting...");
         match *state {
@@ -300,7 +316,5 @@ impl Drop for Monitor {
             ProcessState::ABORT => self.msgr.error("Exited abnormally"),
             _ => self.msgr.error("Unknown exit status"),
         }
-
-        drop(state);
     }
 }

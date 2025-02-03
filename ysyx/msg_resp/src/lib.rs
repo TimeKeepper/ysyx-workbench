@@ -113,6 +113,7 @@ impl Resper {
 pub enum CtrlCommand {
     QUIT,
     FUNC { on_or_off: bool, target: Option<String> },
+    DIFFERTEST { path: String, length: u64},
     SI { count: Option<u32> },
     SC { count: Option<u32> },
     T,

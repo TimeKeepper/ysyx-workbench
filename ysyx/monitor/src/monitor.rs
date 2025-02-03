@@ -168,6 +168,7 @@ impl Monitor {
         });
 
         if let Some(diffpath) = &self.cli_parser.dut {
+            self.cmd_sender.send(CtrlCommand::DIFFERTEST { path: diffpath.clone(), length: bin.len() as u64 }).unwrap();
             // self.differtest.init(&diffpath);
             // self.differtest.ref_difftest_init(1234);
             // self.differtest.ref_difftest_memcpy(
@@ -191,8 +192,6 @@ impl Monitor {
             // );
         //     self.differtest.set_ref_reg(&self.reg.lock().unwrap());
         }
-        self.msgr
-            .option_log("differtest", self.cli_parser.dut.is_some());
 
         Ok(())
     }

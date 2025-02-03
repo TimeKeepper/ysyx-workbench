@@ -10,7 +10,7 @@ use ysyx_macro::{with_mutex_lock, with_rwlock_write, with_rwlock_read};
 #[derive(Debug, PartialEq, Clone)]
 enum ExecuteResult {
     UnknownInst,
-    Ok,
+    Ok { is_state_hazard: bool },
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -27,8 +27,33 @@ enum CsrAddr {
 
 impl Simulator {
     pub fn execute(&mut self, inst: ExecuteInst) -> Result<(), SimErr> {
-        if self.rv32i_execute(&inst)? == ExecuteResult::Ok {
-            return Ok(());
+        let mut npc = with_rwlock_read!(self.reg, reg, {
+            reg.read_pc().wrapping_add(4)
+        });
+
+        let hazard = self.execute_inst(inst.clone(), &mut npc)?;
+
+        #[cfg(feature = "differtest")]
+        if !hazard {
+            self.differtest.ref_difftest_exec(1);
+        }
+
+        with_rwlock_write!(self.reg, reg, {
+            reg.write_pc(npc);
+            reg.write_gpr(RegIdentifier::Index(0), 0)?;
+        });
+
+        if self.inst_trace_buffer.0 {
+            self.inst_trace_buffer.1.push(inst);
+        }
+
+        Ok(())
+    }
+
+    fn execute_inst(&mut self, inst: ExecuteInst, npc: &mut u32) -> Result<bool, SimErr> {
+        match self.rv32i_execute(&inst, npc)? {
+            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
+            ExecuteResult::UnknownInst => (),
         }
 
         // if self.rv32m_execute(&inst)? == ExecuteResult::Ok {
@@ -46,16 +71,14 @@ impl Simulator {
         Err(SimErr::InstrctionExecuteFailed { name:inst.name.to_string() })
     }
 
-    fn rv32i_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
-        let mut npc = with_rwlock_read!(self.reg, reg, {
-            reg.read_pc().wrapping_add(4)
-        });
-
+    fn rv32i_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {
         let name: &str = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
         let rs2 = inst.rs2 as usize;
         let imm = inst.imm;
+
+        let mut hazrd = false;
 
         match name {
             "lui" => {
@@ -72,105 +95,244 @@ impl Simulator {
 
             "jal" => {
                 with_rwlock_write!(self.reg, reg, {
-                    reg.write_gpr(RegIdentifier::Index(rd), npc)?;
-                    npc = npc.wrapping_add(imm);
+                    reg.write_gpr(RegIdentifier::Index(rd), *npc)?;
+                    *npc = npc.wrapping_add(imm);
                 });
             }
             "jalr" => {
                 with_rwlock_write!(self.reg, reg, {
-                    reg.write_gpr(RegIdentifier::Index(rd), npc)?;
-                    npc = (reg.read_gpr(RegIdentifier::Index(rs1))? + imm) & !1;
+                    reg.write_gpr(RegIdentifier::Index(rd), *npc)?;
+                    *npc = (reg.read_gpr(RegIdentifier::Index(rs1))? + imm) & !1;
                 });
             }
 
             "beq" => {
-                npc = with_rwlock_read!(self.reg, reg, {
+                *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? == reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
                     } else {
-                        npc
+                        *npc
                     }
                 });
             }
             "bne" => {
-                npc = with_rwlock_read!(self.reg, reg, {
+                *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? != reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
                     } else {
-                        npc
+                        *npc
                     }
                 });
             }
             "blt" => {
-                npc = with_rwlock_read!(self.reg, reg, {
+                *npc = with_rwlock_read!(self.reg, reg, {
                     if (reg.read_gpr(RegIdentifier::Index(rs1))? as i32) < (reg.read_gpr(RegIdentifier::Index(rs2))? as i32) {
                         reg.read_pc().wrapping_add(imm)
                     } else {
-                        npc
+                        *npc
                     }
                 });
             }
             "bge" => {
-                npc = with_rwlock_read!(self.reg, reg, {
+                *npc = with_rwlock_read!(self.reg, reg, {
                     if (reg.read_gpr(RegIdentifier::Index(rs1))? as i32) >= (reg.read_gpr(RegIdentifier::Index(rs2))? as i32) {
                         reg.read_pc().wrapping_add(imm)
                     } else {
-                        npc
+                        *npc
                     }
                 });
             }
             "bltu" => {
-                npc = with_rwlock_read!(self.reg, reg, {
+                *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? < reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
                     } else {
-                        npc
+                        *npc
                     }
                 });
             }
             "bgeu" => {
-                npc = with_rwlock_read!(self.reg, reg, {
+                *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? >= reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
                     } else {
-                        npc
+                        *npc
                     }
                 });
             }
 
-            // "lb" => {
-            //     gpr[rd] = sig_extend(self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Byte)?, 8);
-            // }
-            // "lh" => {
-            //     gpr[rd] = sig_extend(self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Half)?, 16);
-            // }
-            // "lw" => {
-            //     gpr[rd] = self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Word)?;
-            // }
-            // "lbu" => {
-            //     gpr[rd] = self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Byte)?;
-            // }
-            // "lhu" => {
-            //     gpr[rd] = self.mmu.read(gpr[rs1].wrapping_add(imm), Mask::Half)?;
-            // }
+            "lb" => {
+                let addr = with_rwlock_read!(self.reg, reg, {
+                    reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
+                });
 
-            // "sb" => {
-            //     self.mmu.write(gpr[rs1].wrapping_add(imm), gpr[rs2], Mask::Byte)?
-            // }
-            // "sh" => {
-            //     self.mmu.write(gpr[rs1].wrapping_add(imm), gpr[rs2], Mask::Half)?
-            // }
-            // "sw" => {
-            //     self.mmu.write(gpr[rs1].wrapping_add(imm), gpr[rs2], Mask::Word)?
-            // }
+                let data = with_rwlock_read!(self.mem, mem, {
+                    mem.read(addr, state::mmu::Mask::Byte)
+                });
 
-            // "addi" => {
-            //     gpr[rd] = gpr[rs1].wrapping_add(inst.imm);
-            // }
+                if data.is_ok() {
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), sig_extend(data.unwrap(), 8))?;
+                    });
+                } else {
+                    let data: u32;
+                    with_rwlock_write!(self.mem, mem, {
+                        data = mem.read_device(addr, state::mmu::Mask::Byte)?;
+                        hazrd = true;
+                    });
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), sig_extend(data, 8))?;
+                    });
+                }
+            }
+            "lh" => {
+                let addr = with_rwlock_read!(self.reg, reg, {
+                    reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
+                });
 
-            // "slti" => {
-            //     gpr[rd] = if (gpr[rs1] as i32) < (inst.imm as i32) { 1 } else { 0 };
-            // }
+                let data = with_rwlock_read!(self.mem, mem, {
+                    mem.read(addr, state::mmu::Mask::Half)
+                });
+
+                if data.is_ok() {
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), sig_extend(data.unwrap(), 16))?;
+                    });
+                } else {
+                    let data: u32;
+                    with_rwlock_write!(self.mem, mem, {
+                        data = mem.read_device(addr, state::mmu::Mask::Half)?;
+                        hazrd = true;
+                    });
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), sig_extend(data, 16))?;
+                    });
+                }
+            }
+            "lw" => {
+                let addr = with_rwlock_read!(self.reg, reg, {
+                    reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
+                });
+
+                let data = with_rwlock_read!(self.mem, mem, {
+                    mem.read(addr, state::mmu::Mask::Half)
+                });
+
+                if data.is_ok() {
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), data.unwrap())?;
+                    });
+                } else {
+                    let data: u32;
+                    with_rwlock_write!(self.mem, mem, {
+                        data = mem.read_device(addr, state::mmu::Mask::Half)?;
+                        hazrd = true;
+                    });
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), data)?;
+                    });
+                }
+            }
+            "lbu" => {
+                let addr = with_rwlock_read!(self.reg, reg, {
+                    reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
+                });
+
+                let data = with_rwlock_read!(self.mem, mem, {
+                    mem.read(addr, state::mmu::Mask::Byte)
+                });
+
+                if data.is_ok() {
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), data.unwrap())?;
+                    });
+                } else {
+                    let data: u32;
+                    with_rwlock_write!(self.mem, mem, {
+                        data = mem.read_device(addr, state::mmu::Mask::Byte)?;
+                        hazrd = true;
+                    });
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), data)?;
+                    });
+                }
+            }
+            "lhu" => {
+                let addr = with_rwlock_read!(self.reg, reg, {
+                    reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
+                });
+
+                let data = with_rwlock_read!(self.mem, mem, {
+                    mem.read(addr, state::mmu::Mask::Half)
+                });
+
+                if data.is_ok() {
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), data.unwrap())?;
+                    });
+                } else {
+                    let data: u32;
+                    with_rwlock_write!(self.mem, mem, {
+                        data = mem.read_device(addr, state::mmu::Mask::Half)?;
+                        hazrd = true;
+                    });
+                    with_rwlock_write!(self.reg, reg, {
+                        reg.write_gpr(RegIdentifier::Index(rd), data)?;
+                    });
+                }
+            }
+
+            "sb" => {
+                let (addr, data) = with_rwlock_read!(self.reg, reg, {
+                    (reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm), reg.read_gpr(reg::RegIdentifier::Index(rs2))?)
+                });
+                with_rwlock_write!(self.mem, mem, {
+                    let result =  mem.write(addr, data, state::mmu::Mask::Byte);
+                    if result.is_err() {
+                        mem.write_device(addr, data, state::mmu::Mask::Byte)?;
+                        hazrd = true;
+                    }
+                });
+            }
+            "sh" => {
+                let (addr, data) = with_rwlock_read!(self.reg, reg, {
+                    (reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm), reg.read_gpr(reg::RegIdentifier::Index(rs2))?)
+                });
+                with_rwlock_write!(self.mem, mem, {
+                    let result =  mem.write(addr, data, state::mmu::Mask::Half);
+                    if result.is_err() {
+                        mem.write_device(addr, data, state::mmu::Mask::Half)?;
+                        hazrd = true;
+                    }
+                });
+            }
+            "sw" => {
+                let (addr, data) = with_rwlock_read!(self.reg, reg, {
+                    (reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm), reg.read_gpr(reg::RegIdentifier::Index(rs2))?)
+                });
+                with_rwlock_write!(self.mem, mem, {
+                    let result =  mem.write(addr, data, state::mmu::Mask::Word);
+                    if result.is_err() {
+                        mem.write_device(addr, data, state::mmu::Mask::Word)?;
+                        hazrd = true;
+                    }
+                });
+            }
+
+            "addi" => {
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1.wrapping_add(imm))?;
+                });
+            }
+
+            "slti" => {
+                // gpr[rd] = if (gpr[rs1] as i32) < (inst.imm as i32) { 1 } else { 0 };
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), if (rs1 as i32) < (imm as i32) { 1 } else { 0 })?;
+                });
+            }
             // "sltiu" => {
             //     gpr[rd] = if gpr[rs1] < inst.imm { 1 } else { 0 };
             // }
@@ -240,17 +402,8 @@ impl Simulator {
 
             _ => return Ok(ExecuteResult::UnknownInst),
         }
-
-        with_rwlock_write!(self.reg, reg, {
-            reg.write_pc(npc);
-            reg.write_gpr(RegIdentifier::Index(0), 0)?;
-        });
-
-        if self.inst_trace_buffer.0 {
-            self.inst_trace_buffer.1.push(inst.clone());
-        }
         
-        Ok(ExecuteResult::Ok)
+        Ok(ExecuteResult::Ok { is_state_hazard: hazrd })
     }
 
 //     fn rv32m_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {

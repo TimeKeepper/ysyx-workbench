@@ -1,6 +1,7 @@
 use std::os::raw::c_void;
 
 use dlopen2::wrapper::{Container, WrapperApi};
+use state::reg::RegisterBank;
 
 pub enum DiffertestDirection {
     ToDut = 0,
@@ -30,6 +31,26 @@ pub struct Differtest {
     cont: Option<Container<Api>>,
 }
 
+/// siutable for differtest
+#[cfg(feature = "riscv32")]
+#[repr(C)]
+pub struct DiffertestRegBank {
+    pub gpr: [u32; 32],
+    pub pc: u32,
+    pub csr: [u32; 4096],
+}
+
+#[cfg(feature = "riscv32")]
+impl DiffertestRegBank {
+    pub fn new() -> Self {
+        Self {
+            gpr: [0; 32],
+            pc: 0,
+            csr: [0; 4096],
+        }
+    }
+}
+
 impl Differtest {
     pub fn new() -> Self {
         // let cont: Container<Api> = unsafe { Container::load(path).expect("Could not open library or load symbols")}
@@ -42,14 +63,10 @@ impl Differtest {
         self.cont = Some(unsafe { Container::load(path).expect("Could not open library or load symbols") });
     }
 
-    pub fn get_ref_reg(&self) -> Riscv32CpuState {
-        let ref_r = Riscv32CpuState {
-            gpr: [0; 32],
-            pc: 0,
-            csr: [0; 4096],
-        };
+    pub fn get_ref_reg(&self) -> DiffertestRegBank {
+        let ref_r = DiffertestRegBank::new();
 
-        let ref_r_ptr = &ref_r as *const Riscv32CpuState as *mut c_void;
+        let ref_r_ptr = &ref_r as *const DiffertestRegBank as *mut c_void;
         unsafe {
             self.cont.as_ref().expect("?").difftest_regcpy(ref_r_ptr, DiffertestDirection::ToDut.into());
         }
@@ -57,9 +74,15 @@ impl Differtest {
         ref_r
     }
 
-    pub fn set_ref_reg(&self, executor: &Riscv32CpuState) {
+    pub fn set_ref_reg(&self, executor: &RegisterBank) {
         unsafe {
-            let ref_r_ptr = executor as *const Riscv32CpuState as *mut c_void;
+            let ref_r = DiffertestRegBank{
+                gpr: executor.gp,
+                pc: executor.pc,
+                csr: executor.cs,
+            };
+            let ref_r_ptr = &ref_r as *const DiffertestRegBank as *mut c_void;
+            // let ref_r_ptr = executor as *const DiffertestRegBank as *mut c_void;
             (self.cont.as_ref().expect("?").difftest_regcpy)(ref_r_ptr, DiffertestDirection::ToRef.into());
         }
     }

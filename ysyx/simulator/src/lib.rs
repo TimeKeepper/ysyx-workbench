@@ -1,4 +1,4 @@
-ysyx_macro::mod_pub!(nemu, npc, disassembler);
+ysyx_macro::mod_pub!(nemu, npc, disassembler, differtest);
 ysyx_macro::mod_flat!(simulator);
 
 const RV32GPR_NAME: [&'static str; 32] = [
@@ -6,3 +6,6 @@ const RV32GPR_NAME: [&'static str; 32] = [
     "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4",
     "t5", "t6",
 ];
+
+#[cfg(feature = "nemu")]
+pub type Simulator = nemu::Simulator;

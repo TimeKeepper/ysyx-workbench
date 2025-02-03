@@ -16,9 +16,16 @@ dlopen2 = "0.7.0"
 tabwriter = "1.4.1"
 
 [workspace.features]
-default = ["riscv32-nemu"]
+default = [
+    "riscv32-nemu", 
+    "differtets",
+]
 
 riscv32-nemu = [
     "state/riscv32",
-    "simulator/nemu",
+    "simulator/riscv32-nemu",
+]
+
+differtest = [
+    "simulator/differtest",
 ]

@@ -1,7 +1,10 @@
 use circular_queue::CircularQueue;
+use msg_resp::MatchMsg;
 use state::reg::RegisterOps;
 use ysyx_macro::with_mutex_lock;
 use ysyx_macro::with_rwlock_read;
+use crate::differtest;
+
 use super::decode::RvInstParser;
 use owo_colors::OwoColorize;
 
@@ -9,8 +12,10 @@ use super::super::disassembler;
 
 use msg_resp::{SimErr, SimOk, ResultMessage, CtrlCommand};
 
+use std::result;
 use std::result::Result;
 use std::sync::mpsc::Receiver;
+use std::sync::mpsc::RecvError;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
@@ -18,6 +23,9 @@ use std::thread;
 use state::ProcessState;
 use state::mmu::{MMU, Mask};
 use state::reg::RegisterBank;
+
+#[cfg(feature = "differtest")]
+use differtest::Differtest;
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
@@ -34,6 +42,9 @@ pub struct Simulator {
     pub mem: Arc<RwLock<MMU>>,
     pub reg: Arc<RwLock<RegisterBank>>,
     pub state: Arc<RwLock<ProcessState>>,
+    
+    #[cfg(feature = "differtest")]
+    pub differtest: differtest::Differtest,
 }
 
 impl Simulator {
@@ -57,6 +68,9 @@ impl Simulator {
             mem,
             reg,
             state,
+
+            #[cfg(feature = "differtest")]
+            differtest: differtest::Differtest::new(),
         }
     }
 
@@ -65,11 +79,6 @@ impl Simulator {
     }
 
     fn disasm(&self, inst: u32) {
-        // let pc: u32;
-        // with_rwlock_read!(self.reg, reg, {
-        //     pc = reg.pc;
-        // });
-        
         let pc = with_rwlock_read!(self.reg, reg, {
             reg.read_pc()
         });
@@ -91,7 +100,7 @@ impl Simulator {
                     mem.read(reg.read_pc(), Mask::None)?
                 })
             });
-            
+
             let exeu_inst = self.decode(inst)?;
     
             if trace {
@@ -122,10 +131,10 @@ impl Simulator {
     }
 
     pub fn run(&mut self) {
-        // let disasm = self.disasm.clone();
-        // self.disasm = disasm;
         loop {
-            match self.cmd_receiver.recv() {
+            let result = self.cmd_receiver.recv();
+
+            match result {
                 Ok(CtrlCommand::QUIT) => {
                     self.result_sender.send(Ok(SimOk::Nothing)).unwrap();
                     break;
@@ -135,7 +144,35 @@ impl Simulator {
                     let result = self.single_instruction(count);
                     self.result_sender.send(result).unwrap();
                 }
-                _ => {}
+
+                Ok(CtrlCommand::DIFFERTEST { path, length }) => {
+                    #[cfg(feature = "differtest")]
+                    {
+                        // let result = self.differtest.run(&path);
+                        self.differtest.init(&path);
+                        self.differtest.ref_difftest_init(1234);
+                        with_rwlock_read!(self.mem, mem, {
+                            self.differtest.ref_difftest_memcpy(0x8000_0000, {
+                                let mmt = mem.match_memory(MatchMsg::ADDR { addr: 0x8000_0000 });
+                                let memory = match mmt {
+                                    Ok(m) => m,
+                                    Err(_) => panic!("Memory not found"),
+                                };
+                                memory.memory.as_ptr() as *mut std::ffi::c_void
+                            }, length, differtest::DiffertestDirection::ToRef);
+                        });
+                        with_rwlock_read!(self.reg, reg, {
+                            self.differtest.set_ref_reg(&reg);
+                        });
+                    }
+                }
+
+                Err(RecvError) => {
+                    println!("{}", "The command sender has been dropped, exiting...".red());
+                    break;
+                }
+
+                _ => {println!("{}-{:?}", "Invalid command".red(), result);}
             }
         }
     }

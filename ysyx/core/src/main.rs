@@ -19,7 +19,7 @@ fn main() {
     monitor.init();
 
     let handle = thread::spawn(move || {
-        let mut simulator = simulator::nemu::Simulator::new(
+        let mut simulator = simulator::Simulator::new(
             cmd_receiver, result_sender, 
             mem.clone(), reg.clone(), state.clone());
 

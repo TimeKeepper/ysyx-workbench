@@ -10,7 +10,7 @@ Binfile = ./monitor/src/test/microbench-riscv32-nemu.bin
 ExtraArgs ?=
 
 Mainargs = --bin $(Binfile) $(ExtraArgs)
-Debugargs = $(Mainargs) --log -d $(REF_Path) --debug
+Debugargs = $(Mainargs) -d $(REF_Path) --debug
 
 Feature = nemu,riscv32
 
@@ -18,7 +18,7 @@ run :
 	cargo run $(Job) --features "$(Feature)" --release --bin core -- $(Mainargs)-d $(REF_Path)
 
 debug :
-	RUST_BACKTRACE=full cargo run $(Job) --features $(Feature),differtest --bin core -- $(Debugargs)
+	RUST_BACKTRACE=full cargo run $(Job) --features $(Feature),differtest,log --bin core -- $(Debugargs)
 
 bench :
 	cargo bench $(Job) --benches

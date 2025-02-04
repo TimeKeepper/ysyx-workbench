@@ -25,8 +25,6 @@ fn main() {
         resper.clone(),
     );
 
-    monitor.init();
-
     let handle = thread::spawn(move || {
         let mut simulator = simulator::Simulator::new(
             cmd_receiver,
@@ -36,9 +34,11 @@ fn main() {
             state.clone(),
             resper.clone(),
         );
-
+        
         simulator.run();
     });
+    
+    monitor.init();
 
     monitor.main_loop();
 

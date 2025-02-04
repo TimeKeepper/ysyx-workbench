@@ -1,4 +1,4 @@
-use msg_resp::{CtrlCommand, SimOk};
+use msg_resp::{CtrlCommand, SimErr, SimOk};
 use state::{
     mmu::devices::{SerialFactory, TimerFactory},
     reg::RegisterOps,
@@ -63,13 +63,13 @@ impl Monitor {
     }
 
     fn init_log(&mut self) {
-        if self.cli_parser.log {
-            self.resper.lock().unwrap().init();
-        }
+        #[cfg(feature = "log")]
+        self.resper.lock().unwrap().init();
+
         self.resper
             .lock()
             .unwrap()
-            .option_log("log", self.cli_parser.log);
+            .option_log("log", cfg!(feature = "log"));
     }
 
     fn init_sim(&mut self) {
@@ -100,7 +100,7 @@ impl Monitor {
                     length: bin.len() as u64,
                 })
                 .unwrap();
-            // assert!(matches!(self.result_receiver.recv().unwrap(), Ok(SimOk::DiffertestInit) | Err(SimErr::DiffertestFailedToInit)));
+            assert!(matches!(self.result_receiver.recv().unwrap(), Ok(SimOk::DiffertestInit) | Err(SimErr::DiffertestFailedToInit)));
         }
     }
 }

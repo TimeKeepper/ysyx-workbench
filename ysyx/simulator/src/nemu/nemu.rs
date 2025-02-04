@@ -24,11 +24,15 @@ use state::ProcessState;
 use state::mmu::{MMU, Mask};
 use state::reg::RegisterBank;
 
+use msg_resp as msgr;
+
 #[cfg(feature = "differtest")]
 use differtest::Differtest;
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
+    
+    pub resper: Arc<Mutex<msgr::Resper>>,
 
     pub inst_trace_buffer: (bool, CircularQueue<ExecuteInst>),
     pub inst_trace: bool,
@@ -51,10 +55,13 @@ impl Simulator {
     pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
         mem: Arc<RwLock<state::mmu::MMU>>, 
         reg: Arc<RwLock<state::reg::RegisterBank>>,
-        state: Arc<RwLock<ProcessState>>) -> Self {
+        state: Arc<RwLock<ProcessState>>,
+        resper: Arc<Mutex<msgr::Resper>>) -> Self {
 
         Self {
             inst_parser: RvInstParser::new(),
+
+            resper,
 
             inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
             inst_trace: false,
@@ -90,7 +97,7 @@ impl Simulator {
             .split_ascii_whitespace()
             .map(|x| format!("{} ", x))
             .collect::<String>();
-        println!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green());
+        self.resper.lock().unwrap().trace(format!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green()).as_str());
     }
 
     fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
@@ -103,9 +110,9 @@ impl Simulator {
 
             let exeu_inst = self.decode(inst)?;
     
-            if trace {
+            if trace && self.inst_trace {
                 self.disasm(inst);
-                println!("{:08x?}", exeu_inst.green());
+                self.resper.lock().unwrap().trace(format!("{:08x?}", exeu_inst).as_str());
             }
     
             self.execute(exeu_inst)?;
@@ -164,21 +171,21 @@ impl Simulator {
                         with_rwlock_read!(self.reg, reg, {
                             self.differtest.set_ref_reg(&reg);
                         });
-                        println!("{}", "Differtest initialized".green());
+                        self.resper.lock().unwrap().info("Differtest initialized");
                     }
 
                     #[cfg(not(feature = "differtest"))]
                     {
-                        println!("{}", "Differtest feature is not enabled".red());
+                        self.resper.lock().unwrap().error("Differtest feature is not enabled");
                     }
                 }
 
                 Err(RecvError) => {
-                    println!("{}", "The command sender has been dropped, exiting...".red());
+                    self.resper.lock().unwrap().error("The command sender has been dropped, exiting...");
                     break;
                 }
 
-                _ => {println!("{}-{:?}", "Invalid command".red(), result);}
+                _ => {self.resper.lock().unwrap().error("Invalid command");}
             }
         }
     }

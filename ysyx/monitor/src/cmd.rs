@@ -41,7 +41,8 @@ impl Monitor {
             }
 
             _ => {
-                println!("Invalid target");
+                self.resper.lock().unwrap().error("Invalid register identifier");
+                self.resper.lock().unwrap().important("Valid identifiers: gp, pc, cs");
                 return Err(SimErr::InvalidCommand);
             }
         }
@@ -52,7 +53,7 @@ impl Monitor {
         on_or_off: bool,
         target: Option<String>,
     ) -> ResultMessage {
-        // self.sim.func_ctrl(on_or_off, target.as_deref())
+        self.cmd_sender.send(CtrlCommand::FUNC { on_or_off, target }).unwrap();
         Ok(SimOk::Nothing)
     }
 
@@ -120,7 +121,7 @@ impl Monitor {
 
         for _ in 0..length {
             let data = self.mem.read().unwrap().read(addr, state::mmu::Mask::None)?;
-            self.msgr.trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+            self.resper.lock().unwrap().trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
             addr = addr + 4;
         }
         

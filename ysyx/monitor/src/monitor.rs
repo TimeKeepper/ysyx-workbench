@@ -31,11 +31,10 @@ use std::sync::{Arc, Mutex, RwLock};
 pub struct Monitor {
     pub name: String,
 
-    pub msgr: msgr::Resper,
+    pub resper: Arc<Mutex<msgr::Resper>>,
+
     pub cli_parser:Cli,
     pub cmd_manager: CmM,
-
-    pub signal: Arc<AtomicBool>,
     
     pub cmd_sender: Sender<CtrlCommand>,
     pub result_receiver: Receiver<ResultMessage>,
@@ -49,21 +48,18 @@ impl Monitor {
     pub fn new(name: &str, cmd_sender: Sender<CtrlCommand>, result_receiver: Receiver<ResultMessage>, 
         mem: Arc<RwLock<state::mmu::MMU>>, 
         reg: Arc<RwLock<state::reg::RegisterBank>>,
-        state: Arc<RwLock<ProcessState>>) -> Self {
+        state: Arc<RwLock<ProcessState>>,
+        resper: Arc<Mutex<msgr::Resper>>) -> Self {
         let cli_parser = monitor_parser::Cli::parse();
 
-        let msgr = msgr::Resper::new();
         let cmd_manager = monitor_parser::CommandManager::new(name);
 
-        let signal = Arc::new(AtomicBool::new(false));
         Self {
             name: name.to_string(),
 
-            msgr,
+            resper,
             cli_parser,
             cmd_manager,
-
-            signal,
 
             cmd_sender,
             result_receiver,
@@ -81,17 +77,10 @@ impl Monitor {
 
         self.init_log();
 
-        match self.init_sim() {
-            Ok(_) => self.msgr.info("Simulator initialized"),
-            Err(err) => match err {
-                SimErr::NoBinaryFile => self.msgr.error("No binary file"),
-                SimErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
-                _ => self.msgr.error("Unknown error"),
-            },
-        }
+        self.init_sim();
 
         if self.cli_parser.elf.is_some() {
-            self.msgr.error("ELF file path is not implemented yet");
+            self.resper.lock().unwrap().error("ELF file path is not implemented yet");
         }
 
         if self.cli_parser.debug {
@@ -102,7 +91,7 @@ impl Monitor {
 
     pub fn main_loop(&mut self) {
         if self.cli_parser.batch {
-            self.msgr.info("Execute in Batch mode");
+            self.resper.lock().unwrap().info("Execute in Batch mode");
             let result = self.cmd_c();
             self.deal_result(result);
             let _ = self.cmd_q();
@@ -134,44 +123,46 @@ impl Monitor {
     }
 
     fn init_signal(&mut self) {
-        let signal = self.signal.clone();
+        let resper = self.resper.clone();
+        let state = self.state.clone();
         ctrlc::set_handler(move || {
-            println!("received Ctrl+C!");
-            signal.store(true, std::sync::atomic::Ordering::SeqCst);
+            resper.lock().unwrap().info("Ctrl-C received");
+            *state.write().unwrap() = ProcessState::QUIT;
         })
         .expect("Error setting Ctrl-C handler");
     }
 
     fn init_log(&mut self) {
         if self.cli_parser.log {
-            self.msgr.init();
+            self.resper.lock().unwrap().init();
         }
-        self.msgr.option_log("log", self.cli_parser.log);
+        self.resper.lock().unwrap().option_log("log", self.cli_parser.log);
     }
 
-    fn init_sim(&mut self) -> Result<(), SimErr> {
+    fn init_sim(&mut self) {
         with_rwlock_write!(self.reg, reg, {
             reg.write_pc(0x8000_0000);
         });
 
         if self.cli_parser.bin.is_none() {
-            return Err(SimErr::NoBinaryFile);
+            self.resper.lock().unwrap().error("No binary file");
+            return;
         }
         let bin = std::fs::read(self.cli_parser.bin.clone().unwrap());
         if bin.is_err() {
-            return Err(SimErr::BinaryFileNotFound);
+            self.resper.lock().unwrap().error("Binary file not found");
+            *self.state.write().unwrap() = ProcessState::ABORT;
+            return;
         }
         let bin: Vec<u8> = bin.unwrap();
 
         with_rwlock_write!(self.mem, mem, {
-            mem.load("psram", &bin)?;
+            mem.load("psram", &bin);
         });
 
         if let Some(diffpath) = &self.cli_parser.dut {
             self.cmd_sender.send(CtrlCommand::DIFFERTEST { path: diffpath.clone(), length: bin.len() as u64 }).unwrap();
         }
-
-        Ok(())
     }
 
     fn execute(&mut self, cmd: Cmd) -> ResultMessage {
@@ -205,75 +196,47 @@ impl Monitor {
         match result {
             Ok(_) => return,
             Err(err) => match err {
-                SimErr::Signal => {
-                    with_rwlock_write!(self.state, state, {
-                        *state = ProcessState::STOP;
-                    });
-                }
                 SimErr::Ebreak { is_good } => {
                     with_rwlock_write!(self.state, state, {
                         *state = if is_good {
-                            self.msgr.success("Hit Good TRAP");
+                            self.resper.lock().unwrap().success("Hit Good TRAP");
                             ProcessState::DONE
                         } else {
-                            self.msgr.error("Hit Bad TRAP");
+                            self.resper.lock().unwrap().error("Hit Bad TRAP");
                             ProcessState::TRAP
                         }
                     });
                 },
 
-                SimErr::NotImplemented => self.msgr.error("Not implemented yet"),
-                SimErr::InvalidCommand => self.msgr.error("Invalid command"),
-                SimErr::InvalidRegIndentifier => self.msgr.error("Invalid register identifier"),
-
-                SimErr::BinaryFileNotFound => self.msgr.error("Binary file not found"),
-                SimErr::NoBinaryFile => self.msgr.error("No binary file"),
-
-                SimErr::DeviceCannotBeLoad { name } => {
-                    self.msgr.error(format!("Device {} cannot be loaded", name).as_str())
-                },
+                SimErr::NotImplemented => self.resper.lock().unwrap().error("Not implemented yet"),
+                SimErr::InvalidCommand => self.resper.lock().unwrap().error("Invalid command"),
+                SimErr::InvalidRegIndentifier => self.resper.lock().unwrap().error("Invalid register identifier"),
 
                 SimErr::DiffertestFailed => {
-                    self.msgr.error("Differtest failed");
+                    self.resper.lock().unwrap().error("Differtest failed");
                     with_rwlock_write!(self.state, state, {
                         *state = ProcessState::TRAP
                     });
                 },
-                SimErr::NoMatchingMemory { msg } => {
+                SimErr::NoMatchingMemory {} => {
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
+                },
+                SimErr::NoMatchingDevice { } => {
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
+                },
+                SimErr::InstrctionDecodeFailed { } => {
+                    with_rwlock_write!(self.state, state, {
+                        *state = ProcessState::TRAP
+                    });
+                },
+                SimErr::InstrctionExecuteFailed { } => {
                     self
-                    .msgr
-                    .error(format!("No matching memory {}", msg).as_str());
-
-                    with_rwlock_write!(self.state, state, {
-                        *state = ProcessState::TRAP
-                    });
-                },
-                SimErr::NoMatchingDevice { msg } => {
-                    self
-                    .msgr
-                    .error(format!("No matching device {}", msg).as_str());
-
-                    with_rwlock_write!(self.state, state, {
-                        *state = ProcessState::TRAP
-                    });
-                },
-                SimErr::InstrctionDecodeFailed { inst } => {
-                    // self.msgr.error(
-                    // format!(
-                    //     "Instruction decode failed at PC 0x{:08x} with instruction 0x{:08x}",
-                    //         // self.sim.get_reg_state().pc, 
-                    //         inst
-                    //     )
-                    //     .as_str(),
-                    // );
-                    with_rwlock_write!(self.state, state, {
-                        *state = ProcessState::TRAP
-                    });
-                },
-                SimErr::InstrctionExecuteFailed { name } => {
-                    self
-                    .msgr
-                    .error(format!("Failed to execute instrcution {}", name.purple()).as_str());
+                    .resper.lock().unwrap()
+                    .error(format!("Failed to execute instrcution").as_str());
                     with_rwlock_write!(self.state, state, {
                         *state = ProcessState::TRAP
                     });
@@ -287,11 +250,11 @@ impl Drop for Monitor {
     fn drop(&mut self) {
         let state = self.state.read().unwrap();
 
-        self.msgr.info("Exiting...");
+        self.resper.lock().unwrap().info("Exiting...");
         match *state {
-            ProcessState::QUIT => self.msgr.success("Exited normally"),
-            ProcessState::ABORT => self.msgr.error("Exited abnormally"),
-            _ => self.msgr.error("Unknown exit status"),
+            ProcessState::QUIT => self.resper.lock().unwrap().success("Exited normally"),
+            ProcessState::ABORT => self.resper.lock().unwrap().error("Exited abnormally"),
+            _ => self.resper.lock().unwrap().error("Unknown exit status"),
         }
     }
 }

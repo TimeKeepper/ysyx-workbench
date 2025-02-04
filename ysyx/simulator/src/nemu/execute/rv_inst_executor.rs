@@ -68,7 +68,8 @@ impl Simulator {
         //     return Ok(());
         // }
 
-        Err(SimErr::InstrctionExecuteFailed { name:inst.name.to_string() })
+        // Err(SimErr::InstrctionExecuteFailed { name:inst.name.to_string() })
+        Err(SimErr::InstrctionExecuteFailed)
     }
 
     fn rv32i_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {

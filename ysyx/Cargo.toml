@@ -17,15 +17,17 @@ tabwriter = "1.4.1"
 
 [workspace.features]
 default = [
-    "riscv32-nemu", 
-    "differtets",
-]
-
-riscv32-nemu = [
+    "nemu", 
     "riscv32",
-    "nemu",
-]
-
-differtest = [
     "differtest",
 ]
+
+nemu = []
+npc = []
+ysyxsoc = []
+
+riscv32 = []
+riscv64 = []
+loongarch32 = []
+
+differtest = []

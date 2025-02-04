@@ -127,7 +127,8 @@ impl RvInstParser {
             }
         }
         
-        Err(SimErr::InstrctionDecodeFailed{inst})
+        // Err(SimErr::InstrctionDecodeFailed{inst})
+        Err(SimErr::InstrctionDecodeFailed)
     }
 
     pub fn new() -> Self {

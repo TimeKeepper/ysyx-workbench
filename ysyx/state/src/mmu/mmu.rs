@@ -4,6 +4,10 @@ use super::memory::Memory;
 use super::{devices::Device, Mask};
 use msg_resp::{MatchMsg, SimErr};
 
+use std::sync::{Arc, Mutex};
+
+use msg_resp as msgr;
+
 pub enum MMT<'a> {
     Memory(&'a Memory),
     Device(&'a Device),
@@ -13,16 +17,15 @@ pub struct MMU {
     memory: Vec<Memory>,
     device: Vec<Device>,
 
-    pub is_attch_device: bool,
+    pub resper: Arc<Mutex<msgr::Resper>>,
 }
 
 impl MMU {
-    pub fn new() -> Self {
+    pub fn new(resper: Arc<Mutex<msgr::Resper>>) -> Self {
         MMU {
             memory: Vec::new(),
             device: Vec::new(),
-
-            is_attch_device: false,
+            resper,
         }
     }
 
@@ -41,7 +44,12 @@ impl MMU {
             }
         }
 
-        Err(SimErr::NoMatchingMemory { msg })
+        self.resper.lock().unwrap().error(format!("No matching memory: {}", match msg {
+            MatchMsg::ADDR { addr } => format!("0x{:08x}", addr),
+            MatchMsg::NAME { name } => name,
+        }).as_str());
+
+        Err(SimErr::NoMatchingMemory)
     }
 
     pub fn match_memory_mut(&mut self, msg: MatchMsg) -> Result<&mut Memory, SimErr> {
@@ -51,7 +59,12 @@ impl MMU {
             }
         }
 
-        Err(SimErr::NoMatchingDevice { msg })
+        self.resper.lock().unwrap().error(format!("No matching memory: {}", match msg {
+            MatchMsg::ADDR { addr } => format!("0x{:08x}", addr),
+            MatchMsg::NAME { name } => name,
+        }).as_str());
+
+        Err(SimErr::NoMatchingDevice)
     }
 
     pub fn match_device(&mut self, msg: MatchMsg) -> Result<&mut Device, SimErr> { // Device always mutable
@@ -61,7 +74,12 @@ impl MMU {
             }
         }
 
-        Err(SimErr::NoMatchingDevice { msg })
+        self.resper.lock().unwrap().error(format!("No matching device: {}", match msg {
+            MatchMsg::ADDR { addr } => format!("0x{:08x}", addr),
+            MatchMsg::NAME { name } => name,
+        }).as_str());
+
+        Err(SimErr::NoMatchingDevice)
     }
 
     pub fn read(&self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
@@ -91,7 +109,10 @@ impl MMU {
             name: name.to_string(),
         })?;
 
-        memory.load(data)
+        memory.load(data).map_err(|e| {
+            self.resper.lock().unwrap().error(format!("{}: {}", "can not load memory for too long size", name.purple()).as_str());
+            e
+        })
     }
 
     pub fn memory_map(&self) {
@@ -125,7 +146,7 @@ mod tests {
         let bin_path = "src/test/rtthread-riscv32e-ysyxsoc.bin";
         let mem = std::fs::read(bin_path).unwrap();
 
-        let mut mmu = MMU::new();
+        let mut mmu = MMU::new(Arc::new(Mutex::new(msgr::Resper::new())));
         mmu.add_memory("sdram", 0x8000_0000, 0x0800_0000);
         assert!(mmu.load("sdram", &mem).is_ok());
         println!("length: {}", mem.len());

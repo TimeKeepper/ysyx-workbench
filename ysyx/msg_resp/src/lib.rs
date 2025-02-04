@@ -128,19 +128,15 @@ pub enum SimOk {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimErr {
-    Signal,
     Ebreak {is_good: bool},
     NotImplemented,
     InvalidCommand,
     InvalidRegIndentifier,
-    NoBinaryFile,
     DiffertestFailed,
-    BinaryFileNotFound,
-    DeviceCannotBeLoad {name: String},
-    NoMatchingMemory {msg: MatchMsg},
-    NoMatchingDevice {msg: MatchMsg},
-    InstrctionDecodeFailed {inst: u32},
-    InstrctionExecuteFailed {name: String},
+    NoMatchingMemory,
+    NoMatchingDevice,
+    InstrctionDecodeFailed,
+    InstrctionExecuteFailed,
 }
 
 pub type ResultMessage = Result<SimOk, SimErr>;

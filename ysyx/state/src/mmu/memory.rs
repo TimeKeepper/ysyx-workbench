@@ -75,7 +75,7 @@ impl Memory {
 
     pub fn load(&mut self, data: &[u8]) -> Result<(), SimErr> {
         if data.len() > self.memory.len() {
-            return Err(SimErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", self.name) } });
+            return Err(SimErr::NoMatchingMemory);
         }
 
         self.memory[..data.len()].copy_from_slice(data);

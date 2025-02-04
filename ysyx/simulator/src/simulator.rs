@@ -1,7 +1,5 @@
 use owo_colors::OwoColorize;
 
-use msg_resp::ResultMessage;
-
 pub fn function_log(feature: &str, status: bool) {
     println!("{} is [{}]", feature.purple(), if status { "on".green().to_string() } else { "off".red().to_string() });
 }

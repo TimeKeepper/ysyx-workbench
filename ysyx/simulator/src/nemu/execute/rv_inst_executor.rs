@@ -1,10 +1,8 @@
-use crate::npc;
-
 use super::super::{ExecuteInst, Simulator, sig_extend};
 
 use msg_resp::SimErr;
 use state::reg::{self, RegIdentifier, RegisterOps};
-use ysyx_macro::{with_mutex_lock, with_rwlock_write, with_rwlock_read};
+use ysyx_macro::{with_rwlock_write, with_rwlock_read};
 
 
 #[derive(Debug, PartialEq, Clone)]
@@ -334,72 +332,157 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), if (rs1 as i32) < (imm as i32) { 1 } else { 0 })?;
                 });
             }
-            // "sltiu" => {
-            //     gpr[rd] = if gpr[rs1] < inst.imm { 1 } else { 0 };
-            // }
+            "sltiu" => {
+                // gpr[rd] = if gpr[rs1] < inst.imm { 1 } else { 0 };
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), if rs1 < imm { 1 } else { 0 })?;
+                });
+            }
 
-            // "xori" => {
-            //     gpr[rd] = gpr[rs1] ^ inst.imm;
-            // }
-            // "ori" => {
-            //     gpr[rd] = gpr[rs1] | inst.imm;
-            // }
-            // "andi" => {
-            //     gpr[rd] = gpr[rs1] & inst.imm;
-            // }
+            "xori" => {
+                // gpr[rd] = gpr[rs1] ^ inst.imm;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 ^ imm)?;
+                });
+            }
+            "ori" => {
+                // gpr[rd] = gpr[rs1] | inst.imm;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 | imm)?;
+                });
+            }
+            "andi" => {
+                // gpr[rd] = gpr[rs1] & inst.imm;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 & imm)?;
+                });
+            }
 
-            // "slli" => {
-            //     gpr[rd] = gpr[rs1] << (inst.imm & 0x1f);
-            // }
-            // "srli" => {
-            //     gpr[rd] = gpr[rs1] >> (inst.imm & 0x1f);
-            // }
-            // "srai" => {
-            //     gpr[rd] = (gpr[rs1] as i32 >> (inst.imm & 0x1f)) as u32;
-            // }
+            "slli" => {
+                // gpr[rd] = gpr[rs1] << (inst.imm & 0x1f);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 << (imm & 0x1f))?;
+                });
+            }
+            "srli" => {
+                // gpr[rd] = gpr[rs1] >> (inst.imm & 0x1f);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 >> (imm & 0x1f))?;
+                });
+            }
+            "srai" => {
+                // gpr[rd] = (gpr[rs1] as i32 >> (inst.imm & 0x1f)) as u32;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), (rs1 as i32 >> (imm & 0x1f)) as u32)?;
+                });
+            }
 
-            // "add" => {
-            //     gpr[rd] = gpr[rs1].wrapping_add(gpr[rs2]);
-            // }
-            // "sub" => {
-            //     gpr[rd] = gpr[rs1].wrapping_sub(gpr[rs2]);
-            // }
+            "add" => {
+                // gpr[rd] = gpr[rs1].wrapping_add(gpr[rs2]);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1.wrapping_add(rs2))?;
+                });
+            }
+            "sub" => {
+                // gpr[rd] = gpr[rs1].wrapping_sub(gpr[rs2]);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1.wrapping_sub(rs2))?;
+                });
+            }
 
-            // "xor" => {
-            //     gpr[rd] = gpr[rs1] ^ gpr[rs2];
-            // }
-            // "or" => {
-            //     gpr[rd] = gpr[rs1] | gpr[rs2];
-            // }
-            // "and" => {
-            //     gpr[rd] = gpr[rs1] & gpr[rs2];
-            // }
+            "xor" => {
+                // gpr[rd] = gpr[rs1] ^ gpr[rs2];
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 ^ rs2)?;
+                });
+            }
+            "or" => {
+                // gpr[rd] = gpr[rs1] | gpr[rs2];
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 | rs2)?;
+                });
+            }
+            "and" => {
+                // gpr[rd] = gpr[rs1] & gpr[rs2];
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 & rs2)?;
+                });
+            }
 
-            // "slt" => {
-            //     gpr[rd] = if (gpr[rs1] as i32) < (gpr[rs2] as i32) { 1 } else { 0 };
-            // }
-            // "sltu" => {
-            //     gpr[rd] = if gpr[rs1] < gpr[rs2] { 1 } else { 0 };
-            // }
+            "slt" => {
+                // gpr[rd] = if (gpr[rs1] as i32) < (gpr[rs2] as i32) { 1 } else { 0 };
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), if (rs1 as i32) < (rs2 as i32) { 1 } else { 0 })?;
+                });
+            }
+            "sltu" => {
+                // gpr[rd] = if gpr[rs1] < gpr[rs2] { 1 } else { 0 };
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), if rs1 < rs2 { 1 } else { 0 })?;
+                });
+            }
 
-            // "sll" => {
-            //     gpr[rd] = gpr[rs1] << (gpr[rs2] & 0x1f);
-            // }
-            // "srl" => {
-            //     gpr[rd] = gpr[rs1] >> (gpr[rs2] & 0x1f);
-            // }
-            // "sra" => {
-            //     gpr[rd] = (gpr[rs1] as i32 >> (gpr[rs2] & 0x1f)) as u32;
-            // }
+            "sll" => {
+                // gpr[rd] = gpr[rs1] << (gpr[rs2] & 0x1f);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 << (rs2 & 0x1f))?;
+                });
+            }
+            "srl" => {
+                // gpr[rd] = gpr[rs1] >> (gpr[rs2] & 0x1f);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1 >> (rs2 & 0x1f))?;
+                });
+            }
+            "sra" => {
+                // gpr[rd] = (gpr[rs1] as i32 >> (gpr[rs2] & 0x1f)) as u32;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), (rs1 as i32 >> (rs2 & 0x1f)) as u32)?;
+                });
+            }
 
-            // "ecall" => {
-            //     csr[CsrAddr::MEPC as usize] = *pc;
-            //     csr[CsrAddr::MCAUSE as usize] = 0x0000000b;
-            //     npc = csr[CsrAddr::MTVEC as usize];
-            // }
-            // "ebreak" => {
-            //     return Err(SimErr::Ebreak { is_good: (gpr[10] == 0)});
-            // }
+            "ecall" => {
+                // csr[CsrAddr::MEPC as usize] = *pc;
+                // csr[CsrAddr::MCAUSE as usize] = 0x0000000b;
+                // npc = csr[CsrAddr::MTVEC as usize];
+                with_rwlock_write!(self.reg, reg, {
+                    let pc = reg.read_pc();
+                    reg.write_csr(RegIdentifier::Index(CsrAddr::MEPC as usize), pc)?;
+                    reg.write_csr(RegIdentifier::Index(CsrAddr::MCAUSE as usize), 0x0000000b)?;
+                    *npc = reg.read_csr(RegIdentifier::Index(CsrAddr::MTVEC as usize))?;
+                });
+            }
+            "ebreak" => {
+                // return Err(SimErr::Ebreak { is_good: (gpr[10] == 0)});
+                return Err(SimErr::Ebreak { is_good: with_rwlock_read!(self.reg, reg, { reg.read_gpr(RegIdentifier::Index(10))? == 0 }) });
+            }
 
             _ => return Ok(ExecuteResult::UnknownInst),
         }

@@ -1,5 +1,3 @@
-use std::os::raw::c_void;
-
 use msg_resp::SimErr;
 use owo_colors::OwoColorize;
 use state::reg::{RegIdentifier, RegisterOps};

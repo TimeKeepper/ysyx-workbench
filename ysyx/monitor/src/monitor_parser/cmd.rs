@@ -1,5 +1,5 @@
 use msg_resp as msgr;
-use clap::{command, ArgGroup, Parser, Subcommand, ValueEnum};
+use clap::{command, ArgGroup, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -8,10 +8,12 @@ pub struct Command {
     command: Commands,
 }
 
-#[derive(ValueEnum, Clone, Debug)]
-pub enum OperationMode {
-    On,
-    Off,
+fn operation_mode_parser(s: &str) -> Result<bool, String> {
+    match s {
+        "on" => Ok(true),
+        "off" => Ok(false),
+        _ => Err(format!("Invalid operation mode: {}", s)),
+    }
 }
 
 use std::num::ParseIntError;
@@ -95,12 +97,16 @@ pub enum Commands {
     ))]
     Function {
         /// Sets the operation mode to on or off
-        #[arg(value_enum)]
-        on_or_off: Option<OperationMode>,
+        #[arg(value_parser = operation_mode_parser)]
+        on_or_off: Option<bool>,
         
         /// The target string
         target: Option<String>,
     },
+
+    /// try receive simulator message
+    #[clap(visible_alias = "r")]
+    Receive {},
 }
 
 use owo_colors::OwoColorize;

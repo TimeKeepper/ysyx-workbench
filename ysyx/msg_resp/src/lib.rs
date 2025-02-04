@@ -112,23 +112,37 @@ impl Resper {
 #[derive(Debug, PartialEq, Clone)]
 pub enum CtrlCommand {
     QUIT,
-    FUNC { on_or_off: bool, target: Option<String> },
+    FUNC { on_or_off: Option<bool>, target: Option<String> },
+    DEBUG { target: String},
     DIFFERTEST { path: String, length: u64},
     SI { count: Option<u32> },
     SC { count: Option<u32> },
-    T,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimOk {
     Nothing,
+
+    FunctionCtrl,
+    FunctionShow,
+
+    DebugTrace,
+
+    DiffertestInit,
+
     InstructionExecuted,
-    DeviceAttached,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SimErr {
     Ebreak {is_good: bool},
+
+    FuncInvalidTarget,
+
+    DebugInvalidTarget,
+
+    DiffertestFailedToInit,
+
     NotImplemented,
     InvalidCommand,
     InvalidRegIndentifier,

@@ -1,28 +1,19 @@
-
 use clap::Parser;
 use msg_resp::CtrlCommand;
-use msg_resp::MatchMsg;
 use msg_resp as msgr;
-use owo_colors::OwoColorize;
 use state::reg::RegisterOps;
 use state::mmu::{MMU, devices::{SerialFactory, TimerFactory}};
 use state::reg::RegisterBank;
 use state::ProcessState;
 use ysyx_macro::with_rwlock_write;
 
-use crate::monitor_parser::OperationMode;
-
 use super::monitor_parser;
 use super::monitor_parser::Commands as Cmd;
 use super::monitor_parser::Cli as Cli;
 use super::monitor_parser::CommandManager as CmM;
 
-use std::os::raw::c_void;
-use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
-
-use simulator::nemu;
 
 use msg_resp::{SimErr, ResultMessage};
 
@@ -84,8 +75,8 @@ impl Monitor {
         }
 
         if self.cli_parser.debug {
-            self.cmd_sender.send(CtrlCommand::FUNC { on_or_off: true, target: Some("it".to_string()) }).unwrap();
-            self.cmd_sender.send(CtrlCommand::FUNC { on_or_off: true, target: Some("ir".to_string()) }).unwrap();
+            self.cmd_sender.send(CtrlCommand::FUNC { on_or_off: Some(true), target: Some("it".to_string()) }).unwrap();
+            self.cmd_sender.send(CtrlCommand::FUNC { on_or_off: Some(true), target: Some("ir".to_string()) }).unwrap();
         }
     }
 
@@ -157,17 +148,20 @@ impl Monitor {
         let bin: Vec<u8> = bin.unwrap();
 
         with_rwlock_write!(self.mem, mem, {
-            mem.load("psram", &bin);
+            let _ = mem.load("psram", &bin);
         });
 
         if let Some(diffpath) = &self.cli_parser.dut {
             self.cmd_sender.send(CtrlCommand::DIFFERTEST { path: diffpath.clone(), length: bin.len() as u64 }).unwrap();
+            // assert!(matches!(self.result_receiver.recv().unwrap(), Ok(SimOk::DiffertestInit) | Err(SimErr::DiffertestFailedToInit)));
         }
     }
 
     fn execute(&mut self, cmd: Cmd) -> ResultMessage {
         match cmd {
             Cmd::Quit {} => self.cmd_q(),
+
+            Cmd::Receive {  } => self.cmd_r(),
 
             Cmd::Info { target, index } => self.cmd_info(target, index),
 
@@ -178,10 +172,6 @@ impl Monitor {
             Cmd::Times {  } => self.cmd_t(),
 
             Cmd::Function { on_or_off, target } => {
-                let on_or_off = match on_or_off {
-                    Some(OperationMode::On) => true,
-                    _ => false,
-                };
                 self.cmd_func(on_or_off, target)
             },
 
@@ -241,6 +231,8 @@ impl Monitor {
                         *state = ProcessState::TRAP
                     });
                 },
+
+                _ => ()
             },
         }
     }

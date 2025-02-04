@@ -1,7 +1,5 @@
 ysyx_macro::mod_flat!(riscv, loongarch);
 
-use std::sync::{Arc, Mutex};
-
 use msg_resp::{ResultMessage, SimErr};
 
 pub enum RegIdentifier<'a> {

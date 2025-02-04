@@ -1,7 +1,6 @@
 use circular_queue::CircularQueue;
 use msg_resp::MatchMsg;
 use state::reg::RegisterOps;
-use ysyx_macro::with_mutex_lock;
 use ysyx_macro::with_rwlock_read;
 use crate::differtest;
 
@@ -12,13 +11,11 @@ use super::super::disassembler;
 
 use msg_resp::{SimErr, SimOk, ResultMessage, CtrlCommand};
 
-use std::result;
 use std::result::Result;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::RecvError;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex, RwLock};
-use std::thread;
 
 use state::ProcessState;
 use state::mmu::{MMU, Mask};
@@ -27,7 +24,6 @@ use state::reg::RegisterBank;
 use msg_resp as msgr;
 
 #[cfg(feature = "differtest")]
-use differtest::Differtest;
 
 pub struct Simulator {
     pub inst_parser: RvInstParser,
@@ -137,6 +133,11 @@ impl Simulator {
         Ok(SimOk::InstructionExecuted)
     }
 
+    fn func_print(&mut self) {
+        self.resper.lock().unwrap().option_log("Instruction trace", self.inst_trace);
+        self.resper.lock().unwrap().option_log("Instruction trace buffer", self.inst_trace_buffer.0);
+    }
+
     pub fn run(&mut self) {
         loop {
             let result = self.cmd_receiver.recv();
@@ -155,7 +156,6 @@ impl Simulator {
                 Ok(CtrlCommand::DIFFERTEST { path, length }) => {
                     #[cfg(feature = "differtest")]
                     {
-                        // let result = self.differtest.run(&path);
                         self.differtest.init(&path);
                         self.differtest.ref_difftest_init(1234);
                         with_rwlock_read!(self.mem, mem, {
@@ -172,12 +172,73 @@ impl Simulator {
                             self.differtest.set_ref_reg(&reg);
                         });
                         self.resper.lock().unwrap().info("Differtest initialized");
+                        self.result_sender.send(Ok(SimOk::DiffertestInit)).unwrap();
                     }
 
                     #[cfg(not(feature = "differtest"))]
                     {
                         self.resper.lock().unwrap().error("Differtest feature is not enabled");
+                        self.result_sender.send(Err(SimErr::DiffertestFailedToInit)).unwrap();
                     }
+                }
+
+                Ok(CtrlCommand::FUNC { on_or_off, target }) => {
+                    if on_or_off.is_none() {
+                        self.func_print();
+                        self.result_sender.send(Ok(SimOk::FunctionShow)).unwrap();
+                        continue;
+                    }
+
+                    let on_or_off = on_or_off.unwrap();
+
+                    if target.is_none() {
+                        self.inst_trace = on_or_off;
+                        self.inst_trace_buffer.0 = on_or_off;
+                        self.func_print();
+                        self.result_sender.send(Ok(SimOk::FunctionCtrl)).unwrap();
+                        continue;
+                    }
+
+                    let target = target.unwrap();
+                    
+                    match target.as_str() {
+                        "it" => {
+                            self.inst_trace = on_or_off;
+                            self.resper.lock().unwrap().option_log("Instruction trace", on_or_off);
+                        }
+                        "ir" => {
+                            self.inst_trace_buffer.0 = on_or_off;
+                            self.resper.lock().unwrap().option_log("Instruction trace buffer", on_or_off);
+                        }
+                        _ => {
+                            self.resper.lock().unwrap().error("You should input valid target from [it, ir]");
+                            self.result_sender.send(Err(SimErr::FuncInvalidTarget)).unwrap();
+                            continue;
+                        }
+                    }
+
+                    self.result_sender.send(Ok(SimOk::FunctionCtrl)).unwrap();
+                }
+
+                Ok(CtrlCommand::DEBUG { target }) => {
+                    match target {
+                        val if val == "ir" => {
+                            for i in self.inst_trace_buffer.1.iter().rev() {
+                                self.resper.lock().unwrap().trace(format!("{:?}", i).as_str());
+                            }
+                        }
+
+                        val if val == "t" => {
+                            self.resper.lock().unwrap().trace(format!("Execute times: {}", self.execte_times).as_str());
+                        }
+
+                        _ => {
+                            self.resper.lock().unwrap().error("Invalid debug target");
+                            self.result_sender.send(Err(SimErr::DebugInvalidTarget)).unwrap();
+                            continue;
+                        }
+                    }
+                    self.result_sender.send(Ok(SimOk::DebugTrace)).unwrap();
                 }
 
                 Err(RecvError) => {
@@ -185,7 +246,10 @@ impl Simulator {
                     break;
                 }
 
-                _ => {self.resper.lock().unwrap().error("Invalid command");}
+                _ => {
+                    self.resper.lock().unwrap().error("Invalid command");
+                    self.result_sender.send(Err(SimErr::InvalidCommand)).unwrap();
+                }
             }
         }
     }

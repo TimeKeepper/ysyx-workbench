@@ -8,7 +8,7 @@ use rand::Rng;
 fn bench(c: &mut Criterion) {
     let decoder = decoder::new();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let batch_size: u64 = 1000;
 
     let mut group = c.benchmark_group("decode");

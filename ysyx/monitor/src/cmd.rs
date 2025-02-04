@@ -1,10 +1,7 @@
-use msg_resp::{MatchMsg, CtrlCommand, ResultMessage, SimErr, SimOk};
+use msg_resp::{CtrlCommand, ResultMessage, SimErr, SimOk};
 use state::reg::{RegType, RegisterOps};
 use state::ProcessState;
 use ysyx_macro::{with_rwlock_read, with_rwlock_write};
-use std::os::raw::c_void;
-use std::result::Result;
-use std::sync::atomic::Ordering;
 
 use owo_colors::OwoColorize;
 
@@ -23,6 +20,11 @@ impl Monitor {
         self.cmd_sender.send(CtrlCommand::QUIT).unwrap();
 
         self.result_receiver.recv().unwrap()
+    }
+
+    pub fn cmd_r(&mut self) -> ResultMessage {
+        self.resper.lock().unwrap().trace(format!("{:?}", self.result_receiver.try_recv()).as_str());
+        Ok(SimOk::Nothing)
     }
 
     pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> ResultMessage {
@@ -50,58 +52,14 @@ impl Monitor {
 
     pub fn cmd_func(
         &mut self,
-        on_or_off: bool,
+        on_or_off: Option<bool>,
         target: Option<String>,
     ) -> ResultMessage {
         self.cmd_sender.send(CtrlCommand::FUNC { on_or_off, target }).unwrap();
-        Ok(SimOk::Nothing)
+        self.result_receiver.recv().unwrap()
     }
 
     pub fn cmd_si(&mut self, count: Option<u32>) -> ResultMessage {
-        // if self.state == MonitorState::TRAP {
-        //     self.msgr.error("Monitor is in trap state");
-        //     return Err(SimErr::InvalidCommand);
-        // } else if self.state == MonitorState::DONE {
-        //     self.msgr.error("Monitor is in done state");
-        //     return Err(SimErr::InvalidCommand);
-        // }
-
-        // self.state = MonitorState::RUNNING;
-
-        // let count = if count.is_none() { 1 } else { count.unwrap() };
-
-        // let mut orig = |trace: bool| -> Result<(), SimErr> {
-        //     if self.signal.load(Ordering::SeqCst) {
-        //         return Err(SimErr::Signal);
-        //     }
-
-        //     self.sim.single_instruction(trace)?;
-
-        //     if self.cli_parser.dut.is_none() {
-        //         return Ok(());
-        //     }
-
-        //     if self.sim.external_state_change() {
-        //         self.difftest_step()?;
-        //     } else {
-        //         self.differtest.ref_difftest_regcpy(self.sim.get_reg_state().gpr.as_ptr() as *mut c_void, DiffertestDirection::ToRef);
-        //     }
-
-        //     Ok(())
-        // };
-
-        // if count == 0 {
-        //     loop {
-        //         orig(false)?;
-        //     }
-        // }
-
-        // for _ in 0..count {
-        //     orig(count < 10)?;
-        // }
-
-        // Ok(SimOk::InstructionExecuted)
-        
         self.cmd_sender.send(CtrlCommand::SI { count }).unwrap();
         self.result_receiver.recv().unwrap()
     }
@@ -111,8 +69,8 @@ impl Monitor {
     }
 
     pub fn cmd_ir(&mut self) -> ResultMessage {
-        // self.sim.instruction_ring_buffer();
-        Ok(SimOk::Nothing)
+        self.cmd_sender.send(CtrlCommand::DEBUG { target: "ir".to_string() }).unwrap();
+        self.result_receiver.recv().unwrap()
     }
 
     pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> ResultMessage {

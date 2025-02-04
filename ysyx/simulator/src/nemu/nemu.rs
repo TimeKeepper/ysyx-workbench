@@ -144,7 +144,7 @@ impl Simulator {
 
             match result {
                 Ok(CtrlCommand::QUIT) => {
-                    self.result_sender.send(Ok(SimOk::Nothing)).unwrap();
+                    self.result_sender.send(Ok(SimOk::Quit)).unwrap();
                     break;
                 }
 

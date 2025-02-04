@@ -1,5 +1,5 @@
 use msg_resp::{CtrlCommand, Resper, ResultMessage};
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{mpsc, Arc, Mutex, RwLock};
 use std::thread;
 
@@ -12,20 +12,30 @@ fn main() {
     let reg = Arc::new(RwLock::new(RegisterBank::new()));
     let state = Arc::new(RwLock::new(ProcessState::STOP));
 
-    let (cmd_sender, cmd_receiver) = mpsc::channel();  // B → A
+    let (cmd_sender, cmd_receiver) = mpsc::channel(); // B → A
     let (result_sender, result_receiver) = mpsc::channel(); // A → B
 
-    let mut monitor = monitor::Monitor::new("nemu", cmd_sender, result_receiver, 
-        mem.clone(), reg.clone(), state.clone(),
-        resper.clone());
+    let mut monitor = monitor::Monitor::new(
+        "nemu",
+        cmd_sender,
+        result_receiver,
+        mem.clone(),
+        reg.clone(),
+        state.clone(),
+        resper.clone(),
+    );
 
     monitor.init();
 
     let handle = thread::spawn(move || {
         let mut simulator = simulator::Simulator::new(
-            cmd_receiver, result_sender, 
-            mem.clone(), reg.clone(), state.clone(),
-            resper.clone());
+            cmd_receiver,
+            result_sender,
+            mem.clone(),
+            reg.clone(),
+            state.clone(),
+            resper.clone(),
+        );
 
         simulator.run();
     });

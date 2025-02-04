@@ -8,6 +8,11 @@ use owo_colors::OwoColorize;
 use crate::Monitor;
 
 impl Monitor {
+    pub fn cmd_send(&mut self, cmd: CtrlCommand) -> ResultMessage {
+        self.cmd_sender.send(cmd).unwrap();
+        self.result_receiver.recv().unwrap()
+    }
+    
     pub fn cmd_q(&mut self) -> ResultMessage {
         with_rwlock_write!(self.state, state, {
             if *state == ProcessState::TRAP {
@@ -107,7 +112,7 @@ impl Monitor {
     }
 
     pub fn cmd_t(&mut self) -> ResultMessage {
-        // self.sim.times();
-        Ok(SimOk::Nothing)
+        self.cmd_sender.send(CtrlCommand::DEBUG { target: "t".to_string() }).unwrap();
+        self.result_receiver.recv().unwrap()
     }
 }

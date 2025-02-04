@@ -31,3 +31,6 @@ help:
 
 clean :
 	cargo clean
+
+format :
+	cargo fmt

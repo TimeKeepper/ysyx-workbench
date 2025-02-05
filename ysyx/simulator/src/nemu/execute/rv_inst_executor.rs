@@ -58,17 +58,20 @@ impl Simulator {
             ExecuteResult::UnknownInst => (),
         }
 
-        // if self.rv32m_execute(&inst)? == ExecuteResult::Ok {
-        //     return Ok(());
-        // }
+        match self.rv32m_execute(&inst, npc)? {
+            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
+            ExecuteResult::UnknownInst => (),
+        }
 
-        // if self.zicsr_execute(&inst)? == ExecuteResult::Ok {
-        //     return Ok(());
-        // }
+        match self.zicsr_execute(&inst, npc)? {
+            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
+            ExecuteResult::UnknownInst => (),
+        }
 
-        // if self.r#priv_execute(&inst)? == ExecuteResult::Ok {
-        //     return Ok(());
-        // }
+        match self.r#priv_execute(&inst, npc)? {
+            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
+            ExecuteResult::UnknownInst => (),
+        }
 
         // Err(SimErr::InstrctionExecuteFailed { name:inst.name.to_string() })
         Err(SimErr::InstrctionExecuteFailed)
@@ -499,137 +502,157 @@ impl Simulator {
         Ok(ExecuteResult::Ok { is_state_hazard: hazrd })
     }
 
-//     fn rv32m_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
-//         let name: &str = &inst.name;
-//         let rd = inst.rd as usize;
-//         let rs1 = inst.rs1 as usize;
-//         let rs2 = inst.rs2 as usize;
-        
-//         let npc = self.cpu_state.pc + 4;
-//         let gpr = &mut self.cpu_state.gpr;
-//         let pc= &mut self.cpu_state.pc;
+    fn rv32m_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<ExecuteResult, SimErr> {
+        let name: &str = &inst.name;
+        let rd = inst.rd as usize;
+        let rs1 = inst.rs1 as usize;
+        let rs2 = inst.rs2 as usize;
 
-//         match name {
-//             "mul" => {
-//                 gpr[rd] = gpr[rs1].wrapping_mul(gpr[rs2]);
-//             }
+        match name {
+            "mul" => {
+                // gpr[rd] = gpr[rs1].wrapping_mul(gpr[rs2]);
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), rs1.wrapping_mul(rs2))?;
+                });
+            }
 
-//             "mulh" => {
-//                 let result = (gpr[rs1] as i64).wrapping_mul(gpr[rs2] as i64);
-//                 gpr[rd] = (result >> 32) as u32;
-//             }
-//             "mulhsu" => {
-//                 let result = (gpr[rs1] as i64).wrapping_mul((gpr[rs2] as u64).try_into().unwrap());
-//                 gpr[rd] = (result >> 32) as u32;
-//             }
-//             "mulhu" => {
-//                 let result = (gpr[rs1] as u64).wrapping_mul(gpr[rs2] as u64);
-//                 gpr[rd] = (result >> 32) as u32;
-//             }
+            "mulh" => {
+                // let result = (gpr[rs1] as i64).wrapping_mul(gpr[rs2] as i64);
+                // gpr[rd] = (result >> 32) as u32;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))? as i64;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))? as i64;
+                    reg.write_gpr(RegIdentifier::Index(rd), (rs1.wrapping_mul(rs2) >> 32) as u32)?;
+                });
+            }
+            "mulhsu" => {
+                // let result = (gpr[rs1] as i64).wrapping_mul((gpr[rs2] as u64).try_into().unwrap());
+                // gpr[rd] = (result >> 32) as u32;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))? as i64;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))? as u64;
+                    reg.write_gpr(RegIdentifier::Index(rd), (rs1.wrapping_mul(rs2.try_into().unwrap()) >> 32) as u32)?;
+                });
+            }
+            "mulhu" => {
+                // let result = (gpr[rs1] as u64).wrapping_mul(gpr[rs2] as u64);
+                // gpr[rd] = (result >> 32) as u32;
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))? as u64;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))? as u64;
+                    reg.write_gpr(RegIdentifier::Index(rd), (rs1.wrapping_mul(rs2) >> 32) as u32)?;
+                });
+            }
 
-//             "div" => {
-//                 if gpr[rs2] == 0 {
-//                     gpr[rd] = 0xffffffff;
-//                 } else {
-//                     gpr[rd] = (gpr[rs1] as i32).wrapping_div(gpr[rs2] as i32) as u32;
-//                 }
-//             }
-//             "divu" => {
-//                 if gpr[rs2] == 0 {
-//                     gpr[rd] = 0xffffffff;
-//                 } else {
-//                     gpr[rd] = gpr[rs1].wrapping_div(gpr[rs2]);
-//                 }
-//             }
+            "div" => {
+                // if gpr[rs2] == 0 {
+                //     gpr[rd] = 0xffffffff;
+                // } else {
+                //     gpr[rd] = (gpr[rs1] as i32).wrapping_div(gpr[rs2] as i32) as u32;
+                // }
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))? as i32;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))? as i32;
+                    reg.write_gpr(RegIdentifier::Index(rd), if rs2 == 0 { 0xffffffff } else { (rs1.wrapping_div(rs2)) as u32 })?;
+                });
+            }
+            "divu" => {
+                // if gpr[rs2] == 0 {
+                //     gpr[rd] = 0xffffffff;
+                // } else {
+                //     gpr[rd] = gpr[rs1].wrapping_div(gpr[rs2]);
+                // }
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), if rs2 == 0 { 0xffffffff } else { rs1.wrapping_div(rs2) })?;
+                });
+            }
 
-//             "rem" => {
-//                 if gpr[rs2] == 0 {
-//                     gpr[rd] = gpr[rs1];
-//                 } else {
-//                     gpr[rd] = (gpr[rs1] as i32).wrapping_rem(gpr[rs2] as i32) as u32;
-//                 }
-//             }
-//             "remu" => {
-//                 if gpr[rs2] == 0 {
-//                     gpr[rd] = gpr[rs1];
-//                 } else {
-//                     gpr[rd] = gpr[rs1].wrapping_rem(gpr[rs2]);
-//                 }
-//             }
+            "rem" => {
+                // if gpr[rs2] == 0 {
+                //     gpr[rd] = gpr[rs1];
+                // } else {
+                //     gpr[rd] = (gpr[rs1] as i32).wrapping_rem(gpr[rs2] as i32) as u32;
+                // }
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))? as i32;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))? as i32;
+                    reg.write_gpr(RegIdentifier::Index(rd), if rs2 == 0 { rs1 as u32 } else { (rs1.wrapping_rem(rs2)) as u32 })?;
+                });
+            }
+            "remu" => {
+                // if gpr[rs2] == 0 {
+                //     gpr[rd] = gpr[rs1];
+                // } else {
+                //     gpr[rd] = gpr[rs1].wrapping_rem(gpr[rs2]);
+                // }
+                with_rwlock_write!(self.reg, reg, {
+                    let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
+                    let rs2 = reg.read_gpr(reg::RegIdentifier::Index(rs2))?;
+                    reg.write_gpr(RegIdentifier::Index(rd), if rs2 == 0 { rs1 } else { rs1.wrapping_rem(rs2) })?;
+                });
+            }
 
-//             _ => return Ok(ExecuteResult::UnknownInst),
-//         }
+            _ => return Ok(ExecuteResult::UnknownInst),
+        }
 
-//         *pc = npc;
-//         gpr[0] = 0; // x0 is hardwired to zero
+        Ok(ExecuteResult::Ok { is_state_hazard: false })
+    }
 
-//         if self.inst_trace_buffer.0 {
-//             self.inst_trace_buffer.1.push(inst.clone());
-//         }
+    fn zicsr_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<ExecuteResult, SimErr> {
+        let name: &str = &inst.name;
+        let rd = inst.rd as usize;
+        let rs1 = inst.rs1 as usize;
 
-//         Ok(ExecuteResult::Ok)
-//     }
+        match name {
+            "csrrw" => {
+                // let csr_t = csr[inst.imm as usize];
 
-//     fn zicsr_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
-//         let name: &str = &inst.name;
-//         let rd = inst.rd as usize;
-//         let rs1 = inst.rs1 as usize;
-        
-//         let npc = self.cpu_state.pc + 4;
-//         let gpr = &mut self.cpu_state.gpr;
-//         let pc= &mut self.cpu_state.pc;
-//         let csr = &mut self.cpu_state.csr;
+                // csr[inst.imm as usize] = gpr[rs1];
+                // gpr[rd] = csr_t;
+                with_rwlock_write!(self.reg, reg, {
+                    let csr_t = reg.read_csr(RegIdentifier::Index(inst.imm as usize))?;
+                    let rs1 = reg.read_gpr(RegIdentifier::Index(rs1))?;
+                    reg.write_csr(RegIdentifier::Index(inst.imm as usize), rs1)?;
+                    reg.write_gpr(RegIdentifier::Index(rd), csr_t)?;
+                });
+            }
+            "csrrs" => {
+                // let csr_t = csr[inst.imm as usize];
 
-//         match name {
-//             "csrrw" => {
-//                 let csr_t = csr[inst.imm as usize];
+                // csr[inst.imm as usize] |= gpr[rs1];
+                // gpr[rd] = csr_t;
+                with_rwlock_write!(self.reg, reg, {
+                    let csr_t = reg.read_csr(RegIdentifier::Index(inst.imm as usize))?;
+                    let rs1 = reg.read_gpr(RegIdentifier::Index(rs1))?;
+                    reg.write_csr(RegIdentifier::Index(inst.imm as usize), csr_t | rs1)?;
+                    reg.write_gpr(RegIdentifier::Index(rd), csr_t)?;
+                });
+            }
 
-//                 csr[inst.imm as usize] = gpr[rs1];
-//                 gpr[rd] = csr_t;
-//             }
-//             "csrrs" => {
-//                 let csr_t = csr[inst.imm as usize];
+            _ => return Ok(ExecuteResult::UnknownInst),
+        }
 
-//                 csr[inst.imm as usize] |= gpr[rs1];
-//                 gpr[rd] = csr_t;
-//             }
+        Ok(ExecuteResult::Ok { is_state_hazard: false })
+    }
 
-//             _ => return Ok(ExecuteResult::UnknownInst),
-//         }
+    fn r#priv_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {
+        let name: &str = &inst.name;
 
-//         *pc = npc;
-//         gpr[0] = 0; // x0 is hardwired to zero
+        match name {
+            "mret" => {
+                // npc = csr[CsrAddr::MEPC as usize];
+                with_rwlock_write!(self.reg, reg, {
+                    *npc = reg.read_csr(RegIdentifier::Index(CsrAddr::MEPC as usize))?;
+                });
+            }
 
-//         if self.inst_trace_buffer.0 {
-//             self.inst_trace_buffer.1.push(inst.clone());
-//         }
+            _ => return Ok(ExecuteResult::UnknownInst),
+        }
 
-//         Ok(ExecuteResult::Ok)
-//     }
-
-//     fn r#priv_execute(&mut self, inst: &ExecuteInst) -> Result<ExecuteResult, SimErr> {
-//         let name: &str = &inst.name;
-        
-//         let npc: u32;
-//         let gpr = &mut self.cpu_state.gpr;
-//         let pc= &mut self.cpu_state.pc;
-//         let csr = &mut self.cpu_state.csr;
-
-//         match name {
-//             "mret" => {
-//                 npc = csr[CsrAddr::MEPC as usize];
-//             }
-
-//             _ => return Ok(ExecuteResult::UnknownInst),
-//         }
-
-//         *pc = npc;
-//         gpr[0] = 0; // x0 is hardwired to zero
-
-//         if self.inst_trace_buffer.0 {
-//             self.inst_trace_buffer.1.push(inst.clone());
-//         }
-
-//         Ok(ExecuteResult::Ok)
-//     }
+        Ok(ExecuteResult::Ok { is_state_hazard: false })
+    }
 }

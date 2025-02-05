@@ -4,16 +4,132 @@ use state::ProcessState;
 use ysyx_macro::{with_rwlock_read, with_rwlock_write};
 
 use owo_colors::OwoColorize;
+use super::monitor_parser::Commands as Cmd;
 
 use crate::Monitor;
 
 impl Monitor {
+    pub fn execute(&mut self, cmd: Cmd) {
+        match cmd {
+            Cmd::Quit {  } => {
+                self.cmd_q();
+            }
+
+            Cmd::State {  } => {
+                self.cmd_s();
+            }
+
+            Cmd::SingleInstrcution { count } => {
+                self.cmd_si(count);
+            }
+
+            Cmd::Continue {  } => {
+                self.cmd_c();
+            }
+
+            Cmd::Info { target, index } => {
+                let specify = if index.is_none() { None } else { Some(index.unwrap().to_string()) };
+                self.cmd_info(target, specify);
+            }
+
+            Cmd::Function { on_or_off, target } => {
+                self.cmd_func(on_or_off, target);
+            }
+
+            Cmd::InstructionRingBuffer {  } => {
+                self.cmd_ir();
+            }
+
+            Cmd::Times {  } => {
+                self.cmd_t();
+            }
+
+            Cmd::Examine { addr, length } => {
+                let result = self.cmd_x(addr, length);
+                self.deal_result(result);
+            }
+
+            Cmd::MemoryMap {  } => {
+                self.cmd_mm();
+            }
+
+            Cmd::MemoryDiffertestWatchpoint { addr } => {
+                let result = self.cmd_mdw(addr);
+                self.deal_result(result);
+            }
+
+            Cmd::Receive {  } => {
+                self.cmd_r();
+            }
+
+            _ => {
+                self.resper.lock().unwrap().trace(format!("{:?}", cmd).as_str());
+            }
+        }
+    }
+
+    pub fn batch(&mut self) {
+        self.resper.lock().unwrap().info("Execute in Batch mode");
+        let _ = self.cmd_c();
+        self.cmd_q();
+    }
+
     pub fn cmd_send(&mut self, cmd: CtrlCommand) -> ResultMessage {
         self.cmd_sender.send(cmd).unwrap();
         self.result_receiver.recv().unwrap()
     }
+
+    fn deal_result(&mut self, result: ResultMessage) {
+        match result {
+            Ok(_) => {with_rwlock_write!(self.state, state, { state.set(ProcessState::STOP); });},
+            Err(err) => match err {
+                SimErr::Ebreak { is_good } => {
+                    with_rwlock_write!(self.state, state, {
+                        *state = if is_good {
+                            self.resper.lock().unwrap().success("Hit Good TRAP");
+                            ProcessState::DONE
+                        } else {
+                            self.resper.lock().unwrap().error("Hit Bad TRAP");
+                            ProcessState::TRAP
+                        }
+                    });
+                }
+
+                SimErr::NotImplemented => self.resper.lock().unwrap().error("Not implemented yet"),
+                SimErr::InvalidCommand => self.resper.lock().unwrap().error("Invalid command"),
+                SimErr::InvalidRegIndentifier => self
+                    .resper
+                    .lock()
+                    .unwrap()
+                    .error("Invalid register identifier"),
+
+                SimErr::DiffertestFailed => {
+                    self.resper.lock().unwrap().error("Differtest failed");
+                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
+                }
+                SimErr::NoMatchingMemory {} => {
+                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
+                }
+                SimErr::NoMatchingDevice {} => {
+                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
+                }
+                SimErr::InstrctionDecodeFailed {} => {
+                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
+                }
+                SimErr::InstrctionExecuteFailed {} => {
+                    self.resper
+                        .lock()
+                        .unwrap()
+                        .error(format!("Failed to execute instrcution").as_str());
+                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
+                }
+
+                _ => (),
+            },
+        }
+    }
     
-    pub fn cmd_q(&mut self) -> ResultMessage {
+    fn cmd_q(&mut self) {
         with_rwlock_write!(self.state, state, {
             if *state == ProcessState::TRAP {
                 *state = ProcessState::ABORT;
@@ -22,63 +138,65 @@ impl Monitor {
             }
         });
 
-        self.cmd_sender.send(CtrlCommand::QUIT).unwrap();
-
-        self.result_receiver.recv().unwrap()
+        assert!(matches!(self.cmd_send(CtrlCommand::QUIT), Ok(SimOk::Quit)));
     }
 
-    pub fn cmd_r(&mut self) -> ResultMessage {
+    fn cmd_s(&mut self) {
+        self.resper.lock().unwrap().trace(format!("{:?}", self.state.read().unwrap()).as_str());
+    }
+
+    fn cmd_r(&mut self) {
         self.resper.lock().unwrap().trace(format!("{:?}", self.result_receiver.try_recv()).as_str());
-        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_info(&mut self, target: String, specify: Option<String>) -> ResultMessage {
+    fn cmd_info(&mut self, target: String, specify: Option<String>){
+        let result: ResultMessage;
         match target.as_str() {
             "gp" => {
-                self.reg.read().unwrap().print_reg(specify, RegType::GPR)
+                result = self.reg.read().unwrap().print_reg(specify, RegType::GPR);
             }
 
             "pc" => {
                 println!("{}: \t0x{:08x}", "pc".purple(), self.reg.read().unwrap().read_pc().red());
-                return Ok(SimOk::Nothing);
+                return;
             }
 
             "cs" => {
-                self.reg.read().unwrap().print_reg(specify, RegType::CSR)
+                result = self.reg.read().unwrap().print_reg(specify, RegType::CSR);
             }
 
             _ => {
                 self.resper.lock().unwrap().error("Invalid register identifier");
                 self.resper.lock().unwrap().important("Valid identifiers: gp, pc, cs");
-                return Err(SimErr::InvalidCommand);
+                return;
             }
         }
+        self.deal_result(result);
     }
 
-    pub fn cmd_func(
+    fn cmd_func(
         &mut self,
         on_or_off: Option<bool>,
         target: Option<String>,
-    ) -> ResultMessage {
-        self.cmd_sender.send(CtrlCommand::FUNC { on_or_off, target }).unwrap();
-        self.result_receiver.recv().unwrap()
+    ) {
+        assert!(matches!(self.cmd_send(CtrlCommand::FUNC { on_or_off, target }), Ok(SimOk::FunctionCtrl) | Ok(SimOk::FunctionShow)));
     }
 
-    pub fn cmd_si(&mut self, count: Option<u32>) -> ResultMessage {
-        self.cmd_sender.send(CtrlCommand::SI { count }).unwrap();
-        self.result_receiver.recv().unwrap()
+    fn cmd_si(&mut self, count: Option<u32>) {
+        self.state.write().unwrap().set(ProcessState::RUNNING);
+        let result = self.cmd_send(CtrlCommand::SI { count });
+        self.deal_result(result);
     }
 
-    pub fn cmd_c(&mut self) -> ResultMessage {
+    fn cmd_c(&mut self) {
         self.cmd_si(Some(0))
     }
 
-    pub fn cmd_ir(&mut self) -> ResultMessage {
-        self.cmd_sender.send(CtrlCommand::DEBUG { target: "ir".to_string() }).unwrap();
-        self.result_receiver.recv().unwrap()
+    fn cmd_ir(&mut self) {
+        assert!(matches!(self.cmd_send(CtrlCommand::DEBUG { target: "ir".to_string() }), Ok(SimOk::DebugTrace)));
     }
 
-    pub fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> ResultMessage {
+    fn cmd_x(&mut self, addr: u32, length: Option<u32>) -> ResultMessage {
         let mut addr = addr;
         let length = if length.is_none() { 1 } else { length.unwrap() };
 
@@ -91,14 +209,13 @@ impl Monitor {
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_mm(&mut self) -> ResultMessage {
+    fn cmd_mm(&mut self){
         with_rwlock_read!(self.mem, mem, {
             mem.memory_map();
         });
-        Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_mdw(&mut self, addr: u32) -> ResultMessage {
+    fn cmd_mdw(&mut self, addr: u32) -> ResultMessage {
         // if self.cli_parser.dut.is_none() {
         //     self.msgr.error("No differtest");
         //     return Err(SimErr::InvalidCommand);
@@ -111,8 +228,7 @@ impl Monitor {
         Ok(SimOk::Nothing)
     }
 
-    pub fn cmd_t(&mut self) -> ResultMessage {
-        self.cmd_sender.send(CtrlCommand::DEBUG { target: "t".to_string() }).unwrap();
-        self.result_receiver.recv().unwrap()
+    fn cmd_t(&mut self) {
+        assert!(matches!(self.cmd_send(CtrlCommand::DEBUG { target: "t".to_string() }), Ok(SimOk::DebugTrace)));
     }
 }

@@ -170,7 +170,9 @@ impl RegisterOps for RegisterBank {
 
             writeln!(&mut tw, "{}\t0x{:08x}", 
                 map.get_by_right(&index).unwrap().purple(),
-                read_reg(RegIdentifier::Index(index))?.red()
+                read_reg(RegIdentifier::Index(index))
+                    .expect("Function print_reg call an invalid Index")
+                    .red()
             ).unwrap();
             tw.flush().unwrap();
 

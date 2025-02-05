@@ -155,6 +155,8 @@ pub enum SimErr {
 
     DiffertestFailedToInit,
 
+    ExecuteInterrupt,
+
     NotImplemented,
     InvalidCommand,
     InvalidRegIndentifier,

@@ -57,7 +57,7 @@ impl Monitor {
         let state = self.state.clone();
         ctrlc::set_handler(move || {
             resper.lock().unwrap().info("Ctrl-C received");
-            *state.write().unwrap() = ProcessState::QUIT;
+            *state.write().unwrap() = ProcessState::STOP;
         })
         .expect("Error setting Ctrl-C handler");
     }

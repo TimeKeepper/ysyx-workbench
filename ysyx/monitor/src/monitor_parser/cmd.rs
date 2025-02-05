@@ -34,6 +34,10 @@ pub enum Commands {
     #[clap(visible_alias = "q")]
     Quit {},
 
+    /// show current monitor state
+    #[clap(visible_alias = "s")]
+    State {},
+
     /// run single instrcution in the emulator
     #[clap(visible_alias = "si")]
     SingleInstrcution {
@@ -56,6 +60,22 @@ pub enum Commands {
         target: String,
         /// The target index
         index: Option<String>,
+    },
+
+    /// control function of the simulator
+    #[clap(visible_alias = "f", group(
+        ArgGroup::new("Target")
+            .args(&["on_or_off", "target"])
+            .multiple(true)
+            .required(false)
+    ))]
+    Function {
+        /// Sets the operation mode to on or off
+        #[arg(value_parser = operation_mode_parser)]
+        on_or_off: Option<bool>,
+        
+        /// The target string
+        target: Option<String>,
     },
 
     /// show instruction ringbuffer
@@ -86,22 +106,6 @@ pub enum Commands {
         /// The target address(hex)
         #[arg(value_parser = parse_hex)]
         addr: u32,
-    },
-
-    /// control function of the simulator
-    #[clap(visible_alias = "f", group(
-        ArgGroup::new("Target")
-            .args(&["on_or_off", "target"])
-            .multiple(true)
-            .required(false)
-    ))]
-    Function {
-        /// Sets the operation mode to on or off
-        #[arg(value_parser = operation_mode_parser)]
-        on_or_off: Option<bool>,
-        
-        /// The target string
-        target: Option<String>,
     },
 
     /// try receive simulator message

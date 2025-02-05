@@ -98,6 +98,11 @@ impl Simulator {
 
     fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
         let mut orig = |trace: bool| -> Result<(), SimErr> {
+            if !(self.state.read().unwrap().is_run()) {
+                self.resper.lock().unwrap().important("The process is not running");
+                return Err(SimErr::ExecuteInterrupt);
+            }
+
             let inst = with_rwlock_read!(self.reg, reg, {
                 with_rwlock_read!(self.mem, mem, {
                     mem.read(reg.read_pc(), Mask::None)?

@@ -9,7 +9,6 @@ use ysyx_macro::with_rwlock_write;
 use super::monitor_parser;
 use super::monitor_parser::Cli;
 use super::monitor_parser::CommandManager as CmM;
-use super::monitor_parser::Commands as Cmd;
 
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
@@ -66,10 +65,7 @@ impl Monitor {
 
     pub fn main_loop(&mut self) {
         if self.cli_parser.batch {
-            self.resper.lock().unwrap().info("Execute in Batch mode");
-            let result = self.cmd_c();
-            self.deal_result(result);
-            let _ = self.cmd_q();
+            self.batch();
             return;
         }
 
@@ -82,81 +78,8 @@ impl Monitor {
             }
 
             let cmd = self.cmd_manager.get_parser();
-            let result = self.execute(cmd);
-            self.deal_result(result);
-        }
-    }
-
-    fn execute(&mut self, cmd: Cmd) -> ResultMessage {
-        match cmd {
-            Cmd::Quit {} => self.cmd_q(),
-
-            Cmd::Receive {} => self.cmd_r(),
-
-            Cmd::Info { target, index } => self.cmd_info(target, index),
-
-            Cmd::Examine { addr, length } => self.cmd_x(addr, length),
-            Cmd::MemoryMap {} => self.cmd_mm(),
-            Cmd::MemoryDiffertestWatchpoint { addr } => self.cmd_mdw(addr),
-
-            Cmd::Times {} => self.cmd_t(),
-
-            Cmd::Function { on_or_off, target } => self.cmd_func(on_or_off, target),
-
-            Cmd::SingleInstrcution { count } => self.cmd_si(count),
-            Cmd::InstructionRingBuffer {} => self.cmd_ir(),
-
-            Cmd::Continue {} => self.cmd_c(),
-        }
-    }
-
-    fn deal_result(&mut self, result: ResultMessage) {
-        match result {
-            Ok(_) => return,
-            Err(err) => match err {
-                SimErr::Ebreak { is_good } => {
-                    with_rwlock_write!(self.state, state, {
-                        *state = if is_good {
-                            self.resper.lock().unwrap().success("Hit Good TRAP");
-                            ProcessState::DONE
-                        } else {
-                            self.resper.lock().unwrap().error("Hit Bad TRAP");
-                            ProcessState::TRAP
-                        }
-                    });
-                }
-
-                SimErr::NotImplemented => self.resper.lock().unwrap().error("Not implemented yet"),
-                SimErr::InvalidCommand => self.resper.lock().unwrap().error("Invalid command"),
-                SimErr::InvalidRegIndentifier => self
-                    .resper
-                    .lock()
-                    .unwrap()
-                    .error("Invalid register identifier"),
-
-                SimErr::DiffertestFailed => {
-                    self.resper.lock().unwrap().error("Differtest failed");
-                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
-                }
-                SimErr::NoMatchingMemory {} => {
-                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
-                }
-                SimErr::NoMatchingDevice {} => {
-                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
-                }
-                SimErr::InstrctionDecodeFailed {} => {
-                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
-                }
-                SimErr::InstrctionExecuteFailed {} => {
-                    self.resper
-                        .lock()
-                        .unwrap()
-                        .error(format!("Failed to execute instrcution").as_str());
-                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
-                }
-
-                _ => (),
-            },
+            self.execute(cmd);
+            // self.deal_result(result);
         }
     }
 }

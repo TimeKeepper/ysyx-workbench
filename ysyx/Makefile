@@ -15,7 +15,7 @@ Debugargs = $(Mainargs) -d $(REF_Path) --debug
 Feature = nemu,riscv32
 
 run :
-	cargo run $(Job) --features "$(Feature)" --release --bin core -- $(Mainargs)-d $(REF_Path)
+	cargo run $(Job) --features $(Feature) --release --bin core -- $(Mainargs)-d $(REF_Path)
 
 debug :
 	RUST_BACKTRACE=full cargo run $(Job) --features $(Feature),differtest,log --bin core -- $(Debugargs)

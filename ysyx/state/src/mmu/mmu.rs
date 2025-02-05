@@ -44,11 +44,6 @@ impl MMU {
             }
         }
 
-        self.resper.lock().unwrap().error(format!("No matching memory: {}", match msg {
-            MatchMsg::ADDR { addr } => format!("0x{:08x}", addr),
-            MatchMsg::NAME { name } => name,
-        }).as_str());
-
         Err(SimErr::NoMatchingMemory)
     }
 
@@ -59,11 +54,6 @@ impl MMU {
             }
         }
 
-        self.resper.lock().unwrap().error(format!("No matching memory: {}", match msg {
-            MatchMsg::ADDR { addr } => format!("0x{:08x}", addr),
-            MatchMsg::NAME { name } => name,
-        }).as_str());
-
         Err(SimErr::NoMatchingDevice)
     }
 
@@ -73,11 +63,6 @@ impl MMU {
                 return Ok(device);
             }
         }
-
-        self.resper.lock().unwrap().error(format!("No matching device: {}", match msg {
-            MatchMsg::ADDR { addr } => format!("0x{:08x}", addr),
-            MatchMsg::NAME { name } => name,
-        }).as_str());
 
         Err(SimErr::NoMatchingDevice)
     }

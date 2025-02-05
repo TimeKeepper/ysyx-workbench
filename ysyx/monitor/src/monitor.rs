@@ -4,7 +4,6 @@ use msg_resp::{self as msgr};
 use state::mmu::MMU;
 use state::reg::RegisterBank;
 use state::ProcessState;
-use ysyx_macro::with_rwlock_write;
 
 use super::monitor_parser;
 use super::monitor_parser::Cli;
@@ -13,7 +12,7 @@ use super::monitor_parser::CommandManager as CmM;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 
-use msg_resp::{ResultMessage, SimErr};
+use msg_resp::ResultMessage;
 
 use std::sync::{Arc, Mutex, RwLock};
 

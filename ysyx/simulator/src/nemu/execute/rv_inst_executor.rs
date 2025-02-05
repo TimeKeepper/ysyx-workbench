@@ -31,11 +31,6 @@ impl Simulator {
 
         let hazard = self.execute_inst(inst.clone(), &mut npc)?;
 
-        #[cfg(feature = "differtest")]
-        if !hazard {
-            self.differtest.ref_difftest_exec(1);
-        }
-
         with_rwlock_write!(self.reg, reg, {
             reg.write_pc(npc);
             reg.write_gpr(RegIdentifier::Index(0), 0)?;
@@ -43,6 +38,15 @@ impl Simulator {
 
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst);
+        }
+
+        #[cfg(feature = "differtest")]
+        if !hazard {
+            self.difftest_step()?;
+        } else {
+            with_rwlock_read!(self.reg, reg, {
+                self.differtest.set_ref_reg(&reg);
+            });
         }
 
         Ok(())
@@ -95,7 +99,7 @@ impl Simulator {
             "jal" => {
                 with_rwlock_write!(self.reg, reg, {
                     reg.write_gpr(RegIdentifier::Index(rd), *npc)?;
-                    *npc = npc.wrapping_add(imm);
+                    *npc = reg.read_pc().wrapping_add(imm);
                 });
             }
             "jalr" => {
@@ -176,7 +180,12 @@ impl Simulator {
                 } else {
                     let data: u32;
                     with_rwlock_write!(self.mem, mem, {
-                        data = mem.read_device(addr, state::mmu::Mask::Byte)?;
+                        data = mem.read_device(addr, state::mmu::Mask::Byte).map_err(|e| {
+                            self.resper.lock().unwrap().error(format!("No matching device: {}", 
+                                format!("0x{:08x}", addr)).as_str()
+                            );
+                            e
+                        })?;
                         hazrd = true;
                     });
                     with_rwlock_write!(self.reg, reg, {
@@ -214,7 +223,7 @@ impl Simulator {
                 });
 
                 let data = with_rwlock_read!(self.mem, mem, {
-                    mem.read(addr, state::mmu::Mask::Half)
+                    mem.read(addr, state::mmu::Mask::Word)
                 });
 
                 if data.is_ok() {
@@ -224,7 +233,7 @@ impl Simulator {
                 } else {
                     let data: u32;
                     with_rwlock_write!(self.mem, mem, {
-                        data = mem.read_device(addr, state::mmu::Mask::Half)?;
+                        data = mem.read_device(addr, state::mmu::Mask::Word)?;
                         hazrd = true;
                     });
                     with_rwlock_write!(self.reg, reg, {

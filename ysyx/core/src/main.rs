@@ -1,5 +1,4 @@
-use msg_resp::{CtrlCommand, Resper, ResultMessage};
-use std::sync::mpsc::{Receiver, Sender};
+use msg_resp::Resper;
 use std::sync::{mpsc, Arc, Mutex, RwLock};
 use std::thread;
 

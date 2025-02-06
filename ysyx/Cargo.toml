@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["monitor", "msg_resp", "core", "ysyx_macro", "simulator", "state"]
+members = ["monitor", "msg_resp", "core", "ysyx_macro", "simulator", "state", "debug"]
 
 [profile.release]
 codegen-units = 1
@@ -31,3 +31,4 @@ riscv64 = []
 loongarch32 = []
 
 differtest = []
+timetrace = []

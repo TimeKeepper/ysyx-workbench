@@ -16,6 +16,7 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::RecvError;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex, RwLock};
+use std::time::Instant;
 
 use state::ProcessState;
 use state::mmu::{MMU, Mask};
@@ -95,27 +96,50 @@ impl Simulator {
     }
 
     fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
+        #[cfg(feature = "timetrace")]
+        let mut profiler = debug::Profiler::new();
+
         let mut orig = |trace: bool| -> Result<(), SimErr> {
+            #[cfg(feature = "timetrace")]
+            let check_state = profiler.start("check_state".to_string());
             if !(self.state.read().unwrap().is_run()) {
                 self.resper.lock().unwrap().important("The process is not running");
                 return Err(SimErr::ExecuteInterrupt);
             }
+            #[cfg(feature = "timetrace")]
+            profiler.end("check_state".to_string(), check_state);
 
+            #[cfg(feature = "timetrace")]
+            let inst_fetch = profiler.start("inst_fetch".to_string());
             let inst = with_rwlock_read!(self.reg, reg, {
                 with_rwlock_read!(self.mem, mem, {
                     mem.read(reg.read_pc(), Mask::None)?
                 })
             });
+            #[cfg(feature = "timetrace")]
+            profiler.end("inst_fetch".to_string(), inst_fetch);
 
+            #[cfg(feature = "timetrace")]
+            let inst_decode = profiler.start("inst_decode".to_string());
             let exeu_inst = self.decode(inst)?;
+            #[cfg(feature = "timetrace")]
+            profiler.end("inst_decode".to_string(), inst_decode);
     
+            #[cfg(feature = "timetrace")]
+            let debug_trace = profiler.start("debug_trace".to_string());
             if trace && self.inst_trace {
                 self.disasm(inst);
                 self.resper.lock().unwrap().trace(format!("{:08x?}", exeu_inst).as_str());
             }
+            #[cfg(feature = "timetrace")]
+            profiler.end("debug_trace".to_string(), debug_trace);
     
+            #[cfg(feature = "timetrace")]
+            let execute = profiler.start("execute".to_string());
             self.execute(exeu_inst)?;
-            
+            #[cfg(feature = "timetrace")]
+            profiler.end("execute".to_string(), execute);
+
             self.execte_times += 1;
     
             Ok(())
@@ -125,7 +149,11 @@ impl Simulator {
 
         if count == 0 {
             loop {
-                orig(false)?;
+                if let Err(e) = orig(false) {
+                    #[cfg(feature = "timetrace")]
+                    profiler.print_report();
+                    return Err(e);
+                }
             }
         }
 

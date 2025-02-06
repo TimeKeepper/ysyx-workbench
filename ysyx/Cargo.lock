@@ -319,6 +319,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "debug"
+version = "0.1.0"
+dependencies = [
+ "ysyx_macro",
+]
+
+[[package]]
 name = "deranged"
 version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -939,6 +946,7 @@ version = "0.1.0"
 dependencies = [
  "circular-queue",
  "criterion",
+ "debug",
  "dlopen2",
  "llvm-sys",
  "msg_resp",

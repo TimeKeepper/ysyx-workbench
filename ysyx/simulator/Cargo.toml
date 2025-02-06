@@ -10,6 +10,7 @@ criterion = {workspace = true}
 ysyx_macro = { path = "../ysyx_macro" }
 msg_resp = { path = "../msg_resp" }
 state = { path = "../state" }
+debug = { path = "../debug" }
 winnow = "0.6.24"
 llvm-sys = {version = "181.0.0",features = ["prefer-dynamic"]}
 rand = {workspace = true}
@@ -32,3 +33,4 @@ riscv64 = []
 loongarch32 = []
 
 differtest = []
+timetrace = []

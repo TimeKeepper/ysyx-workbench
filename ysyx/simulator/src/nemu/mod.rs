@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-ysyx_macro::mod_pub!(decode, execute);
+ysyx_macro::mod_pub!(decode, execute, isa);
 ysyx_macro::mod_flat!(nemu);
 
 

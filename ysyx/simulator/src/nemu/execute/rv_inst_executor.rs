@@ -1,9 +1,10 @@
+use crate::nemu::isa::{RISCV, RV32I, RV32M, Zicsr, Priv};
+
 use super::super::{ExecuteInst, Simulator, sig_extend};
 
 use msg_resp::SimErr;
 use state::reg::{self, RegIdentifier, RegisterOps};
 use ysyx_macro::{with_rwlock_write, with_rwlock_read};
-
 
 #[derive(Debug, PartialEq, Clone)]
 enum ExecuteResult {
@@ -78,7 +79,7 @@ impl Simulator {
     }
 
     fn rv32i_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {
-        let name: &str = &inst.name;
+        let name = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
         let rs2 = inst.rs2 as usize;
@@ -87,32 +88,32 @@ impl Simulator {
         let mut hazrd = false;
 
         match name {
-            "lui" => {
+            RISCV::RV32I(RV32I::Lui) => {
                 with_rwlock_write!(self.reg, reg, {
                     reg.write_gpr(RegIdentifier::Index(rd), imm)?;
                 });
             }
-            "auipc" => {
+            RISCV::RV32I(RV32I::Auipc) => {
                 with_rwlock_write!(self.reg, reg, {
                     let pc = reg.read_pc();
                     reg.write_gpr(RegIdentifier::Index(rd), pc.wrapping_add(imm))?;
                 });
             }
 
-            "jal" => {
+            RISCV::RV32I(RV32I::Jal) => {
                 with_rwlock_write!(self.reg, reg, {
                     reg.write_gpr(RegIdentifier::Index(rd), *npc)?;
                     *npc = reg.read_pc().wrapping_add(imm);
                 });
             }
-            "jalr" => {
+            RISCV::RV32I(RV32I::Jalr) => {
                 with_rwlock_write!(self.reg, reg, {
                     reg.write_gpr(RegIdentifier::Index(rd), *npc)?;
                     *npc = (reg.read_gpr(RegIdentifier::Index(rs1))? + imm) & !1;
                 });
             }
 
-            "beq" => {
+            RISCV::RV32I(RV32I::Beq) => {
                 *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? == reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
@@ -121,7 +122,7 @@ impl Simulator {
                     }
                 });
             }
-            "bne" => {
+            RISCV::RV32I(RV32I::Bne) => {
                 *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? != reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
@@ -130,7 +131,7 @@ impl Simulator {
                     }
                 });
             }
-            "blt" => {
+            RISCV::RV32I(RV32I::Blt) => {
                 *npc = with_rwlock_read!(self.reg, reg, {
                     if (reg.read_gpr(RegIdentifier::Index(rs1))? as i32) < (reg.read_gpr(RegIdentifier::Index(rs2))? as i32) {
                         reg.read_pc().wrapping_add(imm)
@@ -139,7 +140,7 @@ impl Simulator {
                     }
                 });
             }
-            "bge" => {
+            RISCV::RV32I(RV32I::Bge) => {
                 *npc = with_rwlock_read!(self.reg, reg, {
                     if (reg.read_gpr(RegIdentifier::Index(rs1))? as i32) >= (reg.read_gpr(RegIdentifier::Index(rs2))? as i32) {
                         reg.read_pc().wrapping_add(imm)
@@ -148,7 +149,7 @@ impl Simulator {
                     }
                 });
             }
-            "bltu" => {
+            RISCV::RV32I(RV32I::Bltu) => {
                 *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? < reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
@@ -157,7 +158,7 @@ impl Simulator {
                     }
                 });
             }
-            "bgeu" => {
+            RISCV::RV32I(RV32I::Bgeu) => {
                 *npc = with_rwlock_read!(self.reg, reg, {
                     if reg.read_gpr(RegIdentifier::Index(rs1))? >= reg.read_gpr(RegIdentifier::Index(rs2))? {
                         reg.read_pc().wrapping_add(imm)
@@ -167,7 +168,7 @@ impl Simulator {
                 });
             }
 
-            "lb" => {
+            RISCV::RV32I(RV32I::Lb) => {
                 let addr = with_rwlock_read!(self.reg, reg, {
                     reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
                 });
@@ -196,7 +197,7 @@ impl Simulator {
                     });
                 }
             }
-            "lh" => {
+            RISCV::RV32I(RV32I::Lh) => {
                 let addr = with_rwlock_read!(self.reg, reg, {
                     reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
                 });
@@ -220,7 +221,7 @@ impl Simulator {
                     });
                 }
             }
-            "lw" => {
+            RISCV::RV32I(RV32I::Lw) => {
                 let addr = with_rwlock_read!(self.reg, reg, {
                     reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
                 });
@@ -244,7 +245,7 @@ impl Simulator {
                     });
                 }
             }
-            "lbu" => {
+            RISCV::RV32I(RV32I::Lbu) => {
                 let addr = with_rwlock_read!(self.reg, reg, {
                     reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
                 });
@@ -268,7 +269,7 @@ impl Simulator {
                     });
                 }
             }
-            "lhu" => {
+            RISCV::RV32I(RV32I::Lhu) => {
                 let addr = with_rwlock_read!(self.reg, reg, {
                     reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm)
                 });
@@ -293,7 +294,7 @@ impl Simulator {
                 }
             }
 
-            "sb" => {
+            RISCV::RV32I(RV32I::Sb) => {
                 let (addr, data) = with_rwlock_read!(self.reg, reg, {
                     (reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm), reg.read_gpr(reg::RegIdentifier::Index(rs2))?)
                 });
@@ -305,7 +306,7 @@ impl Simulator {
                     }
                 });
             }
-            "sh" => {
+            RISCV::RV32I(RV32I::Sh) => {
                 let (addr, data) = with_rwlock_read!(self.reg, reg, {
                     (reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm), reg.read_gpr(reg::RegIdentifier::Index(rs2))?)
                 });
@@ -317,7 +318,7 @@ impl Simulator {
                     }
                 });
             }
-            "sw" => {
+            RISCV::RV32I(RV32I::Sw) => {
                 let (addr, data) = with_rwlock_read!(self.reg, reg, {
                     (reg.read_gpr(reg::RegIdentifier::Index(rs1))?.wrapping_add(imm), reg.read_gpr(reg::RegIdentifier::Index(rs2))?)
                 });
@@ -330,21 +331,21 @@ impl Simulator {
                 });
             }
 
-            "addi" => {
+            RISCV::RV32I(RV32I::Addi) => {
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
                     reg.write_gpr(RegIdentifier::Index(rd), rs1.wrapping_add(imm))?;
                 });
             }
 
-            "slti" => {
+            RISCV::RV32I(RV32I::Slti) => {
                 // gpr[rd] = if (gpr[rs1] as i32) < (inst.imm as i32) { 1 } else { 0 };
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
                     reg.write_gpr(RegIdentifier::Index(rd), if (rs1 as i32) < (imm as i32) { 1 } else { 0 })?;
                 });
             }
-            "sltiu" => {
+            RISCV::RV32I(RV32I::Sltiu) => {
                 // gpr[rd] = if gpr[rs1] < inst.imm { 1 } else { 0 };
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -352,21 +353,21 @@ impl Simulator {
                 });
             }
 
-            "xori" => {
+            RISCV::RV32I(RV32I::Xori) => {
                 // gpr[rd] = gpr[rs1] ^ inst.imm;
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 ^ imm)?;
                 });
             }
-            "ori" => {
+            RISCV::RV32I(RV32I::Ori) => {
                 // gpr[rd] = gpr[rs1] | inst.imm;
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 | imm)?;
                 });
             }
-            "andi" => {
+            RISCV::RV32I(RV32I::Andi) => {
                 // gpr[rd] = gpr[rs1] & inst.imm;
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -374,21 +375,21 @@ impl Simulator {
                 });
             }
 
-            "slli" => {
+            RISCV::RV32I(RV32I::Slli) => {
                 // gpr[rd] = gpr[rs1] << (inst.imm & 0x1f);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 << (imm & 0x1f))?;
                 });
             }
-            "srli" => {
+            RISCV::RV32I(RV32I::Srli) => {
                 // gpr[rd] = gpr[rs1] >> (inst.imm & 0x1f);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 >> (imm & 0x1f))?;
                 });
             }
-            "srai" => {
+            RISCV::RV32I(RV32I::Srai) => {
                 // gpr[rd] = (gpr[rs1] as i32 >> (inst.imm & 0x1f)) as u32;
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -396,7 +397,7 @@ impl Simulator {
                 });
             }
 
-            "add" => {
+            RISCV::RV32I(RV32I::Add) => {
                 // gpr[rd] = gpr[rs1].wrapping_add(gpr[rs2]);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -404,7 +405,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), rs1.wrapping_add(rs2))?;
                 });
             }
-            "sub" => {
+            RISCV::RV32I(RV32I::Sub) => {
                 // gpr[rd] = gpr[rs1].wrapping_sub(gpr[rs2]);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -413,7 +414,7 @@ impl Simulator {
                 });
             }
 
-            "xor" => {
+            RISCV::RV32I(RV32I::Xor) => {
                 // gpr[rd] = gpr[rs1] ^ gpr[rs2];
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -421,7 +422,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 ^ rs2)?;
                 });
             }
-            "or" => {
+            RISCV::RV32I(RV32I::Or) => {
                 // gpr[rd] = gpr[rs1] | gpr[rs2];
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -429,7 +430,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 | rs2)?;
                 });
             }
-            "and" => {
+            RISCV::RV32I(RV32I::And) => {
                 // gpr[rd] = gpr[rs1] & gpr[rs2];
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -438,7 +439,7 @@ impl Simulator {
                 });
             }
 
-            "slt" => {
+            RISCV::RV32I(RV32I::Slt) => {
                 // gpr[rd] = if (gpr[rs1] as i32) < (gpr[rs2] as i32) { 1 } else { 0 };
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -446,7 +447,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), if (rs1 as i32) < (rs2 as i32) { 1 } else { 0 })?;
                 });
             }
-            "sltu" => {
+            RISCV::RV32I(RV32I::Sltu) => {
                 // gpr[rd] = if gpr[rs1] < gpr[rs2] { 1 } else { 0 };
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -455,7 +456,7 @@ impl Simulator {
                 });
             }
 
-            "sll" => {
+            RISCV::RV32I(RV32I::Sll) => {
                 // gpr[rd] = gpr[rs1] << (gpr[rs2] & 0x1f);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -463,7 +464,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 << (rs2 & 0x1f))?;
                 });
             }
-            "srl" => {
+            RISCV::RV32I(RV32I::Srl) => {
                 // gpr[rd] = gpr[rs1] >> (gpr[rs2] & 0x1f);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -471,7 +472,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), rs1 >> (rs2 & 0x1f))?;
                 });
             }
-            "sra" => {
+            RISCV::RV32I(RV32I::Sra) => {
                 // gpr[rd] = (gpr[rs1] as i32 >> (gpr[rs2] & 0x1f)) as u32;
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -480,7 +481,7 @@ impl Simulator {
                 });
             }
 
-            "ecall" => {
+            RISCV::RV32I(RV32I::Ecall) => {
                 // csr[CsrAddr::MEPC as usize] = *pc;
                 // csr[CsrAddr::MCAUSE as usize] = 0x0000000b;
                 // npc = csr[CsrAddr::MTVEC as usize];
@@ -491,7 +492,7 @@ impl Simulator {
                     *npc = reg.read_csr(RegIdentifier::Index(CsrAddr::MTVEC as usize))?;
                 });
             }
-            "ebreak" => {
+            RISCV::RV32I(RV32I::Ebreak) => {
                 // return Err(SimErr::Ebreak { is_good: (gpr[10] == 0)});
                 return Err(SimErr::Ebreak { is_good: with_rwlock_read!(self.reg, reg, { reg.read_gpr(RegIdentifier::Index(10))? == 0 }) });
             }
@@ -503,13 +504,13 @@ impl Simulator {
     }
 
     fn rv32m_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<ExecuteResult, SimErr> {
-        let name: &str = &inst.name;
+        let name = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
         let rs2 = inst.rs2 as usize;
 
         match name {
-            "mul" => {
+            RISCV::RV32M(RV32M::Mul) => {
                 // gpr[rd] = gpr[rs1].wrapping_mul(gpr[rs2]);
                 with_rwlock_write!(self.reg, reg, {
                     let rs1 = reg.read_gpr(reg::RegIdentifier::Index(rs1))?;
@@ -518,7 +519,7 @@ impl Simulator {
                 });
             }
 
-            "mulh" => {
+            RISCV::RV32M(RV32M::Mulh) => {
                 // let result = (gpr[rs1] as i64).wrapping_mul(gpr[rs2] as i64);
                 // gpr[rd] = (result >> 32) as u32;
                 with_rwlock_write!(self.reg, reg, {
@@ -527,7 +528,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), (rs1.wrapping_mul(rs2) >> 32) as u32)?;
                 });
             }
-            "mulhsu" => {
+            RISCV::RV32M(RV32M::Mulhsu) => {
                 // let result = (gpr[rs1] as i64).wrapping_mul((gpr[rs2] as u64).try_into().unwrap());
                 // gpr[rd] = (result >> 32) as u32;
                 with_rwlock_write!(self.reg, reg, {
@@ -536,7 +537,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), (rs1.wrapping_mul(rs2.try_into().unwrap()) >> 32) as u32)?;
                 });
             }
-            "mulhu" => {
+            RISCV::RV32M(RV32M::Mulhu) => {
                 // let result = (gpr[rs1] as u64).wrapping_mul(gpr[rs2] as u64);
                 // gpr[rd] = (result >> 32) as u32;
                 with_rwlock_write!(self.reg, reg, {
@@ -546,7 +547,7 @@ impl Simulator {
                 });
             }
 
-            "div" => {
+            RISCV::RV32M(RV32M::Div) => {
                 // if gpr[rs2] == 0 {
                 //     gpr[rd] = 0xffffffff;
                 // } else {
@@ -558,7 +559,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), if rs2 == 0 { 0xffffffff } else { (rs1.wrapping_div(rs2)) as u32 })?;
                 });
             }
-            "divu" => {
+            RISCV::RV32M(RV32M::Divu) => {
                 // if gpr[rs2] == 0 {
                 //     gpr[rd] = 0xffffffff;
                 // } else {
@@ -571,7 +572,7 @@ impl Simulator {
                 });
             }
 
-            "rem" => {
+            RISCV::RV32M(RV32M::Rem) => {
                 // if gpr[rs2] == 0 {
                 //     gpr[rd] = gpr[rs1];
                 // } else {
@@ -583,7 +584,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), if rs2 == 0 { rs1 as u32 } else { (rs1.wrapping_rem(rs2)) as u32 })?;
                 });
             }
-            "remu" => {
+            RISCV::RV32M(RV32M::Remu) => {
                 // if gpr[rs2] == 0 {
                 //     gpr[rd] = gpr[rs1];
                 // } else {
@@ -603,12 +604,12 @@ impl Simulator {
     }
 
     fn zicsr_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<ExecuteResult, SimErr> {
-        let name: &str = &inst.name;
+        let name = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
 
         match name {
-            "csrrw" => {
+            RISCV::Zicsr(Zicsr::Csrrw) => {
                 // let csr_t = csr[inst.imm as usize];
 
                 // csr[inst.imm as usize] = gpr[rs1];
@@ -620,7 +621,7 @@ impl Simulator {
                     reg.write_gpr(RegIdentifier::Index(rd), csr_t)?;
                 });
             }
-            "csrrs" => {
+            RISCV::Zicsr(Zicsr::Csrrs) => {
                 // let csr_t = csr[inst.imm as usize];
 
                 // csr[inst.imm as usize] |= gpr[rs1];
@@ -640,10 +641,10 @@ impl Simulator {
     }
 
     fn r#priv_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {
-        let name: &str = &inst.name;
+        let name = &inst.name;
 
         match name {
-            "mret" => {
+            RISCV::Priv(Priv::Mret) => {
                 // npc = csr[CsrAddr::MEPC as usize];
                 with_rwlock_write!(self.reg, reg, {
                     *npc = reg.read_csr(RegIdentifier::Index(CsrAddr::MEPC as usize))?;

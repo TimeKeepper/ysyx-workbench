@@ -5,6 +5,7 @@ use ysyx_macro::with_rwlock_read;
 use crate::differtest;
 
 use super::decode::RvInstParser;
+use super::isa;
 use owo_colors::OwoColorize;
 
 use super::super::disassembler;
@@ -16,7 +17,6 @@ use std::sync::mpsc::Receiver;
 use std::sync::mpsc::RecvError;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex, RwLock};
-use std::time::Instant;
 
 use state::ProcessState;
 use state::mmu::{MMU, Mask};
@@ -208,6 +208,7 @@ impl Simulator {
 
                     #[cfg(not(feature = "differtest"))]
                     {
+                        let _ = (path, length);
                         self.resper.lock().unwrap().error("Differtest feature is not enabled");
                         self.result_sender.send(Err(SimErr::DiffertestFailedToInit)).unwrap();
                     }
@@ -288,7 +289,7 @@ impl Simulator {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ExecuteInst {
-    pub name: String,
+    pub name: isa::RISCV,
     pub rs1: u8,
     pub rs2: u8,
     pub rd: u8,
@@ -296,9 +297,9 @@ pub struct ExecuteInst {
 }
 
 impl ExecuteInst {
-    pub fn new(name: &str, rs1: u8, rs2: u8, rd: u8, imm: u32) -> Self {
+    pub fn new(name: isa::RISCV, rs1: u8, rs2: u8, rd: u8, imm: u32) -> Self {
         Self {
-            name: name.to_string(),
+            name,
             rs1,
             rs2,
             rd,

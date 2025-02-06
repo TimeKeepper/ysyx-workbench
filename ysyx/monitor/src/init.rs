@@ -1,9 +1,5 @@
-use msg_resp::{CtrlCommand, SimErr, SimOk};
-use state::{
-    mmu::devices::{SerialFactory, TimerFactory},
-    reg::RegisterOps,
-    ProcessState,
-};
+use super::msg_dependencies::*;
+use super::state_dependencies::*;
 use ysyx_macro::with_rwlock_write;
 
 use crate::Monitor;

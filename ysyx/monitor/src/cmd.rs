@@ -1,6 +1,6 @@
-use msg_resp::{CtrlCommand, ResultMessage, SimErr, SimOk};
-use state::reg::{RegType, RegisterOps};
-use state::ProcessState;
+// use msg_resp::{CtrlCommand, ResultMessage, SimErr, SimOk};
+use super::msg_dependencies::*;
+use super::state_dependencies::*;
 use ysyx_macro::{with_rwlock_read, with_rwlock_write};
 
 use owo_colors::OwoColorize;
@@ -62,9 +62,9 @@ impl Monitor {
                 self.cmd_r();
             }
 
-            _ => {
-                self.resper.lock().unwrap().trace(format!("{:?}", cmd).as_str());
-            }
+            // _ => {
+            //     self.resper.lock().unwrap().trace(format!("{:?}", cmd).as_str());
+            // }
         }
     }
 
@@ -215,7 +215,7 @@ impl Monitor {
         });
     }
 
-    fn cmd_mdw(&mut self, addr: u32) -> ResultMessage {
+    fn cmd_mdw(&mut self, _addr: u32) -> ResultMessage {
         // if self.cli_parser.dut.is_none() {
         //     self.msgr.error("No differtest");
         //     return Err(SimErr::InvalidCommand);

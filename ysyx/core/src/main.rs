@@ -14,8 +14,13 @@ fn main() {
     let (cmd_sender, cmd_receiver) = mpsc::channel(); // B → A
     let (result_sender, result_receiver) = mpsc::channel(); // A → B
 
+    #[cfg(feature = "nemu")]
+    let platform = "nemu";
+    #[cfg(feature = "npc")]
+    let platform = "npc";
+
     let mut monitor = monitor::Monitor::new(
-        "nemu",
+        platform,
         cmd_sender,
         result_receiver,
         mem.clone(),

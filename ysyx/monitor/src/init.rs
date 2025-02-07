@@ -36,15 +36,20 @@ impl Monitor {
     }
 
     fn init_mem(&mut self) {
+        #[cfg(feature = "nemu")]
         with_rwlock_write!(self.mem, mem, {
-            mem.add_memory("sram", 0x0f00_0000, 0x0000_2000);
-            mem.add_memory("mrom", 0x2000_0000, 0x0000_1000);
-            mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
-            mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
-            mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
+                mem.add_memory("sram", 0x0f00_0000, 0x0000_2000);
+                mem.add_memory("mrom", 0x2000_0000, 0x0000_1000);
+                mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
+                mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
+                mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
-            mem.add_device(SerialFactory::new(0x1000_0000));
-            mem.add_device(TimerFactory::new(0x1000_2000));
+                mem.add_device(SerialFactory::new(0x1000_0000));
+                mem.add_device(TimerFactory::new(0x1000_2000));
+        });
+        #[cfg(feature = "npc")]
+        with_rwlock_write!(self.mem, mem, {
+            mem.add_memory("sram", 0x8000_0000, 0x0800_0000);
         });
     }
 
@@ -85,8 +90,13 @@ impl Monitor {
         }
         let bin: Vec<u8> = bin.unwrap();
 
+        #[cfg(feature = "nemu")]
         with_rwlock_write!(self.mem, mem, {
             let _ = mem.load("psram", &bin);
+        });
+        #[cfg(feature = "npc")]
+        with_rwlock_write!(self.mem, mem, {
+            let _ = mem.load("sram", &bin);
         });
 
         if let Some(diffpath) = &self.cli_parser.dut {

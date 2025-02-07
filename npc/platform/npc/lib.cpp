@@ -85,6 +85,14 @@ extern "C" {
         tick();
     }
 
+    void reset(uint32_t cycle) {
+        top->reset = 1;
+        for (uint32_t i = 0; i < cycle; i++) {
+            single_cycle();
+        }
+        top->reset = 0;
+    }
+
     void quit() {
         top->final();
         delete top;

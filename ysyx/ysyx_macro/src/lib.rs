@@ -1,1 +1,2 @@
+mod locks;
 mod module;

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "monitor", "msg_resp", "core", "ysyx_macro", "simulator"]
+members = ["monitor", "msg_resp", "core", "ysyx_macro", "simulator", "state", "debug"]
 
 [profile.release]
 codegen-units = 1
@@ -11,5 +11,24 @@ strip         = true
 [workspace.dependencies]
 criterion = "0.5.1"
 owo-colors = "4.1.0"
-rand = "0.8.4"
+rand = "0.9.0"
 dlopen2 = "0.7.0"
+tabwriter = "1.4.1"
+
+[workspace.features]
+default = [
+    "nemu", 
+    "riscv32",
+    "differtest",
+]
+
+nemu = []
+npc = []
+ysyxsoc = []
+
+riscv32 = []
+riscv64 = []
+loongarch32 = []
+
+differtest = []
+timetrace = []

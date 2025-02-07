@@ -1,0 +1,16 @@
+[package]
+name = "state"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ysyx_macro = { path = "../ysyx_macro" }
+msg_resp = { path = "../msg_resp" }
+owo-colors = {workspace = true}
+tabwriter = {workspace = true}
+bimap = "0.6.3"
+
+[features]
+riscv32 = []
+riscv64 = []
+loongarch32 = []

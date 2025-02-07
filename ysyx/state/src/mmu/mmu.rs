@@ -4,41 +4,28 @@ use super::memory::Memory;
 use super::{devices::Device, Mask};
 use msg_resp::{MatchMsg, SimErr};
 
+use std::sync::{Arc, Mutex};
+
+use msg_resp as msgr;
+
 pub enum MMT<'a> {
-    Memory(&'a mut Memory),
-    Device(&'a mut Device),
-}
-
-impl<'a> MMT<'a> {
-    pub fn read(&mut self, addr: u32, mask: Mask) -> u32 {
-        match self {
-            MMT::Memory(memory) => memory.read(addr, mask),
-            MMT::Device(device) => device.read(addr, mask),
-        }
-    }
-
-    pub fn write(&mut self, addr: u32, data: u32, mask: Mask) {
-        match self {
-            MMT::Memory(memory) => memory.write(addr, data, mask),
-            MMT::Device(device) => device.write(addr, data, mask),
-        }
-    }
+    Memory(&'a Memory),
+    Device(&'a Device),
 }
 
 pub struct MMU {
     memory: Vec<Memory>,
     device: Vec<Device>,
 
-    pub is_attch_device: bool,
+    pub resper: Arc<Mutex<msgr::Resper>>,
 }
 
 impl MMU {
-    pub fn new() -> Self {
+    pub fn new(resper: Arc<Mutex<msgr::Resper>>) -> Self {
         MMU {
             memory: Vec::new(),
             device: Vec::new(),
-
-            is_attch_device: false,
+            resper,
         }
     }
 
@@ -50,54 +37,72 @@ impl MMU {
         self.device.push(device);
     }
 
-    pub fn match_memory(&mut self, msg: MatchMsg) -> Result<MMT, SimErr> {
-        for memory in self.memory.iter_mut() {
+    pub fn match_memory(&self, msg: MatchMsg) -> Result<&Memory, SimErr> {
+        for memory in self.memory.iter() {
             if memory.match_memory(msg.clone()) {
-                self.is_attch_device = false;
-                return Ok(MMT::Memory(memory));
+                return Ok(memory);
             }
         }
 
-        for device in self.device.iter_mut() {
-            if device.match_memory(msg.clone()) {
-                self.is_attch_device = true;
-                return Ok(MMT::Device(device));
-            }
-        }
-
-        Err(SimErr::NoMatchingMemory { msg })
+        Err(SimErr::NoMatchingMemory)
     }
 
-    pub fn read(&mut self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
-        let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+    pub fn match_memory_mut(&mut self, msg: MatchMsg) -> Result<&mut Memory, SimErr> {
+        for memory in self.memory.iter_mut() {
+            if memory.match_memory(msg.clone()) {
+                return Ok(memory);
+            }
+        }
+
+        Err(SimErr::NoMatchingDevice)
+    }
+
+    pub fn match_device(&mut self, msg: MatchMsg) -> Result<&mut Device, SimErr> { // Device always mutable
+        for device in self.device.iter_mut() {
+            if device.match_memory(msg.clone()) {
+                return Ok(device);
+            }
+        }
+
+        Err(SimErr::NoMatchingDevice)
+    }
+
+    pub fn read(&self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
+        let memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
         Ok(memory.read(addr as u32, mask))
     }
 
     pub fn write(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), SimErr> {
-        let mut memory = self.match_memory(MatchMsg::ADDR { addr: addr as u32 })?;
+        let memory = self.match_memory_mut(MatchMsg::ADDR { addr: addr as u32 })?;
         memory.write(addr as u32, data, mask);
         Ok(())
     }
 
+    pub fn read_device(&mut self, addr: u32, mask: Mask) -> Result<u32, SimErr> {
+        let device = self.match_device(MatchMsg::ADDR { addr: addr as u32 })?;
+        Ok(device.read(addr as u32, mask))
+    }
+
+    pub fn write_device(&mut self, addr: u32, data: u32, mask: Mask) -> Result<(), SimErr> {
+        let device = self.match_device(MatchMsg::ADDR { addr: addr as u32 })?;
+        device.write(addr as u32, data, mask);
+        Ok(())
+    }
+
     pub fn load(&mut self, name: &str, data: &[u8]) -> Result<(), SimErr> {
-        let memory = self.match_memory(MatchMsg::NAME {
+        let memory = self.match_memory_mut(MatchMsg::NAME {
             name: name.to_string(),
         })?;
 
-        match memory {
-            MMT::Memory(memory) => {
-                memory.load(data)?;
-                Ok(())
-            }
-            MMT::Device(device) => Err(SimErr::DeviceCannotBeLoad {
-                name: device.name.clone(),
-            }),
-        }
+        memory.load(data).map_err(|e| {
+            self.resper.lock().unwrap().error(format!("{}: {}", "can not load memory for too long size", name.purple()).as_str());
+            e
+        })
     }
 
     pub fn memory_map(&self) {
+        println!("{}", "Memory Map:".purple());
         for m in &self.memory {
-            println!("{}", "Memory Map:".purple());
             println!(
                 "{}: \t0x{:08x} - 0x{:08x}",
                 m.name.red(),
@@ -105,8 +110,8 @@ impl MMU {
                 (m.base + m.memory.len() as u32).green()
             );
         }
+        println!("{}", "Device Map:".purple());
         for d in &self.device {
-            println!("{}", "Device Map:".purple());
             println!(
                 "{}: \t0x{:08x} - 0x{:08x}",
                 d.name.red(),
@@ -126,7 +131,7 @@ mod tests {
         let bin_path = "src/test/rtthread-riscv32e-ysyxsoc.bin";
         let mem = std::fs::read(bin_path).unwrap();
 
-        let mut mmu = MMU::new();
+        let mut mmu = MMU::new(Arc::new(Mutex::new(msgr::Resper::new())));
         mmu.add_memory("sdram", 0x8000_0000, 0x0800_0000);
         assert!(mmu.load("sdram", &mem).is_ok());
         println!("length: {}", mem.len());

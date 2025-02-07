@@ -7,3 +7,5 @@ edition = "2021"
 ysyx_macro = { path = "../ysyx_macro" }
 msg_resp = { path = "../msg_resp" }
 monitor = { path = "../monitor" }
+simulator = { path = "../simulator" }
+state = { path = "../state" }

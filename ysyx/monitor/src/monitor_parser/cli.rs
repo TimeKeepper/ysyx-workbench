@@ -12,10 +12,6 @@ pub struct Cli {
     #[arg(long)]
     pub debug: bool,
 
-    /// Log file path
-    #[arg(short, long)]
-    pub log: bool,
-
     /// differtest dut file
     #[arg(short, long)]
     pub dut: Option<String>,

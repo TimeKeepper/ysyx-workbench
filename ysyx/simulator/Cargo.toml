@@ -9,8 +9,10 @@ criterion = {workspace = true}
 [dependencies]
 ysyx_macro = { path = "../ysyx_macro" }
 msg_resp = { path = "../msg_resp" }
+state = { path = "../state" }
+debug = { path = "../debug" }
 winnow = "0.6.24"
-llvm-sys = "181.0.0"
+llvm-sys = {version = "181.0.0",features = ["prefer-dynamic"]}
 rand = {workspace = true}
 circular-queue = "0.2.6"
 owo-colors = {workspace = true}
@@ -20,3 +22,15 @@ dlopen2 = {workspace = true}
 name = "decode_bench"
 harness = false
 path = "benches/nemu/decode_bench.rs"
+
+[features]
+nemu = []
+npc = []
+ysyxsoc = []
+
+riscv32 = []
+riscv64 = []
+loongarch32 = []
+
+differtest = []
+timetrace = []

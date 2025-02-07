@@ -14,11 +14,11 @@ pub struct Device {
     pub name: String,
     pub range: Range<u32>,
 
-    pub callback: Option<Box<dyn FnMut(AttchDirection, u32, Option<u32>, Mask) -> u32>>
+    pub callback: Option<Box<dyn FnMut(AttchDirection, u32, Option<u32>, Mask) -> u32 + Send + Sync>>
 }
 
 impl Device {
-    pub fn new(name: &str, range: Range<u32>, callback: Option<Box<dyn FnMut(AttchDirection, u32, Option<u32>, Mask) -> u32>>) -> Self {
+    pub fn new(name: &str, range: Range<u32>, callback: Option<Box<dyn FnMut(AttchDirection, u32, Option<u32>, Mask) -> u32 + Send + Sync>>) -> Self {
         Device {
             name: name.to_string(),
             range,
@@ -27,7 +27,7 @@ impl Device {
         }
     }
     
-    pub fn match_memory(&mut self, msg: MatchMsg) -> bool {
+    pub fn match_memory(&self, msg: MatchMsg) -> bool {
         match msg {
             MatchMsg::ADDR { addr } => {
                 if addr >= self.range.start && addr < self.range.end {

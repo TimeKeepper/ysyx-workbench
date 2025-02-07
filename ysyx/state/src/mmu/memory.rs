@@ -18,7 +18,7 @@ impl Memory {
         }
     }
     
-    pub fn match_memory(&mut self, msg: MatchMsg) -> bool {
+    pub fn match_memory(&self, msg: MatchMsg) -> bool {
         match msg {
             MatchMsg::ADDR { addr } => {
                 if addr >= self.base && addr < self.base + self.memory.len() as u32 {
@@ -37,7 +37,7 @@ impl Memory {
         }
     }
 
-    pub fn read(&mut self, addr: u32, mask: Mask) -> u32 {
+    pub fn read(&self, addr: u32, mask: Mask) -> u32 {
         let offset = (addr - self.base) as usize;
         match mask {
             Mask::Byte => {
@@ -75,7 +75,7 @@ impl Memory {
 
     pub fn load(&mut self, data: &[u8]) -> Result<(), SimErr> {
         if data.len() > self.memory.len() {
-            return Err(SimErr::NoMatchingMemory { msg: MatchMsg::NAME { name: format!("Too long bin for {}", self.name) } });
+            return Err(SimErr::NoMatchingMemory);
         }
 
         self.memory[..data.len()].copy_from_slice(data);

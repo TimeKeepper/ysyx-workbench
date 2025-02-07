@@ -1,5 +1,5 @@
 use msg_resp as msgr;
-use clap::{command, ArgGroup, Parser, Subcommand, ValueEnum};
+use clap::{command, ArgGroup, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -8,10 +8,12 @@ pub struct Command {
     command: Commands,
 }
 
-#[derive(ValueEnum, Clone, Debug)]
-pub enum OperationMode {
-    On,
-    Off,
+fn operation_mode_parser(s: &str) -> Result<bool, String> {
+    match s {
+        "on" => Ok(true),
+        "off" => Ok(false),
+        _ => Err(format!("Invalid operation mode: {}", s)),
+    }
 }
 
 use std::num::ParseIntError;
@@ -31,6 +33,10 @@ pub enum Commands {
     /// quit the program, not need any arguments
     #[clap(visible_alias = "q")]
     Quit {},
+
+    /// show current monitor state
+    #[clap(visible_alias = "s")]
+    State {},
 
     /// run single instrcution in the emulator
     #[clap(visible_alias = "si")]
@@ -54,6 +60,22 @@ pub enum Commands {
         target: String,
         /// The target index
         index: Option<String>,
+    },
+
+    /// control function of the simulator
+    #[clap(visible_alias = "f", group(
+        ArgGroup::new("Target")
+            .args(&["on_or_off", "target"])
+            .multiple(true)
+            .required(false)
+    ))]
+    Function {
+        /// Sets the operation mode to on or off
+        #[arg(value_parser = operation_mode_parser)]
+        on_or_off: Option<bool>,
+        
+        /// The target string
+        target: Option<String>,
     },
 
     /// show instruction ringbuffer
@@ -86,21 +108,9 @@ pub enum Commands {
         addr: u32,
     },
 
-    /// control function of the simulator
-    #[clap(visible_alias = "f", group(
-        ArgGroup::new("Target")
-            .args(&["on_or_off", "target"])
-            .multiple(true)
-            .required(false)
-    ))]
-    Function {
-        /// Sets the operation mode to on or off
-        #[arg(value_enum)]
-        on_or_off: Option<OperationMode>,
-        
-        /// The target string
-        target: Option<String>,
-    },
+    /// try receive simulator message
+    #[clap(visible_alias = "r")]
+    Receive {},
 }
 
 use owo_colors::OwoColorize;

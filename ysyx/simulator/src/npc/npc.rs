@@ -1,48 +1,63 @@
-use circular_queue::CircularQueue;
-use msg_resp::SimOk;
+use msg_resp::{SimOk, SimErr};
 use msg_resp::{CtrlCommand, ResultMessage};
+use msg_resp as msgr;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
-use std::thread;
+use std::sync::{Arc, Mutex, RwLock};
+
+use state::mmu::MMU;
+use state::reg::RegisterBank;
+use state::ProcessState;
 
 pub struct Simulator {
-    // pub mmu: MMU,
-    
-    pub inst_trace_buffer: (bool, CircularQueue<u32>),
-    pub inst_trace: bool,
-    pub execte_times: (u32, u32),
-    
+    pub resper: Arc<Mutex<msgr::Resper>>,
+
     pub cmd_receiver: Receiver<CtrlCommand>,
     pub result_sender: Sender<ResultMessage>,
+
+    pub mem: Arc<RwLock<MMU>>,
+    pub reg: Arc<RwLock<RegisterBank>>,
+    pub state: Arc<RwLock<ProcessState>>,
 }
 
 impl Simulator {
-    pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>) -> Self {
+    pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
+        mem: Arc<RwLock<state::mmu::MMU>>, 
+        reg: Arc<RwLock<state::reg::RegisterBank>>,
+        state: Arc<RwLock<ProcessState>>,
+        resper: Arc<Mutex<msgr::Resper>>) -> Self {
 
         Self {
-            // mmu,
-            inst_trace_buffer: (false, CircularQueue::with_capacity(10)),
-            inst_trace: false,
-            execte_times: (0, 0),
+            resper,
 
             cmd_receiver,
             result_sender,
+
+            mem,
+            reg,
+            state,
         }
     }
 
-    pub fn run(self) -> thread::JoinHandle<()> {
-        let receiver = self.cmd_receiver;
-        let sender = self.result_sender;
-        thread::spawn(move || {
-            loop {
-                match receiver.recv() {
-                    Ok(CtrlCommand::QUIT) => {
-                        sender.send(Ok(SimOk::Nothing)).unwrap();
-                        break;
-                    }
-                    _ => {}
+    pub fn run(self) {
+        loop {
+            let result = self.cmd_receiver.recv();
+
+            match result {
+                Ok(CtrlCommand::QUIT) => {
+                    self.result_sender.send(Ok(SimOk::Quit)).unwrap();
+                    break;
+                }
+
+                Ok(CtrlCommand::SI { count }) => {
+                    
+                }
+
+                _ => {
+                    self.resper.lock().unwrap().error("Invalid command");
+                    self.result_sender.send(Err(SimErr::InvalidCommand)).unwrap();
                 }
             }
-        })
+        }
     }
 }

@@ -1,1 +1,1 @@
-ysyx_macro::mod_flat!(npc);
+ysyx_macro::mod_flat!(npc, dpi);

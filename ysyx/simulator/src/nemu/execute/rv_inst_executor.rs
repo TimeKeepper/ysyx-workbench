@@ -7,12 +7,6 @@ use state::reg::{self, RegIdentifier, RegisterOps};
 use ysyx_macro::{with_rwlock_write, with_rwlock_read};
 
 #[derive(Debug, PartialEq, Clone)]
-enum ExecuteResult {
-    UnknownInst,
-    Ok { is_state_hazard: bool },
-}
-
-#[derive(Debug, PartialEq, Clone)]
 #[allow(dead_code)]
 enum CsrAddr {
     MSTATUS = 0x300,
@@ -30,7 +24,7 @@ impl Simulator {
             reg.read_pc().wrapping_add(4)
         });
 
-        let hazard = self.execute_inst(inst.clone(), &mut npc)?;
+        let _result = self.execute_inst(inst.clone(), &mut npc)?;
 
         with_rwlock_write!(self.reg, reg, {
             reg.write_pc(npc);
@@ -42,7 +36,7 @@ impl Simulator {
         }
 
         #[cfg(feature = "differtest")]
-        if !hazard {
+        if _result {
             self.difftest_step()?;
         } else {
             with_rwlock_read!(self.reg, reg, {
@@ -54,31 +48,15 @@ impl Simulator {
     }
 
     fn execute_inst(&mut self, inst: ExecuteInst, npc: &mut u32) -> Result<bool, SimErr> {
-        match self.rv32i_execute(&inst, npc)? {
-            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
-            ExecuteResult::UnknownInst => (),
+        match inst {
+            ExecuteInst { name: RISCV::RV32I(ref _op), rs1: _, rs2: _, rd: _, imm: _ } => self.rv32i_execute(&inst, npc),
+            ExecuteInst { name: RISCV::RV32M(ref _op), rs1: _, rs2: _, rd: _, imm: _ } => self.rv32m_execute(&inst, npc),
+            ExecuteInst { name: RISCV::Zicsr(ref _op), rs1: _, rs2: _, rd: _, imm: _ } => self.zicsr_execute(&inst, npc),
+            ExecuteInst { name: RISCV::Priv(ref _op), rs1: _, rs2: _, rd: _, imm: _ }   => self.r#priv_execute(&inst, npc),
         }
-
-        match self.rv32m_execute(&inst, npc)? {
-            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
-            ExecuteResult::UnknownInst => (),
-        }
-
-        match self.zicsr_execute(&inst, npc)? {
-            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
-            ExecuteResult::UnknownInst => (),
-        }
-
-        match self.r#priv_execute(&inst, npc)? {
-            ExecuteResult::Ok { is_state_hazard } => return Ok(is_state_hazard),
-            ExecuteResult::UnknownInst => (),
-        }
-
-        // Err(SimErr::InstrctionExecuteFailed { name:inst.name.to_string() })
-        Err(SimErr::InstrctionExecuteFailed)
     }
 
-    fn rv32i_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {
+    fn rv32i_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<bool, SimErr> {
         let name = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -497,13 +475,13 @@ impl Simulator {
                 return Err(SimErr::Ebreak { is_good: with_rwlock_read!(self.reg, reg, { reg.read_gpr(RegIdentifier::Index(10))? == 0 }) });
             }
 
-            _ => return Ok(ExecuteResult::UnknownInst),
+            _ => return Err(SimErr::ExecuteUnkownInst),
         }
         
-        Ok(ExecuteResult::Ok { is_state_hazard: hazrd })
+        Ok(hazrd)
     }
 
-    fn rv32m_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<ExecuteResult, SimErr> {
+    fn rv32m_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<bool, SimErr> {
         let name = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -597,13 +575,13 @@ impl Simulator {
                 });
             }
 
-            _ => return Ok(ExecuteResult::UnknownInst),
+            _ => return Err(SimErr::ExecuteUnkownInst),
         }
 
-        Ok(ExecuteResult::Ok { is_state_hazard: false })
+        Ok(false)
     }
 
-    fn zicsr_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<ExecuteResult, SimErr> {
+    fn zicsr_execute(&mut self, inst: &ExecuteInst, _: &mut u32) -> Result<bool, SimErr> {
         let name = &inst.name;
         let rd = inst.rd as usize;
         let rs1 = inst.rs1 as usize;
@@ -634,13 +612,13 @@ impl Simulator {
                 });
             }
 
-            _ => return Ok(ExecuteResult::UnknownInst),
+            _ => return Err(SimErr::ExecuteUnkownInst),
         }
 
-        Ok(ExecuteResult::Ok { is_state_hazard: false })
+        Ok(false)
     }
 
-    fn r#priv_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<ExecuteResult, SimErr> {
+    fn r#priv_execute(&mut self, inst: &ExecuteInst, npc: &mut u32) -> Result<bool, SimErr> {
         let name = &inst.name;
 
         match name {
@@ -651,9 +629,9 @@ impl Simulator {
                 });
             }
 
-            _ => return Ok(ExecuteResult::UnknownInst),
+            _ => return Err(SimErr::ExecuteUnkownInst),
         }
 
-        Ok(ExecuteResult::Ok { is_state_hazard: false })
+        Ok(false)
     }
 }

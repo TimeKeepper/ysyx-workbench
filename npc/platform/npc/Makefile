@@ -25,6 +25,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 				--trace --trace-fst 
 
 OBJ_DIR = $(BUILD_DIR)/obj_dir
+SO_OBJ_DIR = $(BUILD_DIR)/so_obj_dir
 BVSRC_DIR = $(BUILD_DIR)/vsrc
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
@@ -82,6 +83,12 @@ sim: $(BIN) $(IMG)
 gdb: $(BIN) $(IMG)
 	$(call git_commit, "gdb npc")
 	gdb $(NPC_EXEC)
+
+shared: $(VSRC)
+	$(VERILATOR) \
+		--cc -sv --build $(VSRC) \
+		../lib.cpp --Mdir $(SO_OBJ_DIR) \
+		-CFLAGS "-shared -fPIC" --lib-create "top"
 	
 # Include rules for menuconfig
 include ./scripts/config.mk

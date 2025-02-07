@@ -68,6 +68,11 @@ impl Monitor {
         }
     }
 
+    #[cfg(feature = "nemu")]
+    pub fn nemu_start_decode(&mut self) {
+        assert!(matches!(self.cmd_send(CtrlCommand::FUNC { on_or_off: Some(true), target: Some("decode".to_string()) }), Ok(SimOk::FunctionCtrl)));
+    }
+
     pub fn batch(&mut self) {
         self.resper.lock().unwrap().info("Execute in Batch mode");
         let _ = self.cmd_c();
@@ -124,7 +129,10 @@ impl Monitor {
                     with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
                 }
 
-                _ => (),
+                _ => {
+                    self.resper.lock().unwrap().error(format!("{:?}", err).as_str());
+                    with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
+                }
             },
         }
     }

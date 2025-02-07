@@ -157,6 +157,8 @@ pub enum SimErr {
 
     ExecuteInterrupt,
 
+    ExecuteUnkownInst,
+
     NotImplemented,
     InvalidCommand,
     InvalidRegIndentifier,

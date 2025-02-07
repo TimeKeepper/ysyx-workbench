@@ -20,3 +20,6 @@ dlopen2 = {workspace = true}
 
 [features]
 log = []
+
+nemu = []
+npc = []

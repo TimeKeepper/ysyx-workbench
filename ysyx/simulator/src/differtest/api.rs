@@ -8,6 +8,7 @@ mod differtest{
     use crate::Simulator;
 
     impl Simulator {
+        #[cfg(feature = "nemu")]
         pub fn difftest_step(&mut self) -> Result<(), SimErr> {
             self.differtest.ref_difftest_exec(1);
             

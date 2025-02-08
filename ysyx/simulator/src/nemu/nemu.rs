@@ -42,7 +42,7 @@ pub struct Simulator {
     pub reg: Arc<RwLock<RegisterBank>>,
     pub state: Arc<RwLock<ProcessState>>,
     
-    #[cfg(feature = "differtest")]
+    #[cfg(all(feature = "differtest", feature = "nemu"))]
     pub differtest: differtest::Differtest,
 }
 
@@ -71,7 +71,7 @@ impl Simulator {
             reg,
             state,
 
-            #[cfg(feature = "differtest")]
+            #[cfg(all(feature = "differtest", feature = "nemu"))]
             differtest: differtest::Differtest::new(),
         }
     }
@@ -95,7 +95,7 @@ impl Simulator {
         self.resper.lock().unwrap().trace(format!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green()).as_str());
     }
 
-    fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
+    pub fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
         let mut orig = |trace: bool| -> Result<(), SimErr> {
             if !(self.state.read().unwrap().is_run()) {
                 self.resper.lock().unwrap().important("The process is not running");
@@ -162,7 +162,7 @@ impl Simulator {
                 }
 
                 Ok(CtrlCommand::DIFFERTEST { path, length }) => {
-                    #[cfg(feature = "differtest")]
+                    #[cfg(all(feature = "differtest", feature = "nemu"))]
                     {
                         self.differtest.init(&path);
                         self.differtest.ref_difftest_init(1234);

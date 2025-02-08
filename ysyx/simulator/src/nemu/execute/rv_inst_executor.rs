@@ -35,7 +35,7 @@ impl Simulator {
             self.inst_trace_buffer.1.push(inst);
         }
 
-        #[cfg(feature = "differtest")]
+        #[cfg(all(feature = "differtest", feature = "nemu"))]
         if _result {
             self.difftest_step()?;
         } else {

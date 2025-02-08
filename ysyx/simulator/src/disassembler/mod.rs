@@ -4,6 +4,7 @@ use std::ffi::CString;
 use llvm_sys::disassembler::*;
 use llvm_sys::target::*;
 
+#[derive(Debug, Clone)]
 pub struct Disassembler {
     pub disasm: LLVMDisasmContextRef,
 }

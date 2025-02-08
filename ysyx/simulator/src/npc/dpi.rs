@@ -1,11 +1,18 @@
-use ysyx_macro::with_rwlock_write;
+use owo_colors::OwoColorize;
+use ysyx_macro::{with_rwlock_read, with_rwlock_write};
 
 use std::sync::{atomic::{AtomicU64, Ordering::Relaxed}, Arc, OnceLock, RwLock};
 
 use state::{mmu::{Mask, MMU}, reg::{RegisterBank, RegisterOps}};
 
+use crate::disassembler;
+
 pub static MEM: OnceLock<Arc<RwLock<MMU>>> = OnceLock::new();
 pub static REG: OnceLock<Arc<RwLock<RegisterBank>>> = OnceLock::new();
+
+thread_local! {
+    pub static DISASM: OnceLock<disassembler::Disassembler> = OnceLock::new();
+}
 
 pub static MAP_HIT : AtomicU64 = AtomicU64::new(0);
 pub static CACHE_HIT : AtomicU64 = AtomicU64::new(0);
@@ -60,8 +67,24 @@ pub extern "C" fn rust_sram_write(addr: u32, data: u32, strb: u32) {
 }
 
 #[no_mangle]
-pub extern "C" fn rust_IFU_catch(_inst: u32) {
-    
+pub extern "C" fn rust_IFU_catch(inst: u32) {
+    DISASM.with(|cell| {
+        let disasm = cell.get().unwrap();
+
+        let pc = with_rwlock_read!(REG.get().unwrap(), reg, {
+            reg.read_pc()
+        });
+
+        let result = disasm
+            .disasm(&inst.to_le_bytes(), pc as u64)
+            .replace("\0", "")
+            .trim()
+            .split_ascii_whitespace()
+            .map(|x| format!("{} ", x))
+            .collect::<String>();
+
+        println!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green());
+    });
 }
 
 #[no_mangle]

@@ -1,3 +1,4 @@
+use crate::disassembler;
 use msg_resp::{SimOk, SimErr};
 use msg_resp::{CtrlCommand, ResultMessage};
 use msg_resp as msgr;
@@ -9,12 +10,14 @@ use std::sync::{Arc, Mutex, RwLock};
 use state::mmu::MMU;
 use state::reg::RegisterBank;
 use state::ProcessState;
-    
+
 use super::dl::NpcWrapper;
 use super::dpi;
 
 pub struct Simulator {
     pub resper: Arc<Mutex<msgr::Resper>>,
+
+    pub disasm: disassembler::Disassembler,
 
     pub cmd_receiver: Receiver<CtrlCommand>,
     pub result_sender: Sender<ResultMessage>,
@@ -50,9 +53,17 @@ impl Simulator {
 
         dpi::MEM.get_or_init(|| mem.clone());
         dpi::REG.get_or_init(|| reg.clone());
+        
+        let disasm = disassembler::Disassembler::new("riscv32");
+
+        dpi::DISASM.with(|cell| {
+            cell.get_or_init(|| disasm.clone());
+        });
 
         Self {
             resper,
+
+            disasm,
 
             cmd_receiver,
             result_sender,

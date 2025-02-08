@@ -17,7 +17,6 @@ impl Monitor {
         if self.cli_parser.elf.is_some() {
             self.resper
                 .lock()
-                .unwrap()
                 .error("ELF file path is not implemented yet");
         }
 
@@ -57,8 +56,8 @@ impl Monitor {
         let resper = self.resper.clone();
         let state = self.state.clone();
         ctrlc::set_handler(move || {
-            resper.lock().unwrap().info("Ctrl-C received");
-            *state.write().unwrap() = ProcessState::STOP;
+            resper.lock().info("Ctrl-C received");
+            *state.write() = ProcessState::STOP;
         })
         .expect("Error setting Ctrl-C handler");
     }
@@ -69,7 +68,6 @@ impl Monitor {
 
         self.resper
             .lock()
-            .unwrap()
             .option_log("log", cfg!(feature = "log"));
     }
 
@@ -79,13 +77,13 @@ impl Monitor {
         });
 
         if self.cli_parser.bin.is_none() {
-            self.resper.lock().unwrap().error("No binary file");
+            self.resper.lock().error("No binary file");
             return;
         }
         let bin = std::fs::read(self.cli_parser.bin.clone().unwrap());
         if bin.is_err() {
-            self.resper.lock().unwrap().error("Binary file not found");
-            *self.state.write().unwrap() = ProcessState::ABORT;
+            self.resper.lock().error("Binary file not found");
+            *self.state.write() = ProcessState::ABORT;
             return;
         }
         let bin: Vec<u8> = bin.unwrap();

@@ -74,7 +74,7 @@ impl Monitor {
     }
 
     pub fn batch(&mut self) {
-        self.resper.lock().unwrap().info("Execute in Batch mode");
+        self.resper.lock().info("Execute in Batch mode");
         let _ = self.cmd_c();
         self.cmd_q();
     }
@@ -91,25 +91,24 @@ impl Monitor {
                 SimErr::Ebreak { is_good } => {
                     with_rwlock_write!(self.state, state, {
                         *state = if is_good {
-                            self.resper.lock().unwrap().success("Hit Good TRAP");
+                            self.resper.lock().success("Hit Good TRAP");
                             ProcessState::DONE
                         } else {
-                            self.resper.lock().unwrap().error("Hit Bad TRAP");
+                            self.resper.lock().error("Hit Bad TRAP");
                             ProcessState::TRAP
                         }
                     });
                 }
 
-                SimErr::NotImplemented => self.resper.lock().unwrap().error("Not implemented yet"),
-                SimErr::InvalidCommand => self.resper.lock().unwrap().error("Invalid command"),
+                SimErr::NotImplemented => self.resper.lock().error("Not implemented yet"),
+                SimErr::InvalidCommand => self.resper.lock().error("Invalid command"),
                 SimErr::InvalidRegIndentifier => self
                     .resper
                     .lock()
-                    .unwrap()
                     .error("Invalid register identifier"),
 
                 SimErr::DiffertestFailed => {
-                    self.resper.lock().unwrap().error("Differtest failed");
+                    self.resper.lock().error("Differtest failed");
                     with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
                 }
                 SimErr::NoMatchingMemory {} => {
@@ -124,13 +123,13 @@ impl Monitor {
                 SimErr::InstrctionExecuteFailed {} => {
                     self.resper
                         .lock()
-                        .unwrap()
+                        
                         .error(format!("Failed to execute instrcution").as_str());
                     with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
                 }
 
                 _ => {
-                    self.resper.lock().unwrap().error(format!("{:?}", err).as_str());
+                    self.resper.lock().error(format!("{:?}", err).as_str());
                     with_rwlock_write!(self.state, state, { *state = ProcessState::TRAP });
                 }
             },
@@ -150,32 +149,32 @@ impl Monitor {
     }
 
     fn cmd_s(&mut self) {
-        self.resper.lock().unwrap().trace(format!("{:?}", self.state.read().unwrap()).as_str());
+        self.resper.lock().trace(format!("{:?}", self.state.read()).as_str());
     }
 
     fn cmd_r(&mut self) {
-        self.resper.lock().unwrap().trace(format!("{:?}", self.result_receiver.try_recv()).as_str());
+        self.resper.lock().trace(format!("{:?}", self.result_receiver.try_recv()).as_str());
     }
 
     fn cmd_info(&mut self, target: String, specify: Option<String>){
         let result: ResultMessage;
         match target.as_str() {
             "gp" => {
-                result = self.reg.read().unwrap().print_reg(specify, RegType::GPR);
+                result = self.reg.read().print_reg(specify, RegType::GPR);
             }
 
             "pc" => {
-                println!("{}: \t0x{:08x}", "pc".purple(), self.reg.read().unwrap().read_pc().red());
+                println!("{}: \t0x{:08x}", "pc".purple(), self.reg.read().read_pc().red());
                 return;
             }
 
             "cs" => {
-                result = self.reg.read().unwrap().print_reg(specify, RegType::CSR);
+                result = self.reg.read().print_reg(specify, RegType::CSR);
             }
 
             _ => {
-                self.resper.lock().unwrap().error("Invalid register identifier");
-                self.resper.lock().unwrap().important("Valid identifiers: gp, pc, cs");
+                self.resper.lock().error("Invalid register identifier");
+                self.resper.lock().important("Valid identifiers: gp, pc, cs");
                 return;
             }
         }
@@ -191,7 +190,7 @@ impl Monitor {
     }
 
     fn cmd_si(&mut self, count: Option<u32>) {
-        self.state.write().unwrap().set(ProcessState::RUNNING);
+        self.state.write().set(ProcessState::RUNNING);
         let result = self.cmd_send(CtrlCommand::SI { count });
         self.deal_result(result);
     }
@@ -209,8 +208,8 @@ impl Monitor {
         let length = if length.is_none() { 1 } else { length.unwrap() };
 
         for _ in 0..length {
-            let data = self.mem.read().unwrap().read(addr, state::mmu::Mask::None)?;
-            self.resper.lock().unwrap().trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
+            let data = self.mem.read().read(addr, state::mmu::Mask::None)?;
+            self.resper.lock().trace(format!(" 0x{:08x}: \t0x{:08x}", addr.green(), data.red()).as_str());
             addr = addr + 4;
         }
         

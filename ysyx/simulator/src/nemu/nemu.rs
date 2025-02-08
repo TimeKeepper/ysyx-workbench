@@ -16,7 +16,8 @@ use std::result::Result;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::RecvError;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::Arc;
+use parking_lot::{Mutex, RwLock};
 
 use state::ProcessState;
 use state::mmu::{MMU, Mask};
@@ -92,13 +93,13 @@ impl Simulator {
             .split_ascii_whitespace()
             .map(|x| format!("{} ", x))
             .collect::<String>();
-        self.resper.lock().unwrap().trace(format!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green()).as_str());
+        self.resper.lock().trace(format!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green()).as_str());
     }
 
     pub fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
         let mut orig = |trace: bool| -> Result<(), SimErr> {
-            if !(self.state.read().unwrap().is_run()) {
-                self.resper.lock().unwrap().important("The process is not running");
+            if !(self.state.read().is_run()) {
+                self.resper.lock().important("The process is not running");
                 return Err(SimErr::ExecuteInterrupt);
             }
 
@@ -112,7 +113,7 @@ impl Simulator {
     
             if trace && self.inst_trace {
                 self.disasm(inst);
-                self.resper.lock().unwrap().trace(format!("{:08x?}", exeu_inst).as_str());
+                self.resper.lock().trace(format!("{:08x?}", exeu_inst).as_str());
             }
     
             self.execute(exeu_inst)?;
@@ -142,8 +143,8 @@ impl Simulator {
     }
 
     fn func_print(&mut self) {
-        self.resper.lock().unwrap().option_log("Instruction trace", self.inst_trace);
-        self.resper.lock().unwrap().option_log("Instruction trace buffer", self.inst_trace_buffer.0);
+        self.resper.lock().option_log("Instruction trace", self.inst_trace);
+        self.resper.lock().option_log("Instruction trace buffer", self.inst_trace_buffer.0);
     }
 
     pub fn run(&mut self) {
@@ -179,14 +180,14 @@ impl Simulator {
                         with_rwlock_read!(self.reg, reg, {
                             self.differtest.set_ref_reg(&reg);
                         });
-                        self.resper.lock().unwrap().info("Differtest initialized");
+                        self.resper.lock().info("Differtest initialized");
                         self.result_sender.send(Ok(SimOk::DiffertestInit)).unwrap();
                     }
 
                     #[cfg(not(feature = "differtest"))]
                     {
                         let _ = (path, length);
-                        self.resper.lock().unwrap().error("Differtest feature is not enabled");
+                        self.resper.lock().error("Differtest feature is not enabled");
                         self.result_sender.send(Err(SimErr::DiffertestFailedToInit)).unwrap();
                     }
                 }
@@ -213,14 +214,14 @@ impl Simulator {
                     match target.as_str() {
                         "it" => {
                             self.inst_trace = on_or_off;
-                            self.resper.lock().unwrap().option_log("Instruction trace", on_or_off);
+                            self.resper.lock().option_log("Instruction trace", on_or_off);
                         }
                         "ir" => {
                             self.inst_trace_buffer.0 = on_or_off;
-                            self.resper.lock().unwrap().option_log("Instruction trace buffer", on_or_off);
+                            self.resper.lock().option_log("Instruction trace buffer", on_or_off);
                         }
                         _ => {
-                            self.resper.lock().unwrap().error("You should input valid target from [it, ir]");
+                            self.resper.lock().error("You should input valid target from [it, ir]");
                             self.result_sender.send(Err(SimErr::FuncInvalidTarget)).unwrap();
                             continue;
                         }
@@ -233,16 +234,16 @@ impl Simulator {
                     match target {
                         val if val == "ir" => {
                             for i in self.inst_trace_buffer.1.iter().rev() {
-                                self.resper.lock().unwrap().trace(format!("{:?}", i).as_str());
+                                self.resper.lock().trace(format!("{:?}", i).as_str());
                             }
                         }
 
                         val if val == "t" => {
-                            self.resper.lock().unwrap().trace(format!("Execute times: {}", self.execte_times).as_str());
+                            self.resper.lock().trace(format!("Execute times: {}", self.execte_times).as_str());
                         }
 
                         _ => {
-                            self.resper.lock().unwrap().error("Invalid debug target");
+                            self.resper.lock().error("Invalid debug target");
                             self.result_sender.send(Err(SimErr::DebugInvalidTarget)).unwrap();
                             continue;
                         }
@@ -251,12 +252,12 @@ impl Simulator {
                 }
 
                 Err(RecvError) => {
-                    self.resper.lock().unwrap().error("The command sender has been dropped, exiting...");
+                    self.resper.lock().error("The command sender has been dropped, exiting...");
                     break;
                 }
 
                 _ => {
-                    self.resper.lock().unwrap().error("Invalid command");
+                    self.resper.lock().error("Invalid command");
                     self.result_sender.send(Err(SimErr::InvalidCommand)).unwrap();
                 }
             }

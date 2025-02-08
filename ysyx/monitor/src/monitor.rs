@@ -14,7 +14,8 @@ use std::sync::mpsc::Sender;
 
 use msg_resp::ResultMessage;
 
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::Arc;
+use parking_lot::{Mutex, RwLock};
 
 pub struct Monitor {
     pub name: String,
@@ -70,7 +71,7 @@ impl Monitor {
 
         loop {
             if matches!(
-                *self.state.read().unwrap(),
+                *self.state.read(),
                 ProcessState::QUIT | ProcessState::ABORT
             ) {
                 break;
@@ -85,13 +86,13 @@ impl Monitor {
 
 impl Drop for Monitor {
     fn drop(&mut self) {
-        let state = self.state.read().unwrap();
+        let state = self.state.read();
 
-        self.resper.lock().unwrap().info("Exiting...");
+        self.resper.lock().info("Exiting...");
         match *state {
-            ProcessState::QUIT => self.resper.lock().unwrap().success("Exited normally"),
-            ProcessState::ABORT => self.resper.lock().unwrap().error("Exited abnormally"),
-            _ => self.resper.lock().unwrap().error("Unknown exit status"),
+            ProcessState::QUIT => self.resper.lock().success("Exited normally"),
+            ProcessState::ABORT => self.resper.lock().error("Exited abnormally"),
+            _ => self.resper.lock().error("Unknown exit status"),
         }
     }
 }

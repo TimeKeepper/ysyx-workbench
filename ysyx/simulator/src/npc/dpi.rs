@@ -1,7 +1,9 @@
 use owo_colors::OwoColorize;
 use ysyx_macro::{with_rwlock_read, with_rwlock_write};
 
-use std::sync::{atomic::{AtomicU64, Ordering::Relaxed}, Arc, OnceLock, RwLock};
+use std::sync::{atomic::{AtomicU64, Ordering::Relaxed}, Arc, OnceLock};
+
+use parking_lot::RwLock;
 
 use state::{mmu::{Mask, MMU}, reg::{RegisterBank, RegisterOps}};
 

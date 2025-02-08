@@ -5,7 +5,9 @@ use msg_resp as msgr;
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::Arc;
+
+use parking_lot::{Mutex, RwLock};
 
 use state::mmu::MMU;
 use state::reg::RegisterBank;
@@ -106,7 +108,7 @@ impl Simulator {
                 }
 
                 _ => {
-                    self.resper.lock().unwrap().error("Invalid command");
+                    self.resper.lock().error("Invalid command");
                     self.result_sender.send(Err(SimErr::InvalidCommand)).unwrap();
                 }
             }

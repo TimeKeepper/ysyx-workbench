@@ -1,6 +1,7 @@
 use msg_resp::Resper;
-use std::sync::{mpsc, Arc, Mutex, RwLock};
-use std::thread;
+// use std::sync::{mpsc, Arc, Mutex, RwLock};
+use parking_lot::{Mutex, RwLock};
+use std::{sync::{mpsc, Arc}, thread};
 
 use state::{mmu::MMU, reg::RegisterBank, ProcessState};
 

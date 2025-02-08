@@ -64,7 +64,7 @@ impl Monitor {
 
     fn init_log(&mut self) {
         #[cfg(feature = "log")]
-        self.resper.lock().unwrap().init();
+        self.resper.lock().init();
 
         self.resper
             .lock()

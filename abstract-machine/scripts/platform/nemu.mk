@@ -39,3 +39,5 @@ debug: image
 
 gdb: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+
+.PHONY: image run batch debug gdb

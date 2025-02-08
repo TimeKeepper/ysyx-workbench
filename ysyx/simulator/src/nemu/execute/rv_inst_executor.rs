@@ -37,11 +37,11 @@ impl Simulator {
 
         #[cfg(all(feature = "differtest", feature = "nemu"))]
         if _result {
-            self.difftest_step()?;
-        } else {
             with_rwlock_read!(self.reg, reg, {
                 self.differtest.set_ref_reg(&reg);
             });
+        } else {
+            self.difftest_step()?;
         }
 
         Ok(())

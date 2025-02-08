@@ -36,3 +36,5 @@ clean :
 
 format :
 	cargo fmt
+
+.PHONY : run debug bench bench_store help clean format

@@ -25,8 +25,8 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	# $(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
-	@$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin PLATFORM=npc
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
+	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin PLATFORM=npc
 
 debug: image
 	@$(MAKE) -C $(YSYX_HOME) debug Binfile=$(IMAGE).bin PLATFORM=npc

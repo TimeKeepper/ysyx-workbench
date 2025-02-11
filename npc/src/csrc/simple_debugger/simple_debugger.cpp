@@ -1,3 +1,4 @@
+#include <iostream>
 #include <numeric>
 #include <simple_debugger.hpp>
 #include <expr.hpp>
@@ -391,6 +392,9 @@ void simple_debugger::LSU_catch(uint32_t diff_skip){
 void simple_debugger::WBU_catch(void) {
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(this->emulator->cpu.pc);
+    auto msg = this->emulator->icache_msg_transmiter.front();
+    std::cout << "map: " << msg.first << ", cache: " << msg.second << std::endl;
+    this->emulator->icache_msg_transmiter.pop();
     #endif
 
     if(this->wpm->check_watch_points() || this->wpm->check_break_points()){

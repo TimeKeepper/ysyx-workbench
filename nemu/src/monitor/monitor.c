@@ -30,6 +30,10 @@ void init_sdb();
 void init_disasm(const char *triple);
 
 static void welcome() {
+
+  Pin;
+
+
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN),
                           ANSI_FMT("OFF", ANSI_FG_RED)));
   IFDEF(CONFIG_TRACE,
@@ -257,8 +261,6 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize signal handler. */
   init_sig();
-
-  Pin;
 
   /* Display welcome message. */
   welcome();

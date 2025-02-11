@@ -393,7 +393,7 @@ void simple_debugger::WBU_catch(void) {
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(this->emulator->cpu.pc);
     auto msg = this->emulator->icache_msg_transmiter.front();
-    std::cout << "len" << this->emulator->icache_msg_transmiter.size() << "map: " << msg.first << ", cache: " << msg.second << std::endl;
+    std::cout << "len " << this->emulator->icache_msg_transmiter.size() << ", map: " << msg.first << ", cache: " << msg.second << std::endl;
     this->emulator->icache_msg_transmiter.pop();
     #endif
 

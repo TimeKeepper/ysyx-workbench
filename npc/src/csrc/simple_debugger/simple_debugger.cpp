@@ -257,6 +257,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     cmds.push_back({
         "func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
+            if(args[0] == "help"){
+                std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
             if(args.size() != 2){
                 std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
                 return 0;
@@ -266,11 +271,6 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 {"wave", [&](bool on) { this->emulator->wave_trace_ctrl(on); }},
                 {"inst", [&](bool on) { this->emulator->instruction_trace_ctrl(on); }}
             };
-
-            if(args[0] == "help"){
-                std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
-                return 0;
-            }
 
             if(args[1] != "on" && args[1] != "off"){
                 std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;

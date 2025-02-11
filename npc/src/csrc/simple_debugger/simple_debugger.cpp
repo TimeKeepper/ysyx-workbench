@@ -273,6 +273,14 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         }
     });
 
+    cmds.push_back({
+        "t", "Show performence count", "t", \
+        [&](std::vector<std::string> args){
+            this->emulator->perf->print_perf();
+            return 0;
+        }
+    });
+
     this->expr = std::make_unique<Expr>();
     this->wpm = std::make_unique<Watch_Point_Manager>(this->expr.get());
 
@@ -349,7 +357,7 @@ void simple_debugger::main_loop() {
         });
 
         if (it == cmds.end()) {
-            std::cout << ANSI_FG_BLUE << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
+            // std::cout << ANSI_FG_BLUE << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
             continue;
         }
         

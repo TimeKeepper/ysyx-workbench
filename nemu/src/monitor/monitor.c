@@ -245,8 +245,6 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize the simple debugger. */
   init_sdb();
 
-  Pin;
-
 #ifndef CONFIG_ISA_loongarch32r
   IFDEF(CONFIG_ITRACE,
         init_disasm(
@@ -259,6 +257,8 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize signal handler. */
   init_sig();
+
+  Pin;
 
   /* Display welcome message. */
   welcome();

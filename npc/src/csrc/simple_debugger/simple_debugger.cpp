@@ -258,7 +258,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
         "func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
             if(args[0] == "help"){
-                std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
+                std::cout << ANSI_FG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
                 return 0;
             }
 

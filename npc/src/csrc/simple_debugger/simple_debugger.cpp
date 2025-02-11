@@ -162,6 +162,21 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     });
 
     cmds.push_back({
+        "mdw", "add memory differtest watch point", \
+        "mdw <addr>", \
+        [&](std::vector<std::string> args){
+            if(args.size() == 0){
+                std::cout << ANSI_FG_RED << "You should input an address" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            uint32_t addr = std::stoul(args[0], nullptr, 0);
+            this->difftest->add_mem_watch_point(addr);
+            return 0;
+        }
+    });
+
+    cmds.push_back({
         "si", "Step through one instruction", "si", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){

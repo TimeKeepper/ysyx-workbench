@@ -57,6 +57,10 @@ bool Differtest::isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc) {
     return true;
 }
 
+void Differtest::add_mem_watch_point(uint32_t addr){
+    this->mem_watch_points.push_back(addr);
+}
+
 void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
     if (!isa_difftest_checkregs(ref, pc)) {
         npc_state->state = NPC_ABORT;

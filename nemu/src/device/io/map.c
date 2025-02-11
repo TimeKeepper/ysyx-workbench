@@ -48,7 +48,7 @@ static void invoke_callback(io_callback_t c, paddr_t offset, int len, bool is_wr
 }
 
 void init_map() {
-  io_space = (uint8_t *)malloc(IO_SPACE_MAX);
+  io_space = malloc(IO_SPACE_MAX);
   assert(io_space);
   p_space = io_space;
 }
@@ -58,7 +58,7 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, false); // prepare data to read
-  word_t ret = host_read((uint8_t*)map->space + offset, len);
+  word_t ret = host_read(map->space + offset, len);
   #ifdef CONFIG_DTRACE
   printf(ANSI_FMT("map read", ANSI_FG_BLUE) " addr = " FMT_PADDR ", offset = " FMT_PADDR ", device name = %s\n", addr, offset, map->name);
   #endif
@@ -69,7 +69,7 @@ void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);
   paddr_t offset = addr - map->low;
-  host_write((uint8_t*)map->space + offset, len, data);
+  host_write(map->space + offset, len, data);
   #ifdef CONFIG_DTRACE
   printf(ANSI_FMT("map write", ANSI_FG_BLUE) " addr = " FMT_PADDR ", offset = " FMT_PADDR ", device name = %s" ", data = %x\n", addr, offset, map->name, data);
   #endif

@@ -29,7 +29,7 @@ WP* new_wp(char* exp){
   free_ = free_->next;
   p->next = head;
   head = p;
-  p->expr = (char *)malloc(strlen(exp)+1);
+  p->expr = malloc(strlen(exp)+1);
   strcpy(p->expr, exp);
   bool success = true;
   p->value = expr(exp, &success);

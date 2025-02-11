@@ -16,7 +16,6 @@
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
-#include <cstdint>
 #include <locale.h>
 #include <string.h>
 #include "isa.h"
@@ -51,7 +50,7 @@ void instr_printf(char* s){
 }
 
 char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
-static uint64_t instr_buf_index = 0;
+static int instr_buf_index = 0;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -89,7 +88,7 @@ void instr_buf_push(char *instr){
 
 void instr_buf_printf(void){
   IFNDEF(CONFIG_ITRACE, printf(ANSI_FMT("function ITRACE is not enabled\n", ANSI_FG_RED)); return;)
-  for(uint64_t i = 0; i < (INSTR_BUF_SIZE < inst_counter ? INSTR_BUF_SIZE : inst_counter); i++){
+  for(int i = 0; i < (INSTR_BUF_SIZE < inst_counter ? INSTR_BUF_SIZE : inst_counter); i++){
     i == instr_buf_index - 1 ? printf(ANSI_FMT("---> ", ANSI_FG_BLUE)) : printf("     ");
     instr_printf(INST_BUF[i]);
   }

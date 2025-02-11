@@ -71,7 +71,7 @@ endchoice
 menu "Build Options"
 choice
   prompt "Compiler"
-  default CC_GPP
+  default CC_GCC
 config CC_GCC
   bool "gcc"
 config CC_GPP

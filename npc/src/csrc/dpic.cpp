@@ -80,6 +80,7 @@ extern "C" {
     
     extern void Uart_putc(int32_t ch){
         std::cout << (char)ch;
+        std::cout.flush();
     }
 #endif
 

@@ -136,27 +136,27 @@ static long load_elf() {
 
 // #define Guest_2_host_CODE(x) guest_to_host_flash(x)
 
-// static long load_img() {
-//   if (img_file == NULL) {
-//     Log("No image is given. Use the default build-in image.");
-//     return 4096; // built-in image size
-//   }
+static long load_img() {
+  if (img_file == NULL) {
+    Log("No image is given. Use the default build-in image.");
+    return 4096; // built-in image size
+  }
 
-//   FILE *fp = fopen(img_file, "rb");
-//   Assert(fp, "Can not open '%s'", img_file);
+  FILE *fp = fopen(img_file, "rb");
+  Assert(fp, "Can not open '%s'", img_file);
 
-//   fseek(fp, 0, SEEK_END);
-//   long size = ftell(fp);
+  fseek(fp, 0, SEEK_END);
+  long size = ftell(fp);
 
-//   Log("The image is %s, size = %ld", img_file, size);
+  Log("The image is %s, size = %ld", img_file, size);
 
-//   fseek(fp, 0, SEEK_SET);
-//   int ret = fread(guest_to_host_psram(RESET_VECTOR), size, 1, fp);
-//   assert(ret == 1);
+  fseek(fp, 0, SEEK_SET);
+  int ret = fread(guest_to_host_psram(RESET_VECTOR), size, 1, fp);
+  assert(ret == 1);
 
-//   fclose(fp);
-//   return size;
-// }
+  fclose(fp);
+  return size;
+}
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
@@ -234,13 +234,13 @@ void init_monitor(int argc, char *argv[]) {
   init_isa();
 
   /* Load the image to memory. This will overwrite the built-in image. */
-  // long img_size = load_img();
+  long img_size = load_img();
 
   /* Load the ELF file. */
   load_elf();
 
   /* Initialize differential testing. */
-  // init_difftest(diff_so_file, img_size, difftest_port);
+  init_difftest(diff_so_file, img_size, difftest_port);
 
   /* Initialize the simple debugger. */
   init_sdb();

@@ -260,7 +260,8 @@ static void func_called_detect(Decode *s){
 #endif
 
 int isa_exec_once(Decode *s) {
-  s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  icache_state = inst_fetch(&s->snpc, 4);
+  s->isa.inst.val = icache_state.inst;
   #if CONFIG_FTRACE
   if(s->isa.inst.val == 0x00008067) is_ret = true;
   func_called_detect(s);

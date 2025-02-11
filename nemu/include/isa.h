@@ -27,6 +27,7 @@
 
 // Located at src/isa/$(GUEST_ISA)/include/isa-def.h
 #include <isa-def.h>
+#include "memory/icache.h"
 
 // The macro `__GUEST_ISA__` is defined in $(CFLAGS).
 // It will be expanded as "x86" or "mips32" ...
@@ -39,6 +40,7 @@ void init_isa();
 
 // reg
 extern CPU_state cpu;
+extern Icache_return icache_state;
 void isa_reg_display(char *reg_name);
 word_t isa_reg_str2val(const char *name, bool *success);
 int isa_str2id(const char *s, bool *success);

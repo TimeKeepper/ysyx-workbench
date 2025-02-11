@@ -162,6 +162,21 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     });
 
     cmds.push_back({
+        "mdw", "add memory differtest watch point", \
+        "mdw <addr>", \
+        [&](std::vector<std::string> args){
+            if(args.size() == 0){
+                std::cout << ANSI_FG_RED << "You should input an address" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
+            uint32_t addr = std::stoul(args[0], nullptr, 0);
+            this->difftest->add_mem_watch_point(addr);
+            return 0;
+        }
+    });
+
+    cmds.push_back({
         "si", "Step through one instruction", "si", \
         [&](std::vector<std::string> args){
             if(args.size() == 0){
@@ -242,6 +257,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
     cmds.push_back({
         "func", "Control Debug Function ON/OFF", "func <func> on/off", \
         [&](std::vector<std::string> args){
+            if(args[0] == "help"){
+                std::cout << ANSI_FG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
+                return 0;
+            }
+
             if(args.size() != 2){
                 std::cout << ANSI_FG_RED << "You should input two arguments" << ANSI_NONE << std::endl;
                 return 0;
@@ -251,11 +271,6 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 {"wave", [&](bool on) { this->emulator->wave_trace_ctrl(on); }},
                 {"inst", [&](bool on) { this->emulator->instruction_trace_ctrl(on); }}
             };
-
-            if(args[0] == "help"){
-                std::cout << ANSI_BG_BLUE << "avaliable functions: wave, inst" << ANSI_NONE << std::endl;
-                return 0;
-            }
 
             if(args[1] != "on" && args[1] != "off"){
                 std::cout << ANSI_FG_RED << "You should input on/off" << ANSI_NONE << std::endl;
@@ -269,6 +284,14 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 std::cout << ANSI_FG_RED << "Unknown Function" << ANSI_NONE << std::endl;
             }
 
+            return 0;
+        }
+    });
+
+    cmds.push_back({
+        "t", "Show performence count", "t", \
+        [&](std::vector<std::string> args){
+            this->emulator->perf->print_perf();
             return 0;
         }
     });
@@ -349,7 +372,7 @@ void simple_debugger::main_loop() {
         });
 
         if (it == cmds.end()) {
-            std::cout << ANSI_FG_BLUE << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
+            // std::cout << ANSI_FG_BLUE << this->expr->eval(str_bc) << ANSI_NONE << std::endl;
             continue;
         }
         

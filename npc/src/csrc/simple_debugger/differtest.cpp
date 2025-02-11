@@ -57,6 +57,10 @@ bool Differtest::isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc) {
     return true;
 }
 
+void Differtest::add_mem_watch_point(uint32_t addr){
+    this->mem_watch_points.push_back(addr);
+}
+
 void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
     if (!isa_difftest_checkregs(ref, pc)) {
         npc_state->state = NPC_ABORT;
@@ -67,13 +71,15 @@ void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){
 void Differtest::checkmems(){
     uint32_t ref_data;
     uint32_t dut_data;
-    ref_difftest_memcpy(checkmem_addr, &ref_data, 4, DIFFTEST_TO_DUT);
-    dut_data = this->emulator->memory_read(checkmem_addr);
-    if(ref_data != dut_data){
-        printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-        printf("mem:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", ref_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", checkmem_addr, ref_data, dut_data);
-        npc_state->state = NPC_ABORT;
-        npc_state->halt_pc = dut_r->pc;
+    for(const auto& addr: this->mem_watch_points) {
+        ref_difftest_memcpy(addr, &ref_data, 4, DIFFTEST_TO_DUT);
+        dut_data = this->emulator->memory_read(addr);
+        if(ref_data != dut_data){
+            printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+            printf("mem:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", ref_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_value:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", addr, ref_data, dut_data);
+            npc_state->state = NPC_ABORT;
+            npc_state->halt_pc = dut_r->pc;
+        }
     }
 }
 

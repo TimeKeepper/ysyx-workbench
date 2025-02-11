@@ -28,6 +28,9 @@ run: image
 	# $(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
 	@$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin PLATFORM=npc
 
+debug: image
+	@$(MAKE) -C $(YSYX_HOME) debug Binfile=$(IMAGE).bin PLATFORM=npc
+
 batch: image
 	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
 

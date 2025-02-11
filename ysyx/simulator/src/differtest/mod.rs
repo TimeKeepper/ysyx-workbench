@@ -5,6 +5,7 @@ ysyx_macro::mod_flat!(dynamic_lib, nemu);
 pub type Differtest = dynamic_lib::DiffertestDl;
 #[cfg(feature = "npc")]
 pub type Differtest = nemu::DiffertestNemu;
+
 pub enum DiffertestDirection {
     ToDut = 0,
     ToRef = 1,

@@ -100,8 +100,8 @@ impl Monitor {
         if let Some(diffpath) = &self.cli_parser.dut {
             self.cmd_sender
                 .send(CtrlCommand::DIFFERTEST {
-                    path: diffpath.clone(),
-                    length: bin.len() as u64,
+                    _path: diffpath.clone(),
+                    _length: bin.len() as u64,
                 })
                 .unwrap();
             assert!(matches!(self.result_receiver.recv().unwrap(), Ok(SimOk::DiffertestInit) | Err(SimErr::DiffertestFailedToInit)));

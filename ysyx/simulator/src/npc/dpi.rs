@@ -132,7 +132,9 @@ pub extern "C" fn rust_WBU_catch(next_pc: u32,
     let reg = REG.get().unwrap();
     with_rwlock_write!(reg, reg, {
         reg.write_pc(next_pc);
-        reg.write_gpr(state::reg::RegIdentifier::Index(gpr_waddr as usize), gpr_wdata).unwrap();
+        if gpr_waddr != 0 {
+            reg.write_gpr(state::reg::RegIdentifier::Index(gpr_waddr as usize), gpr_wdata).unwrap();
+        }
         if csr_wena != 0 {
             reg.write_csr(state::reg::RegIdentifier::Index(csr_waddra as usize), csr_wdataa).unwrap();
         }

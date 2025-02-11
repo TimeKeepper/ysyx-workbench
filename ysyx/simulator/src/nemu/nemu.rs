@@ -25,6 +25,7 @@ use state::reg::RegisterBank;
 
 use msg_resp as msgr;
 
+#[cfg(not(all(feature = "npc", feature = "differtest")))]
 pub struct Simulator {
     pub inst_parser: RvInstParser,
     
@@ -46,8 +47,17 @@ pub struct Simulator {
     #[cfg(all(feature = "differtest", feature = "nemu"))]
     pub differtest: differtest::Differtest,
 }
+#[cfg(all(feature = "npc", feature = "differtest"))]
+pub struct Simulator {
+    pub inst_parser: RvInstParser,
+
+    pub mem: Arc<RwLock<MMU>>,
+    pub reg: Arc<RwLock<RegisterBank>>,
+    pub state: Arc<RwLock<ProcessState>>,
+}
 
 impl Simulator {
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
         mem: Arc<RwLock<state::mmu::MMU>>, 
         reg: Arc<RwLock<state::reg::RegisterBank>>,
@@ -76,11 +86,26 @@ impl Simulator {
             differtest: differtest::Differtest::new(),
         }
     }
+    #[cfg(all(feature = "npc", feature = "differtest"))]
+    pub fn new(
+        mem: Arc<RwLock<state::mmu::MMU>>, 
+        reg: Arc<RwLock<state::reg::RegisterBank>>,
+        state: Arc<RwLock<ProcessState>>) -> Self {
+
+        Self {
+            inst_parser: RvInstParser::new(),
+
+            mem,
+            reg,
+            state,
+        }
+    }
 
     fn decode(&self, inst: u32) -> Result<ExecuteInst, SimErr> {
         self.inst_parser.parse(inst)
     }
 
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     fn disasm(&self, inst: u32) {
         let pc = with_rwlock_read!(self.reg, reg, {
             reg.read_pc()
@@ -98,8 +123,10 @@ impl Simulator {
 
     pub fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
         let mut orig = |trace: bool| -> Result<(), SimErr> {
+            #[cfg(not(all(feature = "npc", feature = "differtest")))]
             if !(self.state.read().is_run()) {
                 self.resper.lock().important("The process is not running");
+
                 return Err(SimErr::ExecuteInterrupt);
             }
 
@@ -110,15 +137,17 @@ impl Simulator {
             });
 
             let exeu_inst = self.decode(inst)?;
-    
+
+            #[cfg(not(all(feature = "npc", feature = "differtest")))]
             if trace && self.inst_trace {
                 self.disasm(inst);
                 self.resper.lock().trace(format!("{:08x?}", exeu_inst).as_str());
             }
     
             self.execute(exeu_inst)?;
-
-            self.execte_times += 1;
+            
+            #[cfg(not(all(feature = "npc", feature = "differtest")))]
+            {self.execte_times += 1;}
     
             Ok(())
         };
@@ -142,11 +171,15 @@ impl Simulator {
         Ok(SimOk::InstructionExecuted)
     }
 
+    
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     fn func_print(&mut self) {
         self.resper.lock().option_log("Instruction trace", self.inst_trace);
         self.resper.lock().option_log("Instruction trace buffer", self.inst_trace_buffer.0);
     }
 
+    
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     pub fn run(&mut self) {
         loop {
             let result = self.cmd_receiver.recv();

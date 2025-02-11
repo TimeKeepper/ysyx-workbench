@@ -1,5 +1,6 @@
-use crate::disassembler;
-use msg_resp::{SimOk, SimErr};
+use crate::npc::RUN_INST_NUM;
+use crate::{differtest, disassembler};
+use msg_resp::{MatchMsg, SimErr, SimOk};
 use msg_resp::{CtrlCommand, ResultMessage};
 use msg_resp as msgr;
 use std::sync::atomic::Ordering;
@@ -28,8 +29,10 @@ pub struct Simulator {
     pub reg: Arc<RwLock<RegisterBank>>,
     pub state: Arc<RwLock<ProcessState>>,
 
-    pub wrapper: NpcWrapper
-    // pub cont: *const Container<Api>,
+    pub wrapper: NpcWrapper,
+
+    #[cfg(all(feature = "npc", feature = "differtest"))]
+    pub differtest: differtest::Differtest,
 }
 
 impl Simulator {
@@ -62,6 +65,8 @@ impl Simulator {
             cell.get_or_init(|| disasm.clone());
         });
 
+        let differtest = differtest::Differtest::new();
+
         Self {
             resper,
 
@@ -75,11 +80,13 @@ impl Simulator {
             state,
 
             wrapper,
+
+            differtest,
         }
     }
 
-    pub fn run(self) {
-        loop {
+    pub fn run(mut self) {
+        'main_loop: loop {
             let result = self.cmd_receiver.recv();
 
             match result {
@@ -93,9 +100,46 @@ impl Simulator {
 
                     dpi::RUN_INST_NUM.fetch_add(count as u64, Ordering::SeqCst);
 
-                    loop {
-                        if dpi::RUN_INST_NUM.load(Ordering::SeqCst) == 0 {
-                            break;
+                    let mut count = dpi::RUN_INST_NUM.load(Ordering::SeqCst);
+
+                    if count == 0 {
+                        '_si: loop {
+                            let result = self.difftest_step()
+                                .map_err(|e| {
+                                    match e {
+                                        SimErr::Ebreak { is_good } => {
+                                            self.resper.lock().error(format!("Differtest TRAP").as_str());
+                                            self.state.write().set(ProcessState::DONE);
+                                        }
+                                        _ => {
+                                            self.resper.lock().error(format!("{:?}", e).as_str());
+                                            self.state.write().set(ProcessState::TRAP);
+                                        }
+                                    }
+
+                                    e
+                                }).is_err();
+                            if result {
+                                self.result_sender.send(Ok(SimOk::Nothing)).unwrap();
+                                continue 'main_loop;
+                            }
+                        }
+                    }
+
+                    '_si: loop {
+                        let cur = dpi::RUN_INST_NUM.load(Ordering::SeqCst);
+                        if cur == (count - 1) {
+                            count -= 1;
+                            let result = self.difftest_step()
+                                .map_err(|e| self.resper.lock().error(format!("{:?}", e).as_str()));
+
+                            if result.is_err() {
+                                break '_si;
+                            }
+                        
+                            if cur == 0 {
+                                break '_si;
+                            }
                         }
                         self.wrapper.single_cycle();
                     }
@@ -103,8 +147,31 @@ impl Simulator {
                     self.result_sender.send(Ok(SimOk::Nothing)).unwrap();
                 }
 
-                Ok(CtrlCommand::DIFFERTEST { path, length }) => {
+                Ok(CtrlCommand::DIFFERTEST { _path, _length }) => {
+                    #[cfg(not(feature = "differtest"))]
                     self.result_sender.send(Err(SimErr::DiffertestFailedToInit)).unwrap();
+
+                    #[cfg(feature = "differtest")]
+                    {
+                        self.differtest.set_ref_reg(self.reg.read().clone());
+
+                        let result = self.differtest.mem.write().load(
+                            "sram", 
+                            &self.mem.read()
+                                .match_memory(MatchMsg::NAME { name: "sram".to_string() })
+                                .ok().unwrap().memory
+                                [0.._length as usize]);
+
+                        if result.is_err() {
+                            self.result_sender.send(Err(SimErr::DiffertestFailedToInit)).unwrap();
+                        } else {
+                            self.result_sender.send(Ok(SimOk::DiffertestInit)).unwrap();
+                        }
+                    }
+                }
+
+                Ok(CtrlCommand::FUNC { on_or_off, target }) => {
+                    self.result_sender.send(Ok(SimOk::FunctionCtrl)).unwrap();
                 }
 
                 _ => {

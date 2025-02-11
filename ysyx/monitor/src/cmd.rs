@@ -1,12 +1,15 @@
 // use msg_resp::{CtrlCommand, ResultMessage, SimErr, SimOk};
 use super::msg_dependencies::*;
 use super::state_dependencies::*;
+use msg_resp::println_location;
 use ysyx_macro::{with_rwlock_read, with_rwlock_write};
 
 use owo_colors::OwoColorize;
 use super::monitor_parser::Commands as Cmd;
 
 use crate::Monitor;
+
+use std::panic::Location;
 
 impl Monitor {
     pub fn execute(&mut self, cmd: Cmd) {
@@ -150,10 +153,12 @@ impl Monitor {
 
     fn cmd_s(&mut self) {
         self.resper.lock().trace(format!("{:?}", self.state.read()).as_str());
+        println_location!();
     }
 
     fn cmd_r(&mut self) {
         self.resper.lock().trace(format!("{:?}", self.result_receiver.try_recv()).as_str());
+        println_location!();
     }
 
     fn cmd_info(&mut self, target: String, specify: Option<String>){

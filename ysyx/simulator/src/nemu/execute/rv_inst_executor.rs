@@ -31,6 +31,7 @@ impl Simulator {
             reg.write_gpr(RegIdentifier::Index(0), 0)?;
         });
 
+        #[cfg(not(all(feature = "npc", feature = "differtest")))]
         if self.inst_trace_buffer.0 {
             self.inst_trace_buffer.1.push(inst);
         }
@@ -163,6 +164,8 @@ impl Simulator {
                     let data: u32;
                     with_rwlock_write!(self.mem, mem, {
                         data = mem.read_device(addr, state::mmu::Mask::Byte).map_err(|e| {
+                            
+                            #[cfg(not(all(feature = "npc", feature = "differtest")))]
                             self.resper.lock().error(format!("No matching device: {}", 
                                 format!("0x{:08x}", addr)).as_str()
                             );

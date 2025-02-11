@@ -239,10 +239,10 @@ void init_monitor(int argc, char *argv[]) {
   /* Load the ELF file. */
   load_elf();
 
-  Pin;
-
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
+
+  Pin;
 
   /* Initialize the simple debugger. */
   init_sdb();

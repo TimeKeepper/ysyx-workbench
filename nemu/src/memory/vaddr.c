@@ -19,12 +19,12 @@
 
 Icache_return icache_fetch(vaddr_t addr);
 
-word_t vaddr_ifetch(vaddr_t addr, int len) {
+Icache_return vaddr_ifetch(vaddr_t addr, int len) {
   Icache_return ret = icache_fetch(addr);
   if (ret.cache_hit) {
-    return ret.inst;
+    return ret;
   }
-  return paddr_read(addr, len);
+  return (Icache_return) { .inst = paddr_read(addr, len), .map_hit = false, .cache_hit = false };
 }
 
 word_t vaddr_read(vaddr_t addr, int len) {

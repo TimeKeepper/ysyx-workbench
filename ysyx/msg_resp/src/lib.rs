@@ -4,6 +4,14 @@ use slog_term;
 
 use std::fs::OpenOptions;
 
+#[macro_export]
+macro_rules! println_location {
+    () => {
+        let location = Location::caller();
+        println!("file: {}, line: {}, column: {}", location.file(), location.line(), location.column());
+    };
+}
+
 use owo_colors::OwoColorize;
 pub enum RespType {
     Trace,
@@ -21,7 +29,7 @@ pub fn respstring(tar: &str, msg_type: RespType) -> String {
         RespType::Debug => format!("🐞 {}", tar.magenta()),
         RespType::Info => format!("ℹ️ {}", tar.blue()),
         RespType::Warning => format!("⚠️ {}", tar.yellow()),
-        RespType::Error => format!("❌ {}", tar.red()),
+        RespType::Error => format!("❌😡 {}", tar.red()),
         RespType::Important => format!("✨ {}", tar.purple()),
         RespType::Success => format!("✅ {}", tar.green()),
     }
@@ -118,8 +126,8 @@ pub enum CtrlCommand {
         target: String,
     },
     DIFFERTEST {
-        path: String,
-        length: u64,
+        _path: String,
+        _length: u64,
     },
     SI {
         count: Option<u32>,

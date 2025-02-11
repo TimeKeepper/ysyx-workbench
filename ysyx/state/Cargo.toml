@@ -8,6 +8,7 @@ ysyx_macro = { path = "../ysyx_macro" }
 msg_resp = { path = "../msg_resp" }
 owo-colors = {workspace = true}
 tabwriter = {workspace = true}
+parking_lot = {workspace = true}
 bimap = "0.6.3"
 
 [features]

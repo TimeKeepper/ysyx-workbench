@@ -17,7 +17,6 @@ impl Monitor {
         if self.cli_parser.elf.is_some() {
             self.resper
                 .lock()
-                .unwrap()
                 .error("ELF file path is not implemented yet");
         }
 
@@ -36,15 +35,20 @@ impl Monitor {
     }
 
     fn init_mem(&mut self) {
+        #[cfg(feature = "nemu")]
         with_rwlock_write!(self.mem, mem, {
-            mem.add_memory("sram", 0x0f00_0000, 0x0000_2000);
-            mem.add_memory("mrom", 0x2000_0000, 0x0000_1000);
-            mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
-            mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
-            mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
+                mem.add_memory("sram", 0x0f00_0000, 0x0000_2000);
+                mem.add_memory("mrom", 0x2000_0000, 0x0000_1000);
+                mem.add_memory("flash", 0x3000_0000, 0x1000_0000);
+                mem.add_memory("psram", 0x8000_0000, 0x0800_0000);
+                mem.add_memory("sdram", 0xa000_0000, 0x0200_0000);
 
-            mem.add_device(SerialFactory::new(0x1000_0000));
-            mem.add_device(TimerFactory::new(0x1000_2000));
+                mem.add_device(SerialFactory::new(0x1000_0000));
+                mem.add_device(TimerFactory::new(0x1000_2000));
+        });
+        #[cfg(feature = "npc")]
+        with_rwlock_write!(self.mem, mem, {
+            mem.add_memory("sram", 0x8000_0000, 0x0800_0000);
         });
     }
 
@@ -52,19 +56,18 @@ impl Monitor {
         let resper = self.resper.clone();
         let state = self.state.clone();
         ctrlc::set_handler(move || {
-            resper.lock().unwrap().info("Ctrl-C received");
-            *state.write().unwrap() = ProcessState::STOP;
+            resper.lock().info("Ctrl-C received");
+            *state.write() = ProcessState::STOP;
         })
         .expect("Error setting Ctrl-C handler");
     }
 
     fn init_log(&mut self) {
         #[cfg(feature = "log")]
-        self.resper.lock().unwrap().init();
+        self.resper.lock().init();
 
         self.resper
             .lock()
-            .unwrap()
             .option_log("log", cfg!(feature = "log"));
     }
 
@@ -74,26 +77,31 @@ impl Monitor {
         });
 
         if self.cli_parser.bin.is_none() {
-            self.resper.lock().unwrap().error("No binary file");
+            self.resper.lock().error("No binary file");
             return;
         }
         let bin = std::fs::read(self.cli_parser.bin.clone().unwrap());
         if bin.is_err() {
-            self.resper.lock().unwrap().error("Binary file not found");
-            *self.state.write().unwrap() = ProcessState::ABORT;
+            self.resper.lock().error("Binary file not found");
+            *self.state.write() = ProcessState::ABORT;
             return;
         }
         let bin: Vec<u8> = bin.unwrap();
 
+        #[cfg(feature = "nemu")]
         with_rwlock_write!(self.mem, mem, {
             let _ = mem.load("psram", &bin);
+        });
+        #[cfg(feature = "npc")]
+        with_rwlock_write!(self.mem, mem, {
+            let _ = mem.load("sram", &bin);
         });
 
         if let Some(diffpath) = &self.cli_parser.dut {
             self.cmd_sender
                 .send(CtrlCommand::DIFFERTEST {
-                    path: diffpath.clone(),
-                    length: bin.len() as u64,
+                    _path: diffpath.clone(),
+                    _length: bin.len() as u64,
                 })
                 .unwrap();
             assert!(matches!(self.result_receiver.recv().unwrap(), Ok(SimOk::DiffertestInit) | Err(SimErr::DiffertestFailedToInit)));

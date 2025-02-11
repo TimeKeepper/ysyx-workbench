@@ -17,8 +17,10 @@ libloading = "0.8.6"
 owo-colors = {workspace = true}
 ctrlc = "3.4.5"
 dlopen2 = {workspace = true}
+parking_lot = {workspace = true}
 
 [features]
 log = []
 
 nemu = []
+npc = []

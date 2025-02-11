@@ -25,6 +25,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 				--trace --trace-fst 
 
 OBJ_DIR = $(BUILD_DIR)/obj_dir
+SO_OBJ_DIR = $(BUILD_DIR)/so_obj_dir
 BVSRC_DIR = $(BUILD_DIR)/vsrc
 BIN = $(BUILD_DIR)/$(TOPNAME)
 
@@ -64,10 +65,10 @@ LDFLAGS += -lreadline -ldl -pie -lelf
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
-$(BIN): $(CSRC) $(HSRC) $(VSRC) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
+$(BIN): $(CSRC) $(HSRC) $(DESIGN_FILE) $(NVBOARD_ARCHIVE) $(DESIGN_FILE)
 	@rm -rf $(OBJ_DIR)
 	ccache $(VERILATOR) $(VERILATOR_CFLAGS) --timescale "1ns/1ns" --no-timing\
-		--top-module $(TOPNAME) $(VSRC) $(CSRC) $(NVBOARD_ARCHIVE) \
+		--top-module $(TOPNAME) $(DESIGN_FILE) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
@@ -82,6 +83,12 @@ sim: $(BIN) $(IMG)
 gdb: $(BIN) $(IMG)
 	$(call git_commit, "gdb npc")
 	gdb $(NPC_EXEC)
+
+shared: $(DESIGN_FILE)
+	$(VERILATOR) \
+		--cc -sv --build $(DESIGN_FILE) \
+		../lib.cpp --Mdir $(SO_OBJ_DIR) \
+		-CFLAGS "-shared -fPIC" --lib-create "top"
 	
 # Include rules for menuconfig
 include ./scripts/config.mk

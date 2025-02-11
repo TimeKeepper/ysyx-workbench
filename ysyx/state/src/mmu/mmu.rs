@@ -4,7 +4,9 @@ use super::memory::Memory;
 use super::{devices::Device, Mask};
 use msg_resp::{MatchMsg, SimErr};
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+
+use parking_lot::Mutex;
 
 use msg_resp as msgr;
 
@@ -95,7 +97,7 @@ impl MMU {
         })?;
 
         memory.load(data).map_err(|e| {
-            self.resper.lock().unwrap().error(format!("{}: {}", "can not load memory for too long size", name.purple()).as_str());
+            self.resper.lock().error(format!("{}: {}", "can not load memory for too long size", name.purple()).as_str());
             e
         })
     }

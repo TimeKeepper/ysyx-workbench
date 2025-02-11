@@ -9,3 +9,8 @@ msg_resp = { path = "../msg_resp" }
 monitor = { path = "../monitor" }
 simulator = { path = "../simulator" }
 state = { path = "../state" }
+parking_lot = {workspace = true}
+
+[features]
+nemu = []
+npc = []

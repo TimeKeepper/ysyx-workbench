@@ -16,7 +16,8 @@ use std::result::Result;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::RecvError;
 use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::Arc;
+use parking_lot::{Mutex, RwLock};
 
 use state::ProcessState;
 use state::mmu::{MMU, Mask};
@@ -24,6 +25,7 @@ use state::reg::RegisterBank;
 
 use msg_resp as msgr;
 
+#[cfg(not(all(feature = "npc", feature = "differtest")))]
 pub struct Simulator {
     pub inst_parser: RvInstParser,
     
@@ -42,11 +44,20 @@ pub struct Simulator {
     pub reg: Arc<RwLock<RegisterBank>>,
     pub state: Arc<RwLock<ProcessState>>,
     
-    #[cfg(feature = "differtest")]
+    #[cfg(all(feature = "differtest", feature = "nemu"))]
     pub differtest: differtest::Differtest,
+}
+#[cfg(all(feature = "npc", feature = "differtest"))]
+pub struct Simulator {
+    pub inst_parser: RvInstParser,
+
+    pub mem: Arc<RwLock<MMU>>,
+    pub reg: Arc<RwLock<RegisterBank>>,
+    pub state: Arc<RwLock<ProcessState>>,
 }
 
 impl Simulator {
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
         mem: Arc<RwLock<state::mmu::MMU>>, 
         reg: Arc<RwLock<state::reg::RegisterBank>>,
@@ -71,8 +82,22 @@ impl Simulator {
             reg,
             state,
 
-            #[cfg(feature = "differtest")]
+            #[cfg(all(feature = "differtest", feature = "nemu"))]
             differtest: differtest::Differtest::new(),
+        }
+    }
+    #[cfg(all(feature = "npc", feature = "differtest"))]
+    pub fn new(
+        mem: Arc<RwLock<state::mmu::MMU>>, 
+        reg: Arc<RwLock<state::reg::RegisterBank>>,
+        state: Arc<RwLock<ProcessState>>) -> Self {
+
+        Self {
+            inst_parser: RvInstParser::new(),
+
+            mem,
+            reg,
+            state,
         }
     }
 
@@ -80,6 +105,7 @@ impl Simulator {
         self.inst_parser.parse(inst)
     }
 
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     fn disasm(&self, inst: u32) {
         let pc = with_rwlock_read!(self.reg, reg, {
             reg.read_pc()
@@ -92,13 +118,15 @@ impl Simulator {
             .split_ascii_whitespace()
             .map(|x| format!("{} ", x))
             .collect::<String>();
-        self.resper.lock().unwrap().trace(format!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green()).as_str());
+        self.resper.lock().trace(format!("{:08x}: {:08x} {}", pc.purple(), inst.red(), result.green()).as_str());
     }
 
-    fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
+    pub fn single_instruction(&mut self, count: Option<u32>) -> ResultMessage {
         let mut orig = |trace: bool| -> Result<(), SimErr> {
-            if !(self.state.read().unwrap().is_run()) {
-                self.resper.lock().unwrap().important("The process is not running");
+            #[cfg(not(all(feature = "npc", feature = "differtest")))]
+            if !(self.state.read().is_run()) {
+                self.resper.lock().important("The process is not running");
+
                 return Err(SimErr::ExecuteInterrupt);
             }
 
@@ -109,15 +137,17 @@ impl Simulator {
             });
 
             let exeu_inst = self.decode(inst)?;
-    
+
+            #[cfg(not(all(feature = "npc", feature = "differtest")))]
             if trace && self.inst_trace {
                 self.disasm(inst);
-                self.resper.lock().unwrap().trace(format!("{:08x?}", exeu_inst).as_str());
+                self.resper.lock().trace(format!("{:08x?}", exeu_inst).as_str());
             }
     
             self.execute(exeu_inst)?;
-
-            self.execte_times += 1;
+            
+            #[cfg(not(all(feature = "npc", feature = "differtest")))]
+            {self.execte_times += 1;}
     
             Ok(())
         };
@@ -141,11 +171,15 @@ impl Simulator {
         Ok(SimOk::InstructionExecuted)
     }
 
+    
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     fn func_print(&mut self) {
-        self.resper.lock().unwrap().option_log("Instruction trace", self.inst_trace);
-        self.resper.lock().unwrap().option_log("Instruction trace buffer", self.inst_trace_buffer.0);
+        self.resper.lock().option_log("Instruction trace", self.inst_trace);
+        self.resper.lock().option_log("Instruction trace buffer", self.inst_trace_buffer.0);
     }
 
+    
+    #[cfg(not(all(feature = "npc", feature = "differtest")))]
     pub fn run(&mut self) {
         loop {
             let result = self.cmd_receiver.recv();
@@ -162,7 +196,7 @@ impl Simulator {
                 }
 
                 Ok(CtrlCommand::DIFFERTEST { path, length }) => {
-                    #[cfg(feature = "differtest")]
+                    #[cfg(all(feature = "differtest", feature = "nemu"))]
                     {
                         self.differtest.init(&path);
                         self.differtest.ref_difftest_init(1234);
@@ -179,14 +213,14 @@ impl Simulator {
                         with_rwlock_read!(self.reg, reg, {
                             self.differtest.set_ref_reg(&reg);
                         });
-                        self.resper.lock().unwrap().info("Differtest initialized");
+                        self.resper.lock().info("Differtest initialized");
                         self.result_sender.send(Ok(SimOk::DiffertestInit)).unwrap();
                     }
 
                     #[cfg(not(feature = "differtest"))]
                     {
                         let _ = (path, length);
-                        self.resper.lock().unwrap().error("Differtest feature is not enabled");
+                        self.resper.lock().error("Differtest feature is not enabled");
                         self.result_sender.send(Err(SimErr::DiffertestFailedToInit)).unwrap();
                     }
                 }
@@ -213,14 +247,14 @@ impl Simulator {
                     match target.as_str() {
                         "it" => {
                             self.inst_trace = on_or_off;
-                            self.resper.lock().unwrap().option_log("Instruction trace", on_or_off);
+                            self.resper.lock().option_log("Instruction trace", on_or_off);
                         }
                         "ir" => {
                             self.inst_trace_buffer.0 = on_or_off;
-                            self.resper.lock().unwrap().option_log("Instruction trace buffer", on_or_off);
+                            self.resper.lock().option_log("Instruction trace buffer", on_or_off);
                         }
                         _ => {
-                            self.resper.lock().unwrap().error("You should input valid target from [it, ir]");
+                            self.resper.lock().error("You should input valid target from [it, ir]");
                             self.result_sender.send(Err(SimErr::FuncInvalidTarget)).unwrap();
                             continue;
                         }
@@ -233,16 +267,16 @@ impl Simulator {
                     match target {
                         val if val == "ir" => {
                             for i in self.inst_trace_buffer.1.iter().rev() {
-                                self.resper.lock().unwrap().trace(format!("{:?}", i).as_str());
+                                self.resper.lock().trace(format!("{:?}", i).as_str());
                             }
                         }
 
                         val if val == "t" => {
-                            self.resper.lock().unwrap().trace(format!("Execute times: {}", self.execte_times).as_str());
+                            self.resper.lock().trace(format!("Execute times: {}", self.execte_times).as_str());
                         }
 
                         _ => {
-                            self.resper.lock().unwrap().error("Invalid debug target");
+                            self.resper.lock().error("Invalid debug target");
                             self.result_sender.send(Err(SimErr::DebugInvalidTarget)).unwrap();
                             continue;
                         }
@@ -251,12 +285,12 @@ impl Simulator {
                 }
 
                 Err(RecvError) => {
-                    self.resper.lock().unwrap().error("The command sender has been dropped, exiting...");
+                    self.resper.lock().error("The command sender has been dropped, exiting...");
                     break;
                 }
 
                 _ => {
-                    self.resper.lock().unwrap().error("Invalid command");
+                    self.resper.lock().error("Invalid command");
                     self.result_sender.send(Err(SimErr::InvalidCommand)).unwrap();
                 }
             }

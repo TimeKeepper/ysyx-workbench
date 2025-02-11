@@ -5,6 +5,7 @@ use msg_resp::{ResultMessage, SimErr, SimOk};
 use owo_colors::OwoColorize;
 use tabwriter::TabWriter;
 
+#[derive(Clone)]
 pub struct RegisterBank {
     pub gp: [u32; 32],
     pub pc: u32,
@@ -42,6 +43,32 @@ impl RegisterBank {
             cs: [0; 4096],
             cs_map,
         }
+    }
+}
+
+impl PartialEq for RegisterBank {
+    fn eq(&self, other: &Self) -> bool {
+        // self.gp == other.gp && self.pc == other.pc && self.cs == other.cs
+        for i in 0..32 {
+            if self.gp[i] != other.gp[i] {
+                println!("dut gp[{}] = {:08x}, ref gp[{}] = {:08x}", i, self.gp[i], i, other.gp[i]);
+                return false;
+            }
+        }
+
+        if self.pc != other.pc {
+            println!("dut pc = {:08x}, ref pc = {:08x}", self.pc, other.pc);
+            return false;
+        }
+
+        for i in 0..4096 {
+            if self.cs[i] != other.cs[i] {
+                println!("dut cs[{}] = {:08x}, ref cs[{}] = {:08x}", i, self.cs[i], i, other.cs[i]);
+                return false;
+            }
+        }
+
+        true
     }
 }
 

@@ -123,7 +123,6 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     when(io.AXI.r.fire){
         cache(io.data.bits.addr(index_width + offset_width - 1, offset_width)) := Cat(true.B, io.data.bits.addr(tag_width - 1, index_width + offset_width), io.AXI.r.bits.data)
     }
-    
 
     if(Config.Simulate){
         val Catch = Module(new Icache_catch)
@@ -159,6 +158,34 @@ class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) ex
     io.AXI.ar.bits.prot  := 0.U
     io.AXI.ar.bits.qos   := 0.U
 }
+
+class CacheTest extends Module {
+    val io = IO(new Bundle{
+        val addr = Input(UInt(32.W))
+    })
+
+    val mem_size = 1 << 10
+
+    val mem = Mem(mem_size, UInt(32.W))
+
+    val Icache = Module(new Icache_axi(Seq(AddressSet(0x0, mem_size)), 64, 16))
+
+    Icache.io.AXI <> DontCare
+
+    Icache.io.addr.valid := true.B
+    
+    val addr = RegEnable(io.addr, Icache.io.AXI.ar.fire) // record the read addr
+
+    when(Icache.io.data.valid){
+        assert(Icache.io.data.bits.addr === addr)
+        assert(Icache.io.data.bits.data === mem.read(addr))
+    }
+
+    Icache.io.AXI.r.valid := true.B
+    Icache.io.AXI.r.bits.data := mem.read(Icache.io.AXI.ar.bits.addr)
+    // Icache.io.addr := RegEnable(io.addr, io.addr =/= 0.U)
+}
+
 
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>

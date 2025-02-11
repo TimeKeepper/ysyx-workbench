@@ -3,20 +3,7 @@ use std::os::raw::c_void;
 use dlopen2::wrapper::{Container, WrapperApi};
 use state::reg::RegisterBank;
 
-pub enum DiffertestDirection {
-    ToDut = 0,
-    ToRef = 1,
-}
-
-// case DiffertestDirection to bool
-impl From<DiffertestDirection> for bool {
-    fn from(direction: DiffertestDirection) -> Self {
-        match direction {
-            DiffertestDirection::ToDut => false,
-            DiffertestDirection::ToRef => true,
-        }
-    }
-}
+use super::DiffertestDirection;
 
 #[derive(WrapperApi)]
 struct Api {
@@ -27,7 +14,7 @@ struct Api {
     difftest_init: unsafe extern "C" fn(port: u32),
 }
 
-pub struct Differtest {
+pub struct DiffertestDl {
     cont: Option<Container<Api>>,
 }
 
@@ -51,7 +38,7 @@ impl DiffertestRegBank {
     }
 }
 
-impl Differtest {
+impl DiffertestDl {
     pub fn new() -> Self {
         // let cont: Container<Api> = unsafe { Container::load(path).expect("Could not open library or load symbols")}
         Self {

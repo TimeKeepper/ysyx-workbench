@@ -1,6 +1,7 @@
 use msg_resp::Resper;
-use std::sync::{mpsc, Arc, Mutex, RwLock};
-use std::thread;
+// use std::sync::{mpsc, Arc, Mutex, RwLock};
+use parking_lot::{Mutex, RwLock};
+use std::{sync::{mpsc, Arc}, thread};
 
 use state::{mmu::MMU, reg::RegisterBank, ProcessState};
 
@@ -14,8 +15,13 @@ fn main() {
     let (cmd_sender, cmd_receiver) = mpsc::channel(); // B → A
     let (result_sender, result_receiver) = mpsc::channel(); // A → B
 
+    #[cfg(feature = "nemu")]
+    let platform = "nemu";
+    #[cfg(feature = "npc")]
+    let platform = "npc";
+
     let mut monitor = monitor::Monitor::new(
-        "nemu",
+        platform,
         cmd_sender,
         result_receiver,
         mem.clone(),
@@ -33,7 +39,7 @@ fn main() {
             state.clone(),
             resper.clone(),
         );
-        
+
         simulator.run();
     });
     

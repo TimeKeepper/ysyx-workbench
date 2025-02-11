@@ -12,7 +12,9 @@ ExtraArgs ?=
 Mainargs = --bin $(Binfile) $(ExtraArgs)
 Debugargs = $(Mainargs) -d $(REF_Path) --debug
 
-Feature = nemu,riscv32
+PLATFORM ?= nemu
+
+Feature = $(PLATFORM),riscv32
 
 run :
 	cargo run $(Job) --features $(Feature) --release --bin core -- $(Mainargs)-d $(REF_Path)
@@ -34,3 +36,5 @@ clean :
 
 format :
 	cargo fmt
+
+.PHONY : run debug bench bench_store help clean format

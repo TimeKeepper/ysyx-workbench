@@ -40,6 +40,8 @@ verilator --version
 NEMU_HOME, NPC_HOME, AM_HOME, YSYXSOC_HOME, NVBOARD_HOME, YOSYS_HOME
 ```
 初始化YSYXSOC
+如果发生了诡异的常量池错误，大概率是openjdk版本的问题，java --version看一下是不是17
+不是就用sudo update-alternatives --config java切换到17
 ```
 ysyxsoc目录下运行make dev-init make verilog
 ```

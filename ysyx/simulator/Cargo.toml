@@ -17,6 +17,8 @@ rand = {workspace = true}
 circular-queue = "0.2.6"
 owo-colors = {workspace = true}
 dlopen2 = {workspace = true}
+parking_lot = {workspace = true}
+const-cstr = "0.3.0"
 
 [[bench]]
 name = "decode_bench"

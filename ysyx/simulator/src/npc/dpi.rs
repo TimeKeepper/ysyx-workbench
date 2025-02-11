@@ -12,10 +12,6 @@ use crate::disassembler;
 pub static MEM: OnceLock<Arc<RwLock<MMU>>> = OnceLock::new();
 pub static REG: OnceLock<Arc<RwLock<RegisterBank>>> = OnceLock::new();
 
-thread_local! {
-    pub static DISASM: OnceLock<disassembler::Disassembler> = OnceLock::new();
-}
-
 pub static MAP_HIT : AtomicU64 = AtomicU64::new(0);
 pub static CACHE_HIT : AtomicU64 = AtomicU64::new(0);
 pub static RUN_INST_NUM : AtomicU64 = AtomicU64::new(0);

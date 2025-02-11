@@ -39,7 +39,7 @@ fn main() {
             state.clone(),
             resper.clone(),
         );
-        
+
         simulator.run();
     });
     

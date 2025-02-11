@@ -6,7 +6,8 @@ use msg_resp as msgr;
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
+use std::u64::MAX;
 
 use parking_lot::{Mutex, RwLock};
 
@@ -17,13 +18,21 @@ use state::ProcessState;
 use super::dl::NpcWrapper;
 use super::dpi;
 
+// Manually implement Send and Sync for Simulator
+unsafe impl Send for Simulator {}
+unsafe impl Sync for Simulator {}
+
 pub struct Simulator {
     pub resper: Arc<Mutex<msgr::Resper>>,
-
     pub disasm: disassembler::Disassembler,
 
-    pub cmd_receiver: Receiver<CtrlCommand>,
-    pub result_sender: Sender<ResultMessage>,
+    cmd_receiver: Receiver<CtrlCommand>,
+    result_sender: Sender<ResultMessage>,
+
+    pub clk: u64,
+    pub inst_num: u64,
+    pub map_hit: u64,
+    pub cache_hit: u64,
 
     pub mem: Arc<RwLock<MMU>>,
     pub reg: Arc<RwLock<RegisterBank>>,
@@ -35,12 +44,14 @@ pub struct Simulator {
     pub differtest: differtest::Differtest,
 }
 
+pub static mut SIMULATOR: OnceLock<Simulator> = OnceLock::new();
+
 impl Simulator {
     pub fn new(cmd_receiver: Receiver<CtrlCommand>, result_sender: Sender<ResultMessage>, 
         mem: Arc<RwLock<state::mmu::MMU>>, 
         reg: Arc<RwLock<state::reg::RegisterBank>>,
         state: Arc<RwLock<ProcessState>>,
-        resper: Arc<Mutex<msgr::Resper>>) -> Self {
+        resper: Arc<Mutex<msgr::Resper>>) -> &'static mut Self {
 
         let wrapper = NpcWrapper::new("/home/wenjiu/ysyx-workbench/npc/platform/npc/build/so_obj_dir/libtop.so");
 
@@ -61,16 +72,16 @@ impl Simulator {
         
         let disasm = disassembler::Disassembler::new("riscv32");
 
-        dpi::DISASM.with(|cell| {
-            cell.get_or_init(|| disasm.clone());
-        });
-
         let differtest = differtest::Differtest::new();
 
-        Self {
+        let simulator = Self {
             resper,
-
             disasm,
+
+            clk: 0,
+            inst_num: 0,
+            map_hit: 0,
+            cache_hit: 0,
 
             cmd_receiver,
             result_sender,
@@ -82,11 +93,14 @@ impl Simulator {
             wrapper,
 
             differtest,
-        }
+        };
+
+        unsafe { SIMULATOR.get_or_init(|| simulator); }
+        unsafe { SIMULATOR.get_mut().unwrap() }
     }
 
-    pub fn run(mut self) {
-        'main_loop: loop {
+    pub fn run(&mut self) {
+        loop {
             let result = self.cmd_receiver.recv();
 
             match result {
@@ -98,33 +112,10 @@ impl Simulator {
                 Ok(CtrlCommand::SI { count }) => {
                     let count = count.unwrap_or(1);
 
-                    dpi::RUN_INST_NUM.fetch_add(count as u64, Ordering::SeqCst);
+                    dpi::RUN_INST_NUM.fetch_add(if count == 0 { MAX }
+                         else {count as u64}, Ordering::SeqCst);
 
                     let mut count = dpi::RUN_INST_NUM.load(Ordering::SeqCst);
-
-                    if count == 0 {
-                        '_si: loop {
-                            let result = self.difftest_step()
-                                .map_err(|e| {
-                                    match e {
-                                        SimErr::Ebreak { is_good } => {
-                                            self.resper.lock().error(format!("Differtest TRAP").as_str());
-                                            self.state.write().set(ProcessState::DONE);
-                                        }
-                                        _ => {
-                                            self.resper.lock().error(format!("{:?}", e).as_str());
-                                            self.state.write().set(ProcessState::TRAP);
-                                        }
-                                    }
-
-                                    e
-                                }).is_err();
-                            if result {
-                                self.result_sender.send(Ok(SimOk::Nothing)).unwrap();
-                                continue 'main_loop;
-                            }
-                        }
-                    }
 
                     '_si: loop {
                         let cur = dpi::RUN_INST_NUM.load(Ordering::SeqCst);
@@ -142,6 +133,7 @@ impl Simulator {
                             }
                         }
                         self.wrapper.single_cycle();
+
                     }
 
                     self.result_sender.send(Ok(SimOk::Nothing)).unwrap();

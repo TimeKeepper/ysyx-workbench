@@ -243,7 +243,7 @@ void init_monitor(int argc, char *argv[]) {
   init_difftest(diff_so_file, img_size, difftest_port);
 
   /* Initialize the simple debugger. */
-  init_sdb();
+  // init_sdb();
 
 #ifndef CONFIG_ISA_loongarch32r
   IFDEF(CONFIG_ITRACE,
@@ -258,10 +258,8 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize signal handler. */
   init_sig();
 
-  Pin;
   /* Display welcome message. */
   welcome();
-  Pin;
 }
 #else // CONFIG_TARGET_AM
 static long load_img() {

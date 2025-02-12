@@ -73,7 +73,7 @@ public:
 
         // uint32_t offset = addr & ((1 << offset_bits) - 1);
         uint32_t set_idx = (addr >> offset_bits) & ((1 << set_bits) - 1);
-        uint32_t tag = addr >> (offset_bits + set_bits);
+        uint32_t tag = (addr >> (offset_bits + set_bits)) & ((1 << tag_bits) - 1);
 
         // 检查命中
         for(int w = 0; w < way; ++w) {

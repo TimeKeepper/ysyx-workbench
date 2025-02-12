@@ -46,6 +46,9 @@ public:
 
         uint32_t valid_bits = ceil(std::log2((double)(end - begin)));
         this->tag_bits = valid_bits - offset_bits - set_bits;
+
+        printf("offset_bits: %d, set_bits: %d, tag_bits: %d\n", offset_bits, set_bits, tag_bits);
+
         cache.resize(set, std::vector<CacheLine>(way));
         lru.resize(set, std::list<int>());
         for(int i = 0; i < set; ++i) {

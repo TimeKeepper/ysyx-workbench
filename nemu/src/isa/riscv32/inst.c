@@ -269,7 +269,7 @@ int isa_exec_once(Decode *s) {
   printf("inst, map_hit, cache_hit: %08x, %d, %d\n", icache_state.inst, icache_state.map_hit, icache_state.cache_hit);
 
   s->isa.inst.val = icache_state.inst;
-  if (icache_state.map_hit) map_hit_counter++;
+  if (icache_state.map_hit) {map_hit_counter++; Pin;}
   if (icache_state.cache_hit) cache_hit_counter++;
   #if CONFIG_FTRACE
   if(s->isa.inst.val == 0x00008067) is_ret = true;

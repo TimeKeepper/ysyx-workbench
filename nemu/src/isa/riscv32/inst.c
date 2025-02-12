@@ -19,6 +19,7 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 #include <stdint.h>
+#include <stdio.h>
 
 int store_Regs_Value_cache(int);
 char* isa_id2str(int);
@@ -264,6 +265,7 @@ extern uint64_t cache_hit_counter;
 
 int isa_exec_once(Decode *s) {
   icache_state = inst_fetch(&s->snpc, 4);
+
   s->isa.inst.val = icache_state.inst;
   if (icache_state.map_hit) map_hit_counter++;
   if (icache_state.cache_hit) cache_hit_counter++;

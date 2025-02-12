@@ -1,4 +1,5 @@
 #include "common.hpp"
+#include "utils.hpp"
 #include <performence.hpp>
 #include <fstream>
 #include <string>
@@ -86,15 +87,22 @@ void performence::cache_count(const std::string& name, bool map_hit, bool cache_
 }
 
 void performence::print_perf() {
-    for(auto &i : this->inst_cntrs){
-        std::cout << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
+    std::cout << ANSI_FG_CYAN << "Instruction Counters:" << ANSI_NONE << std::endl;
+    for(auto &i : this->inst_cntrs) {
+        std::cout << ANSI_FG_BLUE << inst_type_to_string(i.first) << ANSI_NONE 
+            << ":\t" << ANSI_FG_BLUE << "Clk:\t" << ANSI_NONE  << i.second.first 
+            << ANSI_FG_BLUE << " Inst:\t" << ANSI_NONE  << i.second.second << std::endl;
+    }
+    
+    std::cout << ANSI_FG_CYAN << "Component Counters:" << ANSI_NONE << std::endl;
+    for(auto &copo : this->conpo_cntrs) {
+        std::cout << ANSI_FG_BLUE << copo.first << ANSI_NONE 
+        << ":\t" << copo.second << std::endl;
     }
 
-    for(auto &i : this->conpo_cntrs){
-        std::cout << i.first << ":\t" << i.second << std::endl;
-    }
-
-    for(auto &i : this->cache_cntrs){
-        std::cout << i.first << ":\t" << i.second.first << " " << i.second.second << std::endl;
-    }
+    std::cout << ANSI_FG_CYAN << "Cache Counters:" << ANSI_NONE << std::endl;
+    std::cout << ANSI_FG_BLUE << "Execution-Based cache hit rate: " << ANSI_NONE
+              << (double)this->cache_cntrs["Inst"].second / this->inst_cntrs[Inst_Type::ALL].second << std::endl;
+    std::cout << ANSI_FG_BLUE << "Access-Based cache hit rate: " << ANSI_NONE
+              << (double)this->cache_cntrs["Inst"].second / this->cache_cntrs["Inst"].first << std::endl;
 }

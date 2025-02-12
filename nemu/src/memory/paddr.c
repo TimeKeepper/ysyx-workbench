@@ -120,6 +120,8 @@ void init_mem() {
   assert(psram);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, mem_random_set());
+  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 32, 1, 4);
+
   IFDEF(CONFIG_TARGET_SHARE, return;)
   Log("Config memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
   Log("SRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", SRAM_LEFT, SRAM_RIGHT);
@@ -127,8 +129,6 @@ void init_mem() {
   Log("FLASH memory area \t [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
   Log("PSRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
   Log("SDRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", SDRAM_LEFT, SDRAM_RIGHT);
-
-  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 4, 4, 4);
 }
 
 word_t paddr_read(paddr_t addr, int len) {

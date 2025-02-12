@@ -75,6 +75,7 @@ static int cmd_test(char *args);
 static int cmd_ir(char *args);
 static int cmd_single_test(char *args);
 static int cmd_crv(char *args);
+static int cmd_ci(char *args);
 
 static struct {
   const char *name;
@@ -163,7 +164,12 @@ static struct {
     {"crv", "Changing risgister's value"
 
      ,
-     "", cmd_crv}
+     "", cmd_crv},
+
+    {"ci", "Show Cache info"
+      
+     ,
+     "", cmd_ci},
 
     /* TODO: Add more commands */
 
@@ -441,6 +447,12 @@ static int cmd_crv(char *args) {
     int regNO = isa_str2id(reg_name, &success);
     change_register_value(regNO, reg_value);
   }
+  return 0;
+}
+
+void Icache_print();
+static int cmd_ci(char *args) {
+  Icache_print();
   return 0;
 }
 

@@ -7,6 +7,7 @@ extern "C" {
 #include <cmath>
 #include <list>
 #include <vector>
+#include <iostream>
 
 struct CacheLine {
     uint32_t tag;
@@ -59,6 +60,8 @@ public:
         result.cache_hit = false;
 
         if(!result.map_hit) {
+            // 地址不在映射范围内, 从内存中加载指令
+            result.inst = paddr_read(addr, len);
             return result;
         }
 
@@ -92,6 +95,18 @@ public:
 
         return result;
     }
+
+    void print_cache() {
+        for(int i = 0; i < set; ++i) {
+            std::cout << ANSI_FG_BLUE << "Set " << i << ": " << ANSI_NONE;
+            for(int j = 0; j < way; ++j) {
+                std::cout << "valid" << cache[i][j].valid 
+                    << " tag 0x" << std::hex << cache[i][j].tag << " "
+                    << " data 0x" << std::hex << cache[i][j].inst << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
 };
 
 Icache icache;
@@ -102,4 +117,8 @@ extern "C" void Icache_init(paddr_t begin, paddr_t end, int way, int set) {
 
 extern "C" Icache_return icache_fetch(vaddr_t addr, int len) {
     return icache.fetch(addr, len);
+}
+
+extern "C" void Icache_print() {
+    icache.print_cache();
 }

@@ -75,6 +75,7 @@ static int cmd_test(char *args);
 static int cmd_ir(char *args);
 static int cmd_single_test(char *args);
 static int cmd_crv(char *args);
+static int cmd_ci(char *args);
 
 static struct {
   const char *name;
@@ -163,7 +164,12 @@ static struct {
     {"crv", "Changing risgister's value"
 
      ,
-     "", cmd_crv}
+     "", cmd_crv},
+
+    {"ci", "Show Cache info"
+      
+     ,
+     "", cmd_ci},
 
     /* TODO: Add more commands */
 
@@ -211,9 +217,13 @@ static int cmd_q(char *args) {
 }
 
 extern uint64_t inst_counter;
+extern uint64_t map_hit_counter;
+extern uint64_t cache_hit_counter;
 
 static int cmd_t(char *args) {
-  printf(ANSI_FMT("inst_num:", ANSI_FG_BLUE) "%lu\n", inst_counter);
+  printf(ANSI_FMT("inst_num: \t\t\t%lu\n", ANSI_FG_BLUE), inst_counter);
+  printf(ANSI_FMT("Execution-Based cache hit rate: %lf\n", ANSI_FG_BLUE), (double)cache_hit_counter / inst_counter);
+  printf(ANSI_FMT("Access-Based cache hit rate: \t%lf\n", ANSI_FG_BLUE), (double)cache_hit_counter / map_hit_counter);
   return 0;
 }
 
@@ -441,6 +451,12 @@ static int cmd_crv(char *args) {
     int regNO = isa_str2id(reg_name, &success);
     change_register_value(regNO, reg_value);
   }
+  return 0;
+}
+
+void Icache_print();
+static int cmd_ci(char *args) {
+  Icache_print();
   return 0;
 }
 

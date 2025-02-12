@@ -10,9 +10,10 @@ class performence {
         GP,
         Cal,
         LS,
-        CSR
+        CSR,
+        ALL
     };
-    performence::Inst_Type cur_instType = Inst_Type::GP;
+    performence::Inst_Type cur_instType = Inst_Type::ALL;
 
     std::unordered_map<Inst_Type, std::pair<uint64_t, uint64_t>> inst_cntrs;
     std::unordered_map<std::string, uint64_t> conpo_cntrs;

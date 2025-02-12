@@ -50,8 +50,8 @@ public:
         uint32_t valid_bits = ceil(std::log2((double)(end - begin)));
         this->tag_bits = valid_bits - offset_bits - index_bits - set_bits;
 
-        printf("offset_bits: %d, index_bits %d, set_bits: %d, valid_bits: %d tag_bits: %d\n", offset_bits, index_bits, set_bits, valid_bits, tag_bits);
-        printf("size: %08x", end - begin);
+        // printf("offset_bits: %d, index_bits %d, set_bits: %d, valid_bits: %d tag_bits: %d\n", offset_bits, index_bits, set_bits, valid_bits, tag_bits);
+        // printf("size: %08x", end - begin);
 
         cache.resize(set, std::vector<CacheLine>(way));
         lru.resize(set, std::list<uint32_t>());
@@ -118,7 +118,7 @@ public:
                     << ANSI_FG_CYAN"data " << std::hex << ANSI_FG_BLUE << "0x" << std::setw(8) << std::setfill('0') << cache[i][j].inst << '\t'
                     << ANSI_NONE << std::endl;
                 std::cout << tag_bits;
-                printf("tagbits: %d\n", tag_bits);
+                // printf("tagbits: %d\n", tag_bits);
             }
             std::cout << std::endl;
         }

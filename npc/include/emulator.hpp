@@ -4,6 +4,7 @@
 #include "cpu.hpp"
 #include <memory.hpp>
 #include <memory>
+#include <queue>
 #include <utils.hpp>
 #include <unordered_map>
 #include <performence.hpp>
@@ -23,6 +24,8 @@ class Emulator {
         char **argv;
 
         uint64_t seed = 0;
+
+        std::queue<std::pair<bool, bool>> icache_msg_transmiter;
 
         char* diff_so_file = NULL;
         char* elf_file = NULL;

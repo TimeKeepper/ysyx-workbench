@@ -28,6 +28,8 @@ class performence {
     void coponent_count(const std::string& name);
 
     void cache_count(const std::string& name, bool map_hit, bool cache_hit);
+
+    void print_perf(void);
 };
 
 #endif

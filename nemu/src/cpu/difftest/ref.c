@@ -45,6 +45,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
 }
 
 __EXPORT void difftest_cache_state(void *dut) {
+  printf("map_hit %d", (int)icache_state.map_hit);
   memcpy(dut, &icache_state, sizeof(Icache_return));
 }
 

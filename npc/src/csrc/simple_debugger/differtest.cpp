@@ -107,6 +107,8 @@ void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
         is_skip_ref = false;
         return;
     }
+    Icache_return ref_icache_state;
+    ref_difftest_cache_state(&ref_icache_state);
 
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);

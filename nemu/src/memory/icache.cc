@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "utils.h"
 extern "C" {
     #include "common.h"
@@ -9,6 +11,7 @@ extern "C" {
 #include <list>
 #include <vector>
 #include <iostream>
+
 
 struct CacheLine {
     uint32_t tag;
@@ -103,7 +106,7 @@ public:
             for(int j = 0; j < way; ++j) {
                 std::cout << ANSI_FG_CYAN"valid " << (cache[i][j].valid ? ANSI_FG_GREEN"true" : ANSI_FG_RED"false") << '\t'
                     << ANSI_FG_CYAN"tag " <<  std::hex << ANSI_FG_BLUE"0x" << cache[i][j].tag << '\t'
-                    << ANSI_FG_CYAN"data " << std::hex << ANSI_FG_BLUE"0x" << cache[i][j].inst << '\t'
+                    << ANSI_FG_CYAN"data " << std::hex << std::setw(34) << ANSI_FG_BLUE"0x" << cache[i][j].inst << '\t'
                     << ANSI_NONE << std::endl;
             }
             std::cout << std::endl;

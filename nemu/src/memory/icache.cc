@@ -28,6 +28,7 @@ private:
     int set;
     int line_size;
     int offset_bits;
+    int index_bits;
     int set_bits;
     int tag_bits;
     std::vector<std::vector<CacheLine>> cache;
@@ -42,10 +43,11 @@ public:
         this->set = set;
         this->line_size = line_size;
         this->offset_bits = ceil(std::log2((double)line_size));
+        this->index_bits = ceil(std::log2((double)way));
         this->set_bits = ceil(log2((double)set));
 
         uint32_t valid_bits = ceil(std::log2((double)(end - begin)));
-        this->tag_bits = valid_bits - offset_bits - set_bits;
+        this->tag_bits = valid_bits - offset_bits - index_bits - set_bits;
 
         printf("offset_bits: %d, set_bits: %d, valid_bits: %d\n", offset_bits, set_bits, valid_bits);
         printf("size: %08x", end - begin);

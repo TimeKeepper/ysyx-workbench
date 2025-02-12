@@ -21,6 +21,7 @@ performence::performence(){
     this->inst_cntrs.emplace(Inst_Type::Cal, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::LS, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::CSR, std::make_pair(0, 0));
+    this->inst_cntrs.emplace(Inst_Type::ALL, std::make_pair(0, 0));
 
     this->conpo_cntrs.emplace("IFU", 0);
     this->conpo_cntrs.emplace("LSU", 0);
@@ -52,15 +53,13 @@ performence::~performence(){
 }
 
 void performence::clk_count(){
-    this->inst_cntrs[Inst_Type::GP].first += 1;
-    if(unlikely(this->cur_instType == Inst_Type::GP)) return;
+    this->inst_cntrs[Inst_Type::ALL].first += 1;
 
     this->inst_cntrs[this->cur_instType].first += 1;
 }
 
 void performence::inst_cont(){
-    this->inst_cntrs[Inst_Type::GP].second += 1;
-    if(unlikely(this->cur_instType == Inst_Type::GP)) return;
+    this->inst_cntrs[Inst_Type::ALL].second += 1;
     
     this->inst_cntrs[this->cur_instType].second += 1;
 }

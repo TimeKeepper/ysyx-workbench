@@ -127,7 +127,6 @@ public:
 Icache icache;
 
 extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size) {
-    std::cout << "Icache Init!!!!!!!!!!!!!!!!!!!!!!" << "begin" << begin << " end" << end << std::endl;
     icache.init(begin, end, way, set, block_size);
 }
 

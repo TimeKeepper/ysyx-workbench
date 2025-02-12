@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <stdio.h>
 
 #include "utils.h"
 extern "C" {
@@ -37,6 +38,7 @@ private:
 public:
     // 初始化缓存
     void init(uint32_t begin, uint32_t end, int way, int set, int line_size = 4) {
+        printf("Icache init\n");
         this->begin = begin;
         this->end = end;
         this->way = way;
@@ -66,6 +68,7 @@ public:
     
     // 获取指令
     Icache_return fetch(vaddr_t addr, int len) {
+        printf("Icache fetch\n");
         Icache_return result;
         result.inst = 0;
         result.map_hit = (addr >= begin) && (addr < end);
@@ -109,6 +112,7 @@ public:
     }
 
     void print_cache() {
+        printf("Icache print\n");
         for(int i = 0; i < set; ++i) {
             std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
             for(int j = 0; j < way; ++j) {

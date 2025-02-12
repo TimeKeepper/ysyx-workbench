@@ -33,6 +33,8 @@
 #define INST_SIZE 128
 
 uint64_t inst_counter = 0;
+uint64_t map_hit_counter = 0;
+uint64_t cache_hit_counter = 0;
 
 void instr_printf(char* s){
   char buf[32];

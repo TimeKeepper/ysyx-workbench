@@ -18,6 +18,9 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_regcpy = (void (*)(void *, bool))dlsym(handle, "difftest_regcpy");
     assert(ref_difftest_regcpy);
 
+    ref_difftest_cache_state = (void (*)(void *))dlsym(handle, "difftest_cache_state");
+    assert(ref_difftest_cache_state);
+
     ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(ref_difftest_exec);
 
@@ -83,7 +86,20 @@ void Differtest::checkmems(){
     }
 }
 
-void Differtest::difftest_step(vaddr_t pc){
+void Differtest::checkcache(Icache_return icache_state){
+    Icache_return ref_icache_state;
+    ref_difftest_cache_state(&ref_icache_state);
+    if(ref_icache_state.inst != icache_state.inst || ref_icache_state.map_hit != icache_state.map_hit || ref_icache_state.cache_hit != icache_state.cache_hit){
+        printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+        printf("icache: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_icache_state.inst, icache_state.inst);
+        printf("icache: ref_map_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_map_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_icache_state.map_hit, icache_state.map_hit);
+        printf("icache: ref_cache_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_cache_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_icache_state.cache_hit, icache_state.cache_hit);
+        npc_state->state = NPC_ABORT;
+        npc_state->halt_pc = dut_r->pc;
+    }
+}
+
+void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
     Riscv_CPU_State ref_r;
 
     if (is_skip_ref) {
@@ -97,6 +113,7 @@ void Differtest::difftest_step(vaddr_t pc){
 
     checkmems();
     checkregs(&ref_r, pc);
+    checkcache(icache_state);
 }
 
 void Differtest::difftest_skip_ref() {

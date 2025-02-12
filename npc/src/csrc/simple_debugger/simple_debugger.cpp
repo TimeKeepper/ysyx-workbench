@@ -1,3 +1,4 @@
+#include "differtest.hpp"
 #include <iostream>
 #include <numeric>
 #include <simple_debugger.hpp>
@@ -391,13 +392,10 @@ void simple_debugger::LSU_catch(uint32_t diff_skip){
 
 void simple_debugger::WBU_catch(void) {
     #ifdef CONFIG_DIFFTEST
-    this->difftest->difftest_step(this->emulator->cpu.pc);
-    
     auto msg = this->emulator->icache_msg_transmiter.front();
-    // if(msg.first != 0 && msg.second != 0){
-        std::cout << "len " << this->emulator->icache_msg_transmiter.size() << ", map: " << msg.first << ", cache: " << msg.second << std::endl;
-    // }
     this->emulator->icache_msg_transmiter.pop();
+
+    this->difftest->difftest_step(this->emulator->cpu.pc, Icache_return{0, msg.first, msg.second});
     #endif
 
     if(this->wpm->check_watch_points() || this->wpm->check_break_points()){

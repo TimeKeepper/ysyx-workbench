@@ -10,6 +10,7 @@ std::string inst_type_to_string(performence::Inst_Type type) {
         case performence::Inst_Type::Cal: return "Cal";
         case performence::Inst_Type::LS: return "LS";
         case performence::Inst_Type::CSR: return "CSR";
+        case performence::Inst_Type::ALL: return "ALL";
         default: return "Unknown";
     }
 }
@@ -87,17 +88,14 @@ void performence::cache_count(const std::string& name, bool map_hit, bool cache_
 
 void performence::print_perf() {
     for(auto &i : this->inst_cntrs){
-        // Log("%s:\t%ld %ld", inst_type_to_string(i.first).c_str(), i.second.first, i.second.second);
         std::cout << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
     }
 
     for(auto &i : this->conpo_cntrs){
-        // Log("%s:\t%ld", i.first.c_str(), i.second);
         std::cout << i.first << ":\t" << i.second << std::endl;
     }
 
     for(auto &i : this->cache_cntrs){
-        // Log("%s:\t%ld %ld", i.first.c_str(), i.second.first, i.second.second);
         std::cout << i.first << ":\t" << i.second.first << " " << i.second.second << std::endl;
     }
 }

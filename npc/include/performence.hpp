@@ -10,7 +10,8 @@ class performence {
         GP,
         Cal,
         LS,
-        CSR
+        CSR,
+        ALL
     };
     performence::Inst_Type cur_instType = Inst_Type::GP;
 

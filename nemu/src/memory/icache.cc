@@ -1,7 +1,11 @@
-#include "common.h"
+extern "C" {
+    #include "common.h"
+    #include <memory/icache.h>
+    #include "memory/paddr.h"
+}
+
 #include <cmath>
 #include <list>
-#include <memory/icache.h>
 #include <vector>
 
 struct CacheLine {
@@ -48,7 +52,7 @@ public:
     }
     
     // 获取指令
-    Icache_return fetch(vaddr_t addr) {
+    Icache_return fetch(vaddr_t addr, int len) {
         Icache_return result;
         result.inst = 0;
         result.map_hit = (addr >= begin) && (addr < end);
@@ -74,6 +78,9 @@ public:
             }
         }
 
+        // 缓存未命中，从内存中加载指令
+        result.inst = paddr_read(addr, len);
+
         // 替换策略：替换LRU列表末尾的缓存行
         int replace_way = lru[set_idx].back();
         lru[set_idx].pop_back();
@@ -93,6 +100,6 @@ extern "C" void Icache_init(paddr_t begin, paddr_t end, int way, int set) {
     icache.init(begin, end, way, set);
 }
 
-extern "C" Icache_return icache_fetch(vaddr_t addr) {
-    return icache.fetch(addr);
+extern "C" Icache_return icache_fetch(vaddr_t addr, int len) {
+    return icache.fetch(addr, len);
 }

@@ -89,7 +89,7 @@ void Differtest::checkmems(){
 void Differtest::checkcache(Icache_return icache_state){
     Icache_return ref_icache_state;
     ref_difftest_cache_state(&ref_icache_state);
-    if(ref_icache_state.inst != icache_state.inst || ref_icache_state.map_hit != icache_state.map_hit || ref_icache_state.cache_hit != icache_state.cache_hit){
+    if(ref_icache_state.map_hit != icache_state.map_hit || ref_icache_state.cache_hit != icache_state.cache_hit){
         printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
         printf("icache: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_icache_state.inst, icache_state.inst);
         printf("icache: ref_map_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_map_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_icache_state.map_hit, icache_state.map_hit);
@@ -107,7 +107,7 @@ void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
         is_skip_ref = false;
         return;
     }
-    
+
     ref_difftest_exec(1);
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 

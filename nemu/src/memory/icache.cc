@@ -48,6 +48,7 @@ public:
         this->tag_bits = valid_bits - offset_bits - set_bits;
 
         printf("offset_bits: %d, set_bits: %d, tag_bits: %d\n", offset_bits, set_bits, tag_bits);
+        printf("size: %d", end - begin);
 
         cache.resize(set, std::vector<CacheLine>(way));
         lru.resize(set, std::list<int>());

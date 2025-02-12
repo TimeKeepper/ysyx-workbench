@@ -7,6 +7,8 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     std::function<void(int a0)> emulator_trap_func, Emulator* emulator) \
     : dut_r(dut_r), npc_state(npc_state), Emulator_trap(emulator_trap_func), emulator(emulator) {
     assert(ref_so_file != NULL);
+    
+    std::cout << ref_so_file << std::endl;
 
     void *handle;
     handle = dlopen(ref_so_file, RTLD_LAZY);

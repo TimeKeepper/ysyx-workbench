@@ -17,8 +17,6 @@
 #include <cpu/cpu.h>
 #include <difftest-def.h>
 #include <memory/paddr.h>
-#include <memory/icache.h>
-#include <string.h>
 
 //NEMU作为REF
 
@@ -42,10 +40,6 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
   } else {
     memcpy(&cpu, dut, sizeof(CPU_state));
   }
-}
-
-__EXPORT void cache_state(void *dut) {
-  memcpy(dut, &icache_state, sizeof(Icache_return));
 }
 
 // 让REF执行`n`条指令

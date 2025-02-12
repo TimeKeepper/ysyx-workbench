@@ -337,7 +337,6 @@ void Emulator::IFU_catch(uint32_t inst){
 
 void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
     this->perf->cache_count("Inst", map_hit!=0, cache_hit!=0);
-    this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
 }
 
 void Emulator::IDU_catch(performence::Inst_Type type){

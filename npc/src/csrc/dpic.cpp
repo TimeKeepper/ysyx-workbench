@@ -49,7 +49,6 @@ extern "C" {
         uint32_t raddr = (y_addr * 640 + x_addr) * 4;
         *rdata = emulator->memorys["vga"]->read((raddr & ~0x3u), 4);
     }
-    
 #elif defined (CONFIG_PLATFORM_NPC)
     extern void sram_read(int32_t addr, int32_t* data) {
         *data = emulator->memorys["sram"]->read((addr & ~0x3u) - CONFIG_LOAD_MEMORY_BASE, 4);
@@ -81,7 +80,6 @@ extern "C" {
     
     extern void Uart_putc(int32_t ch){
         std::cout << (char)ch;
-        std::cout.flush();
     }
 #endif
 

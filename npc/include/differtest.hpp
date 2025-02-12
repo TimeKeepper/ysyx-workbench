@@ -3,10 +3,8 @@
 
 #include "cpu.hpp"
 #include "emulator.hpp"
-#include <cstdint>
 #include <memory.hpp>
 #include <utils.hpp>
-#include <vector>
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
@@ -14,7 +12,7 @@ class Differtest {
     private:
         bool is_skip_ref = false;
         void checkregs(Riscv_CPU_State *ref, vaddr_t pc);
-        std::vector<uint32_t> mem_watch_points;
+        uint32_t checkmem_addr = 0x80030bb0;
         void checkmems();
 
         Riscv_CPU_State *dut_r;
@@ -32,7 +30,6 @@ class Differtest {
             std::function<void(int a0)> emulator_trap_func, Emulator* emulator);
             
         bool isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc);
-        void add_mem_watch_point(uint32_t addr);
         void difftest_step(vaddr_t pc);
         void difftest_skip_ref();
 };

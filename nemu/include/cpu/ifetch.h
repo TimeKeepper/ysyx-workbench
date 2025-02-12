@@ -17,8 +17,8 @@
 
 #include <memory/vaddr.h>
 
-static inline Icache_return inst_fetch(vaddr_t *pc, int len) {
-  Icache_return inst = vaddr_ifetch(*pc, len);
+static inline uint32_t inst_fetch(vaddr_t *pc, int len) {
+  uint32_t inst = vaddr_ifetch(*pc, len);
   (*pc) += len;
   return inst;
 }

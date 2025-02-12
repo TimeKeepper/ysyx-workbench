@@ -74,10 +74,10 @@ perf:
 	$(MAKE) PLATFORM=core
 	$(MAKE) -C $(CORE_PATH) perf
 
-# test:
-# 	mill -i $(PRJ).test
 test:
-	$(MAKE) PLATFORM=npc
-	$(MAKE) -C $(CORE_PATH) test
+	mill -i $(PRJ).test
+# test:
+# 	$(MAKE) PLATFORM=npc
+# 	$(MAKE) -C $(CORE_PATH) test
 
 .PHONY: default sim gdb menuconfig clean perf test verilog

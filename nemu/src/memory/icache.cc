@@ -70,6 +70,7 @@ public:
         Icache_return result;
         result.inst = 0;
         result.map_hit = (addr >= begin) && (addr < end);
+        std::cout << "is map hit: " << result.map_hit << std::endl;
         result.cache_hit = false;
 
         if(!result.map_hit) {

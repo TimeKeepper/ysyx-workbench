@@ -112,7 +112,7 @@ void mem_random_set(void){
   memset(sdram, rand(), CONFIG_SDRAM_SIZE);
 }
 
-void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set);
+void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size);
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
@@ -128,7 +128,7 @@ void init_mem() {
   Log("PSRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
   Log("SDRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", SDRAM_LEFT, SDRAM_RIGHT);
 
-  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 4, 4);
+  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 4, 4, 4);
 }
 
 word_t paddr_read(paddr_t addr, int len) {

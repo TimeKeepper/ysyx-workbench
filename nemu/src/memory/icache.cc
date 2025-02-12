@@ -125,8 +125,8 @@ public:
 
 Icache icache;
 
-extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set) {
-    icache.init(begin, end, way, set);
+extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size) {
+    icache.init(begin, end, way, set, block_size);
 }
 
 extern "C" Icache_return icache_fetch(vaddr_t addr, uint32_t len) {

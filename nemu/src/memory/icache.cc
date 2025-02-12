@@ -109,6 +109,7 @@ public:
     }
 
     void print_cache() {
+        printf("%d", tag_bits);
         for(int i = 0; i < set; ++i) {
             std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
             for(int j = 0; j < way; ++j) {

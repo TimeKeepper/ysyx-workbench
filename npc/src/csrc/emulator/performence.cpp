@@ -1,4 +1,5 @@
 #include "common.hpp"
+#include "utils.hpp"
 #include <performence.hpp>
 #include <fstream>
 #include <string>
@@ -86,15 +87,20 @@ void performence::cache_count(const std::string& name, bool map_hit, bool cache_
 }
 
 void performence::print_perf() {
-    for(auto &i : this->inst_cntrs){
-        std::cout << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
+    std::cout << ANSI_FG_CYAN << "Instruction Counters:" << ANSI_NONE << std::endl;
+    for(auto &i : this->inst_cntrs) {
+        std::cout << ANSI_FG_BLUE << inst_type_to_string(i.first) << ANSI_NONE 
+            << ":\t" << i.second.first << " " << i.second.second << std::endl;
     }
+    // for(auto &i : this->inst_cntrs){
+    //     std::cout << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
+    // }
 
-    for(auto &i : this->conpo_cntrs){
-        std::cout << i.first << ":\t" << i.second << std::endl;
-    }
+    // for(auto &i : this->conpo_cntrs){
+    //     std::cout << i.first << ":\t" << i.second << std::endl;
+    // }
 
-    for(auto &i : this->cache_cntrs){
-        std::cout << i.first << ":\t" << i.second.first << " " << i.second.second << std::endl;
-    }
+    // for(auto &i : this->cache_cntrs){
+    //     std::cout << i.first << ":\t" << i.second.first << " " << i.second.second << std::endl;
+    // }
 }

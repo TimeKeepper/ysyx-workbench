@@ -76,154 +76,154 @@ static int decode_exec(Decode *s) {
   INSTPAT_START();
   
   INSTPAT("??????? ????? ????? ??? ????? 01101 11", \
-  lui    , U, Print_DBG_Message("lui")    ,               R(rd) = imm);
+  lui    , U, R(rd) = imm);
   
   INSTPAT("??????? ????? ????? ??? ????? 00101 11", \
-  auipc  , U, Print_DBG_Message("auipc")  ,               R(rd) = s->pc + imm);
+  auipc  , U, R(rd) = s->pc + imm);
   
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", \
-  jal    , J, Print_DBG_Message("jal")    ,               R(rd) = s->snpc; s->dnpc = s->pc + imm);
+  jal    , J, R(rd) = s->snpc; s->dnpc = s->pc + imm);
   
   INSTPAT("??????? ????? ????? ??? ????? 11001 11", \
-  jalr   , I, Print_DBG_Message("jalr")   ,               R(rd) = s->snpc; s->dnpc = (src1 + imm) & 0xFFFFFFFE);
+  jalr   , I, R(rd) = s->snpc; s->dnpc = (src1 + imm) & 0xFFFFFFFE);
   
   INSTPAT("??????? ????? ????? 100 ????? 00000 11", \
-  lbu    , I, Print_DBG_Message("lbu")    ,               R(rd) = Mr(src1 + imm, 1));
+  lbu    , I, R(rd) = Mr(src1 + imm, 1));
   
   INSTPAT("??????? ????? ????? 000 ????? 00100 11", \
-  addi   , I, Print_DBG_Message("addi")   ,               R(rd) = src1 + imm);
+  addi   , I, R(rd) = src1 + imm);
   
   INSTPAT("??????? ????? ????? 010 ????? 00100 11", \
-  slti   , I, Print_DBG_Message("slti")   ,               R(rd) = ((sword_t)src1 < (sword_t)imm) ? 1 : 0);
+  slti   , I, R(rd) = ((sword_t)src1 < (sword_t)imm) ? 1 : 0);
   
   INSTPAT("??????? ????? ????? 011 ????? 00100 11", \
-  sltiu  , I, Print_DBG_Message("sltiu")  ,               R(rd) = (src1 < imm) ? 1 : 0);
+  sltiu  , I, R(rd) = (src1 < imm) ? 1 : 0);
   
   INSTPAT("??????? ????? ????? 111 ????? 00100 11", \
-  andi   , I, Print_DBG_Message("andi")   ,               R(rd) = src1 & imm);
+  andi   , I, R(rd) = src1 & imm);
   
   INSTPAT("??????? ????? ????? 110 ????? 00100 11", \
-  ori    , I, Print_DBG_Message("ori")    ,               R(rd) = src1 | imm);
+  ori    , I, R(rd) = src1 | imm);
   
   INSTPAT("??????? ????? ????? 100 ????? 00100 11", \
-  xori   , I, Print_DBG_Message("xori")   ,               R(rd) = src1 ^ imm);
+  xori   , I, R(rd) = src1 ^ imm);
   
   INSTPAT("??????? ????? ????? 000 ????? 00000 11", \
-  lb     , I, Print_DBG_Message("lb")     ,               R(rd) = SEXT(Mr(src1 + imm, 1),8));
+  lb     , I, R(rd) = SEXT(Mr(src1 + imm, 1),8));
   
   INSTPAT("??????? ????? ????? 001 ????? 00000 11", \
-  lh     , I, Print_DBG_Message("lh")     ,               R(rd) = SEXT(Mr(src1 + imm, 2),16));
+  lh     , I, R(rd) = SEXT(Mr(src1 + imm, 2),16));
   
   INSTPAT("??????? ????? ????? 010 ????? 00000 11", \
-  lw     , I, Print_DBG_Message("lw")     ,               R(rd) = SEXT(Mr(src1 + imm, 4),32));
+  lw     , I, R(rd) = SEXT(Mr(src1 + imm, 4),32));
 
   INSTPAT("??????? ????? ????? 101 ????? 00000 11", \
-  lhw    , I, Print_DBG_Message("lhw")    ,               R(rd) = Mr(src1 + imm, 2));
+  lhw    , I, R(rd) = Mr(src1 + imm, 2));
   
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", \
-  csrrw  , I, Print_DBG_Message("csrrw"),      R(rd) = SR(imm & 0x00000fff), SR(imm & 0x00000fff) = src1);
+  csrrw  , I, R(rd) = SR(imm & 0x00000fff), SR(imm & 0x00000fff) = src1);
   
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", \
-  csrrs  , I, Print_DBG_Message("csrrs"),      R(rd) = SR(imm & 0x00000fff), SR(imm & 0x00000fff) |= src1);
+  csrrs  , I, R(rd) = SR(imm & 0x00000fff), SR(imm & 0x00000fff) |= src1);
   
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", \
-  slli   , I, imm &= 0x1f,Print_DBG_Message("slli"),      R(rd) = src1 << imm);
+  slli   , I, imm &= 0x1f, R(rd) = src1 << imm);
   
   INSTPAT("0000000 ????? ????? 101 ????? 00100 11", \
-  srli   , I, imm &= 0x1f,Print_DBG_Message("srli"),      R(rd) = src1 >> imm);
+  srli   , I, imm &= 0x1f, R(rd) = src1 >> imm);
   
   INSTPAT("0100000 ????? ????? 101 ????? 00100 11", \
-  srai   , I, imm &= 0x1f,Print_DBG_Message("srai"),      R(rd) = (sword_t)src1 >> imm);
+  srai   , I, imm &= 0x1f, R(rd) = (sword_t)src1 >> imm);
   
   INSTPAT("??????? ????? ????? 000 ????? 01000 11", \
-  sb     , S, Print_DBG_Message("sb")     ,               Mw(src1 + imm, 1, src2));
+  sb     , S, Mw(src1 + imm, 1, src2));
   
   INSTPAT("??????? ????? ????? 001 ????? 01000 11", \
-  sh     , S, Print_DBG_Message("sh")     ,               Mw(src1 + imm, 2, src2));
+  sh     , S, Mw(src1 + imm, 2, src2));
   
   INSTPAT("??????? ????? ????? 010 ????? 01000 11", \
-  sw     , S, Print_DBG_Message("sw")     ,               Mw(src1 + imm, 4, src2));
+  sw     , S, Mw(src1 + imm, 4, src2));
   
   INSTPAT("0000000 ????? ????? 000 ????? 01100 11", \
-  add    , R, Print_DBG_Message("add")    ,               R(rd) = src1 + src2);
+  add    , R, R(rd) = src1 + src2);
   
   INSTPAT("0100000 ????? ????? 000 ????? 01100 11", \
-  sub    , R, Print_DBG_Message("sub")    ,               R(rd) = src1 - src2);
+  sub    , R, R(rd) = src1 - src2);
   
   INSTPAT("0000000 ????? ????? 111 ????? 01100 11", \
-  and    , R, Print_DBG_Message("and")    ,               R(rd) = src1 & src2);
+  and    , R, R(rd) = src1 & src2);
   
   INSTPAT("0000000 ????? ????? 110 ????? 01100 11", \
-  or     , R, Print_DBG_Message("or")     ,               R(rd) = src1 | src2);
+  or     , R, R(rd) = src1 | src2);
   
   INSTPAT("0000000 ????? ????? 100 ????? 01100 11", \
-  xor    , R, Print_DBG_Message("xor")    ,               R(rd) = src1 ^ src2);
+  xor    , R, R(rd) = src1 ^ src2);
   
   INSTPAT("0000000 ????? ????? 101 ????? 01100 11", \
-  srl    , R, Print_DBG_Message("srl")    ,               R(rd) = src1 >> src2);
+  srl    , R, R(rd) = src1 >> src2);
   
   INSTPAT("0100000 ????? ????? 101 ????? 01100 11", \
-  sra    , R, Print_DBG_Message("sra")    ,               R(rd) = (sword_t)src1 >> src2);
+  sra    , R, R(rd) = (sword_t)src1 >> src2);
   
   INSTPAT("0000000 ????? ????? 001 ????? 01100 11", \
-  sll    , R, Print_DBG_Message("sll")    ,               R(rd) = src1 << src2);
+  sll    , R, R(rd) = src1 << src2);
   
   INSTPAT("0000000 ????? ????? 010 ????? 01100 11", \
-  slt    , R, Print_DBG_Message("slt")    ,               R(rd) = ((sword_t)src1 < (sword_t)src2) ? 1 : 0);
+  slt    , R, R(rd) = ((sword_t)src1 < (sword_t)src2) ? 1 : 0);
   
   INSTPAT("0000000 ????? ????? 011 ????? 01100 11", \
-  sltu   , R, Print_DBG_Message("sltu")   ,               R(rd) = (src1 < src2) ? 1 : 0);
+  sltu   , R, R(rd) = (src1 < src2) ? 1 : 0);
   
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", \
-  mul    , R, Print_DBG_Message("mul")    ,               R(rd) = (sword_t)src1 * (sword_t)src2);
+  mul    , R, R(rd) = (sword_t)src1 * (sword_t)src2);
   
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", \
-  mulh   , R, Print_DBG_Message("mulh")   ,               R(rd) = (sword_t)((SEXT(src1,32) * SEXT(src2,32)) >> 32));
+  mulh   , R, R(rd) = (sword_t)((SEXT(src1,32) * SEXT(src2,32)) >> 32));
   
   INSTPAT("0000001 ????? ????? 011 ????? 01100 11", \
-  mulhu  , R, Print_DBG_Message("mulhu")  ,               R(rd) = (sword_t)(((uint64_t)src1 * (uint64_t)src2) >> 32));
+  mulhu  , R, R(rd) = (sword_t)(((uint64_t)src1 * (uint64_t)src2) >> 32));
   
   INSTPAT("0000001 ????? ????? 100 ????? 01100 11", \
-  div    , R, Print_DBG_Message("div")    ,               R(rd) = (sword_t)src1 / (sword_t)src2);
+  div    , R, R(rd) = (sword_t)src1 / (sword_t)src2);
   
   INSTPAT("0000001 ????? ????? 101 ????? 01100 11", \
-  divu   , R, Print_DBG_Message("divu")   ,               R(rd) = src1 / src2);
+  divu   , R, R(rd) = src1 / src2);
   
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", \
-  rem    , R, Print_DBG_Message("rem")    ,               R(rd) = (sword_t)src1 % (sword_t)src2);
+  rem    , R, R(rd) = (sword_t)src1 % (sword_t)src2);
   
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", \
-  remu   , R, Print_DBG_Message("remu")   ,               R(rd) = src1 % src2);
+  remu   , R, R(rd) = src1 % src2);
   
   INSTPAT("??????? ????? ????? 000 ????? 11000 11", \
-  beq    , B, if (Print_DBG_Message("beq"),src1 == src2)  s->dnpc = s->pc + (sword_t)imm);
+  beq    , B, if (src1 == src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 001 ????? 11000 11", \
-  bne    , B, if (Print_DBG_Message("bne"),src1 != src2)  s->dnpc = s->pc + (sword_t)imm);
+  bne    , B, if (src1 != src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 100 ????? 11000 11", \
-  blt    , B, if (Print_DBG_Message("blt"),(sword_t)src1 < (sword_t)src2)   s->dnpc = s->pc + (sword_t)imm);
+  blt    , B, if ((sword_t)src1 < (sword_t)src2)   s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 101 ????? 11000 11", \
-  bge    , B, if (Print_DBG_Message("bge"),(sword_t)src1 >= (sword_t)src2)  s->dnpc = s->pc + (sword_t)imm);
+  bge    , B, if ((sword_t)src1 >= (sword_t)src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 110 ????? 11000 11", \
-  bltu   , B, if (Print_DBG_Message("bltu"),src1 < src2)  s->dnpc = s->pc + (sword_t)imm);
+  bltu   , B, if (src1 < src2)  s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", \
-  bgeu   , B, if (Print_DBG_Message("bgeu"),src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
+  bgeu   , B, if (src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
   
   INSTPAT("0000000 00000 00000 000 00000 11100 11", \
-  ecall  , N, Print_DBG_Message("ecall ") ,               s->dnpc = isa_raise_intr(11, s->pc)); 
+  ecall  , N, s->dnpc = isa_raise_intr(11, s->pc)); 
   
   INSTPAT("0000000 00001 00000 000 00000 11100 11", \
-  ebreak , N, Print_DBG_Message("ebreak") ,               NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   
   INSTPAT("0011000 00010 00000 000 00000 11100 11", \
-  mret   , N, Print_DBG_Message("mret ")  ,               s->dnpc = cpu.sr[ADDR_MEPC]); 
+  mret   , N, s->dnpc = cpu.sr[ADDR_MEPC]); 
   
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", \
-  inv    , N, Print_DBG_Message("inv")    ,               INV(s->pc));
+  inv    , N, INV(s->pc));
   
   INSTPAT_END();
 

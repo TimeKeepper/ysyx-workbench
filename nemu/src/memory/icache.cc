@@ -25,19 +25,19 @@ class Icache {
 private:
     uint32_t begin;
     uint32_t end;
-    int way;
-    int set;
-    int line_size;
-    int offset_bits;
-    int index_bits;
-    int set_bits;
-    int tag_bits;
+    uint32_t way;
+    uint32_t set;
+    uint32_t line_size;
+    uint32_t offset_bits;
+    uint32_t index_bits;
+    uint32_t set_bits;
+    uint32_t tag_bits;
     std::vector<std::vector<CacheLine>> cache;
-    std::vector<std::list<int>> lru; // 每个组的LRU列表
+    std::vector<std::list<uint32_t>> lru; // 每个组的LRU列表
 
 public:
     // 初始化缓存
-    void init(uint32_t begin, uint32_t end, int way, int set, int line_size = 4) {
+    void init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t line_size = 4) {
         this->begin = begin;
         this->end = end;
         this->way = way;
@@ -54,9 +54,9 @@ public:
         printf("size: %08x", end - begin);
 
         cache.resize(set, std::vector<CacheLine>(way));
-        lru.resize(set, std::list<int>());
-        for(int i = 0; i < set; ++i) {
-            for(int j = 0; j < way; ++j) {
+        lru.resize(set, std::list<uint32_t>());
+        for(uint32_t i = 0; i < set; ++i) {
+            for(uint32_t j = 0; j < way; ++j) {
                 cache[i][j].valid = false;
                 cache[i][j].tag = 0;
                 cache[i][j].inst = 0;
@@ -66,7 +66,7 @@ public:
     }
     
     // 获取指令
-    Icache_return fetch(vaddr_t addr, int len) {
+    Icache_return fetch(vaddr_t addr, uint32_t len) {
         Icache_return result;
         result.inst = 0;
         result.map_hit = (addr >= begin) && (addr < end);
@@ -83,7 +83,7 @@ public:
         uint32_t tag = (addr >> (offset_bits + set_bits)) & ((1 << tag_bits) - 1);
 
         // 检查命中
-        for(int w = 0; w < way; ++w) {
+        for(uint32_t w = 0; w < way; ++w) {
             if(cache[set_idx][w].valid && cache[set_idx][w].tag == tag) {
                 // 更新LRU列表
                 lru[set_idx].remove(w);
@@ -110,9 +110,9 @@ public:
     }
 
     void print_cache() {
-        for(int i = 0; i < set; ++i) {
+        for(uint32_t i = 0; i < set; ++i) {
             std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
-            for(int j = 0; j < way; ++j) {
+            for(uint32_t j = 0; j < way; ++j) {
                 std::cout << ANSI_FG_CYAN"valid " << (cache[i][j].valid ? ANSI_FG_GREEN"true" : ANSI_FG_RED"false") << '\t'
                     << ANSI_FG_CYAN"tag[" << tag_bits << "] " <<  std::hex << ANSI_FG_BLUE"0x" << cache[i][j].tag << '\t'
                     << ANSI_FG_CYAN"data " << std::hex << ANSI_FG_BLUE << "0x" << std::setw(8) << std::setfill('0') << cache[i][j].inst << '\t'
@@ -127,11 +127,11 @@ public:
 
 Icache icache;
 
-extern "C" void Icache_init(paddr_t begin, paddr_t end, int way, int set) {
+extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set) {
     icache.init(begin, end, way, set);
 }
 
-extern "C" Icache_return icache_fetch(vaddr_t addr, int len) {
+extern "C" Icache_return icache_fetch(vaddr_t addr, uint32_t len) {
     return icache.fetch(addr, len);
 }
 

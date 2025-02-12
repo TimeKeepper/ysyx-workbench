@@ -112,7 +112,7 @@ void mem_random_set(void){
   memset(sdram, rand(), CONFIG_SDRAM_SIZE);
 }
 
-void Icache_init(paddr_t begin, paddr_t end, int way, int set);
+void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set);
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)

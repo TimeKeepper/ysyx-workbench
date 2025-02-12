@@ -90,7 +90,7 @@ void performence::print_perf() {
     std::cout << ANSI_FG_CYAN << "Instruction Counters:" << ANSI_NONE << std::endl;
     for(auto &i : this->inst_cntrs) {
         std::cout << ANSI_FG_BLUE << inst_type_to_string(i.first) << ANSI_NONE 
-            << ":\t" << i.second.first << " " << i.second.second << std::endl;
+            << ":\t" << "Clk" << i.second.first << " " << "Inst" << i.second.second << std::endl;
     }
     // for(auto &i : this->inst_cntrs){
     //     std::cout << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;

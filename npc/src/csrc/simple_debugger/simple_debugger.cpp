@@ -394,9 +394,9 @@ void simple_debugger::WBU_catch(void) {
     this->difftest->difftest_step(this->emulator->cpu.pc);
     
     auto msg = this->emulator->icache_msg_transmiter.front();
-    // if(msg.first != 0 && msg.second != 0){
-    //     std::cout << "len " << this->emulator->icache_msg_transmiter.size() << ", map: " << msg.first << ", cache: " << msg.second << std::endl;
-    // }
+    if(msg.first != 0 && msg.second != 0){
+        std::cout << "len " << this->emulator->icache_msg_transmiter.size() << ", map: " << msg.first << ", cache: " << msg.second << std::endl;
+    }
     this->emulator->icache_msg_transmiter.pop();
     #endif
 

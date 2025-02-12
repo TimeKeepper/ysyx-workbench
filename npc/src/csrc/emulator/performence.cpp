@@ -91,7 +91,7 @@ void performence::print_perf() {
     for(auto &i : this->inst_cntrs) {
         std::cout << ANSI_FG_BLUE << inst_type_to_string(i.first) << ANSI_NONE 
             << ":\t" << ANSI_FG_BLUE << "Clk:\t" << ANSI_NONE  << i.second.first 
-            << ANSI_FG_BLUE << "Inst:\t" << ANSI_NONE  << i.second.second << std::endl;
+            << ANSI_FG_BLUE << " Inst:\t" << ANSI_NONE  << i.second.second << std::endl;
     }
     // for(auto &i : this->inst_cntrs){
     //     std::cout << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;

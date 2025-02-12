@@ -43,7 +43,9 @@ public:
         this->line_size = line_size;
         this->offset_bits = ceil(std::log2((double)line_size));
         this->set_bits = ceil(log2((double)set));
-        this->tag_bits = 32 - offset_bits - set_bits;
+
+        uint32_t valid_bits = ceil(std::log2((double)(end - begin)));
+        this->tag_bits = valid_bits - offset_bits - set_bits;
         cache.resize(set, std::vector<CacheLine>(way));
         lru.resize(set, std::list<int>());
         for(int i = 0; i < set; ++i) {

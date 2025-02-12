@@ -102,8 +102,8 @@ public:
             std::cout << ANSI_FG_BLUE << "Set " << i << ": ";
             for(int j = 0; j < way; ++j) {
                 std::cout << ANSI_FG_CYAN"valid " << (cache[i][j].valid ? ANSI_FG_GREEN"true" : ANSI_FG_RED"false") << '\t'
-                    << ANSI_FG_CYAN"tag 0x" <<  std::hex << ANSI_FG_BLUE << cache[i][j].tag << '\t'
-                    << ANSI_FG_CYAN"data 0x" << std::hex << ANSI_FG_BLUE << cache[i][j].inst << '\t'
+                    << ANSI_FG_CYAN"tag " <<  std::hex << ANSI_FG_BLUE"0x" << cache[i][j].tag << '\t'
+                    << ANSI_FG_CYAN"data " << std::hex << ANSI_FG_BLUE"0x" << cache[i][j].inst << '\t'
                     << ANSI_NONE;
             }
             std::cout << std::endl;

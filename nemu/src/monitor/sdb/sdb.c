@@ -222,7 +222,7 @@ extern uint64_t cache_hit_counter;
 
 static int cmd_t(char *args) {
   printf(ANSI_FMT("inst_num: \t\t\t", ANSI_FG_BLUE) "%lu\n", inst_counter);
-  printf(ANSI_FMT("Execution-Based cache hit rate: %lf\n", ANSI_FG_BLUE), (double)cache_hit_counter / inst_counter);
+  printf(ANSI_FMT("Execution-Based cache hit rate: \t%lf\n", ANSI_FG_BLUE), (double)cache_hit_counter / inst_counter);
   printf(ANSI_FMT("Access-Based cache hit rate: \t%lf\n", ANSI_FG_BLUE), (double)cache_hit_counter / map_hit_counter);
   return 0;
 }

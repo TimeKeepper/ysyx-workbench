@@ -1,10 +1,98 @@
 #include "common.h"
+#include <cmath>
+#include <list>
 #include <memory/icache.h>
+#include <vector>
+
+struct CacheLine {
+    uint32_t tag;
+    word_t inst;
+    bool valid;
+};
+
+// 指令缓存类
+class Icache {
+private:
+    uint32_t begin;
+    uint32_t end;
+    int way;
+    int set;
+    int line_size;
+    int offset_bits;
+    int set_bits;
+    int tag_bits;
+    std::vector<std::vector<CacheLine>> cache;
+    std::vector<std::list<int>> lru; // 每个组的LRU列表
+
+public:
+    // 初始化缓存
+    void init(uint32_t begin, uint32_t end, int way, int set, int line_size = 4) {
+        this->begin = begin;
+        this->end = end;
+        this->way = way;
+        this->set = set;
+        this->line_size = line_size;
+        this->offset_bits = ceil(std::log2((double)line_size));
+        this->set_bits = ceil(log2((double)set));
+        this->tag_bits = 32 - offset_bits - set_bits;
+        cache.resize(set, std::vector<CacheLine>(way));
+        lru.resize(set, std::list<int>());
+        for(int i = 0; i < set; ++i) {
+            for(int j = 0; j < way; ++j) {
+                cache[i][j].valid = false;
+                cache[i][j].tag = 0;
+                cache[i][j].inst = 0;
+                lru[i].push_back(j);
+            }
+        }
+    }
+    
+    // 获取指令
+    Icache_return fetch(vaddr_t addr) {
+        Icache_return result;
+        result.inst = 0;
+        result.map_hit = (addr >= begin) && (addr < end);
+        result.cache_hit = false;
+
+        if(!result.map_hit) {
+            return result;
+        }
+
+        // uint32_t offset = addr & ((1 << offset_bits) - 1);
+        uint32_t set_idx = (addr >> offset_bits) & ((1 << set_bits) - 1);
+        uint32_t tag = addr >> (offset_bits + set_bits);
+
+        // 检查命中
+        for(int w = 0; w < way; ++w) {
+            if(cache[set_idx][w].valid && cache[set_idx][w].tag == tag) {
+                // 更新LRU列表
+                lru[set_idx].remove(w);
+                lru[set_idx].push_front(w);
+                result.inst = cache[set_idx][w].inst;
+                result.cache_hit = true;
+                return result;
+            }
+        }
+
+        // 替换策略：替换LRU列表末尾的缓存行
+        int replace_way = lru[set_idx].back();
+        lru[set_idx].pop_back();
+        lru[set_idx].push_front(replace_way);
+
+        cache[set_idx][replace_way].tag = tag;
+        cache[set_idx][replace_way].inst = result.inst;
+        cache[set_idx][replace_way].valid = true;
+
+        return result;
+    }
+};
+
+Icache icache;
+
+extern "C" void Icache_init(paddr_t begin, paddr_t end, int way, int set) {
+    icache.init(begin, end, way, set);
+}
 
 extern "C" Icache_return icache_fetch(vaddr_t addr) {
-    Icache_return ret;
-    ret.inst = 0;
-    ret.map_hit = false;
-    ret.cache_hit = false;
-    return ret;
+    return icache.fetch(addr);
 }

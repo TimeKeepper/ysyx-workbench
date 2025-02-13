@@ -120,7 +120,7 @@ void init_mem() {
   assert(psram);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, mem_random_set());
-  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 8, 4, 4);
+  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 4, 8, 4);
 
   IFDEF(CONFIG_TARGET_SHARE, return;)
   Log("Config memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);

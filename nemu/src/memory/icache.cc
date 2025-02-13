@@ -29,7 +29,6 @@ private:
     uint32_t set;
     uint32_t line_size;
     uint32_t offset_bits;
-    uint32_t index_bits;
     uint32_t set_bits;
     uint32_t tag_bits;
     std::vector<std::vector<CacheLine>> cache;
@@ -43,11 +42,10 @@ public:
         this->set = set;
         this->line_size = line_size;
         this->offset_bits = ceil(std::log2((double)line_size));
-        this->index_bits = ceil(std::log2((double)way));
         this->set_bits = ceil(log2((double)set));
 
         uint32_t valid_bits = ceil(std::log2((double)(end - begin)));
-        this->tag_bits = valid_bits - offset_bits - index_bits - set_bits;
+        this->tag_bits = valid_bits - offset_bits - set_bits;
 
         cache.resize(set, std::vector<CacheLine>(way));
         lru.resize(set, std::list<uint32_t>());
@@ -75,8 +73,8 @@ public:
         }
 
         // uint32_t offset = addr & ((1 << offset_bits) - 1);
-        uint32_t set_idx = (addr >> (offset_bits + index_bits)) & ((1 << set_bits) - 1);
-        uint32_t tag = (addr >> (offset_bits + index_bits + set_bits)) & ((1 << tag_bits) - 1);
+        uint32_t set_idx = (addr >> offset_bits) & ((1 << set_bits) - 1);
+        uint32_t tag = (addr >> (offset_bits + set_bits)) & ((1 << tag_bits) - 1);
         // std::cout << "addr: " << addr << " bias: " << (offset_bits + set_bits) << " tag: " << tag << std::endl;
         // 检查命中
         for(uint32_t w = 0; w < way; ++w) {

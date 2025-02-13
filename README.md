@@ -27,7 +27,6 @@ sudo apt-get install zlibc zlib1g zlib1g-dev #(ignore if gives error)
 git clone https://github.com/verilator/verilator
 unset VERILATOR_ROOT
 cd verilator
-git checkout v5.008
 autoconf
 ./configure
 make -j`nproc` #如果报错，直接make

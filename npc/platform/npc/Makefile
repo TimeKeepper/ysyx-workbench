@@ -25,11 +25,11 @@ TOPNAME ?= top
 remove_quote = $(patsubst "%",%,$(1))
 FORM = $(call remove_quote,$(CONFIG_WAVEFORM))
 ifeq ($(FORM), fst)
-	TRACE = --trace-fst
+	TRACE = --trace-fst 
 endif
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc  \
+VERILATOR_CFLAGS += -j `nproc` -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
 				--trace $(TRACE)
 

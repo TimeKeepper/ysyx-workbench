@@ -60,7 +60,7 @@ object Elaboratecore extends App {
   
   Config.Reset_Vector = "h80000000".U(32.W)
   Config.setSimulate(false)
-  Config.setIcacheParam(AddressSet.misaligned(0xa0000000L, 0x2000000), 1, 32, 4)
+  Config.setIcacheParam(AddressSet.misaligned(0xa0000000L, 0x2000000), 1, 16, 4)
 
   circt.stage.ChiselStage.emitSystemVerilogFile(new riscv_cpu.ysyx_23060198(), args, firtoolOptions)
 }

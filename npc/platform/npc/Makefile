@@ -87,7 +87,7 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 sim: $(BIN) $(IMG)
 	$(call git_commit, "sim npc") # DO NOT REMOVE THIS LINE!!!
-	numactl -m 0 -C 0,1,2,3,4,5,6,7 -- $(NPC_EXEC)
+	$(NPC_EXEC)
 
 gdb: $(BIN) $(IMG)
 	$(call git_commit, "gdb npc")

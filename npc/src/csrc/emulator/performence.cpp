@@ -91,6 +91,9 @@ void performence::print_perf() {
             << ":\t" << ANSI_FG_BLUE << "Clk:\t" << ANSI_NONE  << i.second.first 
             << ANSI_FG_BLUE << " Inst:\t" << ANSI_NONE  << i.second.second << std::endl;
     }
+    std::cout << ANSI_FG_CYAN << "IPC: " << ANSI_NONE 
+        << (double)this->inst_cntrs[Inst_Type::GP].second / this->inst_cntrs[Inst_Type::GP].first 
+        << std::endl;
     
     std::cout << ANSI_FG_CYAN << "Component Counters:" << ANSI_NONE << std::endl;
     for(auto &copo : this->conpo_cntrs) {

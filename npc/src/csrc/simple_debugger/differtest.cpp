@@ -18,6 +18,9 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_regcpy = (void (*)(void *, bool))dlsym(handle, "difftest_regcpy");
     assert(ref_difftest_regcpy);
 
+    ref_difftest_cache_init = (void (*)(paddr_t, paddr_t, uint32_t, uint32_t, uint32_t))dlsym(handle, "difftest_cache_init");
+    assert(ref_difftest_cache_init);
+
     ref_difftest_cache_state = (void (*)(void *))dlsym(handle, "difftest_cache_state");
     assert(ref_difftest_cache_state);
 
@@ -35,6 +38,12 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_init(port);
     ref_difftest_memcpy(CONFIG_LOAD_MEMORY_BASE, load_mem->get_memory(), img_size, DIFFTEST_TO_REF);
     ref_difftest_regcpy(dut_r, DIFFTEST_TO_REF);
+
+    #ifdef CONFIG_PLATFORM_YSYXSOC
+    ref_difftest_cache_init(CONFIG_SDRAM_BASE, CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE, 1, 16, 4);
+    #elif CONFIG_PLATFORM_NPC
+    ref_difftest_cache_init(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_BASE + CONFIG_LOAD_MEMORY_SIZE, 1, 16, 4);
+    #endif
 }
 
 bool Differtest::isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc) {

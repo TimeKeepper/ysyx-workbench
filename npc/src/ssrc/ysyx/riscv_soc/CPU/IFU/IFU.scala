@@ -86,8 +86,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val cache_tag = cache(set_index)(line_width - 2, block_size * 8)
     io.data := cache(set_index)(block_size * 8 - 1, 0)
     
-    val map_hit = address.map(_.contains(io.addr)).reduce(_ || _)
-    io.cache_hit := map_hit && cache_valid && (cache_tag === tag)
+    io.cache_hit := cache_valid && (cache_tag === tag)
 
     // TODO: have to implement LRU Algorithm
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
@@ -122,10 +121,33 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val state = RegInit(bus_state.s_wait_valid)
         io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
 
+        val addr_cache = RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire) // cache addr is very useful
+
+        io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
+        io.IFU_2_IDU.bits.PC := addr_cache
+
+        master.ar.valid := state === s_busy
+        master.ar.bits.addr := addr_cache // so we can use it here
+        Icache.io.replace_addr := addr_cache
+        
+        val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
+        master.r.ready := state === bus_state.s_pipeline
+        Icache.io.replace_data.bits := master.r.bits.data
+        Icache.io.replace_data.valid := master.r.valid && map_hit // if not & map_hit, will cause an very subtle bug 
+
+        val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
+            Icache.io.data, master.r.bits.data),
+            io.WBU_2_IFU.fire || master.r.fire
+        ) // cache inst
+
+        io.IFU_2_IDU.bits.data := inst_cache
+        io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)
+        io.IFU_2_REG.GPR_Baddr := inst_cache(24, 20)
+
         state := MuxLookup(state, bus_state.s_wait_valid)(
             Seq(
                 bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
-                    Mux(Icache.io.cache_hit, 
+                    Mux(Icache.io.cache_hit && map_hit, 
                         bus_state.s_wait_ready, 
                         bus_state.s_busy
                     ), 
@@ -142,36 +164,16 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                     bus_state.s_busy
                 ),
 
-                bus_state.s_pipeline -> Mux(master.r.fire, 
+                bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
                     bus_state.s_wait_ready, 
                     bus_state.s_pipeline
                 )
             )
         )
 
-        val addr_cache = RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire) // cache addr is very useful
-
-        io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
-        io.IFU_2_IDU.bits.PC := addr_cache
-
-        master.ar.valid := state === s_busy
-        master.ar.bits.addr := addr_cache // so we can use it here
-        Icache.io.replace_addr := addr_cache
-        
-        master.r.ready := state === bus_state.s_pipeline
-        Icache.io.replace_data.bits := master.r.bits.data
-        Icache.io.replace_data.valid := master.r.valid
-
-        val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
-            Icache.io.data, master.r.bits.data),
-            io.WBU_2_IFU.fire || master.r.fire
-        ) // cache inst
-
-        io.IFU_2_IDU.bits.data := inst_cache
-        io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)
-        io.IFU_2_REG.GPR_Baddr := inst_cache(24, 20)
-
         if(Config.Simulate){
+            val map_hit4catch = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _) // very idiot, but it works
+
             val Catch = Module(new IFU_catch)
             Catch.io.clock := clock
             Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
@@ -179,8 +181,12 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
             val cache_Catch = Module(new Icache_catch)
             cache_Catch.io.Icache := io.WBU_2_IFU.fire && !reset.asBool
-            cache_Catch.io.map_hit := Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _)
-            cache_Catch.io.cache_hit := Icache.io.cache_hit
+            cache_Catch.io.map_hit := map_hit4catch
+            cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
+
+            // For Cache state Catch, the time could be 
+            // (state === bus_state.s_pipeline && master.r.fire)
+            // We dont need to concern about performance for it is only for simulation
         }
 
         // master ignore

@@ -11,7 +11,6 @@ std::string inst_type_to_string(performence::Inst_Type type) {
         case performence::Inst_Type::Cal: return "Cal";
         case performence::Inst_Type::LS: return "LS";
         case performence::Inst_Type::CSR: return "CSR";
-        case performence::Inst_Type::ALL: return "ALL";
         default: return "Unknown";
     }
 }
@@ -22,7 +21,6 @@ performence::performence(){
     this->inst_cntrs.emplace(Inst_Type::Cal, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::LS, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::CSR, std::make_pair(0, 0));
-    this->inst_cntrs.emplace(Inst_Type::ALL, std::make_pair(0, 0));
 
     this->conpo_cntrs.emplace("IFU", 0);
     this->conpo_cntrs.emplace("LSU", 0);
@@ -54,13 +52,13 @@ performence::~performence(){
 }
 
 void performence::clk_count(){
-    this->inst_cntrs[Inst_Type::ALL].first += 1;
+    this->inst_cntrs[Inst_Type::GP].first += 1;
 
     this->inst_cntrs[this->cur_instType].first += 1;
 }
 
 void performence::inst_cont(){
-    this->inst_cntrs[Inst_Type::ALL].second += 1;
+    this->inst_cntrs[Inst_Type::GP].second += 1;
     
     this->inst_cntrs[this->cur_instType].second += 1;
 }
@@ -102,7 +100,7 @@ void performence::print_perf() {
 
     std::cout << ANSI_FG_CYAN << "Cache Counters:" << ANSI_NONE << std::endl;
     std::cout << ANSI_FG_BLUE << "Execution-Based cache hit rate: " << ANSI_NONE
-              << (double)this->cache_cntrs["Inst"].second / this->inst_cntrs[Inst_Type::ALL].second << std::endl;
+              << (double)this->cache_cntrs["Inst"].second / this->inst_cntrs[Inst_Type::GP].second << std::endl;
     std::cout << ANSI_FG_BLUE << "Access-Based cache hit rate: " << ANSI_NONE
               << (double)this->cache_cntrs["Inst"].second / this->cache_cntrs["Inst"].first << std::endl;
 }

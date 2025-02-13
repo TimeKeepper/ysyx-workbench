@@ -29,7 +29,7 @@ ifeq ($(FORM), fst)
 endif
 
 VERILATOR = verilator
-VERILATOR_CFLAGS += -j `nproc` -MMD --build -cc  \
+VERILATOR_CFLAGS += --threads 2 -j `nproc` -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
 				--trace $(TRACE)
 

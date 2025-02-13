@@ -172,6 +172,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         )
 
         if(Config.Simulate){
+            val map_hit4catch = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _) // very idiot, but it works
+
             val Catch = Module(new IFU_catch)
             Catch.io.clock := clock
             Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
@@ -179,8 +181,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
             val cache_Catch = Module(new Icache_catch)
             cache_Catch.io.Icache := io.IFU_2_IDU.fire && !reset.asBool
-            cache_Catch.io.map_hit := map_hit
-            cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit
+            cache_Catch.io.map_hit := map_hit4catch
+            cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
         }
 
         // master ignore

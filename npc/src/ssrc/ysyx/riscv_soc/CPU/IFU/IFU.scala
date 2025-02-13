@@ -97,6 +97,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     when(io.replace_data.valid){
         cache(replace_set_index) := Cat(true.B, replace_tag, replace_cache)
     }
+
 }
 
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
@@ -175,6 +176,11 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             Catch.io.clock := clock
             Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
             Catch.io.inst := io.IFU_2_IDU.bits.data
+
+            val cache_Catch = Module(new Icache_catch)
+            cache_Catch.io.Icache := io.IFU_2_IDU.fire && !reset.asBool
+            cache_Catch.io.map_hit := Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _)
+            cache_Catch.io.cache_hit := Icache.io.cache_hit
         }
 
         // master ignore

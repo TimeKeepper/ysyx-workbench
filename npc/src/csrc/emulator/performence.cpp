@@ -91,7 +91,7 @@ void performence::print_perf() {
             << ":\t" << ANSI_FG_BLUE << "Clk:\t" << ANSI_NONE  << i.second.first 
             << ANSI_FG_BLUE << " Inst:\t" << ANSI_NONE  << i.second.second << std::endl;
     }
-    std::cout << ANSI_FG_CYAN << "IPC: " << ANSI_NONE 
+    std::cout << ANSI_FG_CYAN << "IPC:\t" << ANSI_NONE 
         << (double)this->inst_cntrs[Inst_Type::GP].second / this->inst_cntrs[Inst_Type::GP].first 
         << std::endl;
     

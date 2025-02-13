@@ -25,7 +25,7 @@ TOPNAME ?= top
 remove_quote = $(patsubst "%",%,$(1))
 FORM = $(call remove_quote,$(CONFIG_WAVEFORM))
 ifeq ($(FORM), fst)
-	TRACE = --trace-fst
+	TRACE = --trace-fst --trace-threads 8
 endif
 
 VERILATOR = verilator

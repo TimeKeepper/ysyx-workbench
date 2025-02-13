@@ -25,15 +25,13 @@ object Config {
 
   object Icache_Param {
     var address = AddressSet.misaligned(0x80000000L, 0x8000000)
-    var way = 1
-    var set = 32
     var block_size = 4
+    var block_num = 32
   }
 
-  def setIcacheParam(address: Seq[AddressSet], way: Int, set: Int, block_size: Int): Unit = {
+  def setIcacheParam(address: Seq[AddressSet], block_size : Int, block_num : Int): Unit = {
     Icache_Param.address = address
-    Icache_Param.way = way
-    Icache_Param.set = set
     Icache_Param.block_size = block_size
+    Icache_Param.block_num = block_num
   }
 }

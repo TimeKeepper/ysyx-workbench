@@ -16,7 +16,7 @@ object Elaborateysyxsoc extends App {
   
   Config.Reset_Vector = "h30000000".U(32.W)
   Config.setSimulate(true)
-  Config.setIcacheParam(AddressSet.misaligned(0xa0000000L, 0x2000000), 1, 32, 4)
+  Config.setIcacheParam(AddressSet.misaligned(0xa0000000L, 0x2000000), 1, 16, 4)
   Config.setDiffMisMap( AddressSet.misaligned(0x10000000, 0x1000) ++
                         AddressSet.misaligned(0x10002000, 0x10) ++
                         AddressSet.misaligned(0x10011000, 0x8) ++

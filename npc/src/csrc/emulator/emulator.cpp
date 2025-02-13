@@ -148,8 +148,8 @@ void Emulator::init_rand() {
 }
 
 void Emulator::init_mem() {
-    #ifdef CONFIG_waveForm_fst
-    std::cout << "fst" << std::endl;
+    #ifdef CONFIG_waveForm_vcd
+    std::cout << "vcd" << std::endl;
     #endif
 
     #ifdef CONFIG_PLATFORM_YSYXSOC

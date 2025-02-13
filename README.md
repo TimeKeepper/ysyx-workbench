@@ -90,7 +90,7 @@ make ARCH=riscv32e-ysyxsoc
 如果你遇到了找不到gnu/stubs-ilp32.h文件的错误，需要手动在/usr/riscv64-linux-gnu/include/gnu/stubs.h中将该include注释掉\
 安装yosys综合器
 ```
-conda install pandas tabulate gitpython wcwidth
+pip install pandas tabulate gitpython wcwidth matplotlib
 sudo apt-get install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 tcl-dev
 
 git clone git@github.com:YosysHQ/yosys.git
@@ -104,9 +104,8 @@ sudo make install
 若需要综合查看PPA，在npc目录下运行make syn
 ```
 
-安装python依赖
+速览性能指标
 ```
-conda install matplotlib
 在npc下运行make perf查看效果
 如果报错error while loading shared libraries: libyaml-cpp.so.0.7: cannot open shared object file: No such file or directory
 你需要在url https://packages.debian.org/bookworm/amd64/libyaml-cpp0.7/download下载deb包并安装

@@ -232,7 +232,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                         bus_state.s_wait_ready, 
                         bus_state.s_busy
                     ), 
-                    bus_state.s_wait_ready
+                    bus_state.s_wait_valid
                 ),
 
                 bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 

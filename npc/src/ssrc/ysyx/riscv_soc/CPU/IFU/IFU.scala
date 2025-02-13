@@ -180,7 +180,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val cache_Catch = Module(new Icache_catch)
             cache_Catch.io.Icache := io.IFU_2_IDU.fire && !reset.asBool
             cache_Catch.io.map_hit := map_hit
-            cache_Catch.io.cache_hit := Icache.io.cache_hit
+            cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit
         }
 
         // master ignore

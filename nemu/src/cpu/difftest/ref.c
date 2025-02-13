@@ -44,6 +44,11 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
   }
 }
 
+__EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size) {
+  void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size);
+  Icache_init(begin, end, way, set, block_size);
+}
+
 __EXPORT void difftest_cache_state(void *dut) {
   memcpy(dut, &icache_state, sizeof(Icache_return));
 }
@@ -60,6 +65,7 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 __EXPORT void difftest_init(int port) {
   void init_mem();
   init_mem();
+
   /* Perform ISA dependent initialization. */
   init_isa();
 }

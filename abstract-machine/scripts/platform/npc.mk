@@ -12,6 +12,7 @@ CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
 						 --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
+NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 NPCFLAGS += -e $(IMAGE).elf
 NPCFLAGS += -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 NPC_BATCH_FLAG = $(NPCFLAGS)
@@ -27,6 +28,9 @@ image: $(IMAGE).elf
 run: image
 	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=top PLATFORM=npc
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin PLATFORM=npc
+
+nemu: image
+	$(MAKE) -C $(NEMU_HOME) run ISA=$(ISA) ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 debug: image
 	@$(MAKE) -C $(YSYX_HOME) debug Binfile=$(IMAGE).bin PLATFORM=npc

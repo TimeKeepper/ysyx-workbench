@@ -29,14 +29,12 @@ private:
     uint32_t set;
     uint32_t line_size;
     uint32_t offset_bits;
-    uint32_t index_bits;
     uint32_t set_bits;
     uint32_t tag_bits;
     std::vector<std::vector<CacheLine>> cache;
-    std::vector<std::list<uint32_t>> lru; // 每个组的LRU列表
+    std::vector<std::list<uint32_t>> lru; 
 
 public:
-    // 初始化缓存
     void init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t line_size = 4) {
         this->begin = begin;
         this->end = end;
@@ -44,14 +42,10 @@ public:
         this->set = set;
         this->line_size = line_size;
         this->offset_bits = ceil(std::log2((double)line_size));
-        this->index_bits = ceil(std::log2((double)way));
         this->set_bits = ceil(log2((double)set));
 
         uint32_t valid_bits = ceil(std::log2((double)(end - begin)));
-        this->tag_bits = valid_bits - offset_bits - index_bits - set_bits;
-
-        // printf("offset_bits: %d, index_bits %d, set_bits: %d, valid_bits: %d tag_bits: %d\n", offset_bits, index_bits, set_bits, valid_bits, tag_bits);
-        // printf("size: %08x", end - begin);
+        this->tag_bits = valid_bits - offset_bits - set_bits;
 
         cache.resize(set, std::vector<CacheLine>(way));
         lru.resize(set, std::list<uint32_t>());
@@ -81,7 +75,7 @@ public:
         // uint32_t offset = addr & ((1 << offset_bits) - 1);
         uint32_t set_idx = (addr >> offset_bits) & ((1 << set_bits) - 1);
         uint32_t tag = (addr >> (offset_bits + set_bits)) & ((1 << tag_bits) - 1);
-
+        // std::cout << "addr: " << addr << " bias: " << (offset_bits + set_bits) << " tag: " << tag << std::endl;
         // 检查命中
         for(uint32_t w = 0; w < way; ++w) {
             if(cache[set_idx][w].valid && cache[set_idx][w].tag == tag) {

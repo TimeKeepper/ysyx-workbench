@@ -148,6 +148,10 @@ void Emulator::init_rand() {
 }
 
 void Emulator::init_mem() {
+    #ifdef CONFIG_waveForm_vcd
+    std::cout << "vcd" << std::endl;
+    #endif
+
     #ifdef CONFIG_PLATFORM_YSYXSOC
     memorys.emplace("psram", std::make_unique<Memory>(CONFIG_PSRAM_BASE, CONFIG_PSRAM_SIZE));
     memorys.emplace("sdram", std::make_unique<Memory>(CONFIG_SDRAM_BASE, CONFIG_SDRAM_SIZE));

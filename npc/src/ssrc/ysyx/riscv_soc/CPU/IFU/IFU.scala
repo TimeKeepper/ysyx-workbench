@@ -67,6 +67,8 @@ class Icache_output extends Bundle {
     val addr = Output(UInt(32.W))
 }
 
+class Lru_Icache_axi(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module
+
 class Icache_axi(address: Seq[AddressSet], block_size : Int, block_num : Int) extends Module {
     val io = IO(new Bundle{
         val AXI = AXI4Bundle(CPUAXI4BundleParameters())

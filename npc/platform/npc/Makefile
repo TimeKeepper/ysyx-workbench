@@ -19,10 +19,19 @@ HSRC += $(shell find $(abspath $(AUTOCONFIG)) -name "*.h" -or -name "*.hpp")
 
 TOPNAME ?= top
 
+-include $(NPC_HOME)/platform/npc/include/config/auto.conf
+-include $(NPC_HOME)/platform/npc/include/config/auto.conf.cmd
+
+remove_quote = $(patsubst "%",%,$(1))
+FORM = $(call remove_quote,$(CONFIG_WAVEFORM))
+ifeq ($(FORM), fst)
+	TRACE = --trace-fst
+endif
+
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
-				--trace --trace-fst 
+				--trace $(TRACE)
 
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 SO_OBJ_DIR = $(BUILD_DIR)/so_obj_dir

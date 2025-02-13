@@ -27,10 +27,18 @@ HSRC += $(shell find $(abspath $(AUTOCONFIG)) -name "*.h" -or -name "*.hpp")
 TOPNAME ?= ysyxSoCFull
 NXDC_FILES = $(abspath $(SRC_DIR)/constr/top.nxdc)
 
+-include $(NPC_HOME)/platform/npc/include/config/auto.conf
+-include $(NPC_HOME)/platform/npc/include/config/auto.conf.cmd
+remove_quote = $(patsubst "%",%,$(1))
+FORM = $(call remove_quote,$(CONFIG_WAVEFORM))
+ifeq ($(FORM), fst)
+	TRACE = --trace-fst
+endif
+
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert  \
-				--trace --trace-fst 
+				--trace $(TRACE)
 
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BCSRC_DIR = $(BUILD_DIR)/csrc

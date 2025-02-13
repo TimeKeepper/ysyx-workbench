@@ -115,7 +115,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         })
         val (master, _) = masterNode.out(0)
 
-        val Icache = Module(new Icache(Config.Icache_Param.address, 1, 32, 4))
+        val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
         Icache.io.addr := io.REG_2_IFU.Next_PC
 
         val state = RegInit(bus_state.s_wait_valid)

@@ -76,7 +76,7 @@ public:
 
         // uint32_t offset = addr & ((1 << offset_bits) - 1);
         uint32_t set_idx = (addr >> offset_bits) & ((1 << set_bits) - 1);
-        uint32_t tag = (addr >> (offset_bits + set_bits)) & ((1 << tag_bits) - 1);
+        uint32_t tag = (addr >> (offset_bits + set_bits + index_bits)) & ((1 << tag_bits) - 1);
         std::cout << "addr: " << addr << " bias: " << (offset_bits + set_bits) << " tag: " << tag << std::endl;
         // 检查命中
         for(uint32_t w = 0; w < way; ++w) {

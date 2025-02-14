@@ -1,0 +1,1 @@
+CXXSRC += src/cpu/difftest/ref.cc

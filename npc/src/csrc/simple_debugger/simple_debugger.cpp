@@ -115,7 +115,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }else if(args[0] == "b"){
                 this->wpm->print_break_points();
             }else if(args[0] == "c"){
-                std::cout << CONFIG_ICache_Set << std::endl;
+                std::cout << emulator->cache[0][0].valid << std::endl;
                 // for(uint32_t i = 0; i < emulator->cache.size(); ++i) {
                 //     std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
                 //     for(uint32_t j = 0; j < emulator->cache[i].size(); ++j) {

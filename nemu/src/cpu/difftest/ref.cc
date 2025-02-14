@@ -13,6 +13,8 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "debug.h"
+#include <cassert>
 #include <cstdint>
 #include <list>
 #include <utility>
@@ -56,12 +58,13 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
   Icache_init(begin, end, way, set, block_size);
 }
 
-__EXPORT std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> difftest_cache_state() {
-  std::vector<std::vector<CacheLine>> cache;
-  std::vector<std::list<uint32_t>> lru;
-  cache = icache.cache;
-  lru = icache.lru;
-  return std::make_pair(cache, lru);
+__EXPORT void difftest_cache_state(void *dut, bool direction) {
+  auto src = reinterpret_cast<std::vector<std::vector<CacheLine>>*>(dut);
+  if(direction == DIFFTEST_TO_DUT) {
+    *src = icache.cache;
+  } else {
+    icache.cache = *src;
+  }
 }
 
 __EXPORT void difftest_cache_behaior(void *dut) {

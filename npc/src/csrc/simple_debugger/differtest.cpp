@@ -122,29 +122,20 @@ void Differtest::checkcache(Icache_return icache_state){
     }
 
     auto ref_cache_state = ref_difftest_cache_state().first;
-    // if (ref_cache_state != emulator->cache) {
-    //     printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-    //     npc_state->state = NPC_ABORT;
-    //     npc_state->halt_pc = dut_r->pc;
-    // }
 
-    std::cout << "ref_cache_state.size() = " << ref_cache_state.size() << std::endl;
-    std::cout << "emulator->cache.size() = " << emulator->cache.size() << std::endl;
-    // assert(ref_cache_state.size() == emulator->cache.size());
-    // assert(ref_cache_state[0].size() == emulator->cache[0].size());
-
-    // uint32_t i = 0, j = 0;
-    // for (auto set: ref_cache_state) {
-    //     for (auto line: set) {
-    //         if (line != emulator->cache[i][j]) {
-    //             printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-    //             npc_state->state = NPC_ABORT;
-    //             npc_state->halt_pc = dut_r->pc;
-    //         }
-    //         j++;
-    //     }
-    //     i++;
-    // }
+    for(uint32_t i; i < ref_cache_state.size(); i++){
+        for(uint32_t j; j < ref_cache_state[i].size(); j++){
+            if(ref_cache_state[i][j] != emulator->cache[i][j]){
+                printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+                printf("icache: ref_cache[" ANSI_FG_YELLOW "%d" ANSI_NONE "][" ANSI_FG_YELLOW "%d" ANSI_NONE "]:\n", i, j);
+                printf("valid: ref_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_cache_state[i][j].valid, emulator->cache[i][j].valid);
+                printf("tag: ref_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].tag, emulator->cache[i][j].tag);
+                printf("inst: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].inst, emulator->cache[i][j].inst);
+                npc_state->state = NPC_ABORT;
+                npc_state->halt_pc = dut_r->pc;
+            }
+        }
+    }
 }
 
 void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){

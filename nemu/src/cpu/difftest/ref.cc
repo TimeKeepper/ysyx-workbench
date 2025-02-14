@@ -56,12 +56,19 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
   Icache_init(begin, end, way, set, block_size);
 }
 
-__EXPORT std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> difftest_cache_state() {
-  // std::vector<std::vector<CacheLine>> cache;
-  // std::vector<std::list<uint32_t>> lru;
-  // cache = icache.cache;
-  // lru = icache.lru;
-  return std::make_pair(icache.cache, icache.lru);
+__EXPORT void difftest_cache_state(void *dut, bool direction) {
+  if(direction == DIFFTEST_TO_DUT) {
+    std::vector<std::vector<CacheLine>> cache;
+    std::vector<std::list<uint32_t>> lru;
+    cache = icache.cache;
+    lru = icache.lru;
+    auto* dut_pair = static_cast<std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>>*>(dut);
+    *dut_pair = std::make_pair(cache, lru);
+  } else {
+    auto* dut_pair = static_cast<std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>>*>(dut);
+    icache.cache = dut_pair->first;
+    icache.lru = dut_pair->second;
+  }
 }
 
 __EXPORT void difftest_cache_behaior(void *dut) {

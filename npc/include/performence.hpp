@@ -11,8 +11,9 @@ class performence {
         Cal,
         LS,
         CSR,
+        RST, // No a `inst` at all, just suit for statistics
     };
-    performence::Inst_Type cur_instType = Inst_Type::GP;
+    performence::Inst_Type cur_instType = Inst_Type::RST;
 
     std::unordered_map<Inst_Type, std::pair<uint64_t, uint64_t>> inst_cntrs;
     std::unordered_map<std::string, uint64_t> conpo_cntrs;
@@ -27,6 +28,7 @@ class performence {
 
     void coponent_count(const std::string& name);
 
+    uint64_t memory_access_time = 0;
     void cache_count(const std::string& name, bool map_hit, bool cache_hit);
 
     void print_perf(void);

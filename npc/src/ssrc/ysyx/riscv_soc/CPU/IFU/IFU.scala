@@ -254,7 +254,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             }
 
             val MAT_Catch = Module(new Icache_MAT_catch)
-            MAT_Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool
+            MAT_Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
             MAT_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
             MAT_Catch.io.count := MAT_Counter
         }

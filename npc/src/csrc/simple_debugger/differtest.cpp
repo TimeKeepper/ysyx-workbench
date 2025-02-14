@@ -113,19 +113,24 @@ void Differtest::checkcache(Icache_return icache_state){
 
     Pin;
     auto ref_cache_state = ref_difftest_cache_state().first;
-    for (uint32_t i = 0; i < CONFIG_ICache_Set; ++i) {
-        for (uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {
-            if (ref_cache_state[j][i].tag != emulator->cache[j][i].tag || ref_cache_state[j][i].inst != emulator->cache[j][i].inst || ref_cache_state[j][i].valid != emulator->cache[j][i].valid) {
-                printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-                // printf(ANSI_FG_RED "Set %d, Way %d\n" ANSI_NONE, i, j);
-                // printf("cache: ref_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].tag, emulator->cache[i][j].tag);
-                // printf("cache: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].inst, emulator->cache[i][j].inst);
-                // printf("cache: ref_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_cache_state[i][j].valid, emulator->cache[i][j].valid);
-                // npc_state->state = NPC_ABORT;
-                // npc_state->halt_pc = dut_r->pc;
-            }
-        }
+    if (ref_cache_state != emulator->cache) {
+        printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+        npc_state->state = NPC_ABORT;
+        npc_state->halt_pc = dut_r->pc;
     }
+    // for (uint32_t i = 0; i < CONFIG_ICache_Set; ++i) {
+    //     for (uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {
+    //         if (ref_cache_state[j][i].tag != emulator->cache[j][i].tag || ref_cache_state[j][i].inst != emulator->cache[j][i].inst || ref_cache_state[j][i].valid != emulator->cache[j][i].valid) {
+    //             printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+    //             // printf(ANSI_FG_RED "Set %d, Way %d\n" ANSI_NONE, i, j);
+    //             // printf("cache: ref_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].tag, emulator->cache[i][j].tag);
+    //             // printf("cache: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].inst, emulator->cache[i][j].inst);
+    //             // printf("cache: ref_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_cache_state[i][j].valid, emulator->cache[i][j].valid);
+    //             // npc_state->state = NPC_ABORT;
+    //             // npc_state->halt_pc = dut_r->pc;
+    //         }
+    //     }
+    // }
     Pin;
     // if (ref_cache_state.first != emulator->cache) {
     //     printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);

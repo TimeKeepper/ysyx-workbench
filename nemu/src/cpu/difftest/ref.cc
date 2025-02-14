@@ -79,10 +79,14 @@ __EXPORT void difftest_init(int port) {
 
 }
 
+extern "C++"{
+
 __EXPORT std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> difftest_cache_state() {
   std::vector<std::vector<CacheLine>> cache;
   std::vector<std::list<uint32_t>> lru;
   cache = icache.cache;
   lru = icache.lru;
   return std::make_pair(cache, lru);
+}
+
 }

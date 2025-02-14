@@ -35,6 +35,7 @@ def tabulate_show():
         'IPC': [safe_divide(data['GP'][1], data['GP'][0])],
         'Freq(MHz)': [Freq],
         'Icache hit rate': [safe_divide(data['Inst'][0], data['GP'][1])],
+        'AMAT' : [data['AMAT'][0]],
         'Simulation clk_cnt': [data['GP'][0]],
     }
 

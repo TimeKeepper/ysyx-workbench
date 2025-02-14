@@ -1,4 +1,5 @@
 #include "differtest.hpp"
+#include "memory.hpp"
 #include <iostream>
 #include <numeric>
 #include <simple_debugger.hpp>
@@ -113,6 +114,17 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 this->wpm->print_watch_points();
             }else if(args[0] == "b"){
                 this->wpm->print_break_points();
+            }else if(args[0] == "c"){
+                for(uint32_t i = 0; i < CONFIG_ICache_Set; ++i) {
+                    std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
+                    for(uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {
+                        std::cout << ANSI_FG_CYAN"valid " << (emulator->cache[i][j].valid ? ANSI_FG_GREEN"true" : ANSI_FG_RED"false") << '\t'
+                            << ANSI_FG_CYAN"tag[" << ICACHE_TAG_BITS << "] " <<  std::hex << ANSI_FG_BLUE"0x" << emulator->cache[i][j].tag << '\t'
+                            << ANSI_FG_CYAN"data " << ANSI_FG_BLUE << "0x" << std::setw(8) << std::setfill('0') << emulator->cache[i][j].inst << std::dec << '\t'
+                            << ANSI_NONE << std::endl;
+                    }
+                    std::cout << std::endl;
+                }
             }
 
             return 0;

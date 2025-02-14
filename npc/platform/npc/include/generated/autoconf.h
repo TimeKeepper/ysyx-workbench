@@ -4,6 +4,9 @@
  * NPC Configuration Menu
  *
  */
+#define CONFIG_ICache_Block_Size 4
+#define CONFIG_ICache_Way 1
+#define CONFIG_ICache_Set 16
 #define CONFIG_PLATFORM "npc"
 #define CONFIG_DIFFTEST 1
 #define CONFIG_PLATFORM_NPC 1

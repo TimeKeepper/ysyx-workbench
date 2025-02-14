@@ -344,6 +344,10 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
     this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
 }
 
+void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, uint32_t write_data) {
+
+}
+
 void Emulator::IDU_catch(performence::Inst_Type type){
     this->perf->inst_type_set(type);
 }

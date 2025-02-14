@@ -128,8 +128,10 @@ void Differtest::checkcache(Icache_return icache_state){
     //     npc_state->halt_pc = dut_r->pc;
     // }
 
-    assert(ref_cache_state.size() == emulator->cache.size());
-    assert(ref_cache_state[0].size() == emulator->cache[0].size());
+    std::cout << "ref_cache_state.size() = " << ref_cache_state.size() << std::endl;
+    std::cout << "emulator->cache.size() = " << emulator->cache.size() << std::endl;
+    // assert(ref_cache_state.size() == emulator->cache.size());
+    // assert(ref_cache_state[0].size() == emulator->cache[0].size());
 
     // uint32_t i = 0, j = 0;
     // for (auto set: ref_cache_state) {

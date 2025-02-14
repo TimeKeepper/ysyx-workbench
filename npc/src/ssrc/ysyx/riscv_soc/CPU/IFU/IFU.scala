@@ -61,6 +61,35 @@ class Icache_catch extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class Icache_state_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle {
+        val valid = Input(Bool())
+
+        val write_index = Input(UInt(32.W))
+        val write_way = Input(UInt(32.W))
+        val write_tag = Input(UInt(32.W))
+        val write_data = Input(UInt(32.W))
+    })
+
+    setInline("Icache_state_catch.v",
+    """module Icache_state_catch(
+    |    input valid,
+    |
+    |    input [31:0] write_index,
+    |    input [31:0] write_way,
+    |    input [31:0] write_tag,
+    |    input [31:0] write_data
+    |);
+    |
+    |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input int unsigned write_data);
+    |   always @(posedge valid) begin
+    |       Icache_state_catch(write_index, write_way, write_tag, write_data);
+    |   end
+    |
+    |endmodule
+    """.stripMargin)
+}
+
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {
     val io = IO(new Bundle{
         val addr = Input(UInt(32.W))
@@ -97,6 +126,14 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         cache(replace_set_index) := Cat(true.B, replace_tag, replace_cache)
     }
 
+    if(Config.Simulate){
+        val Icache_state = Module(new Icache_state_catch)
+        Icache_state.io.valid := io.replace_data.valid
+        Icache_state.io.write_index := replace_set_index
+        Icache_state.io.write_way := 0.U
+        Icache_state.io.write_tag := replace_tag
+        Icache_state.io.write_data := replace_cache
+    }
 }
 
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
@@ -183,10 +220,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             cache_Catch.io.Icache := io.WBU_2_IFU.fire && !reset.asBool
             cache_Catch.io.map_hit := map_hit4catch
             cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
-
-            // For Cache state Catch, the time could be 
-            // (state === bus_state.s_pipeline && master.r.fire)
-            // We dont need to concern about performance for it is only for simulation
         }
 
         // master ignore

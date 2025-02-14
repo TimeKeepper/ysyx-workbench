@@ -14,6 +14,18 @@ config RESET_VECTOR
   hex "RESET_VECTOR"
   default LOAD_MEMORY_BASE
 
+config ICache_Way
+  int "ICache_Way"
+  default 1
+
+config ICache_Set
+  int "ICache_Set"
+  default 16
+
+config ICache_Block_Size
+  int "ICache_Block_Size"
+  default 4
+
 endmenu #MEMORY
 
 config DIFFTEST

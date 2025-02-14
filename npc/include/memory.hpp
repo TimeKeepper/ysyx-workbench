@@ -26,4 +26,10 @@ class Memory {
         bool match(uint32_t addr);
 };
 
+struct CacheLine {
+    uint32_t tag;
+    word_t inst;
+    bool valid;
+};
+
 #endif

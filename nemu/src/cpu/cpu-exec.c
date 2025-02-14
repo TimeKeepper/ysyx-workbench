@@ -55,7 +55,7 @@ char INST_BUF[INSTR_BUF_SIZE][INST_SIZE];
 static int instr_buf_index = 0;
 
 CPU_state cpu = {};
-Icache_return icache_state = {};
+Icache_return icache_behavior = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;

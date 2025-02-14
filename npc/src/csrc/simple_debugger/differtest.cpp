@@ -1,6 +1,9 @@
 #include "cpu.hpp"
+#include "utils.hpp"
+#include <cassert>
 #include <differtest.hpp>
 #include <dlfcn.h>
+#include <string>
 
 Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state, \
@@ -21,8 +24,11 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_cache_init = (void (*)(paddr_t, paddr_t, uint32_t, uint32_t, uint32_t))dlsym(handle, "difftest_cache_init");
     assert(ref_difftest_cache_init);
 
-    ref_difftest_cache_state = (void (*)(void *))dlsym(handle, "difftest_cache_state");
+    ref_difftest_cache_state = (std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> (*)(void))dlsym(handle, "difftest_cache_state");
     assert(ref_difftest_cache_state);
+
+    ref_difftest_cache_behaior = (void (*)(void *))dlsym(handle, "difftest_cache_behaior");
+    assert(ref_difftest_cache_behaior);
 
     ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(ref_difftest_exec);
@@ -40,9 +46,9 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_regcpy(dut_r, DIFFTEST_TO_REF);
 
     #ifdef CONFIG_PLATFORM_YSYXSOC
-    ref_difftest_cache_init(CONFIG_SDRAM_BASE, CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE, 1, 16, 4);
+    ref_difftest_cache_init(CONFIG_SDRAM_BASE, CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE, CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
     #elif CONFIG_PLATFORM_NPC
-    ref_difftest_cache_init(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_BASE + CONFIG_LOAD_MEMORY_SIZE, 1, 16, 4);
+    ref_difftest_cache_init(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_BASE + CONFIG_LOAD_MEMORY_SIZE, CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
     #endif
 }
 
@@ -95,9 +101,17 @@ void Differtest::checkmems(){
     }
 }
 
+bool operator==(const CacheLine& a, const CacheLine& b) {
+    return a.tag == b.tag && a.inst == b.inst && a.valid == b.valid;
+}
+
+bool operator!=(const CacheLine& a, const CacheLine& b) {
+    return !(a == b);
+}
+
 void Differtest::checkcache(Icache_return icache_state){
     Icache_return ref_icache_state;
-    ref_difftest_cache_state(&ref_icache_state);
+    ref_difftest_cache_behaior(&ref_icache_state);
     if(ref_icache_state.map_hit != icache_state.map_hit || ref_icache_state.cache_hit != icache_state.cache_hit){
         printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
         printf("icache: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_icache_state.inst, icache_state.inst);
@@ -105,6 +119,22 @@ void Differtest::checkcache(Icache_return icache_state){
         printf("icache: ref_cache_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_cache_hit:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_icache_state.cache_hit, icache_state.cache_hit);
         npc_state->state = NPC_ABORT;
         npc_state->halt_pc = dut_r->pc;
+    }
+
+    auto ref_cache_state = ref_difftest_cache_state().first;
+
+    for(uint32_t i = 0; i < ref_cache_state.size(); i++){
+        for(uint32_t j = 0; j < ref_cache_state[i].size(); j++){
+            if(ref_cache_state[i][j] != emulator->cache[i][j]){
+                printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+                printf("icache: ref_cache[" ANSI_FG_YELLOW "%d" ANSI_NONE "][" ANSI_FG_YELLOW "%d" ANSI_NONE "]:\n", i, j);
+                printf("valid: ref_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_cache_state[i][j].valid, emulator->cache[i][j].valid);
+                printf("tag: ref_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].tag, emulator->cache[i][j].tag);
+                printf("inst: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].inst, emulator->cache[i][j].inst);
+                npc_state->state = NPC_ABORT;
+                npc_state->halt_pc = dut_r->pc;
+            }
+        }
     }
 }
 

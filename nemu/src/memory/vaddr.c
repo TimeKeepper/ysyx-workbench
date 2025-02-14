@@ -15,7 +15,7 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
-#include <memory/icache.h>
+#include <memory/icache.hpp>
 
 Icache_return icache_fetch(vaddr_t addr, uint32_t len);
 

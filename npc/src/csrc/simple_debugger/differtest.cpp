@@ -109,6 +109,13 @@ void Differtest::checkcache(Icache_return icache_state){
         npc_state->state = NPC_ABORT;
         npc_state->halt_pc = dut_r->pc;
     }
+
+    auto ref_cache_state = ref_difftest_cache_state();
+    if (ref_cache_state.first != emulator->cache) {
+        printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+        npc_state->state = NPC_ABORT;
+        npc_state->halt_pc = dut_r->pc;
+    }
 }
 
 void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){

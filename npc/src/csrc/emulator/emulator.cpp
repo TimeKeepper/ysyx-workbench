@@ -19,38 +19,14 @@ std::map<uint32_t, std::string> csr_key = {
 };
 
 std::map<uint8_t, std::string> gpr_key = {
-    {0, "zero"},
-    {1, "ra"},
-    {2, "sp"},
-    {3, "gp"},
-    {4, "tp"},
-    {5, "t0"},
-    {6, "t1"},
-    {7, "t2"},
-    {8, "s0"},
-    {9, "s1"},
-    {10, "a0"},
-    {11, "a1"},
-    {12, "a2"},
-    {13, "a3"},
-    {14, "a4"},
-    {15, "a5"},
-    {16, "a6"},
-    {17, "a7"},
-    {18, "s2"},
-    {19, "s3"},
-    {20, "s4"},
-    {21, "s5"},
-    {22, "s6"},
-    {23, "s7"},
-    {24, "s8"},
-    {25, "s9"},
-    {26, "s10"},
-    {27, "s11"},
-    {28, "t3"},
-    {29, "t4"},
-    {30, "t5"},
-    {31, "t6"}
+    {0, "zero"},    {1, "ra"},      {2, "sp"},      {3, "gp"}, 
+    {4, "tp"},      {5, "t0"},      {6, "t1"},      {7, "t2"}, 
+    {8, "s0"},      {9, "s1"},      {10, "a0"},     {11, "a1"}, 
+    {12, "a2"},     {13, "a3"},     {14, "a4"},     {15, "a5"}, 
+    {16, "a6"},     {17, "a7"},     {18, "s2"},     {19, "s3"}, 
+    {20, "s4"},     {21, "s5"},     {22, "s6"},     {23, "s7"}, 
+    {24, "s8"},     {25, "s9"},     {26, "s10"},    {27, "s11"}, 
+    {28, "t3"},     {29, "t4"},     {30, "t5"},     {31, "t6"},
 };
 
 const int gpr_name2id(const std::string& name){
@@ -345,7 +321,9 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
 }
 
 void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, uint32_t write_data) {
-
+    cache[write_index][write_way].tag = write_tag;
+    cache[write_index][write_way].inst = write_data;
+    cache[write_index][write_way].valid = true;
 }
 
 void Emulator::IDU_catch(performence::Inst_Type type){

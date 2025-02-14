@@ -26,4 +26,14 @@ class Memory {
         bool match(uint32_t addr);
 };
 
+struct CacheLine {
+    uint32_t tag;
+    word_t inst;
+    bool valid;
+
+    bool operator==(const CacheLine& rhs) const {
+        return this->tag == rhs.tag && this->inst == rhs.inst && this->valid == rhs.valid;
+    }
+};
+
 #endif

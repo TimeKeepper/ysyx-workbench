@@ -10,12 +10,6 @@
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
-struct CacheLine {
-    uint32_t tag;
-    word_t inst;
-    bool valid;
-};
-
 typedef struct {
     word_t inst;
     bool map_hit;

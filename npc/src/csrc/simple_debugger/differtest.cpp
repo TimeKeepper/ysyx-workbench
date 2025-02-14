@@ -123,6 +123,7 @@ void Differtest::checkcache(Icache_return icache_state){
 
     auto ref_cache_state = ref_difftest_cache_state().first;
 
+    printf("Check\n");
     for(uint32_t i; i < ref_cache_state.size(); i++){
         for(uint32_t j; j < ref_cache_state[i].size(); j++){
             printf("Check\n");

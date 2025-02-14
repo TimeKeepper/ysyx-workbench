@@ -143,6 +143,9 @@ void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
 
     if (is_skip_ref) {
         ref_difftest_regcpy(this->dut_r, DIFFTEST_TO_REF);
+
+        ref_difftest_cache_state().first = emulator->cache;
+
         is_skip_ref = false;
         return;
     }

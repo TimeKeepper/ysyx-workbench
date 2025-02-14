@@ -329,7 +329,6 @@ void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint
 }
 
 void Emulator::Icache_MAT_catch(uint32_t count){
-    Log("Icache MAT: count %d", count);
     this->perf->memory_access_time += count;
 }
 

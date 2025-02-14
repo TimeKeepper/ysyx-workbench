@@ -125,6 +125,7 @@ void Differtest::checkcache(Icache_return icache_state){
 
     for(uint32_t i; i < ref_cache_state.size(); i++){
         for(uint32_t j; j < ref_cache_state[i].size(); j++){
+            printf("Check\n");
             if(ref_cache_state[i][j] != emulator->cache[i][j]){
                 printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
                 printf("icache: ref_cache[" ANSI_FG_YELLOW "%d" ANSI_NONE "][" ANSI_FG_YELLOW "%d" ANSI_NONE "]:\n", i, j);

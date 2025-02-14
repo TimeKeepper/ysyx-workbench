@@ -123,9 +123,7 @@ void Differtest::checkcache(Icache_return icache_state){
 
     std::vector<std::vector<CacheLine>> ref_cache_state;
     ref_cache_state.resize(CONFIG_ICache_Set, std::vector<CacheLine>(CONFIG_ICache_Way));
-    Pin;
     ref_difftest_cache_state(&ref_cache_state, DIFFTEST_TO_DUT);
-    Pin;
 
     // for(uint32_t i = 0; i < ref_cache_state.size(); i++){
     //     for(uint32_t j = 0; j < ref_cache_state[i].size(); j++){

@@ -61,8 +61,10 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
 __EXPORT void difftest_cache_state(void *dut, bool direction) {
   auto src = reinterpret_cast<std::vector<std::vector<CacheLine>>*>(dut);
   if(direction == DIFFTEST_TO_DUT) {
+    Pin;
     assert(src != nullptr);
     *src = icache.cache;
+    Pin;
   } else {
     icache.cache = *src;
   }

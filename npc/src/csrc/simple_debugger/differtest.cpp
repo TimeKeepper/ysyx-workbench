@@ -134,6 +134,8 @@ void Differtest::checkcache(Icache_return icache_state){
             }
         }
     }
+
+    std::cout << this->emulator->cache[0][0].valid << std::endl;
 }
 
 void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){

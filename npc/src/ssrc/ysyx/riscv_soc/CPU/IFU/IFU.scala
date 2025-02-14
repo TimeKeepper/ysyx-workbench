@@ -126,6 +126,14 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         cache(replace_set_index) := Cat(true.B, replace_tag, replace_cache)
     }
 
+    if(Config.Simulate){
+        val Icache_state = Module(new Icache_state_catch)
+        Icache_state.io.valid := io.replace_data.valid
+        Icache_state.io.write_index := replace_set_index
+        Icache_state.io.write_way := 0.U
+        Icache_state.io.write_tag := replace_tag
+        Icache_state.io.write_data := replace_cache
+    }
 }
 
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
@@ -212,10 +220,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             cache_Catch.io.Icache := io.WBU_2_IFU.fire && !reset.asBool
             cache_Catch.io.map_hit := map_hit4catch
             cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
-
-            // For Cache state Catch, the time could be 
-            // (state === bus_state.s_pipeline && master.r.fire)
-            // We dont need to concern about performance for it is only for simulation
         }
 
         // master ignore

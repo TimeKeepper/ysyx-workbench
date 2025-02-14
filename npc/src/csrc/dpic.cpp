@@ -97,8 +97,8 @@ extern "C" {
         emulator->Icache_state_catch(write_index, write_way, write_tag, write_data);
     }
 
-    extern void Icache_MAT_catch(uint32_t cache_hit, uint32_t count) {
-        emulator->Icache_MAT_catch(cache_hit, count);
+    extern void Icache_MAT_catch(uint32_t count) {
+        emulator->Icache_MAT_catch(count);
     }
 
     extern void IDU_catch(uint32_t type){

@@ -125,6 +125,20 @@ void Differtest::checkcache(Icache_return icache_state){
     ref_cache_state.resize(CONFIG_ICache_Set, std::vector<CacheLine>(CONFIG_ICache_Way));
     ref_difftest_cache_state(&ref_cache_state, DIFFTEST_TO_DUT);
 
+    for(uint32_t i = 0; i < CONFIG_ICache_Set; i++) {
+        for(uint32_t j = 0; j < CONFIG_ICache_Way; j++) {
+            if(ref_cache_state[i][j] != emulator->cache[i][j]){
+                printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+                printf("icache: ref_cache[" ANSI_FG_YELLOW "%d" ANSI_NONE "][" ANSI_FG_YELLOW "%d" ANSI_NONE "]:\n", i, j);
+                printf("valid: ref_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_cache_state[i][j].valid, emulator->cache[i][j].valid);
+                printf("tag: ref_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].tag, emulator->cache[i][j].tag);
+                printf("inst: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].inst, emulator->cache[i][j].inst);
+                npc_state->state = NPC_ABORT;
+                npc_state->halt_pc = dut_r->pc;
+            }
+        }
+    }
+
     // for(uint32_t i = 0; i < ref_cache_state.size(); i++){
     //     for(uint32_t j = 0; j < ref_cache_state[i].size(); j++){
     //         if(ref_cache_state[i][j] != emulator->cache[i][j]){

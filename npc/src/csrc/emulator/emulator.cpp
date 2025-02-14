@@ -138,6 +138,7 @@ void Emulator::init_mem() {
     memorys.emplace("sram", std::make_unique<Memory>(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_SIZE));
     #endif
 
+    std::cout << "Cache Initialized" << std::endl;
     cache.resize(CONFIG_ICache_Set, std::vector<CacheLine>(CONFIG_ICache_Way));
 }
 

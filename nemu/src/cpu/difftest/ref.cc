@@ -56,14 +56,6 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
   Icache_init(begin, end, way, set, block_size);
 }
 
-__EXPORT std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> difftest_cache_state() {
-  std::vector<std::vector<CacheLine>> cache;
-  std::vector<std::list<uint32_t>> lru;
-  cache = icache.cache;
-  lru = icache.lru;
-  return std::make_pair(cache, lru);
-}
-
 __EXPORT void difftest_cache_behaior(void *dut) {
   memcpy(dut, &icache_behavior, sizeof(Icache_return));
 }
@@ -80,9 +72,17 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 __EXPORT void difftest_init(int port) {
   void init_mem();
   init_mem();
-
+  
   /* Perform ISA dependent initialization. */
   init_isa();
 }
 
+}
+
+__EXPORT std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> difftest_cache_state() {
+  std::vector<std::vector<CacheLine>> cache;
+  std::vector<std::list<uint32_t>> lru;
+  cache = icache.cache;
+  lru = icache.lru;
+  return std::make_pair(cache, lru);
 }

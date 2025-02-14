@@ -45,11 +45,7 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_memcpy(CONFIG_LOAD_MEMORY_BASE, load_mem->get_memory(), img_size, DIFFTEST_TO_REF);
     ref_difftest_regcpy(dut_r, DIFFTEST_TO_REF);
 
-    #ifdef CONFIG_PLATFORM_YSYXSOC
-    ref_difftest_cache_init(CONFIG_SDRAM_BASE, CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE, CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
-    #elif CONFIG_PLATFORM_NPC
-    ref_difftest_cache_init(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_BASE + CONFIG_LOAD_MEMORY_SIZE, CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
-    #endif
+    ref_difftest_cache_init(ICACHE_BEGIN, ICACHE_END, CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
 }
 
 bool Differtest::isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc) {

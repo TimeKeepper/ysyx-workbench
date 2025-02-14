@@ -109,7 +109,7 @@ void performence::print_perf() {
     std::cout << ANSI_FG_BLUE << "Access-Based cache hit rate: " << ANSI_NONE
               << (double)this->cache_cntrs["Inst"].second / this->cache_cntrs["Inst"].first << std::endl;
 
-    std::cout << ANSI_FG_BLUE << "Average Memory Access Time: " << ANSI_NONE
+    std::cout << ANSI_FG_BLUE << "Average Memory Access Time(AMAT): " << ANSI_NONE
               << (double)this->memory_access_time / this->inst_cntrs[Inst_Type::GP].second 
               << std::endl;
 }

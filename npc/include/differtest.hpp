@@ -10,6 +10,12 @@
 
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
+struct CacheLine {
+    uint32_t tag;
+    word_t inst;
+    bool valid;
+};
+
 typedef struct {
     word_t inst;
     bool map_hit;
@@ -32,6 +38,7 @@ class Differtest {
         void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
         void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
         void (*ref_difftest_cache_init)(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size) = NULL;
+        std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> (*ref_difftest_cache_state)() = NULL;
         void (*ref_difftest_cache_behaior)(void *dut) = NULL;
         void (*ref_difftest_exec)(uint64_t n) = NULL;
         void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;

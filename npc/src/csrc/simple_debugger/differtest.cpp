@@ -21,6 +21,9 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_cache_init = (void (*)(paddr_t, paddr_t, uint32_t, uint32_t, uint32_t))dlsym(handle, "difftest_cache_init");
     assert(ref_difftest_cache_init);
 
+    ref_difftest_cache_state = (std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>> (*)(void))dlsym(handle, "difftest_cache_state");
+    assert(ref_difftest_cache_state);
+
     ref_difftest_cache_behaior = (void (*)(void *))dlsym(handle, "difftest_cache_behaior");
     assert(ref_difftest_cache_behaior);
 

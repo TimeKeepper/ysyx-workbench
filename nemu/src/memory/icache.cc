@@ -13,7 +13,7 @@ extern "C" {
 #include <iostream>
 #include <memory/icache.hpp>
 
-void Icache::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t line_size) {
+void Icache_LRU::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t line_size) {
         this->begin = begin;
         this->end = end;
         this->way = way;
@@ -37,7 +37,7 @@ void Icache::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint
         }
     }
     
-Icache_return Icache::fetch(vaddr_t addr, uint32_t len) {
+Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
     Icache_return result;
     result.inst = 0;
     result.map_hit = (addr >= begin) && (addr < end);
@@ -80,7 +80,7 @@ Icache_return Icache::fetch(vaddr_t addr, uint32_t len) {
     return result;
 }
 
-void Icache::print_cache() {
+void Icache_LRU::print_cache() {
     for(uint32_t i = 0; i < set; ++i) {
         std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
         for(uint32_t j = 0; j < way; ++j) {
@@ -93,7 +93,7 @@ void Icache::print_cache() {
     }
 }
 
-Icache icache;
+Icache_LRU icache;
 
 extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size) {
     icache.init(begin, end, way, set, block_size);

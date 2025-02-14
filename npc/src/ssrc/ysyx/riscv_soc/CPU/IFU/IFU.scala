@@ -128,16 +128,22 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_width = valid_width - offset_width - set_width
 
     val line_width = 1 + tag_width + block_size * 8
-    val cache = Mem(set, UInt(line_width.W))
+    val cache = Mem(set, UInt((line_width * way).W))
 
     val set_index = io.addr(set_width + offset_width - 1, offset_width)
     val tag = io.addr(valid_width - 1, set_width + offset_width)
+    // val Cache_tagSegment = ((set_width + offset_width) until valid_width).map()
+    
+    val Cache_line = cache(set_index)
     
     val cache_valid = cache(set_index)(line_width - 1)
-    val cache_tag = cache(set_index)(line_width - 2, block_size * 8)
-    io.data := cache(set_index)(block_size * 8 - 1, 0)
+    // val cache_tag = cache(set_index)(line_width - 2, block_size * 8)
+    val Cache_SegmentStart = (0 until way).map(_ * line_width)
+    val Cache_tagSegment = Cache_SegmentStart.map(start => (start + block_size * 8) -> (start + line_width - 2))
+    val Cache_tags = VecInit(Cache_tagSegment.map{case (start, end) => Cache_line(end, start)})
+    io.data := Cache_line(block_size * 8 - 1, 0)
     
-    io.cache_hit := cache_valid && (cache_tag === tag)
+    io.cache_hit := cache_valid && (Cache_tags(0) === tag)
 
     // TODO: have to implement LRU Algorithm
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands

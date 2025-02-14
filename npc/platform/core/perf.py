@@ -50,8 +50,8 @@ def ui():
 
     clk_nums = [data['CSR'][0], data['LS'][0], data['Cal'][0]]
     inst_nums = [data['CSR'][1], data['LS'][1], data['Cal'][1]]
-    a_cycle = safe_divide(inst_nums, clk_nums)
-    labels = ['LS', 'CSR', 'Cal']
+    a_cycle = safe_divide(clk_nums, inst_nums)
+    labels = ['CSR', 'LS', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 
     fig = plt.figure(figsize=(10, 8))

@@ -90,6 +90,30 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
+class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
+    val io = IO(new Bundle {
+        val valid = Input(Bool())
+        val cache_hit = Input(Bool())
+        val count = Input(UInt(32.W))
+    })
+
+    setInline("Icache_MAT_catch.v",
+    """module Icache_MAT_catch(
+    |    input valid,
+    |    input cache_hit,
+    |    input [31:0] count
+    |);
+    |
+    |   import "DPI-C" function void Icache_MAT_catch(input int unsigned cache_hit, input int unsigned count);
+    |   always @(posedge valid) begin
+    |       Icache_MAT_catch({31'b0, cache_hit}, count);
+    |   end
+    |
+    |endmodule
+    """.stripMargin)
+
+}
+
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {
     val io = IO(new Bundle{
         val addr = Input(UInt(32.W))
@@ -209,6 +233,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         )
 
         if(Config.Simulate){
+            // use map_hit will miss the correct clock cycle, damn
             val map_hit4catch = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _) // very idiot, but it works
 
             val Catch = Module(new IFU_catch)
@@ -220,6 +245,18 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             cache_Catch.io.Icache := io.WBU_2_IFU.fire && !reset.asBool
             cache_Catch.io.map_hit := map_hit4catch
             cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
+
+            val MAT_Counter = RegInit(0.U(32.W))
+            when(io.WBU_2_IFU.fire){
+                MAT_Counter := 0.U
+            }.otherwise{
+                MAT_Counter := MAT_Counter + 1.U
+            }
+
+            val MAT_Catch = Module(new Icache_MAT_catch)
+            MAT_Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool
+            MAT_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
+            MAT_Catch.io.count := MAT_Counter
         }
 
         // master ignore

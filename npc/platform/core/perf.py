@@ -30,7 +30,7 @@ def tabulate_show():
     df = {
         'Commit': [gp.get_commit_id()],
         'Message': [gp.get_commit_message()],
-        'Performance Index': [safe_divide(data['GP'][1], data['GP'][0] * Freq)],
+        'Performance Index': [safe_divide(data['GP'][1] * Freq, data['GP'][0])],
         'Chip area(um^2)': [gp.get_Chip_area()],
         'IPC': [safe_divide(data['GP'][1], data['GP'][0])],
         'Freq(MHz)': [Freq],

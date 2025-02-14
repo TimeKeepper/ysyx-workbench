@@ -57,17 +57,11 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
 }
 
 __EXPORT void difftest_cache_state(void *dut, bool direction) {
+  auto src = reinterpret_cast<std::vector<std::vector<CacheLine>>*>(dut);
   if(direction == DIFFTEST_TO_DUT) {
-    std::vector<std::vector<CacheLine>> cache;
-    std::vector<std::list<uint32_t>> lru;
-    cache = icache.cache;
-    lru = icache.lru;
-    auto* dut_pair = static_cast<std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>>*>(dut);
-    *dut_pair = std::make_pair(cache, lru);
+    icache.cache = *src;
   } else {
-    auto* dut_pair = static_cast<std::pair<std::vector<std::vector<CacheLine>>, std::vector<std::list<uint32_t>>>*>(dut);
-    icache.cache = dut_pair->first;
-    icache.lru = dut_pair->second;
+    *src = icache.cache;
   }
 }
 

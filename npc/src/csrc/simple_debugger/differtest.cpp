@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include <differtest.hpp>
 #include <dlfcn.h>
+#include <string>
 
 Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     Riscv_CPU_State* dut_r, Memory *load_mem, NPCState* npc_state, \
@@ -99,6 +100,10 @@ void Differtest::checkmems(){
     }
 }
 
+bool operator==(const CacheLine& a, const CacheLine& b) {
+    return a.tag == b.tag && a.inst == b.inst && a.valid == b.valid;
+}
+
 void Differtest::checkcache(Icache_return icache_state){
     Icache_return ref_icache_state;
     ref_difftest_cache_behaior(&ref_icache_state);
@@ -111,7 +116,6 @@ void Differtest::checkcache(Icache_return icache_state){
         npc_state->halt_pc = dut_r->pc;
     }
 
-    Pin;
     auto ref_cache_state = ref_difftest_cache_state().first;
     if (ref_cache_state != emulator->cache) {
         printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
@@ -130,12 +134,6 @@ void Differtest::checkcache(Icache_return icache_state){
     //             // npc_state->halt_pc = dut_r->pc;
     //         }
     //     }
-    // }
-    Pin;
-    // if (ref_cache_state.first != emulator->cache) {
-    //     printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-    //     npc_state->state = NPC_ABORT;
-    //     npc_state->halt_pc = dut_r->pc;
     // }
 }
 

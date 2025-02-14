@@ -40,6 +40,8 @@ performence::~performence(){
         report << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
     }
 
+    report << "AMAT" << ":\t" << (double)this->memory_access_time / this->inst_cntrs[Inst_Type::GP].second << std::endl;
+
     for(auto &i : this->conpo_cntrs){
         report << i.first << ":\t" << i.second << std::endl;
     }

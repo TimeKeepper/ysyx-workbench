@@ -1,4 +1,5 @@
 #include "cpu.hpp"
+#include "utils.hpp"
 #include <differtest.hpp>
 #include <dlfcn.h>
 
@@ -110,6 +111,7 @@ void Differtest::checkcache(Icache_return icache_state){
         npc_state->halt_pc = dut_r->pc;
     }
 
+    Pin;
     auto ref_cache_state = ref_difftest_cache_state().first;
     for (uint32_t i = 0; i < CONFIG_ICache_Set; ++i) {
         for (uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {
@@ -124,6 +126,7 @@ void Differtest::checkcache(Icache_return icache_state){
             }
         }
     }
+    Pin;
     // if (ref_cache_state.first != emulator->cache) {
     //     printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
     //     npc_state->state = NPC_ABORT;

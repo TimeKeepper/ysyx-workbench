@@ -24,6 +24,9 @@
 #define TODO() \
   Assert(0, "Please implement this function")
 
+#define Pin \
+Log("Pin")
+
 // ----------- state -----------
 
 enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT, NPC_QUIT };

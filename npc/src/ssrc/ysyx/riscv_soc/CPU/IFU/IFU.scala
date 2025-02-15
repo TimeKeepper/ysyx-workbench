@@ -164,12 +164,19 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
 
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
     val replace_way = replacement.way
+    val replace_way_mask = UIntToOH(replace_way)
+
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
+    val replace_tag_v = VecInit((0 until way).map(_ => Cat(true.B, replace_tag)))
+
     val replace_cache = io.replace_data.bits
+    val replace_cache_v = VecInit((0 until way).map(_ => replace_cache))
 
     when(io.replace_data.valid){
-        meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
-        data(replace_set_index)(replace_way) := replace_cache
+        meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
+        data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
+        // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
+        // data(replace_set_index)(replace_way) := replace_cache
         replacement.access(replace_way)
     }.elsewhen(tag_match){
         replacement.access(match_way)

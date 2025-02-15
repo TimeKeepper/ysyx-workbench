@@ -153,6 +153,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_equal_vec = VecInit(metas.map(_.tag === tag))
     val tag_match_vec = tag_equal_vec.zip(valid_vec).map{case (a, b) => a && b}
     val tag_match = tag_match_vec.reduce(_ | _)
+    val match_way = Mux1H(tag_match_vec, (0 until way).map(_.U))
     
     io.data := datas(0)
     
@@ -164,15 +165,15 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_cache = io.replace_data.bits
 
     when(io.replace_data.valid){
-        meta(replace_set_index)(0) := Cat(true.B, replace_tag)
-        data(replace_set_index)(0) := replace_cache
+        meta(replace_set_index)(match_way) := Cat(true.B, replace_tag)
+        data(replace_set_index)(match_way) := replace_cache
     }
 
     if(Config.Simulate){
         val Icache_state = Module(new Icache_state_catch)
         Icache_state.io.valid := io.replace_data.valid
         Icache_state.io.write_index := replace_set_index
-        Icache_state.io.write_way := 0.U
+        Icache_state.io.write_way := match_way
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
     }

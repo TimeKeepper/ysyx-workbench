@@ -160,7 +160,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     io.cache_hit := tag_match
 
     // TODO: have to implement LRU Algorithm
-    val replacement = ReplacementPolicy.fromString("plru", way)
+    val replacement = ReplacementPolicy.fromString("lru", way)
 
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
     val replace_way = replacement.way

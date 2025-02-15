@@ -76,7 +76,7 @@ void Emulator::instruction_buffer_print(){
 
 std::string Emulator::disasm(uint32_t pc, uint32_t inst){
     std::stringstream ss;
-    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << pc << ANSI_NONE;
+    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << pc << ANSI_FG_YELLOW << inst << ANSI_NONE;
 
     char inst_str[64];
 

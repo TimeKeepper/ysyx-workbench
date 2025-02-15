@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include "cpu.hpp"
 #include "memory.hpp"
+#include <iomanip>
 #include <string>
 #include <unordered_map>
 #include <utils.hpp>
@@ -76,7 +77,7 @@ void Emulator::instruction_buffer_print(){
 
 std::string Emulator::disasm(uint32_t pc, uint32_t inst){
     std::stringstream ss;
-    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << pc << ANSI_FG_YELLOW << inst << ANSI_NONE;
+    ss << ANSI_FG_CYAN << std::setw(3) << std::setfill('0') << "0x" << std::hex << std::nouppercase << pc << '\t' << ANSI_FG_YELLOW << inst << ANSI_NONE;
 
     char inst_str[64];
 

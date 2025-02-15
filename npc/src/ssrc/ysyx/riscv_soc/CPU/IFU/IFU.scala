@@ -144,11 +144,11 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         val tag = UInt(tag_width.W)
     }
 
-    val metas = meta(set_index).map{c => 
+    val metas = meta.read(set_index).map{c => 
         c.asTypeOf(new Cache_Meta)
     }
 
-    val data_set = data(set_index)
+    val data_set = data.read(set_index)
 
     val valid_vec = VecInit(metas.map(_.valid))
     val tag_equal_vec = VecInit(metas.map(_.tag === tag))

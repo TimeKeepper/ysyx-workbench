@@ -186,7 +186,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         val Icache_state = Module(new Icache_state_catch)
         Icache_state.io.valid := io.replace_data.valid
         Icache_state.io.write_index := replace_set_index
-        Icache_state.io.write_way := match_way
+        Icache_state.io.write_way := replace_way
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
     }

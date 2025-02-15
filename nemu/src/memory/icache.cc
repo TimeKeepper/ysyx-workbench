@@ -32,7 +32,7 @@ void Icache_LRU::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, 
                 cache[i][j].valid = false;
                 cache[i][j].tag = 0;
                 cache[i][j].inst = 0;
-                lru[i].push_back(j);
+                lru[i].push_front(j);
             }
         }
     }

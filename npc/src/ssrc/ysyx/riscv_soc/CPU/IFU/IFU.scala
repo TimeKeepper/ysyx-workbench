@@ -14,6 +14,7 @@ import freechips.rocketchip.util.Annotated.srams
 import riscv_cpu.LS_state.s_wait_valid
 import riscv_cpu.bus_state.s_wait_ready
 import riscv_cpu.bus_state.s_busy
+import scala.collection.Parallel
 
 class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
@@ -130,30 +131,32 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val line_width = 1 + tag_width + block_size * 8
     // val cache = Mem(set, UInt((line_width).W))
     // a vector(Way) of Mem(Set)
-    val cache = Mem(set, Vec(way, UInt((line_width).W)))
+    val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
+    val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
 
     val set_index = io.addr(set_width + offset_width - 1, offset_width)
     val tag = io.addr(valid_width - 1, set_width + offset_width)
     // val Cache_tagSegment = ((set_width + offset_width) until valid_width).map()
     
-    class Cache_line extends Bundle{
+    class Cache_Meta extends Bundle{
         val valid = Bool()
         val tag = UInt(tag_width.W)
-        val data = UInt((block_size * 8).W)
     }
 
-    val Cache_lines = cache(set_index).map{c => 
-        c.asTypeOf(new Cache_line)
+    val metas = meta(set_index).map{c => 
+        c.asTypeOf(new Cache_Meta)
     }
+
+    val datas = data(set_index)
+
+    val valid_vec = VecInit(metas.map(_.valid))
+    val tag_equal_vec = VecInit(metas.map(_.tag === tag))
+    val tag_match_vec = tag_equal_vec.zip(valid_vec).map{case (a, b) => a && b}
+    val tag_match = tag_match_vec.reduce(_ | _)
     
-    val cache_valid = cache(set_index)(0)(line_width - 1)
-    // val cache_tag = cache(set_index)(line_width - 2, block_size * 8)
-    // val Cache_SegmentStart = (0 until way).map(_ * line_width)
-    // val Cache_tagSegment = Cache_SegmentStart.map(start => (start + block_size * 8) -> (start + line_width - 2))
-    // val Cache_tags = VecInit(Cache_tagSegment.map{case (start, end) => Cache_line(end, start)})
-    io.data := Cache_lines(0).data
+    io.data := datas(0)
     
-    io.cache_hit := cache_valid && (Cache_lines(0).tag === tag)
+    io.cache_hit := tag_match
 
     // TODO: have to implement LRU Algorithm
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
@@ -161,7 +164,8 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_cache = io.replace_data.bits
 
     when(io.replace_data.valid){
-        cache(replace_set_index)(0) := Cat(true.B, replace_tag, replace_cache)
+        meta(replace_set_index)(0) := Cat(true.B, replace_tag)
+        data(replace_set_index)(0) := replace_cache
     }
 
     if(Config.Simulate){

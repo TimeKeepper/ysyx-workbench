@@ -148,7 +148,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         c.asTypeOf(new Cache_Meta)
     }
 
-    val datas = data(set_index)
+    val data_set = data(set_index)
 
     val valid_vec = VecInit(metas.map(_.valid))
     val tag_equal_vec = VecInit(metas.map(_.tag === tag))
@@ -156,7 +156,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_match = tag_match_vec.reduce(_ | _)
     val match_way = Mux1H(tag_match_vec, (0 until way).map(_.U))
     
-    io.data := datas(0)
+    io.data := data_set(match_way)
     
     io.cache_hit := tag_match
 

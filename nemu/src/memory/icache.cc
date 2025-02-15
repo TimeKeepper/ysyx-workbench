@@ -58,7 +58,7 @@ Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
         if(cache[set_idx][w].valid && cache[set_idx][w].tag == tag) {
             // 更新LRU列表
             lru[set_idx].remove(w);
-            lru[set_idx].push_back(w);
+            lru[set_idx].push_front(w);
             result.inst = cache[set_idx][w].inst;
             result.cache_hit = true;
             return result;
@@ -69,9 +69,9 @@ Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
     result.inst = paddr_read(addr, len);
 
     // 替换策略：替换LRU列表末尾的缓存行
-    int replace_way = lru[set_idx].front();
-    lru[set_idx].pop_front();
-    lru[set_idx].push_back(replace_way);
+    int replace_way = lru[set_idx].back();
+    lru[set_idx].pop_back();
+    lru[set_idx].push_front(replace_way);
 
     cache[set_idx][replace_way].tag = tag;
     cache[set_idx][replace_way].inst = result.inst;

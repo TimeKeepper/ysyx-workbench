@@ -116,7 +116,7 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
 
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {
     val io = IO(new Bundle{
-        val addr = Input(UInt(32.W))
+        val addr = Flipped(ValidIO(Input(UInt(32.W))))
         val data = Output(UInt(32.W))
 
         val cache_hit = Output(Bool())
@@ -135,8 +135,8 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
     val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
 
-    val set_index = io.addr(set_width + offset_width - 1, offset_width)
-    val tag = io.addr(valid_width - 1, set_width + offset_width)
+    val set_index = io.addr.bits(set_width + offset_width - 1, offset_width)
+    val tag = io.addr.bits(valid_width - 1, set_width + offset_width)
     // val Cache_tagSegment = ((set_width + offset_width) until valid_width).map()
     
     class Cache_Meta extends Bundle{
@@ -180,13 +180,13 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_cache = io.replace_data.bits
     val replace_cache_v = VecInit((0 until way).map(_ => replace_cache))
 
-    when(io.replace_data.valid && !RegNext(io.replace_data.valid)){
+    when(io.replace_data.valid){
         meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
         data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
         // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
         // data(replace_set_index)(replace_way) := replace_cache
         replacement.access(replacement_idx, replace_way)
-    }.elsewhen(tag_match && !RegNext(tag_match)){
+    }.elsewhen(tag_match && io.addr.valid){
         replacement.access(replacement_idx, match_way)
     }
 
@@ -217,7 +217,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val (master, _) = masterNode.out(0)
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
-        Icache.io.addr := io.REG_2_IFU.Next_PC
+        Icache.io.addr.bits := io.REG_2_IFU.Next_PC
+        Icache.io.addr.valid := io.WBU_2_IFU.fire
 
         val state = RegInit(bus_state.s_wait_valid)
         io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
@@ -234,7 +235,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
         master.r.ready := state === bus_state.s_pipeline
         Icache.io.replace_data.bits := master.r.bits.data
-        Icache.io.replace_data.valid := master.r.valid && map_hit // if not & map_hit, will cause an very subtle bug 
+        Icache.io.replace_data.valid := master.r.fire && map_hit // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
             Icache.io.data, master.r.bits.data),

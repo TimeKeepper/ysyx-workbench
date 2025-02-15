@@ -128,7 +128,9 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_width = valid_width - offset_width - set_width
 
     val line_width = 1 + tag_width + block_size * 8
-    val cache = Mem(set, UInt((line_width * way).W))
+    // val cache = Mem(set, UInt((line_width).W))
+    // a vector(Way) of Mem(Set)
+    val cache = Mem(set, Vec(way, UInt((line_width).W)))
 
     val set_index = io.addr(set_width + offset_width - 1, offset_width)
     val tag = io.addr(valid_width - 1, set_width + offset_width)
@@ -140,9 +142,11 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         val data = UInt((block_size * 8).W)
     }
 
-    val Cache_lines = (0 until way).map(i => cache(set_index)(i * line_width + line_width - 1, i * line_width).asTypeOf(new Cache_line))
+    val Cache_lines = cache(set_index).map{c => 
+        c.asTypeOf(new Cache_line)
+    }
     
-    val cache_valid = cache(set_index)(line_width - 1)
+    val cache_valid = cache(set_index)(0)(line_width - 1)
     // val cache_tag = cache(set_index)(line_width - 2, block_size * 8)
     // val Cache_SegmentStart = (0 until way).map(_ * line_width)
     // val Cache_tagSegment = Cache_SegmentStart.map(start => (start + block_size * 8) -> (start + line_width - 2))
@@ -157,7 +161,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_cache = io.replace_data.bits
 
     when(io.replace_data.valid){
-        cache(replace_set_index) := Cat(true.B, replace_tag, replace_cache)
+        cache(replace_set_index)(0) := Cat(true.B, replace_tag, replace_cache)
     }
 
     if(Config.Simulate){

@@ -67,6 +67,10 @@ __EXPORT void difftest_cache_state(void *dut, bool direction) {
   }
 }
 
+__EXPORT void difftest_cache_print(void) {
+  icache.print_cache();
+}
+
 __EXPORT void difftest_cache_behaior(void *dut) {
   memcpy(dut, &icache_behavior, sizeof(Icache_return));
 }

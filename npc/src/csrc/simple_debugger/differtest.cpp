@@ -30,6 +30,9 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_cache_behaior = (void (*)(void *))dlsym(handle, "difftest_cache_behaior");
     assert(ref_difftest_cache_behaior);
 
+    ref_difftest_cache_print = (void (*)(void))dlsym(handle, "difftest_cache_print");
+    assert(ref_difftest_cache_print);
+
     ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(ref_difftest_exec);
 

@@ -115,6 +115,11 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }else if(args[0] == "b"){
                 this->wpm->print_break_points();
             }else if(args[0] == "c"){
+                #ifdef CONFIG_DIFFTEST
+                if (args[1] == "r"){
+                    this->difftest->ref_difftest_cache_print();
+                }
+                #endif
                 for(uint32_t i = 0; i < CONFIG_ICache_Set; ++i) {
                     std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
                     for(uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {

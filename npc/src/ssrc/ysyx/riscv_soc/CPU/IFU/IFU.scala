@@ -180,13 +180,13 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_cache = io.replace_data.bits
     val replace_cache_v = VecInit((0 until way).map(_ => replace_cache))
 
-    when(io.replace_data.valid){
+    when(io.replace_data.valid && !RegNext(io.replace_data.valid)){
         meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
         data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
         // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
         // data(replace_set_index)(replace_way) := replace_cache
         replacement.access(replacement_idx, replace_way)
-    }.elsewhen(tag_match){
+    }.elsewhen(tag_match && !RegNext(tag_match)){
         replacement.access(replacement_idx, match_way)
     }
 

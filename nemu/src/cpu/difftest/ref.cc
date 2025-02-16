@@ -65,7 +65,7 @@ __EXPORT void difftest_cache_state(void *dut, bool direction) {
     *src = icache.cache;
   } else {
     // icache.cache = *src;
-    icache_fetch(cpu.pc, 4); // perhaps...
+    icache_fetch(cpu.pc, 4); // perhaps
   }
 }
 

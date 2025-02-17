@@ -186,7 +186,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
         // data(replace_set_index)(replace_way) := replace_cache
         replacement.access(replacement_idx, replace_way)
-    }.elsewhen(tag_match && io.addr.valid){
+    }.elsewhen(RegNext(tag_match && io.addr.valid)){
         replacement.access(replacement_idx, match_way)
     }
 

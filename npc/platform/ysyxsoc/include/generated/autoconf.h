@@ -7,8 +7,8 @@
 #define CONFIG_ICache_Block_Size 4
 #define CONFIG_FLASH_SIZE 0x10000000
 #define CONFIG_PSRAM_BASE 0x80000000
-#define CONFIG_ICache_Way 1
-#define CONFIG_ICache_Set 16
+#define CONFIG_ICache_Way 4
+#define CONFIG_ICache_Set 4
 #define CONFIG_PLATFORM_YSYXSOC 1
 #define CONFIG_PLATFORM "ysyxsoc"
 #define CONFIG_MROM_SIZE 0x00001000

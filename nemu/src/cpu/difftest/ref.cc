@@ -58,13 +58,19 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
   Icache_init(begin, end, way, set, block_size);
 }
 
+Icache_return icache_fetch(vaddr_t addr, uint32_t len);
 __EXPORT void difftest_cache_state(void *dut, bool direction) {
   auto src = reinterpret_cast<std::vector<std::vector<CacheLine>>*>(dut);
   if(direction == DIFFTEST_TO_DUT) {
     *src = icache.cache;
   } else {
-    icache.cache = *src;
+    // icache.cache = *src;
+    icache_fetch(cpu.pc, 4); // perhaps...
   }
+}
+
+__EXPORT void difftest_cache_print(void) {
+  icache.print_cache();
 }
 
 __EXPORT void difftest_cache_behaior(void *dut) {

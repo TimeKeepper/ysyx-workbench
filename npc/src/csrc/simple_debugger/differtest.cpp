@@ -30,6 +30,9 @@ Differtest::Differtest(char *ref_so_file, long img_size, int port, \
     ref_difftest_cache_behaior = (void (*)(void *))dlsym(handle, "difftest_cache_behaior");
     assert(ref_difftest_cache_behaior);
 
+    ref_difftest_cache_print = (void (*)(void))dlsym(handle, "difftest_cache_print");
+    assert(ref_difftest_cache_print);
+
     ref_difftest_exec = (void (*)(uint64_t))dlsym(handle, "difftest_exec");
     assert(ref_difftest_exec);
 
@@ -152,8 +155,8 @@ void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
     checkmems();
-    checkregs(&ref_r, pc);
     checkcache(icache_state);
+    checkregs(&ref_r, pc);
 }
 
 void Differtest::difftest_skip_ref() {

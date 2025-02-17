@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 
 import config._
+import utility.ReplacementPolicy
 
 import org.chipsalliance.cde.config.Parameters
 import freechips.rocketchip.subsystem._
@@ -14,6 +15,7 @@ import freechips.rocketchip.util.Annotated.srams
 import riscv_cpu.LS_state.s_wait_valid
 import riscv_cpu.bus_state.s_wait_ready
 import riscv_cpu.bus_state.s_busy
+import scala.collection.Parallel
 
 class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
@@ -114,7 +116,7 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
 
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {
     val io = IO(new Bundle{
-        val addr = Input(UInt(32.W))
+        val addr = Flipped(ValidIO(Input(UInt(32.W))))
         val data = Output(UInt(32.W))
 
         val cache_hit = Output(Bool())
@@ -128,31 +130,71 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_width = valid_width - offset_width - set_width
 
     val line_width = 1 + tag_width + block_size * 8
-    val cache = Mem(set, UInt(line_width.W))
+    // val cache = Mem(set, UInt((line_width).W))
+    // a vector(Way) of Mem(Set)
+    val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
+    val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
 
-    val set_index = io.addr(set_width + offset_width - 1, offset_width)
-    val tag = io.addr(valid_width - 1, set_width + offset_width)
+    val set_index = io.addr.bits(set_width + offset_width - 1, offset_width)
+    val tag = io.addr.bits(valid_width - 1, set_width + offset_width)
+    // val Cache_tagSegment = ((set_width + offset_width) until valid_width).map()
     
-    val cache_valid = cache(set_index)(line_width - 1)
-    val cache_tag = cache(set_index)(line_width - 2, block_size * 8)
-    io.data := cache(set_index)(block_size * 8 - 1, 0)
+    class Cache_Meta extends Bundle{
+        val valid = Bool()
+        val tag = UInt(tag_width.W)
+    }
+
+    val metas = meta.read(set_index).map{c => 
+        c.asTypeOf(new Cache_Meta)
+    }
+
+    val data_set = data.read(set_index)
+
+    val valid_vec = VecInit(metas.map(_.valid))
+    val tag_equal_vec = VecInit(metas.map(_.tag === tag))
+    val tag_match_vec = tag_equal_vec.zip(valid_vec).map{case (a, b) => a && b}
+    val tag_match = tag_match_vec.reduce(_ | _)
+    val match_way = Mux1H(tag_match_vec, (0 until way).map(_.U))
     
-    io.cache_hit := cache_valid && (cache_tag === tag)
+    io.data := data_set(match_way)
+    
+    io.cache_hit := tag_match
 
     // TODO: have to implement LRU Algorithm
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
+    
+    val replacement = ReplacementPolicy.fromString("setlru", way, set)
+    // val replacements = Seq(ReplacementPolicy.fromString("lru", way))
+    println("replacements: " + replacement)
+    val replacement_idx = Wire(UInt(log2Ceil(set).W))
+    replacement_idx := MuxCase(0.U, (0 until set).map { i =>
+        (replace_set_index === i.U) -> i.U
+    })
+    
+    val replace_way = replacement.way(replacement_idx)
+    val replace_way_mask = UIntToOH(replace_way)
+
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
+    val replace_tag_v = VecInit((0 until way).map(_ => Cat(true.B, replace_tag)))
+
     val replace_cache = io.replace_data.bits
+    val replace_cache_v = VecInit((0 until way).map(_ => replace_cache))
 
     when(io.replace_data.valid){
-        cache(replace_set_index) := Cat(true.B, replace_tag, replace_cache)
+        meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
+        data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
+        // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
+        // data(replace_set_index)(replace_way) := replace_cache
+        replacement.access(replacement_idx, replace_way)
+    }.elsewhen(tag_match && io.addr.valid){
+        replacement.access(RegNext(replacement_idx), RegNext(match_way))
     }
 
     if(Config.Simulate){
         val Icache_state = Module(new Icache_state_catch)
         Icache_state.io.valid := io.replace_data.valid
         Icache_state.io.write_index := replace_set_index
-        Icache_state.io.write_way := 0.U
+        Icache_state.io.write_way := replace_way
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
     }
@@ -175,7 +217,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val (master, _) = masterNode.out(0)
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
-        Icache.io.addr := io.REG_2_IFU.Next_PC
+        Icache.io.addr.bits := io.REG_2_IFU.Next_PC
+        Icache.io.addr.valid := io.WBU_2_IFU.fire
 
         val state = RegInit(bus_state.s_wait_valid)
         io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
@@ -192,7 +235,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
         master.r.ready := state === bus_state.s_pipeline
         Icache.io.replace_data.bits := master.r.bits.data
-        Icache.io.replace_data.valid := master.r.valid && map_hit // if not & map_hit, will cause an very subtle bug 
+        Icache.io.replace_data.valid := master.r.fire && map_hit // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
             Icache.io.data, master.r.bits.data),

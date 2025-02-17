@@ -13,7 +13,7 @@ extern "C" {
 #include <iostream>
 #include <memory/icache.hpp>
 
-void Icache::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t line_size) {
+void Icache_LRU::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t line_size) {
         this->begin = begin;
         this->end = end;
         this->way = way;
@@ -32,12 +32,12 @@ void Icache::init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint
                 cache[i][j].valid = false;
                 cache[i][j].tag = 0;
                 cache[i][j].inst = 0;
-                lru[i].push_back(j);
+                lru[i].push_front(j);
             }
         }
     }
     
-Icache_return Icache::fetch(vaddr_t addr, uint32_t len) {
+Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
     Icache_return result;
     result.inst = 0;
     result.map_hit = (addr >= begin) && (addr < end);
@@ -58,7 +58,7 @@ Icache_return Icache::fetch(vaddr_t addr, uint32_t len) {
         if(cache[set_idx][w].valid && cache[set_idx][w].tag == tag) {
             // 更新LRU列表
             lru[set_idx].remove(w);
-            lru[set_idx].push_front(w);
+            lru[set_idx].push_back(w);
             result.inst = cache[set_idx][w].inst;
             result.cache_hit = true;
             return result;
@@ -69,9 +69,9 @@ Icache_return Icache::fetch(vaddr_t addr, uint32_t len) {
     result.inst = paddr_read(addr, len);
 
     // 替换策略：替换LRU列表末尾的缓存行
-    int replace_way = lru[set_idx].back();
-    lru[set_idx].pop_back();
-    lru[set_idx].push_front(replace_way);
+    int replace_way = lru[set_idx].front();
+    lru[set_idx].pop_front();
+    lru[set_idx].push_back(replace_way);
 
     cache[set_idx][replace_way].tag = tag;
     cache[set_idx][replace_way].inst = result.inst;
@@ -80,7 +80,7 @@ Icache_return Icache::fetch(vaddr_t addr, uint32_t len) {
     return result;
 }
 
-void Icache::print_cache() {
+void Icache_LRU::print_cache() {
     for(uint32_t i = 0; i < set; ++i) {
         std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
         for(uint32_t j = 0; j < way; ++j) {
@@ -93,7 +93,7 @@ void Icache::print_cache() {
     }
 }
 
-Icache icache;
+Icache_LRU icache;
 
 extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size) {
     icache.init(begin, end, way, set, block_size);

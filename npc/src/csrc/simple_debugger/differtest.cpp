@@ -143,9 +143,9 @@ void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
     Riscv_CPU_State ref_r;
 
     if (is_skip_ref) {
-        ref_difftest_regcpy(this->dut_r, DIFFTEST_TO_REF);
-
         ref_difftest_cache_state(&this->emulator->cache, DIFFTEST_TO_REF);
+        
+        ref_difftest_regcpy(this->dut_r, DIFFTEST_TO_REF);
 
         is_skip_ref = false;
         return;

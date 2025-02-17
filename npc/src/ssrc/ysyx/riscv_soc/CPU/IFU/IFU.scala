@@ -172,7 +172,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     })
     
     val replace_way = replacement.way(replacement_idx)
-    val replace_way_mask = UIntToOH(replace_way)
+    val replace_way_mask = UIntToOH(replace_way, way)
 
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
     val replace_tag_v = VecInit((0 until way).map(_ => Cat(true.B, replace_tag)))
@@ -186,8 +186,8 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
         // data(replace_set_index)(replace_way) := replace_cache
         replacement.access(replacement_idx, replace_way)
-    }.elsewhen(tag_match && io.addr.valid){
-        replacement.access(RegNext(replacement_idx), RegNext(match_way))
+    }.elsewhen(RegNext(tag_match && io.addr.valid)){
+        replacement.access(replacement_idx, match_way)
     }
 
     if(Config.Simulate){

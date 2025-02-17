@@ -187,7 +187,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         // data(replace_set_index)(replace_way) := replace_cache
         replacement.access(replacement_idx, replace_way)
     }.elsewhen(tag_match && io.addr.valid){
-        replacement.access(RegNext(replacement_idx), RegNext(match_way))
+        replacement.access(replacement_idx, match_way)
     }
 
     if(Config.Simulate){

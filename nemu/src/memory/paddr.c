@@ -128,7 +128,7 @@ void init_mem() {
   Log("PSRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
   Log("SDRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", SDRAM_LEFT, SDRAM_RIGHT);
   
-  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 1, 2, 32);
+  Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, 1, 1, 64);
 }
 
 word_t paddr_read(paddr_t addr, int len) {

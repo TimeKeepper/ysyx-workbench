@@ -57,7 +57,7 @@ Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
             // 更新LRU列表
             lru[set_idx].remove(w);
             lru[set_idx].push_back(w);
-            result.inst = cache[set_idx][w].inst[0];
+            result.inst = cache[set_idx][w].inst[offset / 4];
             result.cache_hit = true;
             return result;
         }

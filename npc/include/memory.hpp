@@ -28,9 +28,9 @@ class Memory {
 };
 
 struct CacheLine {
+    bool valid;
     uint32_t tag;
     word_t inst;
-    bool valid;
 };
 
 #ifdef CONFIG_PLATFORM_YSYXSOC

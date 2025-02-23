@@ -92,7 +92,7 @@ sim: $(BIN) $(IMG)
 gdb: $(BIN) $(IMG)
 	@echo $(IMG)
 	$(call git_commit, "gdb npc")
-	gdb $(NPC_EXEC)
+	gdb --args $(NPC_EXEC)
 
 shared: $(DESIGN_FILE)
 	$(VERILATOR) \

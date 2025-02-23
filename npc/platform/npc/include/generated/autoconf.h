@@ -5,8 +5,8 @@
  *
  */
 #define CONFIG_ICache_Block_Size 4
-#define CONFIG_ICache_Way 4
-#define CONFIG_ICache_Set 4
+#define CONFIG_ICache_Way 2
+#define CONFIG_ICache_Set 8
 #define CONFIG_PLATFORM "npc"
 #define CONFIG_PLATFORM_NPC 1
 #define CONFIG_RESET_VECTOR 0x80000000

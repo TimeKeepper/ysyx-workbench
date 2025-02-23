@@ -152,6 +152,7 @@ void Differtest::checkcache(Icache_return icache_state){
 
                 Pin;
                 std::cout << "ref inst vector:  ";
+                Pin;
                 for (const auto& inst : ref_cache_state[i][j].inst) {
                     std::cout << ANSI_FG_YELLOW << std::hex << inst << " " << ANSI_NONE;
                 }

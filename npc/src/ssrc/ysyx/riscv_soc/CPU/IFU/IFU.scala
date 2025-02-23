@@ -132,8 +132,6 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val set_width = log2Ceil(set)
     val tag_width = valid_width - offset_width - set_width
 
-    val line_width = 1 + tag_width + block_size * 8
-    // val cache = Mem(set, UInt((line_width).W))
     // a vector(Way) of Mem(Set)
     val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
     val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
@@ -163,12 +161,10 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     
     io.cache_hit := tag_match
 
-    // TODO: have to implement LRU Algorithm
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
     
     val replacement = ReplacementPolicy.fromString("setlru", way, set)
     // val replacements = Seq(ReplacementPolicy.fromString("lru", way))
-    println("replacements: " + replacement)
     val replacement_idx = Wire(UInt(log2Ceil(set).W))
     replacement_idx := MuxCase(0.U, (0 until set).map { i =>
         (replace_set_index === i.U) -> i.U

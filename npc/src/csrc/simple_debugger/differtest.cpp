@@ -124,6 +124,10 @@ void Differtest::checkcache(Icache_return icache_state){
     ref_cache_state.resize(CONFIG_ICache_Set, std::vector<CacheLine>(CONFIG_ICache_Way));
     ref_difftest_cache_state(&ref_cache_state, DIFFTEST_TO_DUT);
 
+    std::cout << "ref_cache_state.size() = " << ref_cache_state.size() << std::endl;
+    std::cout << "ref_cache_state[0].size() = " << ref_cache_state[0].size() << std::endl;
+    std::cout << "ref_cache_state[0][0].inst.size() = " << ref_cache_state[0][0].inst.size() << std::endl;
+
     for(uint32_t i = 0; i < CONFIG_ICache_Set; i++) {
         for(uint32_t j = 0; j < CONFIG_ICache_Way; j++) {
             if(ref_cache_state[i][j] != emulator->cache[i][j]){
@@ -150,9 +154,7 @@ void Differtest::checkcache(Icache_return icache_state){
                     << ANSI_FG_YELLOW << "0x" << std::hex << emulator->cache[i][j].tag << ANSI_NONE 
                     << std::endl;
 
-                Pin;
                 std::cout << "ref inst vector:  ";
-                Pin;
                 for (const auto& inst : ref_cache_state[i][j].inst) {
                     std::cout << ANSI_FG_YELLOW << std::hex << inst << " " << ANSI_NONE;
                 }

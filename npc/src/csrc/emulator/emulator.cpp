@@ -207,6 +207,8 @@ static void welcome() {
 void init_disasm(const char *triple);
 
 Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
+    Pin;
+
     this->parse_args();
 
     this->init_rand();

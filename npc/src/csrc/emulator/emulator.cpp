@@ -329,6 +329,10 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
 }
 
 void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, svBitVecVal write_data) {
+    std::cout << cache.size() << std::endl;
+    std::cout << cache[write_index].size() << std::endl;
+    std::cout << cache[write_index][write_way].inst.size() << std::endl;
+    
     cache[write_index][write_way].tag = write_tag;
     // cache[write_index][write_way].inst = write_data;
     for (uint32_t& k : cache[write_index][write_way].inst) {

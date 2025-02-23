@@ -165,12 +165,12 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     
     val replacement = ReplacementPolicy.fromString("setlru", way, set)
     // val replacements = Seq(ReplacementPolicy.fromString("lru", way))
-    val replacement_idx = Wire(UInt(log2Ceil(set).W))
-    replacement_idx := MuxCase(0.U, (0 until set).map { i =>
-        (replace_set_index === i.U) -> i.U
-    })
+    // val replacement_idx = Wire(UInt(log2Ceil(set).W))
+    // replacement_idx := MuxCase(0.U, (0 until set).map { i =>
+    //     (replace_set_index === i.U) -> i.U
+    // })
     
-    val replace_way = replacement.way(replacement_idx)
+    val replace_way = replacement.way(replace_set_index)
     val replace_way_mask = UIntToOH(replace_way, way)
 
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
@@ -184,9 +184,9 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
         // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
         // data(replace_set_index)(replace_way) := replace_cache
-        replacement.access(replacement_idx, replace_way)
+        replacement.access(replace_set_index, replace_way)
     }.elsewhen(RegNext(tag_match && io.addr.valid)){
-        replacement.access(replacement_idx, match_way)
+        replacement.access(replace_set_index, match_way)
     }
 
     if(Config.Simulate){

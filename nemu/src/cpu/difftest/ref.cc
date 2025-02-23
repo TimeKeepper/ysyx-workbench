@@ -63,9 +63,6 @@ Icache_return icache_fetch(vaddr_t addr, uint32_t len);
 __EXPORT void difftest_cache_state(void *dut, bool direction) {
   auto src = reinterpret_cast<std::vector<std::vector<CacheLine>>*>(dut);
   if(direction == DIFFTEST_TO_DUT) {
-    std::cout << "nemu cache set size: " << icache.cache.size() << std::endl;
-    std::cout << "nemu cache way size: " << icache.cache[0].size() << std::endl;
-    std::cout << "nemu cache inst size: " << icache.cache[0][0].inst.size() << std::endl;
     *src = icache.cache;
   } else {
     // icache.cache = *src;

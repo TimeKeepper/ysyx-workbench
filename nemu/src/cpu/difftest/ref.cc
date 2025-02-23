@@ -16,6 +16,7 @@
 #include "debug.h"
 #include <cassert>
 #include <cstdint>
+#include <iostream>
 #include <list>
 #include <utility>
 #include <vector>

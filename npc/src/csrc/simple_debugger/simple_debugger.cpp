@@ -118,6 +118,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 #ifdef CONFIG_DIFFTEST
                 if (args.size() == 2) {
                     if (args[1] == "r") {
+                        std::cout << ANSI_FG_CYAN << "Checking ref cache..." << ANSI_NONE << std::endl;
                         this->difftest->ref_difftest_cache_print();
                         return 0;
                     }

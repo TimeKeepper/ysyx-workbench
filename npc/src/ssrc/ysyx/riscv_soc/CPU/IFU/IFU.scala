@@ -132,8 +132,6 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val set_width = log2Ceil(set)
     val tag_width = valid_width - offset_width - set_width
 
-    val line_width = 1 + tag_width + block_size * 8
-    // val cache = Mem(set, UInt((line_width).W))
     // a vector(Way) of Mem(Set)
     val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
     val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
@@ -163,18 +161,11 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     
     io.cache_hit := tag_match
 
-    // TODO: have to implement LRU Algorithm
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
     
     val replacement = ReplacementPolicy.fromString("setlru", way, set)
-    // val replacements = Seq(ReplacementPolicy.fromString("lru", way))
-    println("replacements: " + replacement)
-    val replacement_idx = Wire(UInt(log2Ceil(set).W))
-    replacement_idx := MuxCase(0.U, (0 until set).map { i =>
-        (replace_set_index === i.U) -> i.U
-    })
     
-    val replace_way = replacement.way(replacement_idx)
+    val replace_way = replacement.way(replace_set_index)
     val replace_way_mask = UIntToOH(replace_way, way)
 
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
@@ -186,11 +177,9 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     when(io.replace_data.valid){
         meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
         data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
-        // meta(replace_set_index)(replace_way) := Cat(true.B, replace_tag)
-        // data(replace_set_index)(replace_way) := replace_cache
-        replacement.access(replacement_idx, replace_way)
+        replacement.access(replace_set_index, replace_way)
     }.elsewhen(RegNext(tag_match && io.addr.valid)){
-        replacement.access(replacement_idx, match_way)
+        replacement.access(replace_set_index, match_way)
     }
 
     if(Config.Simulate){

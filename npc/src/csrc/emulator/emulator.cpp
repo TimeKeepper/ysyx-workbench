@@ -93,8 +93,6 @@ std::string Emulator::disasm(uint32_t pc, uint32_t inst){
 }
 
 void Emulator::parse_args() {
-    Pin;
-
     const struct option table[] = {
       {"batch"    , no_argument      , NULL, 'b'},
       {"log"      , required_argument, NULL, 'l'},
@@ -105,7 +103,11 @@ void Emulator::parse_args() {
       {0          , 0                , NULL,  0 },
     };
     
+    Pin;
+
     for(int i = 0; i < argc; i++) {
+        Pin;
+    
         std::cout << argv[i] << std::endl;
     }
 

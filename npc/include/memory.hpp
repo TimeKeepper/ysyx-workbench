@@ -5,6 +5,7 @@
 #include <cmath>
 #include <sys/types.h>
 #include <utils.hpp>
+#include <vector>
 
 class Memory {
     private:
@@ -30,7 +31,17 @@ class Memory {
 struct CacheLine {
     bool valid;
     uint32_t tag;
-    word_t inst;
+    std::vector<uint32_t> inst;
+
+    CacheLine() : CacheLine(CONFIG_ICache_Block_Size) {}
+
+    CacheLine(uint32_t block_size) {
+        assert(block_size % 4 == 0 && block_size >= 4);
+        valid = false;
+        tag = 0;
+        inst.resize(block_size / 4);
+        std::fill(inst.begin(), inst.end(), 0);
+    }
 };
 
 #ifdef CONFIG_PLATFORM_YSYXSOC

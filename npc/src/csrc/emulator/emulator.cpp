@@ -1,7 +1,9 @@
 #include "common.hpp"
 #include "cpu.hpp"
 #include "memory.hpp"
+#include "svdpi.h"
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <utils.hpp>
@@ -100,7 +102,7 @@ void Emulator::parse_args() {
       {"help"     , no_argument      , NULL, 'h'},
       {0          , 0                , NULL,  0 },
     };
-    
+
     int o;
     while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
         switch (o) {
@@ -109,7 +111,7 @@ void Emulator::parse_args() {
             case 'l':                           break;
             case 'd': diff_so_file  = optarg;   break;
             case 'e': elf_file      = optarg;   break;
-            case 1  : img_file      = optarg;   return;
+            case 1  : img_file      = optarg;   {return;}
             default:
             printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
             printf("\t-b,--batch              run with batch mode\n");
@@ -326,9 +328,17 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
     this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
 }
 
-void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, uint32_t write_data) {
+void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, svBitVecVal write_data) {
+    // std::cout << "set size: " << cache.size() << std::endl;
+    // std::cout << "way size: " << cache[write_index].size() << " index: " << write_index << std::endl;
+    // std::cout << "block size: " << cache[write_index][write_way].inst.size() << std::endl;
+
     cache[write_index][write_way].tag = write_tag;
-    cache[write_index][write_way].inst = write_data;
+    // cache[write_index][write_way].inst = write_data;
+    for (uint32_t& k : cache[write_index][write_way].inst) {
+        k = write_data;
+    }
+    
     cache[write_index][write_way].valid = true;
 }
 

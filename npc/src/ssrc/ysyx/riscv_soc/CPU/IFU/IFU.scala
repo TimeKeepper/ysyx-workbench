@@ -70,26 +70,29 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
         val write_index = Input(UInt(32.W))
         val write_way = Input(UInt(32.W))
         val write_tag = Input(UInt(32.W))
-        val write_data = Input(UInt(32.W))
+        val write_data = Input(UInt((Config.Icache_Param.block_size * 8).W))
     })
 
-    setInline("Icache_state_catch.v",
-    """module Icache_state_catch(
+    val code = 
+    s"""
+    |module Icache_state_catch(
     |    input valid,
     |
     |    input [31:0] write_index,
     |    input [31:0] write_way,
     |    input [31:0] write_tag,
-    |    input [31:0] write_data
+    |    input [${Config.Icache_Param.block_size * 8 - 1}:0] write_data
     |);
     |
-    |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input int unsigned write_data);
+    |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
     |   always @(posedge valid) begin
     |       Icache_state_catch(write_index, write_way, write_tag, write_data);
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("Icache_state_catch.v", code.stripMargin)
 }
 
 class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {

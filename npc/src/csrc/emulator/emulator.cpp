@@ -105,6 +105,8 @@ void Emulator::parse_args() {
     
     Pin;
 
+    std::cout << "argc: " << argc << std::endl;
+
     for(int i = 0; i < argc; i++) {
         Pin;
     

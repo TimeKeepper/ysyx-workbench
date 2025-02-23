@@ -102,16 +102,6 @@ void Emulator::parse_args() {
       {"help"     , no_argument      , NULL, 'h'},
       {0          , 0                , NULL,  0 },
     };
-    
-    Pin;
-
-    std::cout << "argc: " << argc << std::endl;
-
-    for(int i = 0; i < argc; i++) {
-        Pin;
-    
-        std::cout << argv[i] << std::endl;
-    }
 
     int o;
     while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {

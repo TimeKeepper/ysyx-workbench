@@ -93,6 +93,8 @@ std::string Emulator::disasm(uint32_t pc, uint32_t inst){
 }
 
 void Emulator::parse_args() {
+    Pin;
+
     const struct option table[] = {
       {"batch"    , no_argument      , NULL, 'b'},
       {"log"      , required_argument, NULL, 'l'},
@@ -207,8 +209,6 @@ static void welcome() {
 void init_disasm(const char *triple);
 
 Emulator::Emulator(int argc, char **argv) : argc(argc), argv{argv} {
-    Pin;
-
     this->parse_args();
 
     this->init_rand();

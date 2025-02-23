@@ -33,6 +33,8 @@ struct CacheLine {
     uint32_t tag;
     std::vector<uint32_t> inst;
 
+    CacheLine() : CacheLine(CONFIG_ICache_Block_Size) {}
+
     CacheLine(uint32_t block_size) {
         assert(block_size % 4 == 0 && block_size >= 4);
         valid = false;

@@ -3,6 +3,7 @@
 #include "memory.hpp"
 #include "svdpi.h"
 #include <iomanip>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <utils.hpp>
@@ -102,6 +103,10 @@ void Emulator::parse_args() {
       {0          , 0                , NULL,  0 },
     };
     
+    for(int i = 0; i < argc; i++) {
+        std::cout << argv[i] << std::endl;
+    }
+
     int o;
     while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
         switch (o) {
@@ -110,7 +115,7 @@ void Emulator::parse_args() {
             case 'l':                           break;
             case 'd': diff_so_file  = optarg;   break;
             case 'e': elf_file      = optarg;   break;
-            case 1  : img_file      = optarg;   {Pin; return;}
+            case 1  : img_file      = optarg;   {return;}
             default:
             printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
             printf("\t-b,--batch              run with batch mode\n");

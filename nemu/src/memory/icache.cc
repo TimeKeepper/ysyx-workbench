@@ -74,8 +74,10 @@ Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
     
     // Load entire cache block at once
     auto& block_data = cache[set_idx][replace_way].inst;
-    for (uint32_t i = 0; i < block_size / 4; ++i) {
-        block_data[i] = paddr_read(block_addr + i * 4, 4);
+    vaddr_t curr_addr = block_addr;
+    for (auto it = block_data.begin(); it != block_data.end(); ++it) {
+        *it = paddr_read(curr_addr, 4);
+        curr_addr += 4;
     }
     
     // Get the requested instruction

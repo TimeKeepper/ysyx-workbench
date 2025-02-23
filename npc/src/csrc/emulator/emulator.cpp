@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include "cpu.hpp"
 #include "memory.hpp"
+#include "svdpi.h"
 #include <iomanip>
 #include <string>
 #include <unordered_map>
@@ -326,9 +327,13 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
     this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
 }
 
-void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, uint32_t write_data) {
+void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, svBitVecVal write_data) {
     cache[write_index][write_way].tag = write_tag;
-    cache[write_index][write_way].inst = write_data;
+    // cache[write_index][write_way].inst = write_data;
+    for (uint32_t& k : cache[write_index][write_way].inst) {
+        k = write_data;
+    }
+    
     cache[write_index][write_way].valid = true;
 }
 

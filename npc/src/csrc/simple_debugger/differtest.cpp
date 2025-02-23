@@ -127,11 +127,39 @@ void Differtest::checkcache(Icache_return icache_state){
     for(uint32_t i = 0; i < CONFIG_ICache_Set; i++) {
         for(uint32_t j = 0; j < CONFIG_ICache_Way; j++) {
             if(ref_cache_state[i][j] != emulator->cache[i][j]){
-                printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
-                printf("icache: ref_cache[" ANSI_FG_YELLOW "%d" ANSI_NONE "][" ANSI_FG_YELLOW "%d" ANSI_NONE "]:\n", i, j);
-                printf("valid: ref_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE ", dut_valid:" ANSI_FG_YELLOW "%d" ANSI_NONE "\n", ref_cache_state[i][j].valid, emulator->cache[i][j].valid);
-                printf("tag: ref_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_tag:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].tag, emulator->cache[i][j].tag);
-                printf("inst: ref_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE ", dut_inst:" ANSI_FG_YELLOW "0x%08x" ANSI_NONE "\n", ref_cache_state[i][j].inst, emulator->cache[i][j].inst);
+                // printf(ANSI_FG_RED "diffter test has detect an error!\n" ANSI_NONE);
+                std::cout << ANSI_FG_RED << 
+                    "diffter test has detect an error!" 
+                    << std::endl << ANSI_NONE;
+
+                std::cout << "icache: ref_cache[" 
+                    << ANSI_FG_YELLOW << i << ANSI_NONE 
+                    << "][" 
+                    << ANSI_FG_YELLOW << j << ANSI_NONE 
+                    << "]:" << std::endl;
+
+                std::cout << "valid: ref_valid:" 
+                    << ANSI_FG_YELLOW << ref_cache_state[i][j].valid << ANSI_NONE 
+                    << ", dut_valid:" 
+                    << ANSI_FG_YELLOW << emulator->cache[i][j].valid << ANSI_NONE 
+                    << std::endl;
+
+                std::cout << "tag: ref_tag:"
+                    << ANSI_FG_YELLOW << "0x" << std::hex << ref_cache_state[i][j].tag << ANSI_NONE 
+                    << ", dut_tag:" 
+                    << ANSI_FG_YELLOW << "0x" << std::hex << emulator->cache[i][j].tag << ANSI_NONE 
+                    << std::endl;
+
+                std::cout << "ref inst vector:  ";
+                for (const auto& inst : ref_cache_state[i][j].inst) {
+                    std::cout << ANSI_FG_YELLOW << std::hex << inst << " " << ANSI_NONE;
+                }
+                std::cout << std::endl << "dut nst vector: ";
+                for (const auto& inst : emulator->cache[i][j].inst) {
+                    std::cout << ANSI_FG_YELLOW << std::hex << inst << " " << ANSI_NONE;
+                }
+                std::cout << std::endl;
+                
                 npc_state->state = NPC_ABORT;
                 npc_state->halt_pc = dut_r->pc;
             }

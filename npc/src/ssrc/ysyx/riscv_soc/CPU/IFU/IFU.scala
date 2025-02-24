@@ -209,7 +209,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         val block_num = Config.Icache_Param.block_size / 4
 
-        val Multi_transfer = VecInit(Seq.fill(block_num)(RegInit(0.U(32.W))))
+        val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
         // val Multi_transfer_counter = RegInit((block_num - 1).U)
         val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
         when (master.r.fire) {

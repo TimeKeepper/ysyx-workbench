@@ -207,6 +207,24 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         })
         val (master, _) = masterNode.out(0)
 
+        val block_num = Config.Icache_Param.block_size / 4
+
+        val Multi_transfer = VecInit(Seq.fill(block_num)(RegInit(0.U(32.W))))
+        // val Multi_transfer_counter = RegInit((block_num - 1).U)
+        val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
+        when (master.r.fire) {
+            when(Multi_transfer_counter === (block_num - 1).U){
+                Multi_transfer_counter := 0.U
+            }.otherwise{
+                Multi_transfer_counter := Multi_transfer_counter + 1.U
+            }
+
+            Multi_transfer(0) := master.r.bits.data
+            for(i <- 1 until (block_num)){
+                Multi_transfer(i) := Multi_transfer(i - 1)
+            }
+        }
+
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
         Icache.io.addr.bits := io.REG_2_IFU.Next_PC
         Icache.io.addr.valid := io.WBU_2_IFU.fire
@@ -220,31 +238,14 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.IFU_2_IDU.bits.PC := addr_cache
 
         master.ar.valid := state === s_busy
-        master.ar.bits.addr := addr_cache // so we can use it here
+        master.ar.bits.addr := addr_cache + (Multi_transfer_counter << 2.U) // so we can use it here
         Icache.io.replace_addr := addr_cache
         
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
         master.r.ready := state === bus_state.s_pipeline
 
-        val block_num = Config.Icache_Param.block_size / 4
-
-        val Multi_transfer = VecInit(Seq.fill(block_num)(RegInit(0.U(32.W))))
-        val Multi_transfer_counter = RegInit((block_num - 1).U)
-        when (master.r.fire) {
-            when(Multi_transfer_counter === 0.U){
-                Multi_transfer_counter := (block_num - 1).U
-            }.otherwise{
-                Multi_transfer_counter := Multi_transfer_counter - 1.U
-            }
-
-            Multi_transfer(0) := master.r.bits.data
-            for(i <- 1 until (block_num)){
-                Multi_transfer(i) := Multi_transfer(i - 1)
-            }
-        }
-
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
-        Icache.io.replace_data.valid := master.r.fire && map_hit && (Multi_transfer_counter === 0.U) // if not & map_hit, will cause an very subtle bug 
+        Icache.io.replace_data.valid := master.r.fire && map_hit && (Multi_transfer_counter === (block_num - 1).U) // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
             Icache.io.data, master.r.bits.data),
@@ -276,7 +277,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 ),
 
                 bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
-                    Mux(Multi_transfer_counter === 0.U,
+                    Mux(Multi_transfer_counter === (block_num - 1).U,
                         bus_state.s_wait_ready, 
                         bus_state.s_busy
                     ), 

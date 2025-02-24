@@ -94,7 +94,7 @@ extern "C" {
     }
 
     extern void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {
-        emulator->Icache_state_catch(write_index, write_way, write_tag, *write_data);
+        emulator->Icache_state_catch(write_index, write_way, write_tag, write_data);
     }
 
     extern void Icache_MAT_catch(uint32_t count) {

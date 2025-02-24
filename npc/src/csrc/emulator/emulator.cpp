@@ -2,6 +2,7 @@
 #include "cpu.hpp"
 #include "memory.hpp"
 #include "svdpi.h"
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -328,17 +329,18 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
     this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
 }
 
-void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, svBitVecVal write_data) {
+void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {
     // std::cout << "set size: " << cache.size() << std::endl;
     // std::cout << "way size: " << cache[write_index].size() << " index: " << write_index << std::endl;
     // std::cout << "block size: " << cache[write_index][write_way].inst.size() << std::endl;
 
     cache[write_index][write_way].tag = write_tag;
     // cache[write_index][write_way].inst = write_data;
+    uint32_t index = 0;
     for (uint32_t& k : cache[write_index][write_way].inst) {
-        k = write_data;
+        k = write_data[index++];
     }
-    
+
     cache[write_index][write_way].valid = true;
 }
 

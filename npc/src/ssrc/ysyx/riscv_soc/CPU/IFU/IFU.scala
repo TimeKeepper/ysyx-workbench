@@ -219,10 +219,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 Multi_transfer_counter := Multi_transfer_counter + 1.U
             }
 
-            for(i <- 1 until (block_num)){
-                Multi_transfer(i) := Multi_transfer(i - 1)
+            for(i <- 0 until (block_num - 1)){
+                Multi_transfer(i) := Multi_transfer(i + 1)
             }
-            Multi_transfer(0) := master.r.bits.data
+            Multi_transfer(block_num - 1) := master.r.bits.data
         }
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
@@ -248,10 +248,9 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := RegNext(master.r.fire && map_hit && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
 
-        val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
-            Icache.io.data, Multi_transfer(blcok_index)),
-            io.WBU_2_IFU.fire || master.r.fire
-        ) // cache inst
+        val inst_cache = Mux(io.WBU_2_IFU.fire, 
+            RegEnable(Icache.io.data, io.WBU_2_IFU.fire || master.r.fire), Multi_transfer(blcok_index))
+            
 
         io.IFU_2_IDU.bits.data := inst_cache
         io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)

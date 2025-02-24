@@ -76,9 +76,7 @@ bool Differtest::isa_difftest_checkregs(Riscv_CPU_State *ref_r, vaddr_t pc) {
 }
 
 void Differtest::add_mem_watch_point(uint32_t addr){
-    Pin;
     this->mem_watch_points.push_back(addr);
-    Pin;
 }
 
 void Differtest::checkregs(Riscv_CPU_State *ref, vaddr_t pc){

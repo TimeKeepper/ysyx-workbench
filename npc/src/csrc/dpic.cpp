@@ -1,4 +1,5 @@
 #include "performence.hpp"
+#include <iomanip>
 #include <simple_debugger.hpp>
 #include <memory>
 #include <utils.hpp>
@@ -34,7 +35,9 @@ extern "C" {
     }
 
     extern void sdram_write(int32_t waddr, int32_t wdata, int32_t wlen) {
-        std::cout << "sdram_write: " << waddr << " " << wdata << " " << wlen << std::endl;
+        std::cout << "sdram_write: " << std::hex << std::setw(8) << std::setfill('0')
+        << waddr + emulator->memorys["sdram"]->base << " " << wdata << " " << wlen 
+        << std::dec << std::endl;
         emulator->memorys["sdram"]->write(waddr, wlen, wdata);
     }
 

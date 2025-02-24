@@ -3,6 +3,7 @@
 #include <cassert>
 #include <differtest.hpp>
 #include <dlfcn.h>
+#include <iomanip>
 #include <string>
 
 Differtest::Differtest(char *ref_so_file, long img_size, int port, \
@@ -152,11 +153,11 @@ void Differtest::checkcache(Icache_return icache_state){
 
                 std::cout << "ref inst vector:  ";
                 for (const auto& inst : ref_cache_state[i][j].inst) {
-                    std::cout << ANSI_FG_YELLOW << std::hex << inst << " " << ANSI_NONE;
+                    std::cout << ANSI_FG_YELLOW << std::hex << std::setw(8) << std::setfill('0') << inst << " " << ANSI_NONE;
                 }
                 std::cout << std::endl << "dut nst vector: ";
                 for (const auto& inst : emulator->cache[i][j].inst) {
-                    std::cout << ANSI_FG_YELLOW << std::hex << inst << " " << ANSI_NONE;
+                    std::cout << ANSI_FG_YELLOW << std::hex << std::setw(8) << std::setfill('0') << inst << " " << ANSI_NONE;
                 }
                 std::cout << std::endl;
                 

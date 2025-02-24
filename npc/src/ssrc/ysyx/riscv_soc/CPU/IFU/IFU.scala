@@ -120,10 +120,10 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {
     val io = IO(new Bundle{
         val addr = Flipped(ValidIO(Input(UInt(32.W))))
-        val data = Output(UInt(32.W))
+        val data = Output(UInt((Config.Icache_Param.block_size * 8).W))
 
         val cache_hit = Output(Bool())
-        val replace_data = Flipped(ValidIO(Input(UInt(32.W))))
+        val replace_data = Flipped(ValidIO(Input(UInt((Config.Icache_Param.block_size * 8).W))))
         val replace_addr = Input(UInt(32.W))
     })
 
@@ -138,7 +138,6 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
 
     val set_index = io.addr.bits(set_width + offset_width - 1, offset_width)
     val tag = io.addr.bits(valid_width - 1, set_width + offset_width)
-    // val Cache_tagSegment = ((set_width + offset_width) until valid_width).map()
     
     class Cache_Meta extends Bundle{
         val valid = Bool()
@@ -212,28 +211,48 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.addr.bits := io.REG_2_IFU.Next_PC
         Icache.io.addr.valid := io.WBU_2_IFU.fire
 
-        val state = RegInit(bus_state.s_wait_valid)
-        io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
+        val block_num = Config.Icache_Param.block_size / 4
 
         val addr_cache = RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire) // cache addr is very useful
+        val block_index_pre = io.REG_2_IFU.Next_PC(log2Ceil(Config.Icache_Param.block_size), 2)
+        val blcok_index = addr_cache(log2Ceil(Config.Icache_Param.block_size), 2)
+
+        val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
+        // val Multi_transfer_counter = RegInit((block_num - 1).U)
+        val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
+        when (master.r.fire) {
+            when(Multi_transfer_counter === (block_num - 1).U){
+                Multi_transfer_counter := 0.U
+            }.otherwise{
+                Multi_transfer_counter := Multi_transfer_counter + 1.U
+            }
+
+            for(i <- 0 until (block_num - 1)){
+                Multi_transfer(i) := Multi_transfer(i + 1)
+            }
+            Multi_transfer(block_num - 1) := master.r.bits.data
+        }.elsewhen(io.WBU_2_IFU.fire){
+            Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
+        }
+
+        val state = RegInit(bus_state.s_wait_valid)
+        io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
 
         io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
         io.IFU_2_IDU.bits.PC := addr_cache
 
         master.ar.valid := state === s_busy
-        master.ar.bits.addr := addr_cache // so we can use it here
+        master.ar.bits.addr := (addr_cache & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U) // so we can use it here
         Icache.io.replace_addr := addr_cache
         
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
         master.r.ready := state === bus_state.s_pipeline
-        Icache.io.replace_data.bits := master.r.bits.data
-        Icache.io.replace_data.valid := master.r.fire && map_hit // if not & map_hit, will cause an very subtle bug 
 
-        val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
-            Icache.io.data, master.r.bits.data),
-            io.WBU_2_IFU.fire || master.r.fire
-        ) // cache inst
+        Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
+        Icache.io.replace_data.valid := RegNext(master.r.fire && map_hit && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
 
+        val inst_cache = Multi_transfer(blcok_index)
+            
         io.IFU_2_IDU.bits.data := inst_cache
         io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)
         io.IFU_2_REG.GPR_Baddr := inst_cache(24, 20)
@@ -259,7 +278,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 ),
 
                 bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
-                    bus_state.s_wait_ready, 
+                    Mux(Multi_transfer_counter === (block_num - 1).U,
+                        bus_state.s_wait_ready, 
+                        bus_state.s_busy
+                    ), 
                     bus_state.s_pipeline
                 )
             )

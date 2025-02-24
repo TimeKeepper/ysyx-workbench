@@ -34,6 +34,7 @@ extern "C" {
     }
 
     extern void sdram_write(int32_t waddr, int32_t wdata, int32_t wlen) {
+        Pin;
         emulator->memorys["sdram"]->write(waddr, wlen, wdata);
     }
 

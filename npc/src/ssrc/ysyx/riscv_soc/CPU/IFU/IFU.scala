@@ -249,7 +249,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_data.valid := RegNext(master.r.fire && map_hit && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = Mux(io.WBU_2_IFU.fire, 
-            RegEnable(Icache.io.data, io.WBU_2_IFU.fire || master.r.fire), Multi_transfer(blcok_index))
+            Icache.io.data, Multi_transfer(blcok_index))
             
 
         io.IFU_2_IDU.bits.data := inst_cache

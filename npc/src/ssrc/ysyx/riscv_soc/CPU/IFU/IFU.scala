@@ -229,7 +229,14 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val block_num = Config.Icache_Param.block_size / 4
 
         val Multi_transfer = VecInit(Seq.fill(block_num)(RegInit(0.U(32.W))))
+        val Multi_transfer_counter = RegInit((block_num - 1).U)
         when (master.r.fire) {
+            when(Multi_transfer_counter === 0.U){
+                Multi_transfer_counter := (block_num - 1).U
+            }.otherwise{
+                Multi_transfer_counter := Multi_transfer_counter - 1.U
+            }
+
             Multi_transfer(0) := master.r.bits.data
             for(i <- 1 until (block_num)){
                 Multi_transfer(i) := Multi_transfer(i - 1)
@@ -269,7 +276,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 ),
 
                 bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
-                    bus_state.s_wait_ready, 
+                    Mux(Multi_transfer_counter === 0.U,
+                        bus_state.s_wait_ready, 
+                        bus_state.s_busy
+                    ), 
                     bus_state.s_pipeline
                 )
             )

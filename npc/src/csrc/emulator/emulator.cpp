@@ -336,10 +336,9 @@ void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint
 
     cache[write_index][write_way].tag = write_tag;
     // cache[write_index][write_way].inst = write_data;
-    int32_t index = cache[write_index][write_way].inst.size();
+    uint32_t index = 0;
     for (uint32_t& k : cache[write_index][write_way].inst) {
-        Assert(index >= 0, "Wrong index: %d", index);
-        k = write_data[index--];
+        k = write_data[index++];
     }
 
     cache[write_index][write_way].valid = true;

@@ -128,7 +128,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                     std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
                     for(uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {
                         std::cout << ANSI_FG_CYAN"valid " << (this->emulator->cache[i][j].valid ? ANSI_FG_GREEN"true" : ANSI_FG_RED"false") << '\t'
-                            << ANSI_FG_CYAN"tag[" << ICACHE_TAG_BITS << "] " <<  std::hex << ANSI_FG_BLUE"0x" << (this->emulator->cache[i][j].tag * (this->emulator->cache[i][j].inst.size() * 4)) << '\t'
+                            << ANSI_FG_CYAN"tag[" << ICACHE_TAG_BITS << "] " <<  std::hex << ANSI_FG_BLUE"0x" << (this->emulator->cache[i][j].tag * (this->emulator->cache[i][j].inst.size() * 4 * this->emulator->cache.size())) << '\t'
                             << ANSI_FG_CYAN"data " << ANSI_FG_BLUE;
                         // std::cout << std::setw(8) << std::setfill('0') << this->emulator->cache[i][j].inst;
                         for (uint32_t k : this->emulator->cache[i][j].inst) {

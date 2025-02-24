@@ -34,11 +34,12 @@ extern "C" {
     }
 
     extern void sdram_write(int32_t waddr, int32_t wdata, int32_t wlen) {
-        Pin;
+        std::cout << "sdram_write: " << waddr << " " << wdata << " " << wlen << std::endl;
         emulator->memorys["sdram"]->write(waddr, wlen, wdata);
     }
 
     extern void sdram_read(int32_t addr, int32_t* data) {
+        std::cout << "sdram_read: " << addr << std::endl;
         *data = emulator->memorys["sdram"]->read(addr, 2);
     }
 

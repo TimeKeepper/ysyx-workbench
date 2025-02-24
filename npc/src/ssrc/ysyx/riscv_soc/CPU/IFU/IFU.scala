@@ -219,10 +219,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 Multi_transfer_counter := Multi_transfer_counter + 1.U
             }
 
-            Multi_transfer(0) := master.r.bits.data
             for(i <- 1 until (block_num)){
                 Multi_transfer(i) := Multi_transfer(i - 1)
             }
+            Multi_transfer(0) := master.r.bits.data
         }
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))

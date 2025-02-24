@@ -198,9 +198,7 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
             }
 
             uint32_t addr = std::stoul(args[0], nullptr, 0);
-            Pin;
             this->difftest->add_mem_watch_point(addr);
-            Pin;
             return 0;
         }
     });

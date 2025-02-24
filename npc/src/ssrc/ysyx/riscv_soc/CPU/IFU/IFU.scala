@@ -123,7 +123,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         val data = Output(UInt(32.W))
 
         val cache_hit = Output(Bool())
-        val replace_data = Flipped(ValidIO(Input(UInt(32.W))))
+        val replace_data = Flipped(ValidIO(Input(UInt((Config.Icache_Param.block_size * 8).W))))
         val replace_addr = Input(UInt(32.W))
     })
 
@@ -138,7 +138,6 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
 
     val set_index = io.addr.bits(set_width + offset_width - 1, offset_width)
     val tag = io.addr.bits(valid_width - 1, set_width + offset_width)
-    // val Cache_tagSegment = ((set_width + offset_width) until valid_width).map()
     
     class Cache_Meta extends Bundle{
         val valid = Bool()
@@ -226,7 +225,18 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
         master.r.ready := state === bus_state.s_pipeline
-        Icache.io.replace_data.bits := master.r.bits.data
+
+        val block_num = Config.Icache_Param.block_size / 4
+
+        val Multi_transfer = VecInit(Seq.fill(block_num)(RegInit(0.U(32.W))))
+        when (master.r.fire) {
+            Multi_transfer(0) := master.r.bits.data
+            for(i <- 1 until (block_num)){
+                Multi_transfer(i) := Multi_transfer(i - 1)
+            }
+        }
+
+        Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := master.r.fire && map_hit // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 

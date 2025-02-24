@@ -233,6 +233,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
 
         val addr_cache = RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire) // cache addr is very useful
+        val blcok_index = addr_cache(log2Ceil(Config.Icache_Param.block_size), 2)
 
         io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
         io.IFU_2_IDU.bits.PC := addr_cache
@@ -248,7 +249,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_data.valid := RegNext(master.r.fire && map_hit && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = RegEnable(Mux(io.WBU_2_IFU.fire, 
-            Icache.io.data, master.r.bits.data),
+            Icache.io.data, Multi_transfer(blcok_index)),
             io.WBU_2_IFU.fire || master.r.fire
         ) // cache inst
 

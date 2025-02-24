@@ -120,7 +120,7 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {
     val io = IO(new Bundle{
         val addr = Flipped(ValidIO(Input(UInt(32.W))))
-        val data = Output(UInt(32.W))
+        val data = Output(UInt((Config.Icache_Param.block_size * 8).W))
 
         val cache_hit = Output(Bool())
         val replace_data = Flipped(ValidIO(Input(UInt((Config.Icache_Param.block_size * 8).W))))
@@ -232,7 +232,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             }
             Multi_transfer(block_num - 1) := master.r.bits.data
         }.elsewhen(io.WBU_2_IFU.fire){
-            Multi_transfer(block_index_pre) := Icache.io.data
+            Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
         }
 
         val state = RegInit(bus_state.s_wait_valid)

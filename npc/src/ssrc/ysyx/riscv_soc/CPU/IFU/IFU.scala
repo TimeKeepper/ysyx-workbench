@@ -219,9 +219,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 Multi_transfer_counter := Multi_transfer_counter + 1.U
             }
 
-            for(i <- 1 until (block_num)){
-                Multi_transfer(i) := Multi_transfer(i - 1)
-            }
+            // for(i <- 1 until (block_num)){
+            //     Multi_transfer(i) := Multi_transfer(i - 1)
+            // }
+            Multi_transfer(1) := Multi_transfer(0)
             Multi_transfer(0) := master.r.bits.data
         }
 

@@ -356,7 +356,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         master.ar.bits.size  := 2.U
         master.ar.bits.id    := 0.U
         master.ar.bits.len   := 0.U
-        master.ar.bits.burst := 0.U
+        master.ar.bits.burst := 1.U // INCR
         master.ar.bits.lock  := 0.U
         master.ar.bits.cache := 0.U
         master.ar.bits.prot  := 0.U

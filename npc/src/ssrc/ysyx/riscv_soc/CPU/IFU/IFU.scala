@@ -191,6 +191,16 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     }
 }
 
+object IFU_state extends ChiselEnum{
+  val s_wait_valid,
+      s_wait_ready,
+      s_send_addr,
+      s_get,
+      s_replacement_send_addr,
+      s_replacement_get
+      = Value
+}
+
 class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val masterNode = AXI4MasterNode(p(ExtIn).map(params =>
         AXI4MasterPortParameters(
@@ -205,6 +215,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
             val IFU_2_REG = Output(new BUS_IFU_2_REG)
         })
+        val state = RegInit(IFU_state.s_wait_valid)
+        
         val (master, _) = masterNode.out(0)
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
@@ -220,7 +232,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
         // val Multi_transfer_counter = RegInit((block_num - 1).U)
         val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
-        when (master.r.fire) {
+        when (master.r.fire && state === IFU_state.s_get) {
             when(Multi_transfer_counter === (block_num - 1).U){
                 Multi_transfer_counter := 0.U
             }.otherwise{
@@ -234,22 +246,21 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         }.elsewhen(io.WBU_2_IFU.fire){
             Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
         }
+        io.WBU_2_IFU.ready := state === IFU_state.s_wait_valid
 
-        val state = RegInit(bus_state.s_wait_valid)
-        io.WBU_2_IFU.ready := state === bus_state.s_wait_valid
-
-        io.IFU_2_IDU.valid := state === bus_state.s_wait_ready
+        // io.IFU_2_IDU.valid := (state === IFU_state.s_wait_ready) || (state === IFU_state.s_get)
+        io.IFU_2_IDU.valid := Mux(state === IFU_state.s_get, master.r.valid, state === IFU_state.s_wait_ready)
         io.IFU_2_IDU.bits.PC := addr_cache
 
-        master.ar.valid := state === s_busy
+        master.ar.valid := (state === IFU_state.s_replacement_send_addr) || (state === IFU_state.s_send_addr)
         master.ar.bits.addr := (addr_cache & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U) // so we can use it here
         Icache.io.replace_addr := addr_cache
         
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
-        master.r.ready := state === bus_state.s_pipeline
+        master.r.ready := (state === IFU_state.s_get || state === IFU_state.s_replacement_get)
 
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
-        Icache.io.replace_data.valid := RegNext(master.r.fire && map_hit && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
+        Icache.io.replace_data.valid := RegNext((state === IFU_state.s_replacement_get) && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
 
         val inst_cache = Multi_transfer(blcok_index)
             
@@ -257,35 +268,75 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)
         io.IFU_2_REG.GPR_Baddr := inst_cache(24, 20)
 
-        state := MuxLookup(state, bus_state.s_wait_valid)(
+        state := MuxLookup(state, IFU_state.s_wait_valid)(
             Seq(
-                bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
-                    Mux(Icache.io.cache_hit && map_hit, 
-                        bus_state.s_wait_ready, 
-                        bus_state.s_busy
-                    ), 
-                    bus_state.s_wait_valid
+                IFU_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
+                    MuxCase(IFU_state.s_wait_valid, 
+                        Seq(
+                            (Icache.io.cache_hit & map_hit)     -> IFU_state.s_wait_ready,
+                            (!Icache.io.cache_hit & map_hit)    -> IFU_state.s_replacement_send_addr,
+                            (!map_hit)                          -> IFU_state.s_send_addr,
+                        )
+                    ),
+                    IFU_state.s_wait_valid
                 ),
 
-                bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 
-                    bus_state.s_wait_valid, 
-                    bus_state.s_wait_valid
+                IFU_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 
+                    IFU_state.s_wait_valid, 
+                    IFU_state.s_wait_ready
                 ),
 
-                bus_state.s_busy -> Mux(master.ar.fire, 
-                    bus_state.s_pipeline, // actually is not true `pipeline` state, but use for now
-                    bus_state.s_busy
+                IFU_state.s_send_addr -> Mux(master.ar.fire, 
+                    IFU_state.s_get, 
+                    IFU_state.s_send_addr
                 ),
 
-                bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
-                    Mux(Multi_transfer_counter === (block_num - 1).U,
-                        bus_state.s_wait_ready, 
-                        bus_state.s_busy
-                    ), 
-                    bus_state.s_pipeline
+                IFU_state.s_get -> Mux(master.r.fire, 
+                    IFU_state.s_wait_valid,
+                    IFU_state.s_get
+                ),
+
+                IFU_state.s_replacement_send_addr -> Mux(master.ar.fire, 
+                    IFU_state.s_replacement_get, 
+                    IFU_state.s_replacement_send_addr
+                ),
+
+                IFU_state.s_replacement_get -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U), 
+                    IFU_state.s_wait_ready, 
+                    IFU_state.s_replacement_get
                 )
             )
         )
+
+        // state := MuxLookup(state, bus_state.s_wait_valid)(
+        //     Seq(
+        //         bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
+        //             Mux(Icache.io.cache_hit && map_hit, 
+        //                 bus_state.s_wait_ready, 
+        //                 bus_state.s_busy
+        //             ), 
+        //             bus_state.s_wait_valid
+        //         ),
+
+        //         bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 
+        //             bus_state.s_wait_valid, 
+        //             bus_state.s_wait_valid
+        //         ),
+
+        //         bus_state.s_busy -> Mux(master.ar.fire, 
+        //             bus_state.s_pipeline, // actually is not true `pipeline` state, but use for now
+        //             bus_state.s_busy
+        //         ),
+
+        //         bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
+        //             Mux(Multi_transfer_counter === (block_num - 1).U,
+        //                 bus_state.s_wait_ready, 
+        //                 bus_state.s_busy
+        //             ), 
+        //             bus_state.s_pipeline
+        //         )
+        //     )
+        // )
 
         if(Config.Simulate){
             // use map_hit will miss the correct clock cycle, damn

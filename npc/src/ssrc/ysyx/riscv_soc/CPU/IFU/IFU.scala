@@ -304,8 +304,12 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                     IFU_state.s_replacement_send_addr
                 ),
 
-                IFU_state.s_replacement_get -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U), 
-                    IFU_state.s_wait_ready, 
+                IFU_state.s_replacement_get -> Mux(master.r.fire, 
+                    // IFU_state.s_wait_ready, 
+                    Mux((Multi_transfer_counter === (block_num - 1).U), 
+                        IFU_state.s_wait_ready, 
+                        IFU_state.s_replacement_send_addr
+                    ),
                     IFU_state.s_replacement_get
                 )
             )

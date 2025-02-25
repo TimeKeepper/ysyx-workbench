@@ -72,3 +72,19 @@ config MEM_RANDOM
     This may help to find undefined behaviors.
 
 endmenu #MEMORY
+
+menu "Cache Configuration"
+
+config ICache_Way
+  int "ICache_Way"
+  default 2
+
+config ICache_Set
+  int "ICache_Set"
+  default 8
+
+config ICache_Block_Size
+  int "ICache_Block_Size"
+  default 4
+
+endmenu #CACHE

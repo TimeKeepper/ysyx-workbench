@@ -1,6 +1,10 @@
 #include "common.hpp"
 #include "cpu.hpp"
 #include "memory.hpp"
+#include "svdpi.h"
+#include <cstdint>
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <utils.hpp>
@@ -19,38 +23,14 @@ std::map<uint32_t, std::string> csr_key = {
 };
 
 std::map<uint8_t, std::string> gpr_key = {
-    {0, "zero"},
-    {1, "ra"},
-    {2, "sp"},
-    {3, "gp"},
-    {4, "tp"},
-    {5, "t0"},
-    {6, "t1"},
-    {7, "t2"},
-    {8, "s0"},
-    {9, "s1"},
-    {10, "a0"},
-    {11, "a1"},
-    {12, "a2"},
-    {13, "a3"},
-    {14, "a4"},
-    {15, "a5"},
-    {16, "a6"},
-    {17, "a7"},
-    {18, "s2"},
-    {19, "s3"},
-    {20, "s4"},
-    {21, "s5"},
-    {22, "s6"},
-    {23, "s7"},
-    {24, "s8"},
-    {25, "s9"},
-    {26, "s10"},
-    {27, "s11"},
-    {28, "t3"},
-    {29, "t4"},
-    {30, "t5"},
-    {31, "t6"}
+    {0, "zero"},    {1, "ra"},      {2, "sp"},      {3, "gp"}, 
+    {4, "tp"},      {5, "t0"},      {6, "t1"},      {7, "t2"}, 
+    {8, "s0"},      {9, "s1"},      {10, "a0"},     {11, "a1"}, 
+    {12, "a2"},     {13, "a3"},     {14, "a4"},     {15, "a5"}, 
+    {16, "a6"},     {17, "a7"},     {18, "s2"},     {19, "s3"}, 
+    {20, "s4"},     {21, "s5"},     {22, "s6"},     {23, "s7"}, 
+    {24, "s8"},     {25, "s9"},     {26, "s10"},    {27, "s11"}, 
+    {28, "t3"},     {29, "t4"},     {30, "t5"},     {31, "t6"},
 };
 
 const int gpr_name2id(const std::string& name){
@@ -100,7 +80,10 @@ void Emulator::instruction_buffer_print(){
 
 std::string Emulator::disasm(uint32_t pc, uint32_t inst){
     std::stringstream ss;
-    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase << pc << ANSI_NONE;
+    ss << ANSI_FG_CYAN << "0x" << std::hex << std::nouppercase 
+        << std::setw(8) << std::setfill('0') << pc << '\t' 
+        << ANSI_FG_YELLOW << std::setw(8) << std::setfill('0') << inst 
+        << ANSI_NONE;
 
     char inst_str[64];
 
@@ -120,7 +103,7 @@ void Emulator::parse_args() {
       {"help"     , no_argument      , NULL, 'h'},
       {0          , 0                , NULL,  0 },
     };
-    
+
     int o;
     while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
         switch (o) {
@@ -129,7 +112,7 @@ void Emulator::parse_args() {
             case 'l':                           break;
             case 'd': diff_so_file  = optarg;   break;
             case 'e': elf_file      = optarg;   break;
-            case 1  : img_file      = optarg;   return;
+            case 1  : img_file      = optarg;   {return;}
             default:
             printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
             printf("\t-b,--batch              run with batch mode\n");
@@ -161,6 +144,8 @@ void Emulator::init_mem() {
     #elif defined (CONFIG_PLATFORM_NPC)
     memorys.emplace("sram", std::make_unique<Memory>(CONFIG_LOAD_MEMORY_BASE, CONFIG_LOAD_MEMORY_SIZE));
     #endif
+
+    cache.resize(CONFIG_ICache_Set, std::vector<CacheLine>(CONFIG_ICache_Way));
 }
 
 void Emulator::init_isa() {
@@ -342,6 +327,25 @@ void Emulator::IFU_catch(uint32_t inst){
 void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
     this->perf->cache_count("Inst", map_hit!=0, cache_hit!=0);
     this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
+}
+
+void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {
+    // std::cout << "set size: " << cache.size() << std::endl;
+    // std::cout << "way size: " << cache[write_index].size() << " index: " << write_index << std::endl;
+    // std::cout << "block size: " << cache[write_index][write_way].inst.size() << std::endl;
+
+    cache[write_index][write_way].tag = write_tag;
+    // cache[write_index][write_way].inst = write_data;
+    uint32_t index = 0;
+    for (uint32_t& k : cache[write_index][write_way].inst) {
+        k = write_data[index++];
+    }
+
+    cache[write_index][write_way].valid = true;
+}
+
+void Emulator::Icache_MAT_catch(uint32_t count){
+    this->perf->memory_access_time += count;
 }
 
 void Emulator::IDU_catch(performence::Inst_Type type){

@@ -13,11 +13,21 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "debug.h"
+#include <cassert>
+#include <cstdint>
+#include <iostream>
+#include <list>
+#include <utility>
+#include <vector>
+#include <memory/icache.hpp>
+
+extern "C"{
+
 #include <isa.h>
 #include <cpu/cpu.h>
 #include <difftest-def.h>
 #include <memory/paddr.h>
-#include <memory/icache.h>
 #include <string.h>
 
 //NEMU作为REF
@@ -49,8 +59,23 @@ __EXPORT void difftest_cache_init(paddr_t begin, paddr_t end, uint32_t way, uint
   Icache_init(begin, end, way, set, block_size);
 }
 
-__EXPORT void difftest_cache_state(void *dut) {
-  memcpy(dut, &icache_state, sizeof(Icache_return));
+Icache_return icache_fetch(vaddr_t addr, uint32_t len);
+__EXPORT void difftest_cache_state(void *dut, bool direction) {
+  auto src = reinterpret_cast<std::vector<std::vector<CacheLine>>*>(dut);
+  if(direction == DIFFTEST_TO_DUT) {
+    *src = icache.cache;
+  } else {
+    // icache.cache = *src;
+    icache_fetch(cpu.pc, 4); // perhaps...
+  }
+}
+
+__EXPORT void difftest_cache_print(void) {
+  icache.print_cache();
+}
+
+__EXPORT void difftest_cache_behaior(void *dut) {
+  memcpy(dut, &icache_behavior, sizeof(Icache_return));
 }
 
 // 让REF执行`n`条指令
@@ -65,7 +90,9 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 __EXPORT void difftest_init(int port) {
   void init_mem();
   init_mem();
-
+  
   /* Perform ISA dependent initialization. */
   init_isa();
+}
+
 }

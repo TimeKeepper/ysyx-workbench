@@ -1,4 +1,5 @@
 #include "differtest.hpp"
+#include "memory.hpp"
 #include <iostream>
 #include <numeric>
 #include <simple_debugger.hpp>
@@ -113,6 +114,30 @@ simple_debugger::simple_debugger(Emulator* emulator) : emulator(emulator) {
                 this->wpm->print_watch_points();
             }else if(args[0] == "b"){
                 this->wpm->print_break_points();
+            }else if(args[0] == "c"){
+                #ifdef CONFIG_DIFFTEST
+                if (args.size() == 2) {
+                    if (args[1] == "r") {
+                        std::cout << ANSI_FG_CYAN << "Checking ref cache..." << ANSI_NONE << std::endl;
+                        this->difftest->ref_difftest_cache_print();
+                        return 0;
+                    }
+                }
+                #endif
+                for(uint32_t i = 0; i < CONFIG_ICache_Set; ++i) {
+                    std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
+                    for(uint32_t j = 0; j < CONFIG_ICache_Way; ++j) {
+                        std::cout << ANSI_FG_CYAN"valid " << (this->emulator->cache[i][j].valid ? ANSI_FG_GREEN"true" : ANSI_FG_RED"false") << '\t'
+                            << ANSI_FG_CYAN"tag[" << ICACHE_TAG_BITS << "] " <<  std::hex << ANSI_FG_BLUE"0x" << (this->emulator->cache[i][j].tag * (this->emulator->cache[i][j].inst.size() * 4 * this->emulator->cache.size())) << '\t'
+                            << ANSI_FG_CYAN"data " << ANSI_FG_BLUE;
+                        // std::cout << std::setw(8) << std::setfill('0') << this->emulator->cache[i][j].inst;
+                        for (uint32_t k : this->emulator->cache[i][j].inst) {
+                            std::cout << std::hex << std::setw(8) << std::setfill('0') << k << " ";
+                        }
+                        std::cout << std::dec << '\t' << ANSI_NONE << std::endl;
+                    }
+                    std::cout << std::endl;
+                }
             }
 
             return 0;
@@ -391,10 +416,10 @@ void simple_debugger::LSU_catch(uint32_t diff_skip){
 }
 
 void simple_debugger::WBU_catch(void) {
-    #ifdef CONFIG_DIFFTEST
     auto msg = this->emulator->icache_msg_transmiter.front();
     this->emulator->icache_msg_transmiter.pop();
 
+    #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(this->emulator->cpu.pc, Icache_return{0, msg.first, msg.second});
     #endif
 

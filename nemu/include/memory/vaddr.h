@@ -17,7 +17,7 @@
 #define __MEMORY_VADDR_H__
 
 #include <common.h>
-#include <memory/icache.h>
+#include <memory/icache.hpp>
 
 Icache_return vaddr_ifetch(vaddr_t addr, int len);
 word_t vaddr_read(vaddr_t addr, int len);

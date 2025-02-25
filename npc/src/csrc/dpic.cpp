@@ -1,4 +1,5 @@
 #include "performence.hpp"
+#include <iomanip>
 #include <simple_debugger.hpp>
 #include <memory>
 #include <utils.hpp>
@@ -34,10 +35,17 @@ extern "C" {
     }
 
     extern void sdram_write(int32_t waddr, int32_t wdata, int32_t wlen) {
+        // std::cout << "sdram_write: " 
+        // << std::hex << std::setw(8) << std::setfill('0')
+        // << waddr + emulator->memorys["sdram"]->base << " " 
+        // << std::hex << std::setw(4) << std::setfill('0')
+        // << wdata << " " << wlen 
+        // << std::dec << std::endl;
         emulator->memorys["sdram"]->write(waddr, wlen, wdata);
     }
 
     extern void sdram_read(int32_t addr, int32_t* data) {
+        // std::cout << "sdram_read: " << addr << std::endl;
         *data = emulator->memorys["sdram"]->read(addr, 2);
     }
 
@@ -91,6 +99,14 @@ extern "C" {
 
     extern void Icache_catch(uint32_t map_hit, uint32_t cache_hit){
         emulator->Icache_catch(map_hit, cache_hit);
+    }
+
+    extern void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {
+        emulator->Icache_state_catch(write_index, write_way, write_tag, write_data);
+    }
+
+    extern void Icache_MAT_catch(uint32_t count) {
+        emulator->Icache_MAT_catch(count);
     }
 
     extern void IDU_catch(uint32_t type){

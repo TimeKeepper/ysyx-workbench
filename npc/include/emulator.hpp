@@ -82,7 +82,10 @@ class Emulator {
         void Emulator_trap(uint32_t a0);
 
         void IFU_catch(uint32_t inst);
+        std::vector<std::vector<CacheLine>> cache;
         void Icache_catch(uint32_t map_hit, uint32_t cache_hit);
+        void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data);
+        void Icache_MAT_catch(uint32_t count);
         void IDU_catch(performence::Inst_Type type);
         void ALU_catch();
         void LSU_catch();

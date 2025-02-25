@@ -30,11 +30,12 @@ def tabulate_show():
     df = {
         'Commit': [gp.get_commit_id()],
         'Message': [gp.get_commit_message()],
-        'Performance Index': [safe_divide(data['GP'][1], data['GP'][0] * Freq)],
+        'Performance Index': [safe_divide(data['GP'][1] * Freq, data['GP'][0])],
         'Chip area(um^2)': [gp.get_Chip_area()],
         'IPC': [safe_divide(data['GP'][1], data['GP'][0])],
         'Freq(MHz)': [Freq],
         'Icache hit rate': [safe_divide(data['Inst'][0], data['GP'][1])],
+        'AMAT' : [data['AMAT'][0]],
         'Simulation clk_cnt': [data['GP'][0]],
     }
 
@@ -49,8 +50,8 @@ def ui():
 
     clk_nums = [data['CSR'][0], data['LS'][0], data['Cal'][0]]
     inst_nums = [data['CSR'][1], data['LS'][1], data['Cal'][1]]
-    a_cycle = safe_divide(inst_nums, clk_nums)
-    labels = ['LS', 'CSR', 'Cal']
+    a_cycle = safe_divide(clk_nums, inst_nums)
+    labels = ['CSR', 'LS', 'Cal']
     colors = ['#ff9999','#66b3ff','#99ff99']
 
     fig = plt.figure(figsize=(10, 8))

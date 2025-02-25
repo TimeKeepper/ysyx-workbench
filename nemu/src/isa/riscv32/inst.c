@@ -264,11 +264,11 @@ extern uint64_t map_hit_counter;
 extern uint64_t cache_hit_counter;
 
 int isa_exec_once(Decode *s) {
-  icache_state = inst_fetch(&s->snpc, 4);
+  icache_behavior = inst_fetch(&s->snpc, 4);
 
-  s->isa.inst.val = icache_state.inst;
-  if (icache_state.map_hit) map_hit_counter++;
-  if (icache_state.cache_hit) cache_hit_counter++;
+  s->isa.inst.val = icache_behavior.inst;
+  if (icache_behavior.map_hit) map_hit_counter++;
+  if (icache_behavior.cache_hit) cache_hit_counter++;
   #if CONFIG_FTRACE
   if(s->isa.inst.val == 0x00008067) is_ret = true;
   func_called_detect(s);

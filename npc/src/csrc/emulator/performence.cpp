@@ -11,6 +11,7 @@ std::string inst_type_to_string(performence::Inst_Type type) {
         case performence::Inst_Type::Cal: return "Cal";
         case performence::Inst_Type::LS: return "LS";
         case performence::Inst_Type::CSR: return "CSR";
+        case performence::Inst_Type::RST: return "RST";
         default: return "Unknown";
     }
 }
@@ -21,6 +22,7 @@ performence::performence(){
     this->inst_cntrs.emplace(Inst_Type::Cal, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::LS, std::make_pair(0, 0));
     this->inst_cntrs.emplace(Inst_Type::CSR, std::make_pair(0, 0));
+    this->inst_cntrs.emplace(Inst_Type::RST, std::make_pair(0, 0));
 
     this->conpo_cntrs.emplace("IFU", 0);
     this->conpo_cntrs.emplace("LSU", 0);
@@ -37,6 +39,8 @@ performence::~performence(){
     for(auto &i : this->inst_cntrs){
         report << inst_type_to_string(i.first) << ":\t" << i.second.first << " " << i.second.second << std::endl;
     }
+
+    report << "AMAT" << ":\t" << (double)this->memory_access_time / this->inst_cntrs[Inst_Type::GP].second << std::endl;
 
     for(auto &i : this->conpo_cntrs){
         report << i.first << ":\t" << i.second << std::endl;
@@ -106,4 +110,8 @@ void performence::print_perf() {
               << (double)this->cache_cntrs["Inst"].second / this->inst_cntrs[Inst_Type::GP].second << std::endl;
     std::cout << ANSI_FG_BLUE << "Access-Based cache hit rate: " << ANSI_NONE
               << (double)this->cache_cntrs["Inst"].second / this->cache_cntrs["Inst"].first << std::endl;
+
+    std::cout << ANSI_FG_BLUE << "Average Memory Access Time(AMAT): " << ANSI_NONE
+              << (double)this->memory_access_time / this->inst_cntrs[Inst_Type::GP].second 
+              << std::endl;
 }

@@ -253,7 +253,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.IFU_2_IDU.bits.PC := addr_cache
 
         master.ar.valid := (state === IFU_state.s_replacement_send_addr) || (state === IFU_state.s_send_addr)
-        master.ar.bits.addr := Mux(state === IFU_state.s_get, addr_cache, 
+        master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, addr_cache, 
             (addr_cache & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U)) // so we can use it here
         Icache.io.replace_addr := addr_cache
         

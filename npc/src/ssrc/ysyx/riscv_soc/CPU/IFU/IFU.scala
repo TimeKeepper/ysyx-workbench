@@ -252,6 +252,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.IFU_2_IDU.bits.PC := addr_cache
 
         master.ar.valid := (state === IFU_state.s_replacement_send_addr) || (state === IFU_state.s_send_addr)
+        master.ar.bits.len := Mux(state === IFU_state.s_replacement_send_addr, (block_num - 1).U, 0.U)
         master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, addr_cache, 
             (addr_cache & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U)) // so we can use it here
         Icache.io.replace_addr := addr_cache
@@ -301,12 +302,12 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                     IFU_state.s_replacement_send_addr
                 ),
 
-                IFU_state.s_replacement_get -> Mux(master.r.fire, 
-                    // IFU_state.s_wait_ready, 
-                    Mux((Multi_transfer_counter === (block_num - 1).U), 
-                        IFU_state.s_wait_ready, 
-                        IFU_state.s_replacement_send_addr
-                    ),
+                IFU_state.s_replacement_get -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U), 
+                    IFU_state.s_wait_ready, 
+                    // Mux((Multi_transfer_counter === (block_num - 1).U), 
+                    //     IFU_state.s_wait_ready, 
+                    //     IFU_state.s_replacement_send_addr
+                    // ),
                     IFU_state.s_replacement_get
                 )
             )
@@ -355,11 +356,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         master.ar.bits.size  := 2.U
         master.ar.bits.id    := 0.U
-        master.ar.bits.len   := 0.U
         master.ar.bits.burst := 1.U // INCR
-        master.ar.bits.lock  := 0.U
-        master.ar.bits.cache := 0.U
-        master.ar.bits.prot  := 0.U
-        master.ar.bits.qos   := 0.U
+        master.ar.bits.lock  := 0.U // Normal access
+        master.ar.bits.cache := 0.U // Cacheable
+        master.ar.bits.prot  := 0.U // Normal memory
+        master.ar.bits.qos   := 0.U // Quality of Service
     }
 }

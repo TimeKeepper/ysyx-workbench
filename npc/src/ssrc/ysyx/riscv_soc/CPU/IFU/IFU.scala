@@ -257,7 +257,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             (addr_cache & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U)) // so we can use it here
         Icache.io.replace_addr := addr_cache
         
-        val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
+        val map_hit = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _)
         // master.r.ready := (state === IFU_state.s_get || state === IFU_state.s_replacement_get)
         master.r.ready := Mux(state === IFU_state.s_get, io.IFU_2_IDU.ready, state === IFU_state.s_replacement_get)
 

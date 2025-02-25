@@ -262,7 +262,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         master.r.ready := Mux(state === IFU_state.s_get, io.IFU_2_IDU.ready, state === IFU_state.s_replacement_get)
 
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
-        Icache.io.replace_data.valid := (state === IFU_state.s_replacement_get) && (Multi_transfer_counter === 0.U)
+        Icache.io.replace_data.valid := (state === IFU_state.s_wait_ready) && (Multi_transfer_counter === 0.U)
 
         // val inst_cache = Multi_transfer(blcok_index)
         val inst_cache = Mux(state === IFU_state.s_get, master.r.bits.data, Multi_transfer(blcok_index))

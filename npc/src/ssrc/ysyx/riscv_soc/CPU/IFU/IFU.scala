@@ -257,12 +257,14 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_addr := addr_cache
         
         val map_hit = Config.Icache_Param.address.map(_.contains(addr_cache)).reduce(_ || _)
-        master.r.ready := (state === IFU_state.s_get || state === IFU_state.s_replacement_get)
+        // master.r.ready := (state === IFU_state.s_get || state === IFU_state.s_replacement_get)
+        master.r.ready := Mux(state === IFU_state.s_get, io.IFU_2_IDU.ready, state === IFU_state.s_replacement_get)
 
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := RegNext((state === IFU_state.s_replacement_get) && (Multi_transfer_counter === (block_num - 1).U)) // if not & map_hit, will cause an very subtle bug 
 
-        val inst_cache = Multi_transfer(blcok_index)
+        // val inst_cache = Multi_transfer(blcok_index)
+        val inst_cache = Mux(state === IFU_state.s_get, master.r.bits.data, Multi_transfer(blcok_index))
             
         io.IFU_2_IDU.bits.data := inst_cache
         io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)

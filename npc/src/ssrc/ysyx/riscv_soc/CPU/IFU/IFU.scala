@@ -258,13 +258,11 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_addr := addr_cache
         
         val map_hit = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _)
-        // master.r.ready := (state === IFU_state.s_get || state === IFU_state.s_replacement_get)
         master.r.ready := Mux(state === IFU_state.s_get, io.IFU_2_IDU.ready, state === IFU_state.s_replacement_get)
 
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := (state === IFU_state.s_wait_ready) && (RegNext(state === IFU_state.s_replacement_get))
 
-        // val inst_cache = Multi_transfer(blcok_index)
         val inst_cache = Mux(state === IFU_state.s_get, master.r.bits.data, Multi_transfer(blcok_index))
             
         io.IFU_2_IDU.bits.data := inst_cache
@@ -315,40 +313,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             )
         )
 
-        // state := MuxLookup(state, bus_state.s_wait_valid)(
-        //     Seq(
-        //         bus_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
-        //             Mux(Icache.io.cache_hit && map_hit, 
-        //                 bus_state.s_wait_ready, 
-        //                 bus_state.s_busy
-        //             ), 
-        //             bus_state.s_wait_valid
-        //         ),
-
-        //         bus_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 
-        //             bus_state.s_wait_valid, 
-        //             bus_state.s_wait_valid
-        //         ),
-
-        //         bus_state.s_busy -> Mux(master.ar.fire, 
-        //             bus_state.s_pipeline, // actually is not true `pipeline` state, but use for now
-        //             bus_state.s_busy
-        //         ),
-
-        //         bus_state.s_pipeline -> Mux(master.r.fire, // It more like means "Reading from memory..."
-        //             Mux(Multi_transfer_counter === (block_num - 1).U,
-        //                 bus_state.s_wait_ready, 
-        //                 bus_state.s_busy
-        //             ), 
-        //             bus_state.s_pipeline
-        //         )
-        //     )
-        // )
-
         if(Config.Simulate){
-            // use map_hit will miss the correct clock cycle, damn
-            val map_hit4catch = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _) // very idiot, but it works
-
             val Catch = Module(new IFU_catch)
             Catch.io.clock := clock
             Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
@@ -356,8 +321,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
             val cache_Catch = Module(new Icache_catch)
             cache_Catch.io.Icache := io.WBU_2_IFU.fire && !reset.asBool
-            cache_Catch.io.map_hit := map_hit4catch
-            cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit4catch
+            cache_Catch.io.map_hit := map_hit
+            cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit
 
             val MAT_Counter = RegInit(0.U(32.W))
             when(io.WBU_2_IFU.fire){

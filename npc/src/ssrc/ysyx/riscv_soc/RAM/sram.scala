@@ -115,7 +115,7 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
 
         val bridge = Module(new sram_bridge)
         bridge.io.clock := clock
-        bridge.io.read := state_r === s_burst
+        bridge.io.read := (state_r === s_burst) || (AXI.ar.fire)
         bridge.io.r_addr  := Mux(AXI.ar.fire, AXI.ar.bits.addr, read_addr)
         AXI.r.bits.data := bridge.io.r_data
         AXI.r.bits.resp := "b0".U

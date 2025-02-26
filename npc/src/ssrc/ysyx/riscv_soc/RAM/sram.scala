@@ -86,7 +86,6 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         }
         when(AXI.w.fire) {
             write_burst_counter := write_burst_counter - 1.U
-            write_addr := write_addr + 4.U
         }
         
         AXI.r.bits.last := read_burst_counter === 0.U

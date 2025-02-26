@@ -26,7 +26,7 @@ class sram_bridge extends BlackBox with HasBlackBoxInline {
       |    input  clock,
       |    input  read,
       |    input  [31:0] r_addr,
-      |    output [31:0] r_data,
+      |    output reg [31:0] r_data,
       |    input  write,
       |    input  [31:0] w_addr,
       |    input  [31:0] w_data,
@@ -69,7 +69,7 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         AXI.r.bits.id := RegEnable(AXI.ar.bits.id, AXI.ar.fire)
         AXI.b.bits.id := RegEnable(AXI.aw.bits.id, AXI.aw.fire)
         
-        val s_wait_addr :: s_busy :: s_burst :: s_wait_resp :: Nil = Enum(4)
+        val s_wait_addr :: s_burst :: s_wait_resp :: Nil = Enum(3)
         
         val state_r = RegInit(s_wait_addr)
         val state_w = RegInit(s_wait_addr)
@@ -93,16 +93,14 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
 
         state_r := MuxLookup(state_r, s_wait_addr)(
             Seq(
-                s_wait_addr -> Mux(AXI.ar.valid, s_busy, s_wait_addr),
-                s_busy      -> s_burst,
+                s_wait_addr -> Mux(AXI.ar.valid, s_burst, s_wait_addr),
                 s_burst     -> Mux(read_burst_counter === 0.U, s_wait_addr, s_burst),
             )
         )
 
         state_w := MuxLookup(state_w, s_wait_addr)(
             Seq(
-                s_wait_addr -> Mux(AXI.aw.fire, s_busy, s_wait_addr),
-                s_busy      -> s_burst,
+                s_wait_addr -> Mux(AXI.aw.fire, s_burst, s_wait_addr),
                 s_burst     -> Mux(write_burst_counter === 0.U,  s_wait_resp, s_burst),
                 s_wait_resp -> Mux(AXI.b.fire, s_wait_addr, s_wait_resp)
             )
@@ -117,12 +115,12 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
 
         val bridge = Module(new sram_bridge)
         bridge.io.clock := clock
-        bridge.io.read := (state_r === s_burst || state_r === s_busy)
-        bridge.io.r_addr  := read_addr
+        bridge.io.read := state_r === s_burst
+        bridge.io.r_addr  := Mux(AXI.ar.fire, AXI.ar.bits.addr, read_addr)
         AXI.r.bits.data := bridge.io.r_data
         AXI.r.bits.resp := "b0".U
 
-        bridge.io.write := (state_w === s_burst || state_w === s_busy)
+        bridge.io.write := state_w === s_burst
         bridge.io.w_addr  := write_addr
         bridge.io.w_data  := RegEnable(AXI.w.bits.data, AXI.w.fire)
         bridge.io.w_strb  := RegEnable(AXI.w.bits.strb, AXI.w.fire)

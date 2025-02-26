@@ -26,7 +26,7 @@ class sram_bridge extends BlackBox with HasBlackBoxInline {
       |    input  clock,
       |    input  read,
       |    input  [31:0] r_addr,
-      |    output reg [31:0] r_data,
+      |    output [31:0] r_data,
       |    input  write,
       |    input  [31:0] w_addr,
       |    input  [31:0] w_data,
@@ -49,7 +49,7 @@ class sram_bridge extends BlackBox with HasBlackBoxInline {
     """.stripMargin)
 }
 
-class SRAM(address: Seq[AddressSet], LSFR_delay : UInt)(implicit p: Parameters) extends LazyModule {
+class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule {
     val beatBytes = 4
     val node = AXI4SlaveNode(Seq(AXI4SlavePortParameters(
         Seq(AXI4SlaveParameters(
@@ -68,62 +68,60 @@ class SRAM(address: Seq[AddressSet], LSFR_delay : UInt)(implicit p: Parameters) 
         
         AXI.r.bits.id := RegEnable(AXI.ar.bits.id, AXI.ar.fire)
         AXI.b.bits.id := RegEnable(AXI.aw.bits.id, AXI.aw.fire)
-        AXI.r.bits.last := true.B
-
-        val s_wait_addr :: s_wait_data :: s_busy :: s_wait_resp :: Nil = Enum(4)
-
+        
+        val s_wait_addr :: s_burst :: s_wait_resp :: Nil = Enum(3)
+        
         val state_r = RegInit(s_wait_addr)
         val state_w = RegInit(s_wait_addr)
-        val LSFRr = RegInit(0.U)
-        val LSFRw = RegInit(0.U)
+        
+        val read_burst_counter = RegEnable(AXI.ar.bits.len, AXI.ar.fire)
+        val write_burst_counter = RegEnable(AXI.aw.bits.len, AXI.aw.fire)
 
-        when(LSFRr === 0.U) {
-            LSFRr := 0.U
-        }.elsewhen(state_r === s_busy) {
-            LSFRr := LSFRr - 1.U
-        }
+        val read_addr = RegEnable(AXI.ar.bits.addr + 4.U, AXI.ar.fire)
 
-        when(LSFRw === 0.U) {
-            LSFRw := 0.U
-        }.elsewhen(state_w === s_busy) {
-            LSFRw := LSFRw - 1.U
+        when(AXI.r.fire) {
+            read_burst_counter := read_burst_counter - 1.U
+            read_addr := read_addr + 4.U
         }
+        when(AXI.w.fire) {
+            write_burst_counter := write_burst_counter - 1.U
+        }
+        
+        AXI.r.bits.last := read_burst_counter === 0.U
 
         state_r := MuxLookup(state_r, s_wait_addr)(
             Seq(
-                s_wait_addr -> Mux(AXI.ar.valid, s_busy, s_wait_addr),
-                s_busy       -> Mux(LSFRr === 0.U,  s_wait_resp, s_busy),
-                s_wait_resp -> Mux(AXI.r.ready, s_wait_addr, s_wait_resp),
+                s_wait_addr -> Mux(AXI.ar.valid, s_burst, s_wait_addr),
+                s_burst     -> Mux(read_burst_counter === 0.U, s_wait_addr, s_burst),
             )
         )
 
         state_w := MuxLookup(state_w, s_wait_addr)(
             Seq(
-                s_wait_addr -> Mux(AXI.aw.fire, s_wait_data, s_wait_addr),
-                s_wait_data -> Mux(AXI.w.fire, s_busy, s_wait_data),
-                s_busy      -> Mux(LSFRw === 0.U,  s_wait_resp, s_busy),
+                s_wait_addr -> Mux(AXI.aw.fire, s_burst, s_wait_addr),
+                s_burst     -> Mux(write_burst_counter === 0.U,  s_wait_resp, s_burst),
                 s_wait_resp -> Mux(AXI.b.fire, s_wait_addr, s_wait_resp)
             )
         )
 
-        AXI.r.valid := state_r === s_wait_resp
+        AXI.r.valid  := state_r === s_burst
         AXI.ar.ready := state_r === s_wait_addr
 
         AXI.aw.ready := state_w === s_wait_addr
-        AXI.w.ready  := state_w === s_wait_data
+        AXI.w.ready  := state_w === s_burst
         AXI.b.valid  := state_w === s_wait_resp
 
         val bridge = Module(new sram_bridge)
         bridge.io.clock := clock
-        bridge.io.read := state_r === s_busy && LSFRr === 0.U
-        bridge.io.r_addr  := RegEnable(AXI.ar.bits.addr, AXI.ar.valid && AXI.ar.ready)
+        bridge.io.read := (state_r === s_burst) || (AXI.ar.fire)
+        bridge.io.r_addr  := Mux(AXI.ar.fire, AXI.ar.bits.addr, read_addr)
         AXI.r.bits.data := bridge.io.r_data
         AXI.r.bits.resp := "b0".U
 
-        bridge.io.write := state_w === s_busy && LSFRw === 0.U
-        bridge.io.w_addr  := RegEnable(AXI.aw.bits.addr, AXI.aw.valid && AXI.aw.ready)
-        bridge.io.w_data  := RegEnable(AXI.w.bits.data, AXI.w.valid && AXI.w.ready)
-        bridge.io.w_strb  := RegEnable(AXI.w.bits.strb, AXI.w.valid && AXI.w.ready)
+        bridge.io.write := state_w === s_burst
+        bridge.io.w_addr  := RegEnable(AXI.aw.bits.addr, AXI.aw.fire)
+        bridge.io.w_data  := AXI.w.bits.data
+        bridge.io.w_strb  := AXI.w.bits.strb
         AXI.b.bits.resp := "b0".U
 
         val state_rcache = RegInit(s_wait_addr)

@@ -69,7 +69,7 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         AXI.r.bits.id := RegEnable(AXI.ar.bits.id, AXI.ar.fire)
         AXI.b.bits.id := RegEnable(AXI.aw.bits.id, AXI.aw.fire)
         
-        val s_wait_addr :: s_burst :: s_wait_resp :: Nil = Enum(3)
+        val s_wait_addr :: s_busy :: s_burst :: s_wait_resp :: Nil = Enum(4)
         
         val state_r = RegInit(s_wait_addr)
         val state_w = RegInit(s_wait_addr)
@@ -93,14 +93,16 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
 
         state_r := MuxLookup(state_r, s_wait_addr)(
             Seq(
-                s_wait_addr -> Mux(AXI.ar.valid, s_burst, s_wait_addr),
+                s_wait_addr -> Mux(AXI.ar.valid, s_busy, s_wait_addr),
+                s_busy      -> s_burst,
                 s_burst     -> Mux(read_burst_counter === 0.U, s_wait_addr, s_burst),
             )
         )
 
         state_w := MuxLookup(state_w, s_wait_addr)(
             Seq(
-                s_wait_addr -> Mux(AXI.aw.fire, s_burst, s_wait_addr),
+                s_wait_addr -> Mux(AXI.aw.fire, s_busy, s_wait_addr),
+                s_busy      -> s_burst,
                 s_burst     -> Mux(write_burst_counter === 0.U,  s_wait_resp, s_burst),
                 s_wait_resp -> Mux(AXI.b.fire, s_wait_addr, s_wait_resp)
             )

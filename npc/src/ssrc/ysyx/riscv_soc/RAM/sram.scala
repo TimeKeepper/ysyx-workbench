@@ -120,7 +120,7 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         AXI.r.bits.data := bridge.io.r_data
         AXI.r.bits.resp := "b0".U
 
-        bridge.io.write := (state_w === s_burst) || (AXI.aw.fire)
+        bridge.io.write := state_w === s_burst
         bridge.io.w_addr  := Mux(AXI.aw.fire, AXI.aw.bits.addr, write_addr)
         bridge.io.w_data  := RegEnable(AXI.w.bits.data, AXI.w.fire)
         bridge.io.w_strb  := RegEnable(AXI.w.bits.strb, AXI.w.fire)

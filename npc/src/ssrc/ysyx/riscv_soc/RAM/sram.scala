@@ -77,8 +77,8 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         val read_burst_counter = RegEnable(AXI.ar.bits.len, AXI.ar.fire)
         val write_burst_counter = RegEnable(AXI.aw.bits.len, AXI.aw.fire)
 
-        val read_addr = RegEnable(AXI.ar.bits.addr, AXI.ar.fire)
-        val write_addr = RegEnable(AXI.aw.bits.addr, AXI.aw.fire)
+        val read_addr = RegEnable(AXI.ar.bits.addr + 4.U, AXI.ar.fire)
+        val write_addr = RegEnable(AXI.aw.bits.addr + 4.U, AXI.aw.fire)
 
         when(AXI.r.fire) {
             read_burst_counter := read_burst_counter - 1.U
@@ -120,8 +120,8 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
         AXI.r.bits.data := bridge.io.r_data
         AXI.r.bits.resp := "b0".U
 
-        bridge.io.write := state_w === s_burst
-        bridge.io.w_addr  := write_addr
+        bridge.io.write := (state_w === s_burst) || (AXI.aw.fire)
+        bridge.io.w_addr  := Mux(AXI.aw.fire, AXI.aw.bits.addr, write_addr)
         bridge.io.w_data  := RegEnable(AXI.w.bits.data, AXI.w.fire)
         bridge.io.w_strb  := RegEnable(AXI.w.bits.strb, AXI.w.fire)
         AXI.b.bits.resp := "b0".U

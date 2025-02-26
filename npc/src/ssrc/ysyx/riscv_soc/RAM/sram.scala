@@ -122,8 +122,8 @@ class SRAM(address: Seq[AddressSet])(implicit p: Parameters) extends LazyModule 
 
         bridge.io.write := state_w === s_burst
         bridge.io.w_addr  := Mux(AXI.aw.fire, AXI.aw.bits.addr, write_addr)
-        bridge.io.w_data  := RegEnable(AXI.w.bits.data, AXI.w.fire)
-        bridge.io.w_strb  := RegEnable(AXI.w.bits.strb, AXI.w.fire)
+        bridge.io.w_data  := AXI.w.bits.data
+        bridge.io.w_strb  := AXI.w.bits.strb
         AXI.b.bits.resp := "b0".U
 
         val state_rcache = RegInit(s_wait_addr)

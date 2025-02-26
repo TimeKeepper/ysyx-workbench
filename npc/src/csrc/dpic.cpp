@@ -73,7 +73,7 @@ extern "C" {
             case 0b0011:
             case 0b1100: len = 2; break;
             case 0b1111: len = 4; break;
-            default: break;
+            default: return;
         }
 
         switch(strb){

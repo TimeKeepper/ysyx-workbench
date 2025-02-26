@@ -74,7 +74,8 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
              AddressSet.misaligned(0x21000000, 0x200000) ++   // VGA
              AddressSet.misaligned(0x30000000, 0x10000000) ++ // FLASH
              AddressSet.misaligned(0x80000000L, 0x400000) ++  // PSRAM
-             AddressSet.misaligned(0xa0000000L, 0x2000000)    // SDRAM
+             AddressSet.misaligned(0xa0000000L, 0x2000000) ++ // SDRAM
+             AddressSet.misaligned(0xc0000000L, 0x40000000L)  // ChipLink
 
   ElaborationArtefacts.add("graphml", graphML)
   val LazyIFU = LazyModule(new IFU(idBits = idBits-1))

@@ -28,6 +28,7 @@ static uint8_t psram[CONFIG_PSRAM_SIZE] PG_ALIGN = {};
 static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
 static uint8_t sram [CONFIG_SRAM_SIZE]  PG_ALIGN = {};
 static uint8_t sdram[CONFIG_SDRAM_SIZE] PG_ALIGN = {};
+static uint8_t chip [CONFIG_Chip_SIZE]  PG_ALIGN = {};
 #endif
 
 // #define CODE_MEMORY mrom
@@ -48,12 +49,16 @@ paddr_t host_to_guest_psram(uint8_t *haddr) { return haddr - psram + CONFIG_PSRA
 uint8_t* guest_to_host_sdram(paddr_t paddr) { return sdram + paddr - CONFIG_SDRAM_BASE; }
 paddr_t host_to_guest_sdram(uint8_t *haddr) { return haddr - sdram + CONFIG_SDRAM_BASE; }
 
+uint8_t* guest_to_host_chip(paddr_t paddr) { return chip + paddr - CONFIG_Chip_BASE; }
+paddr_t host_to_guest_chip(uint8_t *haddr) { return haddr - chip + CONFIG_Chip_BASE; }
+
 uint8_t* guest_to_host(paddr_t paddr) {
   if (in_psram(paddr)) return guest_to_host_psram(paddr);
   else if(in_sram(paddr)) return guest_to_host_sram(paddr);
   else if(in_mrom(paddr)) return guest_to_host_mrom(paddr);
   else if(in_flash(paddr)) return guest_to_host_flash(paddr);
   else if(in_sdram(paddr)) return guest_to_host_sdram(paddr);
+  else if(in_chip(paddr)) return guest_to_host_chip(paddr);
   return NULL;
 }
 
@@ -94,6 +99,15 @@ static void sdram_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host_sdram(addr), len, data);
 }
 
+static word_t chip_read(paddr_t addr, int len) {
+  word_t ret = host_read(guest_to_host_chip(addr), len);
+  return ret;
+}
+
+static void chip_write(paddr_t addr, int len, word_t data) {
+  host_write(guest_to_host_chip(addr), len, data);
+}
+
 void instr_buf_printf(void);
 static void out_of_bound(paddr_t addr) {
   Log("address = " FMT_PADDR " is out of bound of psram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
@@ -110,6 +124,7 @@ void mem_random_set(void){
   memset(sram,  rand(), CONFIG_SRAM_SIZE);
   memset(mrom,  rand(), CONFIG_MROM_SIZE);
   memset(sdram, rand(), CONFIG_SDRAM_SIZE);
+  memset(chip,  rand(), CONFIG_Chip_SIZE);
 }
 
 void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t set, uint32_t block_size);
@@ -127,6 +142,7 @@ void init_mem() {
   Log("FLASH memory area \t [" FMT_PADDR ", " FMT_PADDR "]", FLASH_LEFT, FLASH_RIGHT);
   Log("PSRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", PSRAM_LEFT, PSRAM_RIGHT);
   Log("SDRAM memory area \t [" FMT_PADDR ", " FMT_PADDR "]", SDRAM_LEFT, SDRAM_RIGHT);
+  Log("Chip memory area \t [" FMT_PADDR ", " FMT_PADDR "]", CHIP_LEFT, CHIP_RIGHT);
   
   Log("Icache init: way = %d, set = %d, block_size = %d", CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
   Icache_init(PSRAM_LEFT, PSRAM_RIGHT + 1, CONFIG_ICache_Way, CONFIG_ICache_Set, CONFIG_ICache_Block_Size);
@@ -141,6 +157,7 @@ word_t paddr_read(paddr_t addr, int len) {
   else if(in_mrom(addr)) return mrom_read(addr, len);
   else if(in_flash(addr)) return flash_read(addr, len);
   else if(in_sdram(addr)) return sdram_read(addr, len);
+  else if(in_chip(addr)) return chip_read(addr, len);
   IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
   return 0;
@@ -153,6 +170,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_psram(addr))) { psram_write(addr, len, data); return; }
   else if(in_sram(addr)) { sram_write(addr, len, data); return; }
   else if(in_sdram(addr)) { sdram_write(addr, len, data); return; }
+  else if(in_chip(addr)) { chip_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }

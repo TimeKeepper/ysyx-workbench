@@ -26,7 +26,7 @@ class sram_bridge extends BlackBox with HasBlackBoxInline {
       |    input  clock,
       |    input  read,
       |    input  [31:0] r_addr,
-      |    output reg [31:0] r_data,
+      |    output [31:0] r_data,
       |    input  write,
       |    input  [31:0] w_addr,
       |    input  [31:0] w_data,

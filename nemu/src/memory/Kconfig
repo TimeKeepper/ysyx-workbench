@@ -54,6 +54,14 @@ config SDRAM_SIZE
   hex "SDRAM size"
   default 0x2000000
 
+config Chip_BASE
+  hex "Chip base address"
+  default 0xc0000000
+
+config Chip_SIZE
+  hex "Chip size"
+  default 0x20000
+
 choice
   prompt "Physical memory definition"
   default PMEM_GARRAY

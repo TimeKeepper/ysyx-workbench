@@ -38,7 +38,7 @@ syn: $(V_FILE_GEN)
 
 perf: $(RPT_FILE) $(STAT_FILE) $(PERFOMENSE_FILE)
 	$(call git_commit, "$(shell python ./get_parameter.py)")
-	@python ./perf.py
+	@python3 ./perf.py
 
 test: 
 	$(MAKE) -C $(NEMU_HOME)/../rtthread_for_ysyx/bsp/abstract-machine ARCH=riscv32e-npc batch

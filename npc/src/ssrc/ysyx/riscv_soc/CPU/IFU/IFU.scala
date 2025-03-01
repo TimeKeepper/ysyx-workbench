@@ -133,31 +133,32 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_width = valid_width - offset_width - set_width
 
     // a vector(Way) of Mem(Set)
-    val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
-    val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
+    val cache_valids = RegInit(VecInit(Seq.fill(set)(VecInit(Seq.fill(way)(false.B)))))
+    val cache_tags = Mem(set, Vec(way, UInt((tag_width).W)))
+    val cache_data = Mem(set, Vec(way, UInt((block_size * 8).W)))
 
     val set_index = io.addr.bits(set_width + offset_width - 1, offset_width)
     val tag = io.addr.bits(valid_width - 1, set_width + offset_width)
+
+    val cache_way_valids = cache_valids(set_index)
+    val cache_way_tags = cache_tags.read(set_index)
+    val cache_way_datas = cache_data.read(set_index)
+
+    // class Cache_Meta extends Bundle{
+    //     val valid = Bool()
+    //     val tag = UInt(tag_width.W)
+    // }
+
+    // val metas = meta.read(set_index).map{c => 
+    //     c.asTypeOf(new Cache_Meta)
+    // }
     
-    class Cache_Meta extends Bundle{
-        val valid = Bool()
-        val tag = UInt(tag_width.W)
-    }
-
-    val metas = meta.read(set_index).map{c => 
-        c.asTypeOf(new Cache_Meta)
-    }
-
-    val data_set = data.read(set_index)
-
-    val valid_vec = VecInit(metas.map(_.valid))
-    val tag_equal_vec = VecInit(metas.map(_.tag === tag))
-    val tag_match_vec = tag_equal_vec.zip(valid_vec).map{case (a, b) => a && b}
+    val tag_equal_vec = VecInit(cache_way_tags.map(_ === tag))
+    val tag_match_vec = tag_equal_vec.zip(cache_way_valids).map{case (a, b) => a && b}
     val tag_match = tag_match_vec.reduce(_ | _)
     val match_way = Mux1H(tag_match_vec, (0 until way).map(_.U))
     
-    io.data := data_set(match_way)
-    
+    io.data := cache_way_datas(match_way)
     io.cache_hit := tag_match
 
     val replace_set_index = io.replace_addr(set_width + offset_width - 1, offset_width) // input addr maybe change after input shake hands
@@ -168,14 +169,15 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_way_mask = UIntToOH(replace_way, way)
 
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
-    val replace_tag_v = VecInit((0 until way).map(_ => Cat(true.B, replace_tag)))
+    val replace_tag_v = VecInit((0 until way).map(_ => replace_tag))
 
     val replace_cache = io.replace_data.bits
     val replace_cache_v = VecInit((0 until way).map(_ => replace_cache))
 
     when(io.replace_data.valid){
-        meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
-        data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
+        cache_valids(replace_set_index)(replace_way) := true.B
+        cache_tags.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
+        cache_data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
         replacement.access(replace_set_index, replace_way)
     }.elsewhen(RegNext(tag_match && io.addr.valid)){
         replacement.access(replace_set_index, match_way)
@@ -215,6 +217,26 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
             val IFU_2_REG = Output(new BUS_IFU_2_REG)
         })
+        // val state = RegInit(IFU_state.s_wait_valid)
+        
+        // val (master, _) = masterNode.out(0)
+
+        // val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
+        // Icache.io.addr.bits := io.REG_2_IFU.Next_PC
+        // Icache.io.addr.valid := io.WBU_2_IFU.fire
+
+        // val addr_cache = RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire) // cache addr is very useful
+        // val inst_cache = RegEnable(Icache.io.data, io.WBU_2_IFU.fire)
+
+        // io.IFU_2_IDU.valid := state === IFU_state.s_wait_ready
+        // io.IFU_2_IDU.bits.PC := addr_cache
+        // io.IFU_2_IDU.bits.data := inst_cache
+
+        // val burst_counter = RegInit(0.U(32.W))
+        // when(io.WBU_2_IFU.fire){
+        //     burst_counter := burst_counter + 1.U
+        // }
+
         val state = RegInit(IFU_state.s_wait_valid)
         
         val (master, _) = masterNode.out(0)

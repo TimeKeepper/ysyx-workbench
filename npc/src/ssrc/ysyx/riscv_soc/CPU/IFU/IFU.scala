@@ -248,7 +248,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
         Icache.io.addr.bits := io.REG_2_IFU.Next_PC
         Icache.io.addr.valid := io.WBU_2_IFU.fire
-        Icache.io.Icache_flush := false.B
+        Icache.io.Icache_flush := true.B
 
         val block_num = Config.Icache_Param.block_size / 4
 

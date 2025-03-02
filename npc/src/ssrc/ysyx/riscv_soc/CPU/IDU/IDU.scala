@@ -316,13 +316,13 @@ class IDU extends Module{
         EXUBsrc_TypeEnum.EXUBsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
-    io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),        io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.EXU_A        <> RegEnable(EXU_A,                              io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.EXU_B        <> RegEnable(EXU_B,                              io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                                io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr,                          io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.PC           <> RegEnable(io.IFU_2_IDU.bits.PC,               io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.Branch       <> rvdecoderResult(Bran_Field)   
+    io.IDU_2_EXU.bits.MemOp        <> rvdecoderResult(MemOp_Field)  
+    io.IDU_2_EXU.bits.EXU_A        <> EXU_A             
+    io.IDU_2_EXU.bits.EXU_B        <> EXU_B              
+    io.IDU_2_EXU.bits.EXUctr       <> rvdecoderResult(EXUctr_Field) 
+    io.IDU_2_EXU.bits.csr_ctr      <> rvdecoderResult(csr_ctr_Field)
+    io.IDU_2_EXU.bits.Imm          <> imm            
+    io.IDU_2_EXU.bits.GPR_waddr    <> gpr_waddr   
+    io.IDU_2_EXU.bits.PC           <> io.IFU_2_IDU.bits.PC        
 }

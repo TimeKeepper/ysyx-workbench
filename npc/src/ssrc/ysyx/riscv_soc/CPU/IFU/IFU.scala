@@ -287,7 +287,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         }
         io.WBU_2_IFU.ready := state === IFU_state.s_wait_valid
 
-        io.IFU_2_IDU.valid := Mux(state === IFU_state.s_get, master.r.valid, state === IFU_state.s_wait_ready)
+        io.IFU_2_IDU.valid := state === IFU_state.s_wait_ready
         io.IFU_2_IDU.bits.PC := addr_cache
 
         master.ar.valid := (state === IFU_state.s_replacement_send_addr) || (state === IFU_state.s_send_addr)
@@ -342,7 +342,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 ),
 
                 IFU_state.s_replacement_get -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U), 
-                    IFU_state.s_wait_ready, 
+                    IFU_state.s_wait_valid, 
                     // Mux((Multi_transfer_counter === (block_num - 1).U), 
                     //     IFU_state.s_wait_ready, 
                     //     IFU_state.s_replacement_send_addr

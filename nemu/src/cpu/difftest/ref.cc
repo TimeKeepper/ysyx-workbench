@@ -80,6 +80,7 @@ __EXPORT void difftest_cache_behaior(void *dut) {
 
 // 让REF执行`n`条指令
 __EXPORT void difftest_exec(uint64_t n) {
+  Pin;
   cpu_exec(n);
 }
 

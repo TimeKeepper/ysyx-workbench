@@ -200,7 +200,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
 
-        Icache_state.io.flush := io.flush
+        Icache_state.io.flush := false.B
     }
 }
 
@@ -274,10 +274,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 Multi_transfer_counter := Multi_transfer_counter + 1.U
             }
 
+            Multi_transfer(block_num - 1) := master.r.bits.data
             for(i <- 0 until (block_num - 1)){
                 Multi_transfer(i) := Multi_transfer(i + 1)
             }
-            Multi_transfer(block_num - 1) := RegNext(master.r.bits.data)
         }.elsewhen(io.WBU_2_IFU.fire){
             Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
         }

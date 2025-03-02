@@ -8,18 +8,8 @@ import config._
 
 // riscv cpu register file
 
-class REG_output extends Bundle{
-  val GPR_rdataa = Output(UInt(32.W))
-  val GPR_rdatab = Output(UInt(32.W))
-
-  val pc = Output(UInt(32.W))
-
-  val csr_rdata = Output(UInt(32.W))
-}
-
 class REG extends Module {
   val io = IO(new Bundle {
-    val REG_2_IFU = Output(new BUS_REG_2_IFU)
     val IFU_2_REG = Input(new BUS_IFU_2_REG)
     val REG_2_IDU = Output(new BUS_REG_2_IDU)
     val IDU_2_REG = Input(new BUS_IDU_2_REG)
@@ -48,10 +38,6 @@ class REG extends Module {
   }.otherwise{
     io.REG_2_IDU.GPR_Bdata := 0.U
   }
-
-  val pc = RegEnable(io.WBU_2_REG.Next_Pc, Config.Reset_Vector, io.WBU_2_REG.inst_valid)
-
-  io.REG_2_IFU.Next_PC := pc
 
   // CSR
   def ADDR_MSTATUS = "h300".U

@@ -146,9 +146,9 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     // a vector(Way) of Mem(Set)
     val valid_array = RegInit(VecInit(Seq.fill(set)(0.U(way.W))))
 
-    when(io.flush){
-        valid_array.foreach(_ := 0.U)
-    }
+    // when(io.flush){
+    //     valid_array.foreach(_ := 0.U)
+    // }
     
     val meta = Mem(set, Vec(way, UInt((tag_width).W)))
     val data = Mem(set, Vec(way, UInt((block_size * 8).W)))

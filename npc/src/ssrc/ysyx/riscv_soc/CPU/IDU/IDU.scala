@@ -231,6 +231,7 @@ class IDU extends Module{
     val rv32iTargetSets = Set("rv32_i")
     val rvsysTargetSets = Set("rv_system")
     val rvzicsrTargetSets = Set("rv_zicsr")
+    val rvzifencei = Set("rv_zifencei")
 
     val rviInstList = instTable
         .filter(instr => rviTargetSets.contains(instr.instructionSet.name))
@@ -251,7 +252,13 @@ class IDU extends Module{
         .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
-    val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
+    val rvzifenceiInstList = instTable
+        .filter(instr => rvzifencei.contains(instr.name))
+        .filter(_.pseudoFrom.isEmpty)
+        .map(rvInstructionPattern(_))
+        .toSeq
+
+    val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList ++ rvzifenceiInstList
 
     val allField = Seq(Special_inst, Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
 

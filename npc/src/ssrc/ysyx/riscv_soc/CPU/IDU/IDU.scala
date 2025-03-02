@@ -54,7 +54,7 @@ object Special_inst extends DecodeField[rvInstructionPattern, Special_instTypeEn
     override def genTable(i: rvInstructionPattern): BitPat = {
         i.inst.name match {
             case "fence.i" => Get_BitPat(Special_instTypeEnum.fence_I)
-            case _ => BitPat.dontCare(Special_instTypeEnum.getWidth)
+            case _ => Get_BitPat(Special_instTypeEnum.None)
         }
     }
 }

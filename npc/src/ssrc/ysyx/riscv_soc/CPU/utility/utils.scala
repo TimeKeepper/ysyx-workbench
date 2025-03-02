@@ -91,7 +91,8 @@ object Instructions {
 }
 
 object Special_instTypeEnum extends ChiselEnum {
-  val fence_I
+  val None,
+      fence_I
       = Value
 }
 

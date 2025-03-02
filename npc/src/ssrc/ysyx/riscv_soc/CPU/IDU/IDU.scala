@@ -253,7 +253,7 @@ class IDU extends Module{
         .map(rvInstructionPattern(_))
         .toSeq
     val rvzifenceiInstList = instTable
-        .filter(instr => rvzifencei.contains(instr.name))
+        .filter(instr => rvzifencei.contains(instr.instructionSet.name))
         .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq

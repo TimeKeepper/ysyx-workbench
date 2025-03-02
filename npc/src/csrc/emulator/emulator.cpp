@@ -345,6 +345,7 @@ void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint
 }
 
 void Emulator::Icache_flush() {
+    Log("Flush Icache");
     for (auto& i : cache) {
         for (auto& j : i) {
             j.valid = false;

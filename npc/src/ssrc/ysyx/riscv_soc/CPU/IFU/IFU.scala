@@ -200,7 +200,7 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
 
-        Icache_state.io.flush := io.flush
+        Icache_state.io.flush := false.B
     }
 }
 

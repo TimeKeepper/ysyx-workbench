@@ -276,7 +276,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         master.ar.valid := (state === IFU_state.s_replace_send_addr) || (state === IFU_state.s_send_addr)
         master.ar.bits.len := Mux(state === IFU_state.s_replace_send_addr, (block_num - 1).U, 0.U)
-        master.ar.bits.addr := save.Next_PC
+        master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, save.Next_PC, 
+            (save.Next_PC & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U))
         
         master.r.ready := Mux(state === IFU_state.s_get_data, io.IFU_2_IDU.ready, state === IFU_state.s_replace_get_data)
 

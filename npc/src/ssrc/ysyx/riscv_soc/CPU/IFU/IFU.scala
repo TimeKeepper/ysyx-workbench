@@ -277,7 +277,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             for(i <- 0 until (block_num - 1)){
                 Multi_transfer(i) := Multi_transfer(i + 1)
             }
-            Multi_transfer(block_num - 1) := RegNext(master.r.bits.data)
+            Multi_transfer(block_num - 1) := master.r.bits.data
         }.elsewhen(io.WBU_2_IFU.fire){
             Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
         }

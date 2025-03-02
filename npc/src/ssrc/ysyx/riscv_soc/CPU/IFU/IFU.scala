@@ -278,9 +278,12 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             for(i <- 0 until (block_num - 1)){
                 Multi_transfer(i) := Multi_transfer(i + 1)
             }
-        }.elsewhen(io.WBU_2_IFU.fire){
+        }
+        
+        when(io.WBU_2_IFU.fire){
             Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
         }
+        
         io.WBU_2_IFU.ready := state === IFU_state.s_wait_valid
 
         io.IFU_2_IDU.valid := state === IFU_state.s_wait_ready

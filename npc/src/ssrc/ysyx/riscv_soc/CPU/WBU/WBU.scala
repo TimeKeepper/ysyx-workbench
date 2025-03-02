@@ -102,7 +102,9 @@ class WBU extends Module {
         CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
 
-    io.WBU_2_REG.Next_Pc       := Next_Pc
+    val pc = RegEnable(Next_Pc, Config.Reset_Vector, io.EXU_2_WBU.fire)
+    io.WBU_2_IFU.bits.Next_PC := pc
+
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr
     io.WBU_2_REG.GPR_wdata     := GPR_wdata
     io.WBU_2_REG.CSR_ctr       <> io.EXU_2_WBU.bits.csr_ctr

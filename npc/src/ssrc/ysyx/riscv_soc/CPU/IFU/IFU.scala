@@ -280,10 +280,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             }
         }
         
-        when(io.WBU_2_IFU.fire){
-            Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
-        }
-        
+        // when(io.WBU_2_IFU.fire){
+        //     Multi_transfer(block_index_pre) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
+        // }
+
         io.WBU_2_IFU.ready := state === IFU_state.s_wait_valid
 
         io.IFU_2_IDU.valid := state === IFU_state.s_wait_ready
@@ -301,7 +301,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := (state === IFU_state.s_wait_ready) && (RegNext(state === IFU_state.s_replacement_get))
 
-        val inst_cache = Mux(state === IFU_state.s_get, master.r.bits.data, Multi_transfer(blcok_index))
+        val inst_cache = Mux(state === IFU_state.s_get, Multi_transfer(block_num - 1), RegEnable(Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre), io.WBU_2_IFU.fire))
             
         io.IFU_2_IDU.bits.data := inst_cache
         io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)

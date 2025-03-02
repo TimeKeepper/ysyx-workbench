@@ -280,7 +280,7 @@ class IDU extends Module{
         Catch.io.Inst_Type := catchResult(PC_Field)
     }
 
-    io.IDU_2_IFU.hazard := rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I
+    io.IDU_2_IFU.hazard := (!RegNext(rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I) && rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I)
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(

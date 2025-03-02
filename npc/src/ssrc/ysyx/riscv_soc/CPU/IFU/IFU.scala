@@ -318,50 +318,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             )
         )
 
-        // state := MuxLookup(state, IFU_state.s_wait_valid)(
-        //     Seq(
-        //         IFU_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
-        //             MuxCase(IFU_state.s_wait_valid, 
-        //                 Seq(
-        //                     (Icache.io.cache_hit & map_hit)     -> IFU_state.s_wait_ready,
-        //                     (!Icache.io.cache_hit & map_hit)    -> IFU_state.s_replacement_send_addr,
-        //                     (!map_hit)                          -> IFU_state.s_send_addr,
-        //                 )
-        //             ),
-        //             IFU_state.s_wait_valid
-        //         ),
-
-        //         IFU_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 
-        //             IFU_state.s_wait_valid, 
-        //             IFU_state.s_wait_ready
-        //         ),
-
-        //         IFU_state.s_send_addr -> Mux(master.ar.fire, 
-        //             IFU_state.s_get, 
-        //             IFU_state.s_send_addr
-        //         ),
-
-        //         IFU_state.s_get -> Mux(master.r.fire, 
-        //             IFU_state.s_wait_ready,
-        //             IFU_state.s_get
-        //         ),
-
-        //         IFU_state.s_replacement_send_addr -> Mux(master.ar.fire, 
-        //             IFU_state.s_replacement_get, 
-        //             IFU_state.s_replacement_send_addr
-        //         ),
-
-        //         IFU_state.s_replacement_get -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U), 
-        //             IFU_state.s_wait_ready, 
-        //             // Mux((Multi_transfer_counter === (block_num - 1).U), 
-        //             //     IFU_state.s_wait_ready, 
-        //             //     IFU_state.s_replacement_send_addr
-        //             // ),
-        //             IFU_state.s_replacement_get
-        //         )
-        //     )
-        // )
-
         if(Config.Simulate){
             val Catch = Module(new IFU_catch)
             Catch.io.clock := clock

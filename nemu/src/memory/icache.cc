@@ -91,6 +91,7 @@ Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
 }
 
 void Icache_LRU::fence() {
+    Log("nemu icache fence");
     for(uint32_t i = 0; i < set; ++i) {
         for(uint32_t j = 0; j < way; ++j) {
             cache[i][j].valid = false;

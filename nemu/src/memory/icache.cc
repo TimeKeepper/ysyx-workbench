@@ -90,6 +90,15 @@ Icache_return Icache_LRU::fetch(vaddr_t addr, uint32_t len) {
     return result;
 }
 
+void Icache_LRU::fence() {
+    Log("nemu icache fence");
+    for(uint32_t i = 0; i < set; ++i) {
+        for(uint32_t j = 0; j < way; ++j) {
+            cache[i][j].valid = false;
+        }
+    }
+}
+
 void Icache_LRU::print_cache() {
     for(uint32_t i = 0; i < set; ++i) {
         std::cout << ANSI_FG_BLUE << "Set " << i << ": " << std::endl;
@@ -118,6 +127,10 @@ extern "C" void Icache_init(paddr_t begin, paddr_t end, uint32_t way, uint32_t s
 
 extern "C" Icache_return icache_fetch(vaddr_t addr, uint32_t len) {
     return icache.fetch(addr, len);
+}
+
+extern "C" void icache_fence() {
+    icache.fence();
 }
 
 extern "C" void Icache_print() {

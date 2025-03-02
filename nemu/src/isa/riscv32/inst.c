@@ -61,6 +61,8 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   // if(type!=TYPE_R) printf("imm:%x,",*imm);
 }
 
+void icache_fence();
+
 static int decode_exec(Decode *s) {
   int rd = 0;
   word_t src1 = 0, src2 = 0, imm = 0;
@@ -213,6 +215,9 @@ static int decode_exec(Decode *s) {
   
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", \
   bgeu   , B, if (src1 >= src2) s->dnpc = s->pc + (sword_t)imm);
+
+  INSTPAT("??????? ????? ????? 001 ????? 00011 11", \
+  fence_i, N, icache_fence());
   
   INSTPAT("0000000 00000 00000 000 00000 11100 11", \
   ecall  , N, s->dnpc = isa_raise_intr(11, s->pc)); 

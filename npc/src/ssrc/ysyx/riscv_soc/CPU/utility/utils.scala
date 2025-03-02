@@ -90,6 +90,12 @@ object Instructions {
   def NOP    = "b00000000000000000000000000010011"
 }
 
+object Special_instTypeEnum extends ChiselEnum {
+  val None,
+      fence_I
+      = Value
+}
+
 object Imm_TypeEnum extends ChiselEnum{
   val Imm_I,    //I型指令
       Imm_U,    //U型指令

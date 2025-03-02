@@ -15,6 +15,7 @@ import freechips.rocketchip.util._
 
 import signal_value._
 import bus_state._
+import os.copy.over
 
 class IDU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
@@ -45,6 +46,17 @@ trait DecodeAPI {
 
 case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends DecodePattern {
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
+}
+
+object Special_inst extends DecodeField[rvInstructionPattern, Special_instTypeEnum.Type] with DecodeAPI{
+    override def name: String = "special_inst"
+    override def chiselType = Special_instTypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "fence.i" => Get_BitPat(Special_instTypeEnum.fence_I)
+            case _ => Get_BitPat(Special_instTypeEnum.None)
+        }
+    }
 }
 
 object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] with DecodeAPI{
@@ -195,6 +207,8 @@ class IDU extends Module{
 
         val IDU_2_EXU     = Decoupled(Output(new BUS_IDU_2_EXU))
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
+
+        val IDU_2_IFU     = Output(new BUS_IDU_2_IFU)
     })
 
     val state = RegInit(bus_state.s_wait_valid)
@@ -217,6 +231,7 @@ class IDU extends Module{
     val rv32iTargetSets = Set("rv32_i")
     val rvsysTargetSets = Set("rv_system")
     val rvzicsrTargetSets = Set("rv_zicsr")
+    val rvzifencei = Set("rv_zifencei")
 
     val rviInstList = instTable
         .filter(instr => rviTargetSets.contains(instr.instructionSet.name))
@@ -237,9 +252,15 @@ class IDU extends Module{
         .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
-    val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
+    val rvzifenceiInstList = instTable
+        .filter(instr => rvzifencei.contains(instr.instructionSet.name))
+        .filter(_.pseudoFrom.isEmpty)
+        .map(rvInstructionPattern(_))
+        .toSeq
 
-    val allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
+    val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList ++ rvzifenceiInstList
+
+    val allField = Seq(Special_inst, Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
 
     require(instList.map(_.bitPat.getWidth).distinct.size == 1, "All instructions must have the same width")
     def Decode_bundle: DecodeBundle = new DecodeBundle(allField)
@@ -258,6 +279,8 @@ class IDU extends Module{
         Catch.io.ID := io.IFU_2_IDU.fire && !reset.asBool
         Catch.io.Inst_Type := catchResult(PC_Field)
     }
+
+    io.IDU_2_IFU.hazard := rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(

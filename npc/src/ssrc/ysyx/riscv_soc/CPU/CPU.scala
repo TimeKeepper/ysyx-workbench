@@ -118,6 +118,7 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
     // bus IFU -> IDU
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
+    IFU.io.IDU_2_IFU     <> IDU.io.IDU_2_IFU
 
     // bus IFU -> REG -> IDU without delay
     IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
@@ -174,6 +175,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
     // bus IFU -> IDU
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
+    IFU.io.IDU_2_IFU     <> IDU.io.IDU_2_IFU
 
     // bus IFU -> REG -> IDU without delay
     IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG

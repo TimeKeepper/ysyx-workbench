@@ -267,7 +267,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
         // val Multi_transfer_counter = RegInit((block_num - 1).U)
         val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
-        when (master.r.fire && state === IFU_state.s_replacement_get) {
+        when (master.r.fire) {
             when(Multi_transfer_counter === (block_num - 1).U){
                 Multi_transfer_counter := 0.U
             }.otherwise{

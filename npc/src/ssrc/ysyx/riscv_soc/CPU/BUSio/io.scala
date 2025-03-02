@@ -15,6 +15,10 @@ class BUS_IFU_2_IDU extends Bundle{
     val PC         = UInt(32.W)
 }
 
+class BUS_IDU_2_IFU extends Bundle{
+    val hazard = Bool()
+}
+
 class BUS_IFU_2_REG extends Bundle{
     val GPR_Aaddr  = UInt(5.W)
     val GPR_Baddr  = UInt(5.W)

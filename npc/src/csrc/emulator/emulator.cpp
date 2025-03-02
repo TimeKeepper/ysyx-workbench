@@ -344,6 +344,14 @@ void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint
     cache[write_index][write_way].valid = true;
 }
 
+void Emulator::Icache_flush() {
+    for (auto& i : cache) {
+        for (auto& j : i) {
+            j.valid = false;
+        }
+    }
+}
+
 void Emulator::Icache_MAT_catch(uint32_t count){
     this->perf->memory_access_time += count;
 }

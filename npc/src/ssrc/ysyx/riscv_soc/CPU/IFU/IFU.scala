@@ -71,6 +71,8 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
         val write_way = Input(UInt(32.W))
         val write_tag = Input(UInt(32.W))
         val write_data = Input(UInt((Config.Icache_Param.block_size * 8).W))
+
+        val flush = Input(Bool())
     })
 
     val code = 
@@ -81,12 +83,19 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
     |    input [31:0] write_index,
     |    input [31:0] write_way,
     |    input [31:0] write_tag,
-    |    input [${Config.Icache_Param.block_size * 8 - 1}:0] write_data
+    |    input [${Config.Icache_Param.block_size * 8 - 1}:0] write_data,
+    |
+    |    input flush
     |);
     |
     |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
     |   always @(posedge valid) begin
     |       Icache_state_catch(write_index, write_way, write_tag, write_data);
+    |   end
+    |
+    |   import "DPI-C" function void Icache_flush();
+    |   always @(posedge flush) begin
+    |       Icache_flush();
     |   end
     |
     |endmodule
@@ -125,6 +134,8 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         val cache_hit = Output(Bool())
         val replace_data = Flipped(ValidIO(Input(UInt((Config.Icache_Param.block_size * 8).W))))
         val replace_addr = Input(UInt(32.W))
+
+        val flush = Input(Bool())
     })
 
     val valid_width = log2Ceil(address.map(_.mask).reduce(_ max _))
@@ -134,6 +145,11 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
 
     // a vector(Way) of Mem(Set)
     val valid_array = RegInit(VecInit(Seq.fill(set)(0.U(way.W))))
+
+    when(io.flush){
+        valid_array.foreach(_ := 0.U)
+    }
+    
     val meta = Mem(set, Vec(way, UInt((tag_width).W)))
     val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
 
@@ -183,6 +199,8 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         Icache_state.io.write_way := replace_way
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
+
+        Icache_state.io.flush := io.flush
     }
 }
 
@@ -208,6 +226,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val WBU_2_IFU = Flipped(Decoupled(Input(new BUS_WBU_2_IFU)))
             val REG_2_IFU = Input(new BUS_REG_2_IFU)
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
+            val IDU_2_IFU = Flipped(new BUS_IDU_2_IFU)
             val IFU_2_REG = Output(new BUS_IFU_2_REG)
         })
         // val state = RegInit(IFU_state.s_wait_valid)
@@ -237,6 +256,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
         Icache.io.addr.bits := io.REG_2_IFU.Next_PC
         Icache.io.addr.valid := io.WBU_2_IFU.fire
+        Icache.io.flush := io.IDU_2_IFU.hazard
 
         val block_num = Config.Icache_Param.block_size / 4
 

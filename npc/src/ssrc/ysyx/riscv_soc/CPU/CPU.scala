@@ -172,14 +172,13 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val IDU             = Module(new IDU)
     // val EXU             = LazyEXU.module
     // val WBU             = Module(new WBU)
-    // val REG             = Module(new REG) 
+    val REG             = Module(new REG) 
 
     val Ctrl = Wire(new Pipeline_ctrl)
     Ctrl.flush := false.B
     Ctrl.stall := false.B
 
-    IFU.io.WBU_2_IFU.valid := false.B
-    IFU.io.WBU_2_IFU.bits.Next_PC := 0.U
+    IFU.io.WBU_2_IFU    <> DontCare
     // bus IFU -> IDU
     IFU.io.Pipeline_ctrl := Ctrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
@@ -187,12 +186,12 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
     // should delete
     IDU.io.IDU_2_EXU.ready := true.B
-    IDU.io.REG_2_IDU.CSR_rdata := 0.U
-    IDU.io.REG_2_IDU.GPR_Adata := 0.U
-    IDU.io.REG_2_IDU.GPR_Bdata := 0.U
+    REG.io.IDU_2_REG <> DontCare
+    REG.io.REG_2_EXU <> DontCare
+    REG.io.WBU_2_REG <> DontCare
 
-    // // bus IFU -> REG -> IDU without delay
-    // REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
+    // bus IFU -> REG -> IDU without delay
+    REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
     // // bus IDU -> EXU
     // IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    

@@ -181,6 +181,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     IFU.io.Pipeline_ctrl := Ctrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
     pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, Ctrl)
+    IDU.io.IDU_2_EXU.ready := true.B
 
     // bus IFU -> REG -> IDU without delay
     REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU

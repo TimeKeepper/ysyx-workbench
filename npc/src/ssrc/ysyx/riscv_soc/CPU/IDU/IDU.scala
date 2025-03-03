@@ -212,10 +212,8 @@ class IDU extends Module{
     io.IDU_2_EXU.valid := io.IFU_2_IDU.valid
     io.IFU_2_IDU.ready := io.IDU_2_EXU.ready
 
-    val save = RegEnable(io.IFU_2_IDU.bits, io.IFU_2_IDU.fire)
-
-    io.IDU_2_REG.GPR_Aaddr := save.data(19, 15)
-    io.IDU_2_REG.GPR_Baddr := save.data(24, 20)
+    io.IDU_2_REG.GPR_Aaddr := io.IFU_2_IDU.bits.data(19, 15)
+    io.IDU_2_REG.GPR_Baddr := io.IFU_2_IDU.bits.data(24, 20)
 
     val instTable = rvdecoderdb.fromFile.instructions(os.pwd / "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
@@ -264,7 +262,7 @@ class IDU extends Module{
     )
     def Decode_decode(input: UInt): DecodeBundle = chisel3.util.experimental.decode.decoder(QMCMinimizer, input, table).asTypeOf(Decode_bundle)
 
-    val rvdecoderResult = chisel3.util.experimental.decode.decoder(QMCMinimizer, save.data, table).asTypeOf(Decode_bundle)
+    val rvdecoderResult = chisel3.util.experimental.decode.decoder(QMCMinimizer, io.IFU_2_IDU.bits.data, table).asTypeOf(Decode_bundle)
     
     if(Config.Simulate) {
         val catchTable = new DecodeTable(instList, Seq(PC_Field))
@@ -278,28 +276,28 @@ class IDU extends Module{
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(
-            Imm_TypeEnum.Imm_I -> Cat(Fill(21, save.data(31)), save.data(31, 20)),
-            Imm_TypeEnum.Imm_U -> Cat(save.data(31, 12), Fill(12, 0.U)),
-            Imm_TypeEnum.Imm_S -> Cat(Fill(20, save.data(31)), save.data(31, 25), save.data(11, 7)),
-            Imm_TypeEnum.Imm_B -> Cat(Fill(20, save.data(31)), save.data(7), save.data(30, 25), save.data(11, 8), 0.U(1.W)),
-            Imm_TypeEnum.Imm_J -> Cat(Fill(12, save.data(31)), save.data(19, 12), save.data(20), save.data(30, 21), 0.U(1.W)),
+            Imm_TypeEnum.Imm_I -> Cat(Fill(21, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 20)),
+            Imm_TypeEnum.Imm_U -> Cat(io.IFU_2_IDU.bits.data(31, 12), Fill(12, 0.U)),
+            Imm_TypeEnum.Imm_S -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(31, 25), io.IFU_2_IDU.bits.data(11, 7)),
+            Imm_TypeEnum.Imm_B -> Cat(Fill(20, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(7), io.IFU_2_IDU.bits.data(30, 25), io.IFU_2_IDU.bits.data(11, 8), 0.U(1.W)),
+            Imm_TypeEnum.Imm_J -> Cat(Fill(12, io.IFU_2_IDU.bits.data(31)), io.IFU_2_IDU.bits.data(19, 12), io.IFU_2_IDU.bits.data(20), io.IFU_2_IDU.bits.data(30, 21), 0.U(1.W)),
         )
     )
 
-    val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), save.data(31, 20))(
+    val csr_raddr = MuxLookup(rvdecoderResult(csr_ctr_Field), io.IFU_2_IDU.bits.data(31, 20))(
         Seq(
             CSR_TypeEnum.CSR_R1W0 -> "h341".U,
             CSR_TypeEnum.CSR_R1W2 -> "h305".U,
         )
     )
 
-    val gpr_waddr = Mux(rvdecoderResult(RegWr_Field) === RegWr_TypeEnum.RegWr_Yes, save.data(10, 7), 0.U(4.W))
+    val gpr_waddr = Mux(rvdecoderResult(RegWr_Field) === RegWr_TypeEnum.RegWr_Yes, io.IFU_2_IDU.bits.data(10, 7), 0.U(4.W))
 
     io.IDU_2_REG.CSR_raddr         <> csr_raddr
 
     val EXU_A = MuxLookup(rvdecoderResult(EXUAsrc_Field), 0.U)(Seq(
         EXUAsrc_TypeEnum.EXUAsrc_RS1 -> io.REG_2_IDU.GPR_Adata,
-        EXUAsrc_TypeEnum.EXUAsrc_PC  -> save.PC,
+        EXUAsrc_TypeEnum.EXUAsrc_PC  -> io.IFU_2_IDU.bits.PC,
     ))
 
     val EXU_B = MuxLookup(rvdecoderResult(EXUBsrc_Field), 0.U)(Seq(

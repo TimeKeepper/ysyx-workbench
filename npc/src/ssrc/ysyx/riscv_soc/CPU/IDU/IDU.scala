@@ -209,7 +209,7 @@ class IDU extends Module{
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
 
-    io.IDU_2_EXU.valid := io.IFU_2_IDU.ready
+    io.IDU_2_EXU.valid := io.IFU_2_IDU.valid
     io.IFU_2_IDU.ready := io.IDU_2_EXU.ready
 
     val save = RegEnable(io.IFU_2_IDU.bits, io.IFU_2_IDU.fire)

@@ -33,8 +33,6 @@ class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val (master, _) = masterNode.out(0)
         master <> AXI
 
-        val save = RegEnable(io.IDU_2_EXU.bits, io.IDU_2_EXU.fire)
-
         val alu = Module(new ALU)
         val lsu = Module(new LSU)
 
@@ -56,24 +54,24 @@ class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             io.EXU_2_WBU.valid <> alu.io.out.valid
         }
 
-        alu.io.IDU_2_EXU.bits := save
+        alu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
 
-        lsu.io.IDU_2_EXU.bits := save
+        lsu.io.IDU_2_EXU.bits := io.IDU_2_EXU.bits
         lsu.io.AXI <> AXI
         
-        val Jmp_Pc = MuxLookup(save.Branch, save.PC + save.Imm)(Seq(
-            Bran_TypeEnum.Bran_Jmpr -> (save.EXU_A + save.Imm),
-            Bran_TypeEnum.Bran_Jcsr -> (save.EXU_B)
+        val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
+            Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm),
+            Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.EXU_B)
         ))
 
-        io.EXU_2_WBU.bits.Branch        := save.Branch      
+        io.EXU_2_WBU.bits.Branch        := io.IDU_2_EXU.bits.Branch      
         io.EXU_2_WBU.bits.Jmp_Pc        := Jmp_Pc                        
-        io.EXU_2_WBU.bits.MemtoReg      := save.EXUctr  === EXUctr_TypeEnum.EXUctr_LD 
-        io.EXU_2_WBU.bits.csr_ctr       := save.csr_ctr     
-        io.EXU_2_WBU.bits.CSR_waddr     := save.Imm(11, 0)  
-        io.EXU_2_WBU.bits.GPR_waddr     := save.GPR_waddr   
-        io.EXU_2_WBU.bits.PC            := save.PC          
-        io.EXU_2_WBU.bits.CSR_rdata     := save.EXU_B   
+        io.EXU_2_WBU.bits.MemtoReg      := io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD 
+        io.EXU_2_WBU.bits.csr_ctr       := io.IDU_2_EXU.bits.csr_ctr     
+        io.EXU_2_WBU.bits.CSR_waddr     := io.IDU_2_EXU.bits.Imm(11, 0)  
+        io.EXU_2_WBU.bits.GPR_waddr     := io.IDU_2_EXU.bits.GPR_waddr   
+        io.EXU_2_WBU.bits.PC            := io.IDU_2_EXU.bits.PC          
+        io.EXU_2_WBU.bits.CSR_rdata     := io.IDU_2_EXU.bits.EXU_B   
         io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
         io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
     }

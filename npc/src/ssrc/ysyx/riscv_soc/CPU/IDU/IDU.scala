@@ -209,17 +209,8 @@ class IDU extends Module{
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
 
-    val state = RegInit(bus_state.s_wait_valid)
-
-    state := MuxLookup(state, bus_state.s_wait_valid)(
-        Seq(
-            bus_state.s_wait_valid -> Mux(io.IFU_2_IDU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
-            bus_state.s_wait_ready -> Mux(io.IDU_2_EXU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
-        )
-    )
-
-    io.IDU_2_EXU.valid := state === bus_state.s_wait_ready
-    io.IFU_2_IDU.ready := state === bus_state.s_wait_valid
+    io.IDU_2_EXU.valid := io.IFU_2_IDU.ready
+    io.IFU_2_IDU.ready := io.IDU_2_EXU.ready
 
     val save = RegEnable(io.IFU_2_IDU.bits, io.IFU_2_IDU.fire)
 

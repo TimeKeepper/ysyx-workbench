@@ -211,3 +211,26 @@ class Pipeline_ctrl extends Bundle {
   val stall = Output(Bool())
   val flush = Output(Bool())
 }
+
+object pipelineConnect {
+    def apply[T <: Data, T2 <: Data](
+        prevOut: DecoupledIO[T],
+        thisIn: DecoupledIO[T], 
+        thisOut: DecoupledIO[T2],
+        ctrl: Pipeline_ctrl) = {
+
+        prevOut.ready := thisIn.ready & ~ctrl.stall
+        thisIn.bits := RegEnable(prevOut.bits, prevOut.fire)
+        thisIn.valid := RegNext(
+            MuxCase(
+                thisIn.valid,
+                Seq(
+                ctrl.flush   -> false.B,
+                prevOut.fire -> true.B,
+                thisOut.fire -> false.B
+                )
+            ),
+            false.B
+        )
+    }
+}

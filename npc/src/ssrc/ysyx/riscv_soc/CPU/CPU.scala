@@ -116,12 +116,14 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val REG             = Module(new REG) 
     // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
+    val Ctrl = Wire(new Pipeline_ctrl)
+    Ctrl.flush := false.B
+    Ctrl.stall := false.B
     // bus IFU -> IDU
+    IFU.io.Pipeline_ctrl := Ctrl
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
-    IFU.io.IDU_2_IFU     <> IDU.io.IDU_2_IFU
 
     // bus IFU -> REG -> IDU without delay
-    IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
     REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
     // bus IDU -> EXU
@@ -172,28 +174,31 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val WBU             = Module(new WBU)
     val REG             = Module(new REG) 
 
+    val Ctrl = Wire(new Pipeline_ctrl)
+    Ctrl.flush := false.B
+    Ctrl.stall := false.B
+
+    IFU.io.WBU_2_IFU <> DontCare
     // bus IFU -> IDU
-    IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
-    IFU.io.IDU_2_IFU     <> IDU.io.IDU_2_IFU
+    IFU.io.Pipeline_ctrl := Ctrl
+    // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
+    pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, Ctrl)
+    pipelineConnect(IDU.io.IDU_2_EXU, EXU.io.IDU_2_EXU, EXU.io.EXU_2_WBU, Ctrl)
+    pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, Ctrl)
+
+    WBU.io.WBU_2_IFU.ready := true.B
 
     // bus IFU -> REG -> IDU without delay
-    IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
     REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
-    // bus IDU -> EXU
-    IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
-
-    // bus IDU -> REG -> EXU without delay
+    // // bus IDU -> REG -> EXU without delay
     IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
     REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
-    // bus EXU -> WBU
-    EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
+    // // bus WBU -> IFU
+    // WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
 
-    // bus WBU -> IFU
-    WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
-
-    // bus WBU -> REG -> IFU without delay
+    // // bus WBU -> REG -> IFU without delay
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
   }
 }

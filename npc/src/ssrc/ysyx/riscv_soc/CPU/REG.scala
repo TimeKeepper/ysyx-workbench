@@ -10,7 +10,6 @@ import config._
 
 class REG extends Module {
   val io = IO(new Bundle {
-    val IFU_2_REG = Input(new BUS_IFU_2_REG)
     val REG_2_IDU = Output(new BUS_REG_2_IDU)
     val IDU_2_REG = Input(new BUS_IDU_2_REG)
     val REG_2_EXU = Output(new BUS_REG_2_EXU)

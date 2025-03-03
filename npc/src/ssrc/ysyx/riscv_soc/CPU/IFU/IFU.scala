@@ -227,26 +227,40 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val io = IO(new Bundle{
             val WBU_2_IFU = Flipped(Decoupled(Input(new BUS_WBU_2_IFU)))
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
-            val IDU_2_IFU = Flipped(new BUS_IDU_2_IFU)
-            val IFU_2_REG = Output(new BUS_IFU_2_REG)
+
+            val Pipeline_ctrl = Flipped(new Pipeline_ctrl)
         })
-        val state = RegInit(IFU_state.s_wait_valid)
-        val save = RegEnable(io.WBU_2_IFU.bits, io.WBU_2_IFU.fire)
+        val state = RegInit(IFU_state.s_try_fetch)
         
+        val pc = RegInit(Config.Reset_Vector)
+        val snpc = pc + 4.U
+        val dnpc = io.WBU_2_IFU.bits.Next_PC
+
+        io.IFU_2_IDU.bits.PC := pc
+
+        io.WBU_2_IFU.ready := io.Pipeline_ctrl.flush
+
+        pc := MuxCase(pc, Seq(
+            io.IFU_2_IDU.fire -> snpc,
+            io.WBU_2_IFU.fire -> dnpc
+        ))
+
         val (master, _) = masterNode.out(0)
 
-        val map_hit = Config.Icache_Param.address.map(_.contains(save.Next_PC)).reduce(_ || _)
+        val map_hit = Config.Icache_Param.address.map(_.contains(pc)).reduce(_ || _)
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
-        Icache.io.addr.bits := save.Next_PC
-        Icache.io.addr.valid := RegNext(io.WBU_2_IFU.fire)
-        Icache.io.flush := io.IDU_2_IFU.hazard
+        Icache.io.addr.bits := pc
+        Icache.io.addr.valid := io.IFU_2_IDU.fire
+        Icache.io.flush := io.Pipeline_ctrl.flush
+
+        io.IFU_2_IDU.valid := map_hit && Icache.io.cache_hit
         
-        Icache.io.replace_addr := save.Next_PC
+        Icache.io.replace_addr := pc
 
         val block_num = Config.Icache_Param.block_size / 4
 
-        val block_index = save.Next_PC(log2Ceil(Config.Icache_Param.block_size), 2)
+        val block_index = pc(log2Ceil(Config.Icache_Param.block_size), 2)
 
         val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
         val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
@@ -266,18 +280,16 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             }
         }
 
-        io.WBU_2_IFU.ready := state === IFU_state.s_wait_valid
-
         io.IFU_2_IDU.valid := MuxLookup(state, false.B)(Seq(
             IFU_state.s_try_fetch -> Icache.io.cache_hit,
             IFU_state.s_get_data -> master.r.valid,
         ))
-        io.IFU_2_IDU.bits.PC := save.Next_PC
+        io.IFU_2_IDU.bits.PC := pc
 
         master.ar.valid := (state === IFU_state.s_replace_send_addr) || (state === IFU_state.s_send_addr)
         master.ar.bits.len := Mux(state === IFU_state.s_replace_send_addr, (block_num - 1).U, 0.U)
-        master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, save.Next_PC, 
-            (save.Next_PC & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U))
+        master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, pc, 
+            (pc & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U))
         
         master.r.ready := Mux(state === IFU_state.s_get_data, io.IFU_2_IDU.ready, state === IFU_state.s_replace_get_data)
 
@@ -295,7 +307,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
                 IFU_state.s_try_fetch -> MuxCase(IFU_state.s_try_fetch, 
                     Seq(
-                        (Icache.io.cache_hit & map_hit & io.IFU_2_IDU.fire) -> IFU_state.s_wait_valid,
                         (!Icache.io.cache_hit & map_hit) -> IFU_state.s_replace_send_addr,
                         (!map_hit) -> IFU_state.s_send_addr
                     )
@@ -305,7 +316,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                     IFU_state.s_get_data, IFU_state.s_send_addr),
 
                 IFU_state.s_get_data -> Mux(master.r.fire,
-                    IFU_state.s_wait_valid, IFU_state.s_get_data),
+                    IFU_state.s_try_fetch, IFU_state.s_get_data),
 
                 IFU_state.s_replace_send_addr -> Mux(master.ar.fire,
                     IFU_state.s_replace_get_data, IFU_state.s_replace_send_addr),

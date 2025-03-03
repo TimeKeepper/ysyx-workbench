@@ -225,6 +225,9 @@ class IDU extends Module{
 
     val save = RegEnable(io.IFU_2_IDU.bits, io.IFU_2_IDU.fire)
 
+    io.IDU_2_REG.GPR_Aaddr := save.data(19, 15)
+    io.IDU_2_REG.GPR_Baddr := save.data(24, 20)
+
     val instTable = rvdecoderdb.fromFile.instructions(os.pwd / "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
     val rv32iExceptInstructions = 

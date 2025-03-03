@@ -27,14 +27,14 @@ class REG extends Module {
     gpr((io.WBU_2_REG.GPR_waddr - 1.U)(3, 0)) := io.WBU_2_REG.GPR_wdata
   }
 
-  when(io.IFU_2_REG.GPR_Aaddr =/= 0.U){
-    io.REG_2_IDU.GPR_Adata := gpr((io.IFU_2_REG.GPR_Aaddr - 1.U)(3, 0))
+  when(io.IDU_2_REG.GPR_Aaddr =/= 0.U){
+    io.REG_2_IDU.GPR_Adata := gpr((io.IDU_2_REG.GPR_Aaddr - 1.U)(3, 0))
   }.otherwise{
     io.REG_2_IDU.GPR_Adata := 0.U
   }
 
-  when(io.IFU_2_REG.GPR_Baddr =/= 0.U){
-    io.REG_2_IDU.GPR_Bdata := gpr((io.IFU_2_REG.GPR_Baddr - 1.U)(3, 0))
+  when(io.IDU_2_REG.GPR_Baddr =/= 0.U){
+    io.REG_2_IDU.GPR_Bdata := gpr((io.IDU_2_REG.GPR_Baddr - 1.U)(3, 0))
   }.otherwise{
     io.REG_2_IDU.GPR_Bdata := 0.U
   }

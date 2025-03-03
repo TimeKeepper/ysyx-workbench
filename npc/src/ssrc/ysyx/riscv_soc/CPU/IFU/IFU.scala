@@ -287,8 +287,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val inst = Mux(state === IFU_state.s_try_fetch, Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index), master.r.bits.data)
             
         io.IFU_2_IDU.bits.data := inst
-        io.IFU_2_REG.GPR_Aaddr := inst(19, 15)
-        io.IFU_2_REG.GPR_Baddr := inst(24, 20)
 
         state := MuxLookup(state, IFU_state.s_wait_valid)(
             Seq(

@@ -307,7 +307,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
                 IFU_state.s_try_fetch -> MuxCase(IFU_state.s_try_fetch, 
                     Seq(
-                        (Icache.io.cache_hit & map_hit & io.IFU_2_IDU.fire) -> IFU_state.s_wait_valid,
                         (!Icache.io.cache_hit & map_hit) -> IFU_state.s_replace_send_addr,
                         (!map_hit) -> IFU_state.s_send_addr
                     )

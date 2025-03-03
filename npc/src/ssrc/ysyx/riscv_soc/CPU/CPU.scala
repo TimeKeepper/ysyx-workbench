@@ -152,11 +152,11 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
   ElaborationArtefacts.add("graphml", graphML)
   val LazyIFU = LazyModule(new IFU(idBits = idBits))
-  val LazyEXU = LazyModule(new EXU(idBits = idBits))
+  // val LazyEXU = LazyModule(new EXU(idBits = idBits))
 
   val xbar = AXI4Xbar(maxFlightPerId = 1, awQueueDepth = 1)
   xbar := LazyIFU.masterNode
-  xbar := LazyEXU.masterNode
+  // xbar := LazyEXU.masterNode
 
   val luart = LazyModule(new UART(AddressSet.misaligned(0x10000000, 0x1000)))
   val lclint = LazyModule(new CLINT(AddressSet.misaligned(0xa0000048L, 0x10), 985.U))
@@ -170,37 +170,45 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     
     val IFU             = LazyIFU.module
     val IDU             = Module(new IDU)
-    val EXU             = LazyEXU.module
-    val WBU             = Module(new WBU)
-    val REG             = Module(new REG) 
+    // val EXU             = LazyEXU.module
+    // val WBU             = Module(new WBU)
+    // val REG             = Module(new REG) 
 
     val Ctrl = Wire(new Pipeline_ctrl)
     Ctrl.flush := false.B
     Ctrl.stall := false.B
+
+    IFU.io.WBU_2_IFU.valid := false.B
+    IFU.io.WBU_2_IFU.bits.Next_PC := 0.U
     // bus IFU -> IDU
     IFU.io.Pipeline_ctrl := Ctrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
     pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, Ctrl)
+
+    // should delete
     IDU.io.IDU_2_EXU.ready := true.B
+    IDU.io.REG_2_IDU.CSR_rdata := 0.U
+    IDU.io.REG_2_IDU.GPR_Adata := 0.U
+    IDU.io.REG_2_IDU.GPR_Bdata := 0.U
 
-    // bus IFU -> REG -> IDU without delay
-    REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
+    // // bus IFU -> REG -> IDU without delay
+    // REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
-    // bus IDU -> EXU
-    IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
+    // // bus IDU -> EXU
+    // IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
 
-    // bus IDU -> REG -> EXU without delay
-    IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
-    REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
+    // // bus IDU -> REG -> EXU without delay
+    // IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
+    // REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
-    // bus EXU -> WBU
-    EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
+    // // bus EXU -> WBU
+    // EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
 
-    // bus WBU -> IFU
-    WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
+    // // bus WBU -> IFU
+    // WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
 
-    // bus WBU -> REG -> IFU without delay
-    WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+    // // bus WBU -> REG -> IFU without delay
+    // WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
   }
 }
 

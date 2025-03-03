@@ -96,7 +96,7 @@ class ALU extends Module {
     )
   )
   
-  io.out.bits.Result        := RegEnable(Result, io.IDU_2_EXU.fire) 
+  io.out.bits.Result        := Result
 
   if(Config.Simulate){
     val Catch = Module(new ALU_catch)

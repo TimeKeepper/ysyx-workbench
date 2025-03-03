@@ -38,8 +38,8 @@ class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val alu = Module(new ALU)
         val lsu = Module(new LSU)
 
-        when(save.EXUctr  === EXUctr_TypeEnum.EXUctr_LD ||
-            save.EXUctr  === EXUctr_TypeEnum.EXUctr_ST){
+        when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD ||
+            io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST){
 
             alu.io.IDU_2_EXU.valid := false.B
             alu.io.out.ready := false.B

@@ -20,8 +20,6 @@ class BUS_IDU_2_IFU extends Bundle{
 }
 
 class BUS_IFU_2_REG extends Bundle{
-    val GPR_Aaddr  = UInt(5.W)
-    val GPR_Baddr  = UInt(5.W)
 }
 
 class BUS_REG_2_IDU extends Bundle{
@@ -44,6 +42,8 @@ class BUS_IDU_2_EXU extends Bundle{
 }
 
 class BUS_IDU_2_REG extends Bundle{
+    val GPR_Aaddr  = UInt(5.W)
+    val GPR_Baddr  = UInt(5.W)
     val CSR_raddr   = UInt(12.W)
 }
 

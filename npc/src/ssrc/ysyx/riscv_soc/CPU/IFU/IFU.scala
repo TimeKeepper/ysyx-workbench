@@ -227,22 +227,37 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val io = IO(new Bundle{
             val WBU_2_IFU = Flipped(Decoupled(Input(new BUS_WBU_2_IFU)))
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
-            val IDU_2_IFU = Flipped(new BUS_IDU_2_IFU)
-            val IFU_2_REG = Output(new BUS_IFU_2_REG)
+
+            val Pipeline_ctrl = Flipped(new Pipeline_ctrl)
         })
         val state = RegInit(IFU_state.s_wait_valid)
         val save = RegEnable(io.WBU_2_IFU.bits, io.WBU_2_IFU.fire)
         
+        val pc = RegInit(Config.Reset_Vector)
+        val snpc = pc + 4.U
+        val dnpc = save.Next_PC
+
+        io.IFU_2_IDU.bits.PC := pc
+
+        io.WBU_2_IFU.ready := io.Pipeline_ctrl.flush
+
+        pc := MuxCase(pc, Seq(
+            io.IFU_2_IDU.fire -> snpc,
+            io.WBU_2_IFU.fire -> dnpc
+        ))
+
         val (master, _) = masterNode.out(0)
 
-        val map_hit = Config.Icache_Param.address.map(_.contains(save.Next_PC)).reduce(_ || _)
+        val map_hit = Config.Icache_Param.address.map(_.contains(pc)).reduce(_ || _)
 
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
-        Icache.io.addr.bits := save.Next_PC
-        Icache.io.addr.valid := RegNext(io.WBU_2_IFU.fire)
-        Icache.io.flush := io.IDU_2_IFU.hazard
+        Icache.io.addr.bits := pc
+        Icache.io.addr.valid := io.IFU_2_IDU.fire
+        Icache.io.flush := io.Pipeline_ctrl.flush
+
+        io.IFU_2_IDU.valid := map_hit && Icache.io.cache_hit
         
-        Icache.io.replace_addr := save.Next_PC
+        Icache.io.replace_addr := pc
 
         val block_num = Config.Icache_Param.block_size / 4
 

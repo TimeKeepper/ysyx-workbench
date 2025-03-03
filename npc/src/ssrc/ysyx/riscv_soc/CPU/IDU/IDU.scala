@@ -207,8 +207,6 @@ class IDU extends Module{
 
         val IDU_2_EXU     = Decoupled(Output(new BUS_IDU_2_EXU))
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
-
-        val IDU_2_IFU     = Output(new BUS_IDU_2_IFU)
     })
 
     val state = RegInit(bus_state.s_wait_valid)
@@ -285,7 +283,7 @@ class IDU extends Module{
         Catch.io.Inst_Type := catchResult(PC_Field)
     }
 
-    io.IDU_2_IFU.hazard := rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I
+    // io.IDU_2_IFU.hazard := rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(

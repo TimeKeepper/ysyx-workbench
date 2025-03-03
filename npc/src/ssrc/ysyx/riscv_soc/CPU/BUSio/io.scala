@@ -38,7 +38,12 @@ class BUS_IDU_2_EXU extends Bundle{
     val Imm      = UInt(32.W)
     val GPR_waddr = UInt(4.W)
     val PC       = UInt(32.W)
-    // val CSR_rdata = UInt(32.W)
+}
+
+class BUS_AGU_2_LSU extends Bundle{
+    val MemOp    = MemOp_TypeEnum()
+    val MemAddr  = UInt(32.W)
+    val MemData  = UInt(32.W)
 }
 
 class BUS_IDU_2_REG extends Bundle{
@@ -200,4 +205,9 @@ class FIX_AXI_BUS_Slave extends Bundle{
   val rdata  = Output(UInt(32.W))
   val rlast  = Output(Bool())
   val rid    = Output(UInt(4.W))
+}
+
+class Pipeline_ctrl extends Bundle {
+  val stall = Output(Bool())
+  val flush = Output(Bool())
 }

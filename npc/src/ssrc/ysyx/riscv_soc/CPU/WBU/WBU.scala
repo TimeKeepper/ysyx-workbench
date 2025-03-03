@@ -101,9 +101,8 @@ class WBU extends Module {
     val CSR_wdataa = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
         CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
-
-    val pc = RegEnable(Next_Pc, Config.Reset_Vector, io.EXU_2_WBU.fire)
-    io.WBU_2_IFU.bits.Next_PC := pc
+    
+    io.WBU_2_IFU.bits.Next_PC := Next_Pc
 
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr
     io.WBU_2_REG.GPR_wdata     := GPR_wdata

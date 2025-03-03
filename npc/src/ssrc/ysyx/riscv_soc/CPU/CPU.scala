@@ -116,12 +116,14 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val REG             = Module(new REG) 
     // val AXI_Interconnect = Module(new ysyx_23060198_AXI_Interconnect)
 
+    val Ctrl = Wire(new Pipeline_ctrl)
+    Ctrl.flush := false.B
+    Ctrl.stall := false.B
     // bus IFU -> IDU
+    IFU.io.Pipeline_ctrl := Ctrl
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
-    IFU.io.IDU_2_IFU     <> IDU.io.IDU_2_IFU
 
     // bus IFU -> REG -> IDU without delay
-    IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
     REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
     // bus IDU -> EXU
@@ -172,12 +174,14 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val WBU             = Module(new WBU)
     val REG             = Module(new REG) 
 
+    val Ctrl = Wire(new Pipeline_ctrl)
+    Ctrl.flush := false.B
+    Ctrl.stall := false.B
     // bus IFU -> IDU
+    IFU.io.Pipeline_ctrl := Ctrl
     IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
-    IFU.io.IDU_2_IFU     <> IDU.io.IDU_2_IFU
 
     // bus IFU -> REG -> IDU without delay
-    IFU.io.IFU_2_REG     <> REG.io.IFU_2_REG
     REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
     // bus IDU -> EXU

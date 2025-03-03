@@ -61,18 +61,9 @@ class WBU extends Module {
         val WBU_2_REG = Output(new BUS_WBU_2_REG)
     })
 
-    val state = RegInit(bus_state.s_wait_ready)
+    io.EXU_2_WBU.ready := io.WBU_2_IFU.ready
+    io.WBU_2_IFU.valid := io.EXU_2_WBU.valid
 
-    state := MuxLookup(state, bus_state.s_wait_valid)(
-        Seq(
-            bus_state.s_wait_valid -> Mux(io.EXU_2_WBU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
-            bus_state.s_wait_ready -> Mux(io.WBU_2_IFU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
-        )
-    )
-
-    io.WBU_2_IFU.valid := state === bus_state.s_wait_ready && !reset.asBool // 这是由于soc外设的行为不确定而做出的改动
-    io.EXU_2_WBU.ready  := state === bus_state.s_wait_valid
-    
     when(io.EXU_2_WBU.valid && io.EXU_2_WBU.ready){
         io.WBU_2_REG.inst_valid := true.B
     }.otherwise{
@@ -101,7 +92,7 @@ class WBU extends Module {
     val CSR_wdataa = MuxLookup(io.EXU_2_WBU.bits.csr_ctr, io.EXU_2_WBU.bits.Result)(Seq(
         CSR_TypeEnum.CSR_R1W2 -> io.EXU_2_WBU.bits.PC,
     ))
-    
+
     io.WBU_2_IFU.bits.Next_PC := Next_Pc
 
     io.WBU_2_REG.GPR_waddr     := io.EXU_2_WBU.bits.GPR_waddr

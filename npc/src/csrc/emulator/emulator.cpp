@@ -378,7 +378,7 @@ void Emulator::WBU_catch(uint32_t next_pc, \
 
     this->perf->inst_cont();
     
-    if(!this->instruciton_trace_on) return;
-    std::cout << this->disasm(cpu.pc, Inst_quene.back()) << std::endl;
+    if(!this->instruciton_trace_on || (Inst_quene.size() == 0)) return;
+    std::cout << this->disasm(cpu.pc, Inst_quene.front()) << std::endl;
     Inst_quene.pop();
 }

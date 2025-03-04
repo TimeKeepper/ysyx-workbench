@@ -2,9 +2,11 @@
 #define __EMULATOR_HPP__
 
 #include "cpu.hpp"
+#include <cstdint>
 #include <memory.hpp>
 #include <memory>
 #include <queue>
+#include <utility>
 #include <utils.hpp>
 #include <unordered_map>
 #include <performence.hpp>
@@ -81,7 +83,8 @@ class Emulator {
 
         void Emulator_trap(uint32_t a0);
 
-        void IFU_catch(uint32_t inst);
+        void IFU_catch(uint32_t pc, uint32_t inst);
+        std::queue<std::pair<uint32_t, uint32_t>> Inst_quene;
         std::vector<std::vector<CacheLine>> cache;
         void Icache_catch(uint32_t map_hit, uint32_t cache_hit);
         void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data);

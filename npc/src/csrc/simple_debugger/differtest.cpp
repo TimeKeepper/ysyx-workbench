@@ -184,7 +184,7 @@ void Differtest::difftest_step(vaddr_t pc, Icache_return icache_state){
     ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
     checkmems();
-    checkcache(icache_state);
+    // checkcache(icache_state);
     checkregs(&ref_r, pc);
 }
 

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <utils.hpp>
 #include <sstream>
 #include <emulator.hpp>
@@ -307,7 +308,7 @@ void Emulator::Emulator_trap(uint32_t a0) {
         ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
 }
 
-void Emulator::IFU_catch(uint32_t inst){
+void Emulator::IFU_catch(uint32_t pc, uint32_t inst){
     switch(inst){
         case 0x00000000: this->Emulator_trap(1);   break; // ecall
         case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
@@ -317,11 +318,9 @@ void Emulator::IFU_catch(uint32_t inst){
 
     this->perf->coponent_count("IFU");
 
-    this->instruction_buffer_push(cpu.pc, inst);
-
     if(!this->instruciton_trace_on) return;
 
-    std::cout << this->disasm(cpu.pc, inst) << std::endl;
+    this->Inst_quene.push(std::make_pair(pc, inst));
 }
 
 void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
@@ -330,12 +329,7 @@ void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
 }
 
 void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {
-    // std::cout << "set size: " << cache.size() << std::endl;
-    // std::cout << "way size: " << cache[write_index].size() << " index: " << write_index << std::endl;
-    // std::cout << "block size: " << cache[write_index][write_way].inst.size() << std::endl;
-
     cache[write_index][write_way].tag = write_tag;
-    // cache[write_index][write_way].inst = write_data;
     uint32_t index = 0;
     for (uint32_t& k : cache[write_index][write_way].inst) {
         k = write_data[index++];
@@ -382,4 +376,12 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
 
     this->perf->inst_cont();
+
+    if(Inst_quene.size() == 0) return;
+    
+    this->instruction_buffer_push(Inst_quene.front().first, Inst_quene.front().second);
+
+    if(!this->instruciton_trace_on) return;
+    std::cout << this->disasm(Inst_quene.front().first, Inst_quene.front().second) << std::endl;
+    Inst_quene.pop();
 }

@@ -321,6 +321,7 @@ void Emulator::IFU_catch(uint32_t inst){
 
     if(!this->instruciton_trace_on) return;
 
+    Pin;
     this->Inst_quene.push(inst);
 }
 

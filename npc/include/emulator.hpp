@@ -83,7 +83,7 @@ class Emulator {
 
         void Emulator_trap(uint32_t a0);
 
-        void IFU_catch(uint32_t inst);
+        void IFU_catch(uint32_t pc, uint32_t inst);
         std::queue<std::pair<uint32_t, uint32_t>> Inst_quene;
         std::vector<std::vector<CacheLine>> cache;
         void Icache_catch(uint32_t map_hit, uint32_t cache_hit);

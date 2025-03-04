@@ -22,19 +22,21 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
         val clock = Input(Clock())
         val valid = Input(Bool())
+        val pc    = Input(UInt(32.W))
         val inst  = Input(UInt(32.W))
     })
     setInline("IFU_catch.v",
     """module IFU_catch(
     |    input clock,
     |    input valid,
+    |    input [31:0] pc,
     |    input [31:0] inst
     |);
     |
-    |   import "DPI-C" function void IFU_catch(input int unsigned inst);
+    |   import "DPI-C" function void IFU_catch(input int unsigned pc, input int unsigned inst);
     |   always @(posedge clock) begin
     |       if(valid) begin
-    |           IFU_catch(inst);
+    |           IFU_catch(pc, inst);
     |       end
     |   end
     |
@@ -333,6 +335,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             Catch.io.clock := clock
             Catch.io.valid := io.IFU_2_IDU.fire && !reset.asBool
             Catch.io.inst := io.IFU_2_IDU.bits.data
+            Catch.io.pc := io.IFU_2_IDU.bits.PC
 
             val cache_Catch = Module(new Icache_catch)
             cache_Catch.io.Icache := RegNext(io.WBU_2_IFU.fire && !reset.asBool)

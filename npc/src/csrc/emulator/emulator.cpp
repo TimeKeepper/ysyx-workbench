@@ -308,7 +308,7 @@ void Emulator::Emulator_trap(uint32_t a0) {
         ANSI_FMT("Hit bad trap",  ANSI_FG_RED)) << std::endl;
 }
 
-void Emulator::IFU_catch(uint32_t inst){
+void Emulator::IFU_catch(uint32_t pc, uint32_t inst){
     switch(inst){
         case 0x00000000: this->Emulator_trap(1);   break; // ecall
         case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
@@ -320,7 +320,7 @@ void Emulator::IFU_catch(uint32_t inst){
 
     if(!this->instruciton_trace_on) return;
 
-    this->Inst_quene.push(std::make_pair(cpu.pc, inst));
+    this->Inst_quene.push(std::make_pair(pc, inst));
 }
 
 void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){

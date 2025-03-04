@@ -321,7 +321,7 @@ void Emulator::IFU_catch(uint32_t inst){
 
     if(!this->instruciton_trace_on) return;
 
-    std::cout << this->disasm(cpu.pc, inst) << std::endl;
+    this->Inst_quene.push(inst);
 }
 
 void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
@@ -377,4 +377,7 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
 
     this->perf->inst_cont();
+    
+    std::cout << this->disasm(cpu.pc, Inst_quene.back()) << std::endl;
+    Inst_quene.pop();
 }

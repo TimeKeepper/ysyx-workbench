@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <utils.hpp>
 #include <sstream>
 #include <emulator.hpp>
@@ -317,11 +318,9 @@ void Emulator::IFU_catch(uint32_t inst){
 
     this->perf->coponent_count("IFU");
 
-    this->instruction_buffer_push(cpu.pc, inst);
-
     if(!this->instruciton_trace_on) return;
 
-    this->Inst_quene.push(inst);
+    this->Inst_quene.push(std::make_pair(cpu.pc, inst));
 }
 
 void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
@@ -377,8 +376,12 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     if(csr_wenb) this->cpu.sr[csr_waddrb] = csr_wdatab;
 
     this->perf->inst_cont();
+
+    if(Inst_quene.size() == 0) return;
     
-    if(!this->instruciton_trace_on || (Inst_quene.size() == 0)) return;
-    std::cout << this->disasm(cpu.pc, Inst_quene.front()) << std::endl;
+    this->instruction_buffer_push(Inst_quene.front().first, Inst_quene.front().second);
+
+    if(!this->instruciton_trace_on) return;
+    std::cout << this->disasm(Inst_quene.front().first, Inst_quene.front().second) << std::endl;
     Inst_quene.pop();
 }

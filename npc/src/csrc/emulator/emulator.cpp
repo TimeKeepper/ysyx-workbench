@@ -321,7 +321,6 @@ void Emulator::IFU_catch(uint32_t inst){
 
     if(!this->instruciton_trace_on) return;
 
-    Pin;
     this->Inst_quene.push(inst);
 }
 
@@ -379,6 +378,7 @@ void Emulator::WBU_catch(uint32_t next_pc, \
 
     this->perf->inst_cont();
     
-    // std::cout << this->disasm(cpu.pc, Inst_quene.back()) << std::endl;
-    // Inst_quene.pop();
+    if(!this->instruciton_trace_on) return;
+    std::cout << this->disasm(cpu.pc, Inst_quene.back()) << std::endl;
+    Inst_quene.pop();
 }

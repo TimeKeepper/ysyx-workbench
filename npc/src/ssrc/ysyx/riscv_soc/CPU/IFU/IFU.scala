@@ -16,6 +16,7 @@ import riscv_cpu.LS_state.s_wait_valid
 import riscv_cpu.bus_state.s_wait_ready
 import riscv_cpu.bus_state.s_busy
 import scala.collection.Parallel
+import riscv_cpu.IFU_state.s_try_fetch
 
 class IFU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
@@ -71,6 +72,8 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
         val write_way = Input(UInt(32.W))
         val write_tag = Input(UInt(32.W))
         val write_data = Input(UInt((Config.Icache_Param.block_size * 8).W))
+
+        val flush = Input(Bool())
     })
 
     val code = 
@@ -81,12 +84,19 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
     |    input [31:0] write_index,
     |    input [31:0] write_way,
     |    input [31:0] write_tag,
-    |    input [${Config.Icache_Param.block_size * 8 - 1}:0] write_data
+    |    input [${Config.Icache_Param.block_size * 8 - 1}:0] write_data,
+    |
+    |    input flush
     |);
     |
     |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
     |   always @(posedge valid) begin
     |       Icache_state_catch(write_index, write_way, write_tag, write_data);
+    |   end
+    |
+    |   import "DPI-C" function void Icache_flush();
+    |   always @(posedge flush) begin
+    |       Icache_flush();
     |   end
     |
     |endmodule
@@ -125,6 +135,8 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         val cache_hit = Output(Bool())
         val replace_data = Flipped(ValidIO(Input(UInt((Config.Icache_Param.block_size * 8).W))))
         val replace_addr = Input(UInt(32.W))
+
+        val flush = Input(Bool())
     })
 
     val valid_width = log2Ceil(address.map(_.mask).reduce(_ max _))
@@ -133,25 +145,24 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val tag_width = valid_width - offset_width - set_width
 
     // a vector(Way) of Mem(Set)
-    val meta = Mem(set, Vec(way, UInt((1 + tag_width).W)))
+    val valid_array = RegInit(VecInit(Seq.fill(set)(0.U(way.W))))
+
+    when(io.flush){
+        valid_array.foreach(_ := 0.U)
+    }
+    
+    val meta = Mem(set, Vec(way, UInt((tag_width).W)))
     val data = Mem(set, Vec(way, UInt((block_size * 8).W)))
 
     val set_index = io.addr.bits(set_width + offset_width - 1, offset_width)
     val tag = io.addr.bits(valid_width - 1, set_width + offset_width)
     
-    class Cache_Meta extends Bundle{
-        val valid = Bool()
-        val tag = UInt(tag_width.W)
-    }
-
-    val metas = meta.read(set_index).map{c => 
-        c.asTypeOf(new Cache_Meta)
-    }
+    val metas = meta.read(set_index)
 
     val data_set = data.read(set_index)
 
-    val valid_vec = VecInit(metas.map(_.valid))
-    val tag_equal_vec = VecInit(metas.map(_.tag === tag))
+    val valid_vec = VecInit(valid_array(set_index).asBools)
+    val tag_equal_vec = VecInit(metas.map(_ === tag))
     val tag_match_vec = tag_equal_vec.zip(valid_vec).map{case (a, b) => a && b}
     val tag_match = tag_match_vec.reduce(_ | _)
     val match_way = Mux1H(tag_match_vec, (0 until way).map(_.U))
@@ -168,12 +179,13 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
     val replace_way_mask = UIntToOH(replace_way, way)
 
     val replace_tag = io.replace_addr(valid_width - 1, set_width + offset_width)
-    val replace_tag_v = VecInit((0 until way).map(_ => Cat(true.B, replace_tag)))
+    val replace_tag_v = VecInit((0 until way).map(_ => replace_tag))
 
     val replace_cache = io.replace_data.bits
     val replace_cache_v = VecInit((0 until way).map(_ => replace_cache))
 
     when(io.replace_data.valid){
+        valid_array(replace_set_index) := valid_array(replace_set_index).bitSet(replace_way, true.B)
         meta.write(replace_set_index, replace_tag_v, replace_way_mask.asBools)
         data.write(replace_set_index, replace_cache_v, replace_way_mask.asBools)
         replacement.access(replace_set_index, replace_way)
@@ -188,16 +200,19 @@ class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) exte
         Icache_state.io.write_way := replace_way
         Icache_state.io.write_tag := replace_tag
         Icache_state.io.write_data := replace_cache
+
+        Icache_state.io.flush := false.B
     }
 }
 
 object IFU_state extends ChiselEnum{
   val s_wait_valid,
-      s_wait_ready,
+      s_try_fetch,
       s_send_addr,
-      s_get,
-      s_replacement_send_addr,
-      s_replacement_get
+      s_get_data,
+      s_replace_send_addr,
+      s_replace_get_data,
+      s_Icache_write
       = Value
 }
 
@@ -211,109 +226,105 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     class Impl extends LazyModuleImp(this) {
         val io = IO(new Bundle{
             val WBU_2_IFU = Flipped(Decoupled(Input(new BUS_WBU_2_IFU)))
-            val REG_2_IFU = Input(new BUS_REG_2_IFU)
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
-            val IFU_2_REG = Output(new BUS_IFU_2_REG)
+
+            val Pipeline_ctrl = Flipped(new Pipeline_ctrl)
         })
+        val state = RegInit(IFU_state.s_try_fetch)
+        
+        val pc = RegInit(Config.Reset_Vector)
+        val snpc = pc + 4.U
+        val dnpc = io.WBU_2_IFU.bits.Next_PC
+
+        io.IFU_2_IDU.bits.PC := pc
+
+        io.WBU_2_IFU.ready := io.Pipeline_ctrl.flush
+
+        pc := MuxCase(pc, Seq(
+            io.IFU_2_IDU.fire -> snpc,
+            io.WBU_2_IFU.fire -> dnpc
+        ))
+
         val (master, _) = masterNode.out(0)
 
-        val state = RegInit(IFU_state.s_wait_valid)
-        
+        val map_hit = Config.Icache_Param.address.map(_.contains(pc)).reduce(_ || _)
+
         val Icache = Module(new Icache(Config.Icache_Param.address, Config.Icache_Param.way, Config.Icache_Param.set, Config.Icache_Param.block_size))
-        Icache.io.addr.bits := io.REG_2_IFU.Next_PC
-        Icache.io.addr.valid := io.WBU_2_IFU.fire
+        Icache.io.addr.bits := pc
+        Icache.io.addr.valid := io.IFU_2_IDU.fire
+        Icache.io.flush := io.Pipeline_ctrl.flush
+
+        io.IFU_2_IDU.valid := map_hit && Icache.io.cache_hit
+        
+        Icache.io.replace_addr := pc
 
         val block_num = Config.Icache_Param.block_size / 4
 
-        val addr_cache = RegEnable(io.REG_2_IFU.Next_PC, io.WBU_2_IFU.fire) // cache addr is very useful
-        val block_index_pre = io.REG_2_IFU.Next_PC(log2Ceil(Config.Icache_Param.block_size), 2)
-        val blcok_index = addr_cache(log2Ceil(Config.Icache_Param.block_size), 2)
-
-        io.WBU_2_IFU.ready := state === IFU_state.s_wait_valid
-
-        io.IFU_2_IDU.valid := state === IFU_state.s_wait_ready
-        io.IFU_2_IDU.bits.PC := addr_cache
-        Icache.io.replace_addr := addr_cache
+        val block_index = pc(log2Ceil(Config.Icache_Param.block_size), 2)
 
         val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
         val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
 
         when (master.r.fire) {
-            when(state === IFU_state.s_replacement_get){
+            when(state === IFU_state.s_replace_get_data){
                 when(Multi_transfer_counter === (block_num - 1).U){
                     Multi_transfer_counter := 0.U
                 }.otherwise{
                     Multi_transfer_counter := Multi_transfer_counter + 1.U
                 }
-            }
 
-            for(i <- 0 until (block_num - 1)){
-                Multi_transfer(i) := Multi_transfer(i + 1)
+                Multi_transfer(block_num - 1) := master.r.bits.data
+                for(i <- 0 until (block_num - 1)){
+                    Multi_transfer(i) := Multi_transfer(i + 1)
+                }
             }
-
-            Multi_transfer(block_num - 1) := master.r.bits.data
-        }.elsewhen(io.WBU_2_IFU.fire){
-            Multi_transfer(block_num - 1) := Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index_pre)
         }
-        
-        val map_hit = Config.Icache_Param.address.map(_.contains(io.REG_2_IFU.Next_PC)).reduce(_ || _)
-        master.r.ready := Mux(state === IFU_state.s_get, io.IFU_2_IDU.ready, state === IFU_state.s_replacement_get)
 
-        master.ar.valid := (state === IFU_state.s_replacement_send_addr) || (state === IFU_state.s_send_addr)
-        master.ar.bits.len := Mux(state === IFU_state.s_replacement_send_addr, (block_num - 1).U, 0.U)
-        master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, addr_cache, 
-            (addr_cache & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U)) // so we can use it here
+        io.IFU_2_IDU.valid := MuxLookup(state, false.B)(Seq(
+            IFU_state.s_try_fetch -> Icache.io.cache_hit,
+            IFU_state.s_get_data -> master.r.valid,
+        ))
+        io.IFU_2_IDU.bits.PC := pc
+
+        master.ar.valid := (state === IFU_state.s_replace_send_addr) || (state === IFU_state.s_send_addr)
+        master.ar.bits.len := Mux(state === IFU_state.s_replace_send_addr, (block_num - 1).U, 0.U)
+        master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, pc, 
+            (pc & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U))
+        
+        master.r.ready := Mux(state === IFU_state.s_get_data, io.IFU_2_IDU.ready, state === IFU_state.s_replace_get_data)
 
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
-        Icache.io.replace_data.valid := (state === IFU_state.s_wait_ready) && (RegNext(state === IFU_state.s_replacement_get))
+        Icache.io.replace_data.valid := (state === IFU_state.s_Icache_write)
 
-        val inst_cache = Multi_transfer(block_num - 1)
+        val inst = Mux(state === IFU_state.s_try_fetch, Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index), master.r.bits.data)
             
-        io.IFU_2_IDU.bits.data := inst_cache
-        io.IFU_2_REG.GPR_Aaddr := inst_cache(19, 15)
-        io.IFU_2_REG.GPR_Baddr := inst_cache(24, 20)
+        io.IFU_2_IDU.bits.data := inst
 
         state := MuxLookup(state, IFU_state.s_wait_valid)(
             Seq(
                 IFU_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
-                    MuxCase(IFU_state.s_wait_valid, 
-                        Seq(
-                            (Icache.io.cache_hit & map_hit)     -> IFU_state.s_wait_ready,
-                            (!Icache.io.cache_hit & map_hit)    -> IFU_state.s_replacement_send_addr,
-                            (!map_hit)                          -> IFU_state.s_send_addr,
-                        )
-                    ),
-                    IFU_state.s_wait_valid
+                    IFU_state.s_try_fetch, IFU_state.s_wait_valid),
+
+                IFU_state.s_try_fetch -> MuxCase(IFU_state.s_try_fetch, 
+                    Seq(
+                        (!Icache.io.cache_hit & map_hit) -> IFU_state.s_replace_send_addr,
+                        (!map_hit) -> IFU_state.s_send_addr
+                    )
                 ),
 
-                IFU_state.s_wait_ready -> Mux(io.IFU_2_IDU.fire, 
-                    IFU_state.s_wait_valid, 
-                    IFU_state.s_wait_ready
-                ),
+                IFU_state.s_send_addr -> Mux(master.ar.fire,
+                    IFU_state.s_get_data, IFU_state.s_send_addr),
 
-                IFU_state.s_send_addr -> Mux(master.ar.fire, 
-                    IFU_state.s_get, 
-                    IFU_state.s_send_addr
-                ),
+                IFU_state.s_get_data -> Mux(master.r.fire,
+                    IFU_state.s_try_fetch, IFU_state.s_get_data),
 
-                IFU_state.s_get -> Mux(master.r.fire, 
-                    IFU_state.s_wait_ready,
-                    IFU_state.s_get
-                ),
+                IFU_state.s_replace_send_addr -> Mux(master.ar.fire,
+                    IFU_state.s_replace_get_data, IFU_state.s_replace_send_addr),
 
-                IFU_state.s_replacement_send_addr -> Mux(master.ar.fire, 
-                    IFU_state.s_replacement_get, 
-                    IFU_state.s_replacement_send_addr
-                ),
+                IFU_state.s_replace_get_data -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U),
+                    IFU_state.s_Icache_write, IFU_state.s_replace_get_data),
 
-                IFU_state.s_replacement_get -> Mux(master.r.fire && (Multi_transfer_counter === (block_num - 1).U), 
-                    IFU_state.s_wait_ready, 
-                    // Mux((Multi_transfer_counter === (block_num - 1).U), 
-                    //     IFU_state.s_wait_ready, 
-                    //     IFU_state.s_replacement_send_addr
-                    // ),
-                    IFU_state.s_replacement_get
-                )
+                IFU_state.s_Icache_write -> s_try_fetch
             )
         )
 
@@ -324,7 +335,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             Catch.io.inst := io.IFU_2_IDU.bits.data
 
             val cache_Catch = Module(new Icache_catch)
-            cache_Catch.io.Icache := io.WBU_2_IFU.fire && !reset.asBool
+            cache_Catch.io.Icache := RegNext(io.WBU_2_IFU.fire && !reset.asBool)
             cache_Catch.io.map_hit := map_hit
             cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit
 

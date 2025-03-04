@@ -51,6 +51,8 @@ class Icache_LRU {
         void init(uint32_t begin, uint32_t end, uint32_t way, uint32_t set, uint32_t block_size = 4);
         
         Icache_return fetch(vaddr_t addr, uint32_t len);
+
+        void fence();
     
         void print_cache();
 };

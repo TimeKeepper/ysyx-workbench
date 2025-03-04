@@ -64,14 +64,14 @@ class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.EXU_B)
         ))
 
-        io.EXU_2_WBU.bits.Branch        := RegEnable(io.IDU_2_EXU.bits.Branch,      io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.Jmp_Pc        := RegEnable(Jmp_Pc,                        io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.MemtoReg      := RegEnable(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD, io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.csr_ctr       := RegEnable(io.IDU_2_EXU.bits.csr_ctr,     io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.CSR_waddr     := RegEnable(io.IDU_2_EXU.bits.Imm(11, 0),  io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.GPR_waddr     := RegEnable(io.IDU_2_EXU.bits.GPR_waddr,   io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.PC            := RegEnable(io.IDU_2_EXU.bits.PC,          io.IDU_2_EXU.fire)
-        io.EXU_2_WBU.bits.CSR_rdata     := RegEnable(io.IDU_2_EXU.bits.EXU_B,   io.IDU_2_EXU.fire)
+        io.EXU_2_WBU.bits.Branch        := io.IDU_2_EXU.bits.Branch      
+        io.EXU_2_WBU.bits.Jmp_Pc        := Jmp_Pc                        
+        io.EXU_2_WBU.bits.MemtoReg      := io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD 
+        io.EXU_2_WBU.bits.csr_ctr       := io.IDU_2_EXU.bits.csr_ctr     
+        io.EXU_2_WBU.bits.CSR_waddr     := io.IDU_2_EXU.bits.Imm(11, 0)  
+        io.EXU_2_WBU.bits.GPR_waddr     := io.IDU_2_EXU.bits.GPR_waddr   
+        io.EXU_2_WBU.bits.PC            := io.IDU_2_EXU.bits.PC          
+        io.EXU_2_WBU.bits.CSR_rdata     := io.IDU_2_EXU.bits.EXU_B   
         io.EXU_2_WBU.bits.Result        := alu.io.out.bits.Result
         io.EXU_2_WBU.bits.Mem_rdata     := lsu.io.out.bits.Mem_rdata
     }

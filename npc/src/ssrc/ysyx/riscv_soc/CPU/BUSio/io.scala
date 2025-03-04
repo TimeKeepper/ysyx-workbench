@@ -15,9 +15,11 @@ class BUS_IFU_2_IDU extends Bundle{
     val PC         = UInt(32.W)
 }
 
+class BUS_IDU_2_IFU extends Bundle{
+    val hazard = Bool()
+}
+
 class BUS_IFU_2_REG extends Bundle{
-    val GPR_Aaddr  = UInt(5.W)
-    val GPR_Baddr  = UInt(5.W)
 }
 
 class BUS_REG_2_IDU extends Bundle{
@@ -36,10 +38,17 @@ class BUS_IDU_2_EXU extends Bundle{
     val Imm      = UInt(32.W)
     val GPR_waddr = UInt(4.W)
     val PC       = UInt(32.W)
-    // val CSR_rdata = UInt(32.W)
+}
+
+class BUS_AGU_2_LSU extends Bundle{
+    val MemOp    = MemOp_TypeEnum()
+    val MemAddr  = UInt(32.W)
+    val MemData  = UInt(32.W)
 }
 
 class BUS_IDU_2_REG extends Bundle{
+    val GPR_Aaddr  = UInt(5.W)
+    val GPR_Baddr  = UInt(5.W)
     val CSR_raddr   = UInt(12.W)
 }
 
@@ -61,7 +70,6 @@ class BUS_EXU_2_WBU extends Bundle{
 
 class BUS_WBU_2_REG extends Bundle{
     val inst_valid= Bool()
-    val Next_Pc   = UInt(32.W)
     val GPR_waddr = UInt(4.W)
     val GPR_wdata = UInt(32.W)
     val CSR_ctr   = CSR_TypeEnum()
@@ -71,9 +79,7 @@ class BUS_WBU_2_REG extends Bundle{
     val CSR_wdatab= UInt(32.W)
 }
 
-class BUS_WBU_2_IFU extends Bundle
-
-class BUS_REG_2_IFU extends Bundle{
+class BUS_WBU_2_IFU extends Bundle{
     val Next_PC = UInt(32.W)
 }
 
@@ -199,4 +205,32 @@ class FIX_AXI_BUS_Slave extends Bundle{
   val rdata  = Output(UInt(32.W))
   val rlast  = Output(Bool())
   val rid    = Output(UInt(4.W))
+}
+
+class Pipeline_ctrl extends Bundle {
+  val stall = Output(Bool())
+  val flush = Output(Bool())
+}
+
+object pipelineConnect {
+    def apply[T <: Data, T2 <: Data](
+        prevOut: DecoupledIO[T],
+        thisIn: DecoupledIO[T], 
+        thisOut: DecoupledIO[T2],
+        ctrl: Pipeline_ctrl) = {
+
+        prevOut.ready := thisIn.ready & ~ctrl.stall
+        thisIn.bits := RegEnable(prevOut.bits, prevOut.fire)
+        thisIn.valid := RegNext(
+            MuxCase(
+                thisIn.valid,
+                Seq(
+                ctrl.flush   -> false.B,
+                prevOut.fire -> true.B,
+                thisOut.fire -> false.B
+                )
+            ),
+            false.B
+        )
+    }
 }

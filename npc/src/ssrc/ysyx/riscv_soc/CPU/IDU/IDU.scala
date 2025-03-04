@@ -15,6 +15,7 @@ import freechips.rocketchip.util._
 
 import signal_value._
 import bus_state._
+import os.copy.over
 
 class IDU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle {
@@ -45,6 +46,17 @@ trait DecodeAPI {
 
 case class rvInstructionPattern(val inst: rvdecoderdb.Instruction) extends DecodePattern {
     override def bitPat: BitPat = BitPat("b" + inst.encoding.toString())
+}
+
+object Special_inst extends DecodeField[rvInstructionPattern, Special_instTypeEnum.Type] with DecodeAPI{
+    override def name: String = "special_inst"
+    override def chiselType = Special_instTypeEnum()
+    override def genTable(i: rvInstructionPattern): BitPat = {
+        i.inst.name match {
+            case "fence.i" => Get_BitPat(Special_instTypeEnum.fence_I)
+            case _ => Get_BitPat(Special_instTypeEnum.None)
+        }
+    }
 }
 
 object Imm_Field extends DecodeField[rvInstructionPattern, Imm_TypeEnum.Type] with DecodeAPI{
@@ -197,17 +209,11 @@ class IDU extends Module{
         val IDU_2_REG     = Output(new BUS_IDU_2_REG)
     })
 
-    val state = RegInit(bus_state.s_wait_valid)
+    io.IDU_2_EXU.valid := io.IFU_2_IDU.valid
+    io.IFU_2_IDU.ready := io.IDU_2_EXU.ready
 
-    state := MuxLookup(state, bus_state.s_wait_valid)(
-        Seq(
-            bus_state.s_wait_valid -> Mux(io.IFU_2_IDU.valid, bus_state.s_wait_ready, bus_state.s_wait_valid),
-            bus_state.s_wait_ready -> Mux(io.IDU_2_EXU.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
-        )
-    )
-
-    io.IDU_2_EXU.valid := state === bus_state.s_wait_ready
-    io.IFU_2_IDU.ready := state === bus_state.s_wait_valid
+    io.IDU_2_REG.GPR_Aaddr := io.IFU_2_IDU.bits.data(19, 15)
+    io.IDU_2_REG.GPR_Baddr := io.IFU_2_IDU.bits.data(24, 20)
 
     val instTable = rvdecoderdb.fromFile.instructions(os.pwd / "rvdecoderdb" / "rvdecoderdbtest" / "jvm" / "riscv-opcodes")
 
@@ -217,6 +223,7 @@ class IDU extends Module{
     val rv32iTargetSets = Set("rv32_i")
     val rvsysTargetSets = Set("rv_system")
     val rvzicsrTargetSets = Set("rv_zicsr")
+    val rvzifencei = Set("rv_zifencei")
 
     val rviInstList = instTable
         .filter(instr => rviTargetSets.contains(instr.instructionSet.name))
@@ -237,9 +244,15 @@ class IDU extends Module{
         .filter(_.pseudoFrom.isEmpty)
         .map(rvInstructionPattern(_))
         .toSeq
-    val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList
+    val rvzifenceiInstList = instTable
+        .filter(instr => rvzifencei.contains(instr.instructionSet.name))
+        .filter(_.pseudoFrom.isEmpty)
+        .map(rvInstructionPattern(_))
+        .toSeq
 
-    val allField = Seq(Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
+    val instList = rviInstList ++ rv32iInstList ++ rvsysInstList ++ rvzicsrInstList ++ rvzifenceiInstList
+
+    val allField = Seq(Special_inst, Imm_Field, Bran_Field, EXUAsrc_Field, EXUBsrc_Field, EXUctr_Field, csr_ctr_Field, RegWr_Field, MemOp_Field)
 
     require(instList.map(_.bitPat.getWidth).distinct.size == 1, "All instructions must have the same width")
     def Decode_bundle: DecodeBundle = new DecodeBundle(allField)
@@ -258,6 +271,8 @@ class IDU extends Module{
         Catch.io.ID := io.IFU_2_IDU.fire && !reset.asBool
         Catch.io.Inst_Type := catchResult(PC_Field)
     }
+
+    // io.IDU_2_IFU.hazard := rvdecoderResult(Special_inst) === Special_instTypeEnum.fence_I
 
     val imm = MuxLookup(rvdecoderResult(Imm_Field), 0.U)(
         Seq(
@@ -291,13 +306,13 @@ class IDU extends Module{
         EXUBsrc_TypeEnum.EXUBsrc_CSR -> io.REG_2_IDU.CSR_rdata,
     ))
 
-    io.IDU_2_EXU.bits.Branch       <> RegEnable(rvdecoderResult(Bran_Field),        io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.MemOp        <> RegEnable(rvdecoderResult(MemOp_Field),       io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.EXU_A        <> RegEnable(EXU_A,                              io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.EXU_B        <> RegEnable(EXU_B,                              io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.EXUctr       <> RegEnable(rvdecoderResult(EXUctr_Field),      io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.csr_ctr      <> RegEnable(rvdecoderResult(csr_ctr_Field),     io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.Imm          <> RegEnable(imm,                                io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.GPR_waddr    <> RegEnable(gpr_waddr,                          io.IFU_2_IDU.fire) 
-    io.IDU_2_EXU.bits.PC           <> RegEnable(io.IFU_2_IDU.bits.PC,               io.IFU_2_IDU.fire) 
+    io.IDU_2_EXU.bits.Branch       <> rvdecoderResult(Bran_Field)   
+    io.IDU_2_EXU.bits.MemOp        <> rvdecoderResult(MemOp_Field)  
+    io.IDU_2_EXU.bits.EXU_A        <> EXU_A             
+    io.IDU_2_EXU.bits.EXU_B        <> EXU_B              
+    io.IDU_2_EXU.bits.EXUctr       <> rvdecoderResult(EXUctr_Field) 
+    io.IDU_2_EXU.bits.csr_ctr      <> rvdecoderResult(csr_ctr_Field)
+    io.IDU_2_EXU.bits.Imm          <> imm            
+    io.IDU_2_EXU.bits.GPR_waddr    <> gpr_waddr   
+    io.IDU_2_EXU.bits.PC           <> io.IFU_2_IDU.bits.PC        
 }

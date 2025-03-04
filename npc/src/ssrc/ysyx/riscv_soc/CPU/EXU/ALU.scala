@@ -35,17 +35,8 @@ class ALU extends Module {
     })
   })
 
-  val state = RegInit(bus_state.s_wait_valid)
-
-  state := MuxLookup(state, bus_state.s_wait_valid)(
-      Seq(
-          bus_state.s_wait_valid -> Mux(io.IDU_2_EXU.valid,  bus_state.s_wait_ready, bus_state.s_wait_valid),
-          bus_state.s_wait_ready -> Mux(io.out.ready, bus_state.s_wait_valid, bus_state.s_wait_ready),
-      )
-  )
-
-  io.out.valid := state === bus_state.s_wait_ready
-  io.IDU_2_EXU.ready  := state === bus_state.s_wait_valid
+  io.out.valid := io.IDU_2_EXU.valid
+  io.IDU_2_EXU.ready  := io.out.ready
 
   // ALU operation
   val Sub_Add = Wire(Bool())
@@ -96,7 +87,7 @@ class ALU extends Module {
     )
   )
   
-  io.out.bits.Result        := RegEnable(Result, io.IDU_2_EXU.fire) 
+  io.out.bits.Result        := Result
 
   if(Config.Simulate){
     val Catch = Module(new ALU_catch)

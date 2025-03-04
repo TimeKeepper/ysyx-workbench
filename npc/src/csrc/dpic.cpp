@@ -105,6 +105,10 @@ extern "C" {
         emulator->Icache_state_catch(write_index, write_way, write_tag, write_data);
     }
 
+    extern void Icache_flush() {
+        emulator->Icache_flush();
+    }
+
     extern void Icache_MAT_catch(uint32_t count) {
         emulator->Icache_MAT_catch(count);
     }

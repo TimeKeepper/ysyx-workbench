@@ -31,12 +31,18 @@ class PipelineCtrl extends Module {
                      (conflict_gpr_valid(io.GPR_read.bits.GPR_Aaddr) ||
                      conflict_gpr_valid(io.GPR_read.bits.GPR_Baddr))
 
-    def conflict_pc(target: UInt, valid: Bool) =
-        valid && io.Branch_msg.valid && (target =/= io.Branch_msg.bits.Next_PC)
+    def conflict_pc(target: UInt) =
+        io.Branch_msg.valid && (target =/= io.Branch_msg.bits.Next_PC)
         
-    def is_bp_error = conflict_pc(io.IDU_msg.bits.PC, io.IDU_msg.valid) ||
-                      conflict_pc(io.EXU_msg.bits.PC, io.EXU_msg.valid) ||
-                      conflict_pc(io.WBU_msg.bits.PC, io.WBU_msg.valid)
+    // def is_bp_error = conflict_pc(io.IDU_msg.bits.PC, io.IDU_msg.valid) ||
+    //                   conflict_pc(io.EXU_msg.bits.PC, io.EXU_msg.valid) ||
+    //                   conflict_pc(io.WBU_msg.bits.PC, io.WBU_msg.valid)
+
+    def is_bp_error = MuxCase(false.B, Seq(
+        (io.WBU_msg.valid -> conflict_pc(io.WBU_msg.bits.PC)),
+        (io.EXU_msg.valid -> conflict_pc(io.EXU_msg.bits.PC)),
+        (io.IDU_msg.valid -> conflict_pc(io.IDU_msg.bits.PC)),
+    ))
 
     io.IDUCtrl.flush := is_bp_error
     io.IDUCtrl.stall := is_gpr_RAW

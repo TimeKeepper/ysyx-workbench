@@ -174,8 +174,10 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val REG             = Module(new REG) 
     
     val PipelineCtrl = Module(new PipelineCtrl)
-    PipelineCtrl.io.IDU_msg := IDU.io.IDU_2_EXU
-    PipelineCtrl.io.EXU_msg := EXU.io.EXU_2_WBU
+    PipelineCtrl.io.IDU_msg.valid := IDU.io.IDU_2_EXU.valid
+    PipelineCtrl.io.IDU_msg.bits := IDU.io.IDU_2_REG
+    PipelineCtrl.io.EXU_msg := EXU.io.IDU_2_EXU
+    PipelineCtrl.io.WBU_msg := WBU.io.EXU_2_WBU
 
     val Ctrl = Wire(new Pipeline_ctrl)
     Ctrl.flush := false.B

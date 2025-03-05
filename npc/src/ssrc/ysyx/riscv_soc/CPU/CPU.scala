@@ -177,9 +177,10 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     PipelineCtrl.io.GPR_read.valid := IDU.io.IDU_2_EXU.valid
     PipelineCtrl.io.GPR_read.bits := IDU.io.IDU_2_REG
 
-    PipelineCtrl.io.IDU_msg := IDU.io.IFU_2_IDU
-    PipelineCtrl.io.EXU_msg := EXU.io.IDU_2_EXU
-    PipelineCtrl.io.WBU_msg := WBU.io.EXU_2_WBU
+    PipelineCtrl.io.IFU_out := IFU.io.IFU_2_IDU
+    PipelineCtrl.io.IDU_in := IDU.io.IFU_2_IDU
+    PipelineCtrl.io.EXU_in := EXU.io.IDU_2_EXU
+    PipelineCtrl.io.WBU_in := WBU.io.EXU_2_WBU
 
     PipelineCtrl.io.Branch_msg := WBU.io.WBU_2_IFU
 

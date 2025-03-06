@@ -17,6 +17,7 @@ class PipelineCtrl extends Module {
         val WBU_in  = Flipped(ValidIO((new BUS_EXU_2_WBU)))
         val Branch_msg = Flipped(ValidIO((new BUS_WBU_2_IFU)))
 
+        val IFUCtrl = new Pipeline_ctrl
         val IDUCtrl = new Pipeline_ctrl
         val EXUCtrl = new Pipeline_ctrl
     })
@@ -43,6 +44,9 @@ class PipelineCtrl extends Module {
         (io.EXU_in.valid -> conflict_pc(io.EXU_in.bits.PC)),
         (io.IDU_in.valid -> conflict_pc(io.IDU_in.bits.PC)),
     ))
+
+    io.IFUCtrl.flush := is_bp_error
+    io.IFUCtrl.stall := false.B
 
     io.IDUCtrl.flush := is_bp_error
     io.IDUCtrl.stall := is_gpr_RAW

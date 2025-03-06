@@ -187,8 +187,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val Ctrl = Wire(new Pipeline_ctrl)
     Ctrl.flush := false.B
     Ctrl.stall := false.B
-
-    IFU.io.WBU_2_IFU <> DontCare
+    
     // bus IFU -> IDU
     IFU.io.Pipeline_ctrl := PipelineCtrl.io.IFUCtrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
@@ -206,7 +205,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
     // // bus WBU -> IFU
-    // WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
+    WBU.io.WBU_2_IFU.bits     <> IFU.io.WBU_2_IFU
 
     // // bus WBU -> REG -> IFU without delay
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG

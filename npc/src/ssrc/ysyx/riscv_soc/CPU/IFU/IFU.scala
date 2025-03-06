@@ -247,8 +247,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         io.IFU_2_IDU.bits.PC := pc
 
         pc := MuxCase(pc, Seq(
-            io.IFU_2_IDU.fire -> snpc,
-            (flush && (state === IFU_state.s_try_fetch))             -> dnpc
+            (flush && (state === IFU_state.s_try_fetch))    -> dnpc,
+            io.IFU_2_IDU.fire                               -> snpc,
         ))
 
         val (master, _) = masterNode.out(0)

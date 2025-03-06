@@ -190,11 +190,11 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
     IFU.io.WBU_2_IFU <> DontCare
     // bus IFU -> IDU
-    IFU.io.Pipeline_ctrl := Ctrl
+    IFU.io.Pipeline_ctrl := PipelineCtrl.io.IFUCtrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
     pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, Ctrl)
     pipelineConnect(IDU.io.IDU_2_EXU, EXU.io.IDU_2_EXU, EXU.io.EXU_2_WBU, PipelineCtrl.io.IDUCtrl)
-    pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, Ctrl)
+    pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, PipelineCtrl.io.EXUCtrl)
 
     WBU.io.WBU_2_IFU.ready := true.B
 

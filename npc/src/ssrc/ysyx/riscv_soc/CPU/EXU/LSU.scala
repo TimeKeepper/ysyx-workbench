@@ -87,7 +87,7 @@ class LSU extends Module{
         )
     )
 
-    io.IDU_2_EXU.ready := state === LS_state.s_wait_valid
+    io.IDU_2_EXU.ready := state === LS_state.s_wait_valid && io.out.ready
 
     val addr = WireDefault(io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm)
     val data = WireDefault((io.IDU_2_EXU.bits.EXU_B << (addr(1,0) << 3.U))(31, 0))

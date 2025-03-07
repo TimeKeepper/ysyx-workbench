@@ -28,7 +28,12 @@ class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val REG_2_EXU = Input(new BUS_REG_2_EXU)
 
             val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
+
+            val is_ls_dispatch = Output(Bool()) // ugly, should remove in the future
         })
+        val is_ls_dispatch = RegInit(false.B)
+        io.is_ls_dispatch := is_ls_dispatch
+
         val AXI = Wire(AXI4Bundle(CPUAXI4BundleParameters()))
         val (master, _) = masterNode.out(0)
         master <> AXI
@@ -36,9 +41,14 @@ class EXU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val alu = Module(new ALU)
         val lsu = Module(new LSU)
 
-        when(io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_LD ||
-            io.IDU_2_EXU.bits.EXUctr  === EXUctr_TypeEnum.EXUctr_ST){
+        when(io.IDU_2_EXU.fire) {
+            is_ls_dispatch := io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_LD ||
+                              io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_ST
+        }.elsewhen(io.EXU_2_WBU.fire){
+            is_ls_dispatch := false.B
+        }
 
+        when(is_ls_dispatch){
             alu.io.IDU_2_EXU.valid := false.B
             alu.io.out.ready := false.B
             io.IDU_2_EXU.ready <> lsu.io.IDU_2_EXU.ready

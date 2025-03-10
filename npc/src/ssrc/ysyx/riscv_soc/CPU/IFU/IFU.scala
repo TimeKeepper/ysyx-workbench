@@ -227,24 +227,28 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     lazy val module = new Impl
     class Impl extends LazyModuleImp(this) {
         val io = IO(new Bundle{
-            val WBU_2_IFU = Flipped(Decoupled(Input(new BUS_WBU_2_IFU)))
+            val WBU_2_IFU = Flipped(new BUS_WBU_2_IFU)
             val IFU_2_IDU = Decoupled(Output(new BUS_IFU_2_IDU))
 
             val Pipeline_ctrl = Flipped(new Pipeline_ctrl)
         })
+
+        val flush = RegEnable(true.B, false.B, io.Pipeline_ctrl.flush)
+
         val state = RegInit(IFU_state.s_try_fetch)
+        when(state === IFU_state.s_try_fetch){
+            flush := false.B
+        }
         
         val pc = RegInit(Config.Reset_Vector)
         val snpc = pc + 4.U
-        val dnpc = io.WBU_2_IFU.bits.Next_PC
+        val dnpc = io.WBU_2_IFU.Next_PC
 
         io.IFU_2_IDU.bits.PC := pc
 
-        io.WBU_2_IFU.ready := io.Pipeline_ctrl.flush
-
         pc := MuxCase(pc, Seq(
-            io.IFU_2_IDU.fire -> snpc,
-            io.WBU_2_IFU.fire -> dnpc
+            (flush && (state === IFU_state.s_try_fetch))    -> dnpc,
+            io.IFU_2_IDU.fire                               -> snpc,
         ))
 
         val (master, _) = masterNode.out(0)
@@ -255,8 +259,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.addr.bits := pc
         Icache.io.addr.valid := io.IFU_2_IDU.fire
         Icache.io.flush := io.Pipeline_ctrl.flush
-
-        io.IFU_2_IDU.valid := map_hit && Icache.io.cache_hit
         
         Icache.io.replace_addr := pc
 
@@ -283,7 +285,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         }
 
         io.IFU_2_IDU.valid := MuxLookup(state, false.B)(Seq(
-            IFU_state.s_try_fetch -> Icache.io.cache_hit,
+            IFU_state.s_try_fetch -> (Icache.io.cache_hit && !(flush)),
             IFU_state.s_get_data -> master.r.valid,
         ))
         io.IFU_2_IDU.bits.PC := pc
@@ -304,11 +306,9 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         state := MuxLookup(state, IFU_state.s_wait_valid)(
             Seq(
-                IFU_state.s_wait_valid -> Mux(io.WBU_2_IFU.fire, 
-                    IFU_state.s_try_fetch, IFU_state.s_wait_valid),
-
                 IFU_state.s_try_fetch -> MuxCase(IFU_state.s_try_fetch, 
                     Seq(
+                        (flush) -> IFU_state.s_try_fetch,
                         (!Icache.io.cache_hit & map_hit) -> IFU_state.s_replace_send_addr,
                         (!map_hit) -> IFU_state.s_send_addr
                     )
@@ -338,12 +338,12 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             Catch.io.pc := io.IFU_2_IDU.bits.PC
 
             val cache_Catch = Module(new Icache_catch)
-            cache_Catch.io.Icache := RegNext(io.WBU_2_IFU.fire && !reset.asBool)
+            cache_Catch.io.Icache := RegNext((state === IFU_state.s_try_fetch) && !reset.asBool)
             cache_Catch.io.map_hit := map_hit
             cache_Catch.io.cache_hit := Icache.io.cache_hit & map_hit
 
             val MAT_Counter = RegInit(0.U(32.W))
-            when(io.WBU_2_IFU.fire){
+            when(state === IFU_state.s_try_fetch){
                 MAT_Counter := 1.U
             }.otherwise{
                 MAT_Counter := MAT_Counter + 1.U

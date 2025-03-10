@@ -174,22 +174,26 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val REG             = Module(new REG) 
     
     val PipelineCtrl = Module(new PipelineCtrl)
-    PipelineCtrl.io.IDU_msg.valid := IDU.io.IDU_2_EXU.valid
-    PipelineCtrl.io.IDU_msg.bits := IDU.io.IDU_2_REG
-    PipelineCtrl.io.EXU_msg := EXU.io.IDU_2_EXU
-    PipelineCtrl.io.WBU_msg := WBU.io.EXU_2_WBU
+    PipelineCtrl.io.GPR_read.valid := IDU.io.IDU_2_EXU.valid
+    PipelineCtrl.io.GPR_read.bits := IDU.io.IDU_2_REG
+
+    PipelineCtrl.io.IFU_out := IFU.io.IFU_2_IDU
+    PipelineCtrl.io.IDU_in := IDU.io.IFU_2_IDU
+    PipelineCtrl.io.EXU_in := EXU.io.IDU_2_EXU
+    PipelineCtrl.io.WBU_in := WBU.io.EXU_2_WBU
+
+    PipelineCtrl.io.Branch_msg := WBU.io.WBU_2_IFU
 
     val Ctrl = Wire(new Pipeline_ctrl)
     Ctrl.flush := false.B
     Ctrl.stall := false.B
-
-    IFU.io.WBU_2_IFU <> DontCare
+    
     // bus IFU -> IDU
-    IFU.io.Pipeline_ctrl := Ctrl
+    IFU.io.Pipeline_ctrl := PipelineCtrl.io.IFUCtrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
     pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, Ctrl)
     pipelineConnect(IDU.io.IDU_2_EXU, EXU.io.IDU_2_EXU, EXU.io.EXU_2_WBU, PipelineCtrl.io.IDUCtrl)
-    pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, Ctrl)
+    pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, PipelineCtrl.io.EXUCtrl)
 
     WBU.io.WBU_2_IFU.ready := true.B
 
@@ -201,7 +205,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
     // // bus WBU -> IFU
-    // WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
+    WBU.io.WBU_2_IFU.bits     <> IFU.io.WBU_2_IFU
 
     // // bus WBU -> REG -> IFU without delay
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG

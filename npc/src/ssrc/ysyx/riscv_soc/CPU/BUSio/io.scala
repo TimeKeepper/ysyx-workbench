@@ -268,45 +268,64 @@ object pipelineConnect {
         }
     }
 
-    def mergeConnect[T <: Data](
-        upstreams: Seq[DecoupledIO[T]],  // 所有上游输入接口
-        downstream: DecoupledIO[T],      // 下游输出接口
-        ctrl: Pipeline_ctrl,              // 流水线控制信号
-    ): Unit = {
-        val validMask = VecInit(upstreams.map(_.valid))
+    def apply[T <: Data, T2 <: Data](
+        prevOut: Seq[DecoupledIO[T]],
+        thisIn: DecoupledIO[T],
+        thisOut: DecoupledIO[T2],
+        ctrl: Pipeline_ctrl): Unit = {
         
-        val selectedIdx = PriorityEncoder(validMask)
-        val selectedValid = Mux1H(UIntToOH(selectedIdx), upstreams.map(_.valid))
-        val selectedFire  = Mux1H(UIntToOH(selectedIdx), upstreams.map(_.fire))
-        val selectedData = Mux1H(UIntToOH(selectedIdx), upstreams.map(_.bits))
+        val arb = Module(new Arbiter[T](thisIn.bits.cloneType, prevOut.size))
 
-        // 阶段2：数据锁存与valid控制
-        val dataReg = RegEnable(
-            selectedData,
-            (downstream.ready && !ctrl.stall)
-        )
-        
-        val validReg = RegNext(
-            MuxCase(
-                selectedValid,
-                Seq(
-                    ctrl.flush -> false.B,
-                    selectedFire -> true.B,
-                    downstream.fire -> false.B
-                )
-            ),
-            false.B
-        )
+        arb.io.in <> prevOut
 
-        // 阶段3：信号连接
-        downstream.valid := validReg
-        downstream.bits := dataReg
-        
-        // 阶段4：反压反馈
-        upstreams.zipWithIndex.foreach { case (up, i) =>
-            up.ready := (i.U === selectedIdx) && 
-                        downstream.ready &&
-                        !ctrl.stall
-        }
+        apply(
+            arb.io.out,
+            thisIn,
+            thisOut,
+            ctrl
+        )
     }
+
+    // def mergeConnect[T <: Data](
+    //     upstreams: Seq[DecoupledIO[T]],  // 所有上游输入接口
+    //     thisIn: DecoupledIO[T], 
+    //     thisOut: DecoupledIO[T2],
+    //     ctrl: Pipeline_ctrl,              // 流水线控制信号
+    // ): Unit = {
+    //     val validMask = VecInit(upstreams.map(_.valid))
+        
+    //     val selectedIdx = PriorityEncoder(validMask)
+    //     val selectedValid = Mux1H(UIntToOH(selectedIdx), upstreams.map(_.valid))
+    //     val selectedFire  = Mux1H(UIntToOH(selectedIdx), upstreams.map(_.fire))
+    //     val selectedData = Mux1H(UIntToOH(selectedIdx), upstreams.map(_.bits))
+
+    //     // 阶段2：数据锁存与valid控制
+    //     val dataReg = RegEnable(
+    //         selectedData,
+    //         selectedFire
+    //     )
+        
+    //     val validReg = RegNext(
+    //         MuxCase(
+    //             selectedValid,
+    //             Seq(
+    //                 ctrl.flush -> false.B,
+    //                 selectedFire -> true.B,
+    //                 downstream.fire -> false.B
+    //             )
+    //         ),
+    //         false.B
+    //     )
+
+    //     // 阶段3：信号连接
+    //     downstream.valid := validReg
+    //     downstream.bits := dataReg
+        
+    //     // 阶段4：反压反馈
+    //     upstreams.zipWithIndex.foreach { case (up, i) =>
+    //         up.ready := (i.U === selectedIdx) && 
+    //                     downstream.ready &&
+    //                     !ctrl.stall
+    //     }
+    // }
 }

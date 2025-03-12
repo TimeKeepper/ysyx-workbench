@@ -30,13 +30,11 @@ class ALU extends Module {
   val io = IO(new Bundle {
     val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
 
-    val out = Decoupled(new Bundle{
-      val Result = Output(UInt(32.W)) 
-    })
+    val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
   })
 
-  io.out.valid := io.IDU_2_EXU.valid
-  io.IDU_2_EXU.ready  := io.out.ready
+  io.EXU_2_WBU.valid := io.IDU_2_EXU.valid
+  io.IDU_2_EXU.ready  := io.EXU_2_WBU.ready
 
   // ALU operation
   val Sub_Add = Wire(Bool())
@@ -86,11 +84,20 @@ class ALU extends Module {
       EXUctr_TypeEnum.EXUctr_AND      -> (src_A & src_B)
     )
   )
-  
-  io.out.bits.Result        := Result
+
+  io.EXU_2_WBU.bits.Branch        := io.IDU_2_EXU.bits.Branch 
+  io.EXU_2_WBU.bits.Jmp_Pc        := 0.U                   
+  io.EXU_2_WBU.bits.MemtoReg      := io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_LD 
+  io.EXU_2_WBU.bits.csr_ctr       := io.IDU_2_EXU.bits.csr_ctr
+  io.EXU_2_WBU.bits.CSR_waddr     := io.IDU_2_EXU.bits.Imm(11, 0)  
+  io.EXU_2_WBU.bits.GPR_waddr     := io.IDU_2_EXU.bits.GPR_waddr
+  io.EXU_2_WBU.bits.PC            := io.IDU_2_EXU.bits.PC     
+  io.EXU_2_WBU.bits.CSR_rdata     := io.IDU_2_EXU.bits.EXU_B  
+  io.EXU_2_WBU.bits.Result        := Result
+  io.EXU_2_WBU.bits.Mem_rdata     := 0.U
 
   if(Config.Simulate){
     val Catch = Module(new ALU_catch)
-    Catch.io.AL := io.out.fire && !reset.asBool
+    Catch.io.AL := io.EXU_2_WBU.fire && !reset.asBool
   }
 }

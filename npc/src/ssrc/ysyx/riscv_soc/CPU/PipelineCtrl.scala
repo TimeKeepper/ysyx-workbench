@@ -13,7 +13,8 @@ class PipelineCtrl extends Module {
 
         val IFU_out = Flipped(ValidIO(new BUS_IFU_2_IDU))
         val IDU_in  = Flipped(ValidIO((new BUS_IFU_2_IDU)))
-        val EXU_in  = Flipped(ValidIO((new BUS_IDU_2_EXU)))
+        val ALU_in  = Flipped(ValidIO((new BUS_IDU_2_EXU)))
+        val LSU_in  = Flipped(ValidIO((new BUS_IDU_2_EXU)))
         val WBU_in  = Flipped(ValidIO((new BUS_EXU_2_WBU)))
         val Branch_msg = Flipped(ValidIO((new BUS_WBU_2_IFU)))
 
@@ -26,7 +27,7 @@ class PipelineCtrl extends Module {
 
     def conflict_gpr(rs: UInt, rd:UInt) = (conflict(rs, rd) && (rs =/= 0.U))
     def conflict_gpr_valid(rs: UInt) = 
-        (conflict_gpr(rs, io.EXU_in.bits.GPR_waddr) & io.EXU_in.valid) ||
+        (conflict_gpr(rs, io.ALU_in.bits.GPR_waddr) & io.ALU_in.valid) ||
         (conflict_gpr(rs, io.WBU_in.bits.GPR_waddr) & io.WBU_in.valid)
 
     def is_gpr_RAW = io.GPR_read.valid && 
@@ -37,7 +38,8 @@ class PipelineCtrl extends Module {
         io.Branch_msg.valid && (target =/= io.Branch_msg.bits.Next_PC)
 
     def is_bp_error = MuxCase(conflict_pc(io.IFU_out.bits.PC), Seq(
-        (io.EXU_in.valid -> conflict_pc(io.EXU_in.bits.PC)),
+        (io.ALU_in.valid -> conflict_pc(io.ALU_in.bits.PC)),
+        (io.LSU_in.valid -> conflict_pc(io.LSU_in.bits.PC)),
         (io.IDU_in.valid -> conflict_pc(io.IDU_in.bits.PC)),
     ))
 

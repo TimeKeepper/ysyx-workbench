@@ -242,7 +242,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         
         val pc = RegInit(Config.Reset_Vector)
         val snpc = pc + 4.U
-        val dnpc = io.WBU_2_IFU.Next_PC
+        val dnpc = RegEnable(io.WBU_2_IFU.Next_PC, 0.U, io.Pipeline_ctrl.flush)
 
         io.IFU_2_IDU.bits.PC := pc
 

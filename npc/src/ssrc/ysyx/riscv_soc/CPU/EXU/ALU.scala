@@ -85,8 +85,13 @@ class ALU extends Module {
     )
   )
 
+  val Jmp_Pc = MuxLookup(io.IDU_2_EXU.bits.Branch, io.IDU_2_EXU.bits.PC + io.IDU_2_EXU.bits.Imm)(Seq(
+    Bran_TypeEnum.Bran_Jmpr -> (io.IDU_2_EXU.bits.EXU_A + io.IDU_2_EXU.bits.Imm),
+    Bran_TypeEnum.Bran_Jcsr -> (io.IDU_2_EXU.bits.EXU_B)
+  ))
+
   io.EXU_2_WBU.bits.Branch        := io.IDU_2_EXU.bits.Branch 
-  io.EXU_2_WBU.bits.Jmp_Pc        := 0.U                   
+  io.EXU_2_WBU.bits.Jmp_Pc        := Jmp_Pc                  
   io.EXU_2_WBU.bits.MemtoReg      := io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_LD 
   io.EXU_2_WBU.bits.csr_ctr       := io.IDU_2_EXU.bits.csr_ctr
   io.EXU_2_WBU.bits.CSR_waddr     := io.IDU_2_EXU.bits.Imm(11, 0)  

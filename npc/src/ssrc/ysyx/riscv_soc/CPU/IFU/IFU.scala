@@ -233,16 +233,20 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
             val Pipeline_ctrl = Flipped(new Pipeline_ctrl)
         })
 
-        val flush = RegEnable(true.B, false.B, io.Pipeline_ctrl.flush)
-
         val state = RegInit(IFU_state.s_try_fetch)
-        when(state === IFU_state.s_try_fetch){
-            flush := false.B
-        }
+
+        val flush = Wire(Bool())
+        flush := RegNext(MuxCase(
+            flush,
+            Seq(
+                (io.Pipeline_ctrl.flush) -> true.B,
+                (state === IFU_state.s_try_fetch) -> false.B
+            )
+        ), false.B)
         
         val pc = RegInit(Config.Reset_Vector)
         val snpc = pc + 4.U
-        val dnpc = io.WBU_2_IFU.Next_PC
+        val dnpc = RegEnable(io.WBU_2_IFU.Next_PC, 0.U, io.Pipeline_ctrl.flush)
 
         io.IFU_2_IDU.bits.PC := pc
 

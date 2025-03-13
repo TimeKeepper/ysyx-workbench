@@ -188,24 +188,20 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
     PipelineCtrl.io.WBU_in := WBU.io.EXU_2_WBU
 
     PipelineCtrl.io.Branch_msg := WBU.io.WBU_2_IFU
-
-    val Ctrl = Wire(new Pipeline_ctrl)
-    Ctrl.flush := false.B
-    Ctrl.stall := false.B
     
     val to_LSU = IDU.io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_LD || IDU.io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_ST
 
     // bus IFU -> IDU
     IFU.io.Pipeline_ctrl := PipelineCtrl.io.IFUCtrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
-    pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, Ctrl)
+    pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, PipelineCtrl.io.IFUCtrl)
     pipelineConnect(
       IDU.io.IDU_2_EXU, 
       Seq(
         (to_LSU, LSU.io.IDU_2_EXU, LSU.io.EXU_2_WBU),
         (!to_LSU, ALU.io.IDU_2_EXU, ALU.io.EXU_2_WBU)
       ), 
-      Ctrl
+      PipelineCtrl.io.IDUCtrl
     )
     // pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, PipelineCtrl.io.EXUCtrl)
     pipelineConnect(
@@ -215,7 +211,7 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
       ),
       WBU.io.EXU_2_WBU,
       WBU.io.WBU_2_IFU,
-      Ctrl
+      PipelineCtrl.io.EXUCtrl
     )
 
     WBU.io.WBU_2_IFU.ready := true.B

@@ -43,11 +43,13 @@ class PipelineCtrl extends Module {
         (io.IDU_in.valid -> conflict_pc(io.IDU_in.bits.PC)),
     ))
 
+    def is_ls_hazard = io.LSU_in.valid
+
     io.IFUCtrl.flush := is_bp_error
     io.IFUCtrl.stall := false.B
 
     io.IDUCtrl.flush := is_bp_error
-    io.IDUCtrl.stall := is_gpr_RAW
+    io.IDUCtrl.stall := is_gpr_RAW || is_ls_hazard
 
     io.EXUCtrl.flush := is_bp_error
     io.EXUCtrl.stall := false.B

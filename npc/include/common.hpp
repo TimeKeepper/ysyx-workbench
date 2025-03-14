@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <autoconf.h>
 #include <iostream>
+#include <map>
+#include <functional>
+#include <vector>
 
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 #define BITMASK(bits) ((1ull << (bits)) - 1)

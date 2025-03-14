@@ -387,6 +387,6 @@ void Emulator::WBU_catch(uint32_t next_pc, \
 }
 
 void Emulator::Pipeline_catch(void){
-    // flush(erase) all the instruction in the queue
-    while(!Inst_quene.empty()) Inst_quene.pop();
+    // flush(erase) all the redunc instruction in the queue
+    while(Inst_quene.size() != 1) Inst_quene.pop();
 }

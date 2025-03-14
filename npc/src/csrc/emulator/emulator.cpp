@@ -387,6 +387,10 @@ void Emulator::WBU_catch(uint32_t next_pc, \
 }
 
 void Emulator::Pipeline_catch(void){
-    // flush(erase) all the redunc instruction in the queue
-    while(Inst_quene.size() != 1) Inst_quene.pop();
+    // flush(erase) all instructions except the first one in the queue
+    if (!Inst_quene.empty()) {
+        auto first = Inst_quene.front();
+        while (!Inst_quene.empty()) Inst_quene.pop();
+        Inst_quene.push(first);
+    }
 }

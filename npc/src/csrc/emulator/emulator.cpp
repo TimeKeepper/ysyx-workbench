@@ -309,13 +309,6 @@ void Emulator::Emulator_trap(uint32_t a0) {
 }
 
 void Emulator::IFU_catch(uint32_t pc, uint32_t inst){
-    switch(inst){
-        case 0x00000000: this->Emulator_trap(1);   break; // ecall
-        case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
-        case 0x00100073: this->Emulator_trap(cpu.gpr[10]);   break; // ebreak
-        default: break;
-    }
-
     this->perf->coponent_count("IFU");
 
     if(!this->instruciton_trace_on) return;
@@ -383,6 +376,14 @@ void Emulator::WBU_catch(uint32_t next_pc, \
 
     if(!this->instruciton_trace_on) return;
     std::cout << this->disasm(Inst_quene.front().first, Inst_quene.front().second) << std::endl;
+
+    switch(Inst_quene.front().second){
+        case 0x00000000: this->Emulator_trap(1);   break; // ecall
+        case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
+        case 0x00100073: this->Emulator_trap(cpu.gpr[10]);   break; // ebreak
+        default: break;
+    }
+
     Inst_quene.pop();
 }
 

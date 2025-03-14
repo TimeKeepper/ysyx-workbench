@@ -54,6 +54,8 @@ class LSU(idBits: Int)(implicit p: Parameters) extends LazyModule{
             val IDU_2_EXU = Flipped(Decoupled(Input(new BUS_IDU_2_EXU)))
 
             val EXU_2_WBU = Decoupled(Output(new BUS_EXU_2_WBU))
+
+            val flush = Input(Bool())
         })
         
         val (master, _) = masterNode.out(0)
@@ -78,7 +80,7 @@ class LSU(idBits: Int)(implicit p: Parameters) extends LazyModule{
 
         state := MuxLookup(state, LS_state.s_wait_valid)(
             Seq(
-                LS_state.s_wait_valid -> Mux(io.IDU_2_EXU.valid, MuxLookup(io.IDU_2_EXU.bits.EXUctr, LS_state.s_wait_valid)(Seq(
+                LS_state.s_wait_valid -> Mux(io.IDU_2_EXU.valid && !io.flush, MuxLookup(io.IDU_2_EXU.bits.EXUctr, LS_state.s_wait_valid)(Seq(
                     EXUctr_TypeEnum.EXUctr_LD -> LS_state.s_load,
                     EXUctr_TypeEnum.EXUctr_ST -> LS_state.s_store
                 )), LS_state.s_wait_valid),

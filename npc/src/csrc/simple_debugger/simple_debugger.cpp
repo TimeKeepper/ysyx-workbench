@@ -8,6 +8,7 @@
 #include <readline/history.h>
 #include <algorithm>
 #include <iomanip>
+#include <utility>
 
 std::string expr(std::string expr);
 
@@ -416,9 +417,11 @@ void simple_debugger::LSU_catch(uint32_t diff_skip){
 }
 
 void simple_debugger::WBU_catch(void) {
-    auto msg = this->emulator->icache_msg_transmiter.front();
-    this->emulator->icache_msg_transmiter.pop();
-
+    std::pair<bool, bool> msg = {false, false};
+    if(!this->emulator->icache_msg_transmiter.empty()){
+        msg = this->emulator->icache_msg_transmiter.front();
+        this->emulator->icache_msg_transmiter.pop();
+    }
     #ifdef CONFIG_DIFFTEST
     this->difftest->difftest_step(this->emulator->cpu.pc, Icache_return{0, msg.first, msg.second});
     #endif

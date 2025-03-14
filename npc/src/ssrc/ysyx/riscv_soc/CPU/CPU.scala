@@ -228,6 +228,8 @@ class npc(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
     // // bus WBU -> REG -> IFU without delay
     WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+
+    LSU.io.flush := PipelineCtrl.io.EXUCtrl.flush
   }
 }
 

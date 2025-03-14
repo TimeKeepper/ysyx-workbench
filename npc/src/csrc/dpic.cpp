@@ -134,4 +134,8 @@ extern "C" {
         emulator->WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wena, csr_waddra, csr_wdataa, csr_wenb, csr_waddrb, csr_wdatab);
         sdb->WBU_catch();
     }
+
+    extern void Pipeline_catch() {
+        emulator->Pipeline_catch();
+    }
 }

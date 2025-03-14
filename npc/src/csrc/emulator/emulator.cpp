@@ -385,3 +385,9 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     std::cout << this->disasm(Inst_quene.front().first, Inst_quene.front().second) << std::endl;
     Inst_quene.pop();
 }
+
+void Emulator::Pipeline_catch(void){
+    // flush(erase) all the instruction in the queue
+    Log("Pipeline flush");
+    while(!Inst_quene.empty()) Inst_quene.pop();
+}

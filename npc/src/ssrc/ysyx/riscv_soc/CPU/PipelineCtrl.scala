@@ -7,6 +7,26 @@ import signal_value._
 import config._
 import freechips.rocketchip.tilelink.TLMessages.d
 
+class Pipeline_catch extends BlackBox with HasBlackBoxInline{
+  val io = IO(new Bundle {
+      val valid = Input(Bool())
+      val pipeline_flush = Input(Bool())
+  })
+  setInline("Pipeline_catch.v",
+  """module Pipeline_catch(
+  |  input valid,
+  |  input pipeline_flush
+  |);
+  |import "DPI-C" function void Pipeline_catch();
+  |always @(posedge valid) begin
+  |    if(pipeline_flush) begin
+  |        Pipeline_catch();
+  |    end
+  |end
+  |endmodule
+  """.stripMargin)
+}
+
 class PipelineCtrl extends Module {
     val io = IO(new Bundle {
         val GPR_read = Flipped(ValidIO((new BUS_IDU_2_REG)))
@@ -53,4 +73,10 @@ class PipelineCtrl extends Module {
 
     io.EXUCtrl.flush := is_bp_error
     io.EXUCtrl.stall := false.B
+
+    if(Config.Simulate) {
+        val pipeline_catch = Module(new Pipeline_catch)
+        pipeline_catch.io.valid := io.IFUCtrl.flush
+        pipeline_catch.io.pipeline_flush := io.IFUCtrl.flush
+    }
 }

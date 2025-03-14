@@ -97,6 +97,7 @@ class Emulator {
         uint32_t gpr_waddr, uint32_t gpr_wdata, \
         uint32_t csr_wen, uint32_t csr_waddr, uint32_t csr_wdata, \
         uint32_t csr_wenb, uint32_t csr_waddrb, uint32_t csr_wdatab);
+        void Pipeline_catch(void);
 };
 
 #endif

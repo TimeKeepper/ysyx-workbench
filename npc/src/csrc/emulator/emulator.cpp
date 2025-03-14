@@ -371,9 +371,9 @@ void Emulator::WBU_catch(uint32_t next_pc, \
     this->perf->inst_cont();
 
     switch(Inst_quene.front().second){
-        case 0x00000000: this->Emulator_trap(1);   break; // ecall
-        case 0xffffffff: this->Emulator_trap(1);   break; // bad trap
-        case 0x00100073: this->Emulator_trap(cpu.gpr[10]);   break; // ebreak
+        case 0x00000000: Log("00000000"); this->Emulator_trap(1);   break; // ecall
+        case 0xffffffff: Log("ffffffff"); this->Emulator_trap(1);   break; // bad trap
+        case 0x00100073: Log("00100073"); this->Emulator_trap(cpu.gpr[10]);   break; // ebreak
         default: break;
     }
 

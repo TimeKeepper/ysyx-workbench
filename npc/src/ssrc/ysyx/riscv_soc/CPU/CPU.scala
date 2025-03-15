@@ -116,33 +116,60 @@ class riscv_CPU(idBits: Int)(implicit p: Parameters) extends LazyModule {
     val LSU = LazyLSU.module
     val WBU = Module(new WBU)
     val REG = Module(new REG) 
+    
+    val PipelineCtrl = Module(new PipelineCtrl)
+    PipelineCtrl.io.GPR_read.valid := IDU.io.IDU_2_EXU.valid
+    PipelineCtrl.io.GPR_read.bits := IDU.io.IDU_2_REG
 
-    val Ctrl = Wire(new Pipeline_ctrl)
-    Ctrl.flush := false.B
-    // Ctrl.stall := false.B
+    PipelineCtrl.io.IFU_out := IFU.io.IFU_2_IDU
+    PipelineCtrl.io.IDU_in := IDU.io.IFU_2_IDU
+    PipelineCtrl.io.ALU_in := ALU.io.IDU_2_EXU
+    PipelineCtrl.io.LSU_in := LSU.io.IDU_2_EXU
+    PipelineCtrl.io.WBU_in := WBU.io.EXU_2_WBU
 
-    // // bus IFU -> IDU
-    // IFU.io.Pipeline_ctrl := Ctrl
+    PipelineCtrl.io.Branch_msg := WBU.io.WBU_2_IFU
+    
+    val to_LSU = IDU.io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_LD || IDU.io.IDU_2_EXU.bits.EXUctr === EXUctr_TypeEnum.EXUctr_ST
+
+    // bus IFU -> IDU
+    IFU.io.Pipeline_ctrl := PipelineCtrl.io.IFUCtrl
     // IFU.io.IFU_2_IDU     <> IDU.io.IFU_2_IDU
+    pipelineConnect(IFU.io.IFU_2_IDU, IDU.io.IFU_2_IDU, IDU.io.IDU_2_EXU, PipelineCtrl.io.IFUCtrl)
+    pipelineConnect(
+      IDU.io.IDU_2_EXU, 
+      Seq(
+        (to_LSU, LSU.io.IDU_2_EXU, LSU.io.EXU_2_WBU),
+        (!to_LSU, ALU.io.IDU_2_EXU, ALU.io.EXU_2_WBU)
+      ), 
+      PipelineCtrl.io.IDUCtrl
+    )
+    // pipelineConnect(EXU.io.EXU_2_WBU, WBU.io.EXU_2_WBU, WBU.io.WBU_2_IFU, PipelineCtrl.io.EXUCtrl)
+    pipelineConnect(
+      Seq(
+        (LSU.io.EXU_2_WBU),
+        (ALU.io.EXU_2_WBU)
+      ),
+      WBU.io.EXU_2_WBU,
+      WBU.io.WBU_2_IFU,
+      PipelineCtrl.io.EXUCtrl
+    )
 
-    // // bus IFU -> REG -> IDU without delay
-    // REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
+    WBU.io.WBU_2_IFU.ready := true.B
 
-    // // bus IDU -> EXU
-    // IDU.io.IDU_2_EXU     <> EXU.io.IDU_2_EXU    
+    // bus IFU -> REG -> IDU without delay
+    REG.io.REG_2_IDU     <> IDU.io.REG_2_IDU
 
     // // bus IDU -> REG -> EXU without delay
-    // IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
+    IDU.io.IDU_2_REG     <> REG.io.IDU_2_REG
     // REG.io.REG_2_EXU     <> EXU.io.REG_2_EXU   
 
-    // // bus EXU -> WBU
-    // EXU.io.EXU_2_WBU     <> WBU.io.EXU_2_WBU   
-
     // // bus WBU -> IFU
-    // WBU.io.WBU_2_IFU     <> IFU.io.WBU_2_IFU
+    WBU.io.WBU_2_IFU.bits     <> IFU.io.WBU_2_IFU
 
     // // bus WBU -> REG -> IFU without delay
-    // WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+    WBU.io.WBU_2_REG     <> REG.io.WBU_2_REG
+
+    LSU.io.flush := PipelineCtrl.io.EXUCtrl.flush
 
     io.master <> node.in(0)._1
 

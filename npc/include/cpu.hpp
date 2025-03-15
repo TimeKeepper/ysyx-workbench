@@ -1,6 +1,7 @@
 #ifndef __CPU_CPU_H__
 #define __CPU_CPU_H__
 
+#include <map>
 #ifdef PLATFORM_NPC
 #include <Vtop.h>
 #include "Vtop__Dpi.h"

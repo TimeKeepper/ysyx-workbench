@@ -272,6 +272,8 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val Multi_transfer = RegInit(VecInit(Seq.fill(block_num)(0.U(32.W))))
         val Multi_transfer_counter = RegInit(0.U(log2Ceil(block_num).W))
 
+        val transfer = RegInit(0.U(32.W)) // which I dont konw why should exist
+
         when (master.r.fire) {
             when(state === IFU_state.s_replace_get_data){
                 when(Multi_transfer_counter === (block_num - 1).U){
@@ -279,14 +281,14 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 }.otherwise{
                     Multi_transfer_counter := Multi_transfer_counter + 1.U
                 }
-            }
-
-            when(state === IFU_state.s_replace_get_data || state === IFU_state.s_get_data){
+                
                 Multi_transfer(block_num - 1) := master.r.bits.data
                 for(i <- 0 until (block_num - 1)){
                     Multi_transfer(i) := Multi_transfer(i + 1)
                 }
             }
+
+            transfer := master.r.bits.data
         }
 
         io.IFU_2_IDU.valid := MuxLookup(state, false.B)(Seq(
@@ -305,7 +307,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := (state === IFU_state.s_Icache_write)
 
-        val inst = Mux(state === IFU_state.s_try_fetch, Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index), Multi_transfer(block_num - 1))
+        val inst = Mux(state === IFU_state.s_try_fetch, Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index), transfer)
             
         io.IFU_2_IDU.bits.data := inst
 

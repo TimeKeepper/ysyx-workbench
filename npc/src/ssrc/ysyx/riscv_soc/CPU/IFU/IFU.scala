@@ -212,6 +212,7 @@ object IFU_state extends ChiselEnum{
       s_try_fetch,
       s_send_addr,
       s_get_data,
+      s_fetch,
       s_replace_send_addr,
       s_replace_get_data,
       s_Icache_write
@@ -248,8 +249,6 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         val snpc = pc + 4.U
         val dnpc = RegEnable(io.WBU_2_IFU.Next_PC, 0.U, io.Pipeline_ctrl.flush)
 
-        io.IFU_2_IDU.bits.PC := pc
-
         pc := MuxCase(pc, Seq(
             (flush && (state === IFU_state.s_try_fetch))    -> dnpc,
             io.IFU_2_IDU.fire                               -> snpc,
@@ -280,11 +279,11 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 }.otherwise{
                     Multi_transfer_counter := Multi_transfer_counter + 1.U
                 }
+            }
 
-                Multi_transfer(block_num - 1) := master.r.bits.data
-                for(i <- 0 until (block_num - 1)){
-                    Multi_transfer(i) := Multi_transfer(i + 1)
-                }
+            Multi_transfer(block_num - 1) := master.r.bits.data
+            for(i <- 0 until (block_num - 1)){
+                Multi_transfer(i) := Multi_transfer(i + 1)
             }
         }
 
@@ -299,12 +298,12 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
         master.ar.bits.addr := Mux(state === IFU_state.s_send_addr, pc, 
             (pc & ~((Config.Icache_Param.block_size - 1).U(32.W))) + (Multi_transfer_counter << 2.U))
         
-        master.r.ready := Mux(state === IFU_state.s_get_data, io.IFU_2_IDU.ready, state === IFU_state.s_replace_get_data)
+        master.r.ready := (state === IFU_state.s_replace_get_data || state === IFU_state.s_get_data)
 
         Icache.io.replace_data.bits := Multi_transfer.asTypeOf(UInt((Config.Icache_Param.block_size * 8).W))
         Icache.io.replace_data.valid := (state === IFU_state.s_Icache_write)
 
-        val inst = Mux(state === IFU_state.s_try_fetch, Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index), master.r.bits.data)
+        val inst = Mux(state === IFU_state.s_try_fetch, Icache.io.data.asTypeOf(Vec(Config.Icache_Param.block_size / 4, UInt(32.W)))(block_index), Multi_transfer(block_num - 1))
             
         io.IFU_2_IDU.bits.data := inst
 
@@ -322,7 +321,10 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                     IFU_state.s_get_data, IFU_state.s_send_addr),
 
                 IFU_state.s_get_data -> Mux(master.r.fire,
-                    IFU_state.s_try_fetch, IFU_state.s_get_data),
+                    IFU_state.s_fetch, IFU_state.s_get_data),
+
+                IFU_state.s_fetch -> Mux(io.IFU_2_IDU.fire,
+                    IFU_state.s_try_fetch, IFU_state.s_fetch),
 
                 IFU_state.s_replace_send_addr -> Mux(master.ar.fire,
                     IFU_state.s_replace_get_data, IFU_state.s_replace_send_addr),

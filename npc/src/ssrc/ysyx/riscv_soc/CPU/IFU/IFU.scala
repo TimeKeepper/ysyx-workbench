@@ -281,15 +281,17 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 }
             }
 
-            Multi_transfer(block_num - 1) := master.r.bits.data
-            for(i <- 0 until (block_num - 2)){
-                Multi_transfer(i) := Multi_transfer(i + 1)
+            when(state === IFU_state.s_replace_get_data || state === IFU_state.s_get_data){
+                Multi_transfer(block_num - 1) := master.r.bits.data
+                for(i <- 0 until (block_num - 1)){
+                    Multi_transfer(i) := Multi_transfer(i + 1)
+                }
             }
         }
 
         io.IFU_2_IDU.valid := MuxLookup(state, false.B)(Seq(
             IFU_state.s_try_fetch -> (Icache.io.cache_hit && !(flush)),
-            IFU_state.s_get_data -> master.r.valid,
+            IFU_state.s_fetch -> true.B,
         ))
         io.IFU_2_IDU.bits.PC := pc
 

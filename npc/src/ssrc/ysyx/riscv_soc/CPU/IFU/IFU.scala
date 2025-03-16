@@ -327,7 +327,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
                 IFU_state.s_get_data -> Mux(master.r.fire,
                     IFU_state.s_fetch, IFU_state.s_get_data),
 
-                IFU_state.s_fetch -> Mux(io.IFU_2_IDU.fire,
+                IFU_state.s_fetch -> Mux((io.IFU_2_IDU.fire) || (flush),
                     IFU_state.s_try_fetch, IFU_state.s_fetch),
 
                 IFU_state.s_replace_send_addr -> Mux(master.ar.fire,

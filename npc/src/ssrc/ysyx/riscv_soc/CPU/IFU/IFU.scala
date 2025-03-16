@@ -293,7 +293,7 @@ class IFU(idBits: Int)(implicit p: Parameters) extends LazyModule {
 
         io.IFU_2_IDU.valid := MuxLookup(state, false.B)(Seq(
             IFU_state.s_try_fetch -> (Icache.io.cache_hit && !(flush)),
-            IFU_state.s_fetch -> true.B,
+            IFU_state.s_fetch -> !(flush),
         ))
         io.IFU_2_IDU.bits.PC := pc
 

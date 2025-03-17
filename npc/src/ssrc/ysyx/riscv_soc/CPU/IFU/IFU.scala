@@ -119,20 +119,22 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
         val count = Input(UInt(32.W))
     })
 
-    setInline("Icache_MAT_catch.v",
-    """module Icache_MAT_catch(
+    val code =
+    s"""
+    |module Icache_MAT_catch(
     |    input valid,
     |    input [31:0] count
     |);
     |
-    |   import "DPI-C" function void Icache_MAT_catch(input int unsigned count);
+    |   import "DPI-C" function void Icache_MAT_catch(input bit [31:0] count);
     |   always @(posedge valid) begin
     |       Icache_MAT_catch(count);
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
 
+    setInline("Icache_MAT_catch.v", code.stripMargin)
 }
 
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {

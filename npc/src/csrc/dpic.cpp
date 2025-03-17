@@ -104,8 +104,8 @@ extern "C" {
         emulator->Icache_flush();
     }
 
-    extern void Icache_MAT_catch(uint32_t count) {
-        emulator->Icache_MAT_catch(count);
+    extern void Icache_MAT_catch(const svBitVecVal* count) {
+        emulator->Icache_MAT_catch(*count);
     }
 
     extern void IDU_catch(const svBitVecVal* type){

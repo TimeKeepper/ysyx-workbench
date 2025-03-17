@@ -25,15 +25,16 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
         val pc    = Input(UInt(32.W))
         val inst  = Input(UInt(32.W))
     })
-    setInline("IFU_catch.v",
-    """module IFU_catch(
+    val code = 
+    s"""
+    |module IFU_catch(
     |    input clock,
     |    input valid,
     |    input [31:0] pc,
     |    input [31:0] inst
     |);
     |
-    |   import "DPI-C" function void IFU_catch(input int unsigned pc, input int unsigned inst);
+    |   import "DPI-C" function void IFU_catch(input bit [31:0] pc, input bit [31:0] inst);
     |   always @(posedge clock) begin
     |       if(valid) begin
     |           IFU_catch(pc, inst);
@@ -41,7 +42,9 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("IFU_catch.v", code.stripMargin)
 }
 
 class Icache_catch extends BlackBox with HasBlackBoxInline {
@@ -50,20 +53,23 @@ class Icache_catch extends BlackBox with HasBlackBoxInline {
         val map_hit = Input(Bool())
         val cache_hit = Input(Bool())
     })
-    setInline("Icache_catch.v",
-    """module Icache_catch(
+    val code =
+    s"""
+    |module Icache_catch(
     |   input Icache,
     |   input map_hit,
     |   input cache_hit
     |);
     |
-    |   import "DPI-C" function void Icache_catch(input int unsigned map_hit, input int unsigned cache_hit);
+    |   import "DPI-C" function void Icache_catch(input bit map_hit, input bit cache_hit);
     |   always @(posedge Icache) begin
-    |       Icache_catch({31'b0, map_hit}, {31'b0, cache_hit});
+    |       Icache_catch(map_hit, cache_hit);
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("Icache_catch.v", code.stripMargin)
 }
 
 class Icache_state_catch extends BlackBox with HasBlackBoxInline {
@@ -77,7 +83,6 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
 
         val flush = Input(Bool())
     })
-
     val code = 
     s"""
     |module Icache_state_catch(
@@ -91,7 +96,7 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
     |    input flush
     |);
     |
-    |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
+    |   import "DPI-C" function void Icache_state_catch(input bit [31:0] write_index, input bit [31:0] write_way, input bit [31:0] write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
     |   always @(posedge valid) begin
     |       Icache_state_catch(write_index, write_way, write_tag, write_data);
     |   end
@@ -112,21 +117,22 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
         val valid = Input(Bool())
         val count = Input(UInt(32.W))
     })
-
-    setInline("Icache_MAT_catch.v",
-    """module Icache_MAT_catch(
+    val code =
+    s"""
+    |module Icache_MAT_catch(
     |    input valid,
     |    input [31:0] count
     |);
     |
-    |   import "DPI-C" function void Icache_MAT_catch(input int unsigned count);
+    |   import "DPI-C" function void Icache_MAT_catch(input bit [31:0] count);
     |   always @(posedge valid) begin
     |       Icache_MAT_catch(count);
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
 
+    setInline("Icache_MAT_catch.v", code.stripMargin)
 }
 
 class Icache(address: Seq[AddressSet], way: Int, set: Int, block_size: Int) extends Module {

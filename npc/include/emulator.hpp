@@ -86,7 +86,7 @@ class Emulator {
         void IFU_catch(uint32_t pc, uint32_t inst);
         std::queue<std::pair<uint32_t, uint32_t>> Inst_quene;
         std::vector<std::vector<CacheLine>> cache;
-        void Icache_catch(uint32_t map_hit, uint32_t cache_hit);
+        void Icache_catch(bool map_hit, bool cache_hit);
         void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data);
         void Icache_flush();
         void Icache_MAT_catch(uint32_t count);

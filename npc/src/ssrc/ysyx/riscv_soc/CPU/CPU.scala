@@ -20,8 +20,8 @@ class Inst_Comp extends BlackBox with HasBlackBoxInline{
     val clock = Input(Clock())
     val valid = Input(Bool())
   })
-  setInline("Inst_Comp.v",
-  """module Inst_Comp(
+  val code = 
+  s"""module Inst_Comp(
   |  input clock,
   |  input valid
   |);
@@ -33,7 +33,9 @@ class Inst_Comp extends BlackBox with HasBlackBoxInline{
   | end
   |
   |endmodule
-  """.stripMargin)
+  """
+
+  setInline("Inst_Comp.v", code.stripMargin)
 }
 
 class AXI_BRIDGE extends BlackBox with HasBlackBoxInline{
@@ -42,8 +44,8 @@ class AXI_BRIDGE extends BlackBox with HasBlackBoxInline{
       val rresp  = Input(UInt(2.W))
       val bresp  = Input(UInt(2.W))
   })
-  setInline("AXI_BRIDGE.v",
-  """module AXI_BRIDGE(
+  val code = 
+  s"""module AXI_BRIDGE(
   |  input clock,
   |  input [1:0] rresp,
   |  input [1:0] bresp
@@ -55,7 +57,9 @@ class AXI_BRIDGE extends BlackBox with HasBlackBoxInline{
   |    end
   |end
   |endmodule
-  """.stripMargin)
+  """
+
+  setInline("AXI_BRIDGE.v", code.stripMargin)
 }
 
 object CPUAXI4BundleParameters {

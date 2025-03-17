@@ -24,9 +24,8 @@ class WBU_catch extends BlackBox with HasBlackBoxInline {
         val csr_waddrb = Input(UInt(32.W))
         val csr_wdatab = Input(UInt(32.W))
     })
-
-    setInline("WBU_catch.v",
-    """module WBU_catch(
+    val code = 
+    s"""module WBU_catch(
     |    input clock,
     |    input valid,
     |
@@ -51,7 +50,9 @@ class WBU_catch extends BlackBox with HasBlackBoxInline {
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("WBU_catch.v", code.stripMargin)
 }
 
 class WBU extends Module {

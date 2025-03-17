@@ -1,4 +1,5 @@
 #include "performence.hpp"
+#include "svdpi.h"
 #include <iomanip>
 #include <simple_debugger.hpp>
 #include <memory>
@@ -87,29 +88,29 @@ extern "C" {
     }
 #endif
 
-    extern void IFU_catch(uint32_t pc, uint32_t inst){
-        emulator->IFU_catch(pc, inst);
+    extern void IFU_catch(const svBitVecVal* pc, const svBitVecVal* inst){
+        emulator->IFU_catch(*pc, *inst);
     }
 
-    extern void Icache_catch(uint32_t map_hit, uint32_t cache_hit){
-        emulator->Icache_catch(map_hit, cache_hit);
+    extern void Icache_catch(svBit map_hit, svBit cache_hit){
+        emulator->Icache_catch(map_hit != 0, cache_hit != 0);
     }
 
-    extern void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {
-        emulator->Icache_state_catch(write_index, write_way, write_tag, write_data);
+    extern void Icache_state_catch(const svBitVecVal* write_index, const svBitVecVal* write_way, const svBitVecVal* write_tag, const svBitVecVal* write_data) {
+        emulator->Icache_state_catch(*write_index, *write_way, *write_tag, write_data);
     }
 
     extern void Icache_flush() {
         emulator->Icache_flush();
     }
 
-    extern void Icache_MAT_catch(uint32_t count) {
-        emulator->Icache_MAT_catch(count);
+    extern void Icache_MAT_catch(const svBitVecVal* count) {
+        emulator->Icache_MAT_catch(*count);
     }
 
-    extern void IDU_catch(uint32_t type){
+    extern void IDU_catch(const svBitVecVal* type){
         performence::Inst_Type inst_type;
-        switch(type){
+        switch(*type){
             case 0: inst_type = performence::Inst_Type::Cal; break;
             case 1: inst_type = performence::Inst_Type::LS; break;
             case 2: inst_type = performence::Inst_Type::CSR; break;

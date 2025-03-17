@@ -14,8 +14,8 @@ class ALU_catch extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle{
     val AL = Input(Bool())
   })
-  setInline("ALU_catch.v",
-  """module ALU_catch(
+  val code = 
+  s"""module ALU_catch(
   |   input AL
   |);
   |  import "DPI-C" function void ALU_catch();
@@ -23,7 +23,9 @@ class ALU_catch extends BlackBox with HasBlackBoxInline {
   |       ALU_catch();
   |  end
   |endmodule
-  """.stripMargin)
+  """
+
+  setInline("ALU_catch.v", code.stripMargin)
 }
 
 class ALU extends Module {

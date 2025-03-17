@@ -1,4 +1,5 @@
 #include "performence.hpp"
+#include "svdpi.h"
 #include <iomanip>
 #include <simple_debugger.hpp>
 #include <memory>
@@ -107,9 +108,9 @@ extern "C" {
         emulator->Icache_MAT_catch(count);
     }
 
-    extern void IDU_catch(uint32_t type){
+    extern void IDU_catch(const svBitVecVal* type){
         performence::Inst_Type inst_type;
-        switch(type){
+        switch(*type){
             case 0: inst_type = performence::Inst_Type::Cal; break;
             case 1: inst_type = performence::Inst_Type::LS; break;
             case 2: inst_type = performence::Inst_Type::CSR; break;

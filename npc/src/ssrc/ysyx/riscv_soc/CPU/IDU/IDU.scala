@@ -27,10 +27,10 @@ class IDU_catch extends BlackBox with HasBlackBoxInline {
     |   input ID,
     |   input [1:0] Inst_Type
     |);
-    |import "DPI-C" function void IDU_catch(input int unsigned Inst_Type);
+    |import "DPI-C" function void IDU_catch(input bit [1:0] Inst_Type);
     |
     |always @(posedge ID) begin
-    |    IDU_catch({30'h0, Inst_Type});
+    |    IDU_catch(Inst_Type);
     |end
     |
     |endmodule

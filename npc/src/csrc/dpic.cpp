@@ -88,8 +88,8 @@ extern "C" {
     }
 #endif
 
-    extern void IFU_catch(uint32_t pc, uint32_t inst){
-        emulator->IFU_catch(pc, inst);
+    extern void IFU_catch(const svBitVecVal* pc, const svBitVecVal* inst){
+        emulator->IFU_catch(*pc, *inst);
     }
 
     extern void Icache_catch(uint32_t map_hit, uint32_t cache_hit){

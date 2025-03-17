@@ -33,7 +33,7 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
     |    input [31:0] inst
     |);
     |
-    |   import "DPI-C" function void IFU_catch(input int unsigned pc, input int unsigned inst);
+    |   import "DPI-C" function void IFU_catch(input bit [31:0] pc, input bit [31:0] inst);
     |   always @(posedge clock) begin
     |       if(valid) begin
     |           IFU_catch(pc, inst);

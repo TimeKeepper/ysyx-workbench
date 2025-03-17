@@ -91,7 +91,7 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
     |    input flush
     |);
     |
-    |   import "DPI-C" function void Icache_state_catch(input int unsigned write_index, input int unsigned write_way, input int unsigned write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
+    |   import "DPI-C" function void Icache_state_catch(input bit [31:0] write_index, input bit [31:0] write_way, input bit [31:0] write_tag, input bit [${Config.Icache_Param.block_size * 8 - 1}:0] write_data);
     |   always @(posedge valid) begin
     |       Icache_state_catch(write_index, write_way, write_tag, write_data);
     |   end

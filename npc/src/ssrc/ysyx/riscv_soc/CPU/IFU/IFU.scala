@@ -57,9 +57,9 @@ class Icache_catch extends BlackBox with HasBlackBoxInline {
     |   input cache_hit
     |);
     |
-    |   import "DPI-C" function void Icache_catch(input int unsigned map_hit, input int unsigned cache_hit);
+    |   import "DPI-C" function void Icache_catch(input bit map_hit, input bit cache_hit);
     |   always @(posedge Icache) begin
-    |       Icache_catch({31'b0, map_hit}, {31'b0, cache_hit});
+    |       Icache_catch(map_hit, cache_hit);
     |   end
     |
     |endmodule

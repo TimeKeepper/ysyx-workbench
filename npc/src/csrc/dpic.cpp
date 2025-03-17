@@ -89,12 +89,11 @@ extern "C" {
 #endif
 
     extern void IFU_catch(const svBitVecVal* pc, const svBitVecVal* inst){
-        Log("pc: %08x", *pc);
         emulator->IFU_catch(*pc, *inst);
     }
 
-    extern void Icache_catch(uint32_t map_hit, uint32_t cache_hit){
-        emulator->Icache_catch(map_hit, cache_hit);
+    extern void Icache_catch(svBit map_hit, svBit cache_hit){
+        emulator->Icache_catch(map_hit != 0, cache_hit != 0);
     }
 
     extern void Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {

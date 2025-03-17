@@ -317,9 +317,9 @@ void Emulator::IFU_catch(uint32_t pc, uint32_t inst){
     this->Inst_quene.push(std::make_pair(pc, inst));
 }
 
-void Emulator::Icache_catch(uint32_t map_hit, uint32_t cache_hit){
-    this->perf->cache_count("Inst", map_hit!=0, cache_hit!=0);
-    this->icache_msg_transmiter.push({map_hit!=0, cache_hit!=0});
+void Emulator::Icache_catch(bool map_hit, bool cache_hit){
+    this->perf->cache_count("Inst", map_hit, cache_hit);
+    this->icache_msg_transmiter.push({map_hit, cache_hit});
 }
 
 void Emulator::Icache_state_catch(uint32_t write_index, uint32_t write_way, uint32_t write_tag, const svBitVecVal* write_data) {

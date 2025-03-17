@@ -25,8 +25,9 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
         val pc    = Input(UInt(32.W))
         val inst  = Input(UInt(32.W))
     })
-    setInline("IFU_catch.v",
-    """module IFU_catch(
+    val code = 
+    s"""
+    |module IFU_catch(
     |    input clock,
     |    input valid,
     |    input [31:0] pc,
@@ -41,7 +42,9 @@ class IFU_catch extends BlackBox with HasBlackBoxInline {
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("IFU_catch.v", code.stripMargin)
 }
 
 class Icache_catch extends BlackBox with HasBlackBoxInline {
@@ -50,8 +53,9 @@ class Icache_catch extends BlackBox with HasBlackBoxInline {
         val map_hit = Input(Bool())
         val cache_hit = Input(Bool())
     })
-    setInline("Icache_catch.v",
-    """module Icache_catch(
+    val code =
+    s"""
+    |module Icache_catch(
     |   input Icache,
     |   input map_hit,
     |   input cache_hit
@@ -63,7 +67,9 @@ class Icache_catch extends BlackBox with HasBlackBoxInline {
     |   end
     |
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("Icache_catch.v", code.stripMargin)
 }
 
 class Icache_state_catch extends BlackBox with HasBlackBoxInline {

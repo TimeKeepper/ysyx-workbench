@@ -89,6 +89,7 @@ extern "C" {
 #endif
 
     extern void IFU_catch(const svBitVecVal* pc, const svBitVecVal* inst){
+        Log("pc: %08x", *pc);
         emulator->IFU_catch(*pc, *inst);
     }
 

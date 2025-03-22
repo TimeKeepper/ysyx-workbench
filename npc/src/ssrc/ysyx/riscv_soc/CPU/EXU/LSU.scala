@@ -18,8 +18,8 @@ class LSU_catch extends BlackBox with HasBlackBoxInline {
         val LS = Input(Bool())
         val diff_skip = Input(Bool())
     })
-    setInline("LSU_catch.v",
-    """module LSU_catch(
+    val code = 
+    s"""module LSU_catch(
     |   input LS,
     |   input diff_skip
     |);
@@ -28,7 +28,9 @@ class LSU_catch extends BlackBox with HasBlackBoxInline {
     |       LSU_catch({31'h00000000, diff_skip});
     |  end
     |endmodule
-    """.stripMargin)
+    """
+
+    setInline("LSU_catch.v", code.stripMargin)
 }
 
 object LS_state extends ChiselEnum{

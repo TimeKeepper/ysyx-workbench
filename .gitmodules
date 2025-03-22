@@ -22,3 +22,6 @@
 [submodule "npc/rvdecoderdb"]
 	path = npc/rvdecoderdb
 	url = git@github.com:chipsalliance/rvdecoderdb.git
+[submodule "remu"]
+	path = remu
+	url = git@github.com:TimeKeepper/REMU.git

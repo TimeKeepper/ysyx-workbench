@@ -83,7 +83,6 @@ class Icache_state_catch extends BlackBox with HasBlackBoxInline {
 
         val flush = Input(Bool())
     })
-
     val code = 
     s"""
     |module Icache_state_catch(
@@ -118,7 +117,6 @@ class Icache_MAT_catch extends BlackBox with HasBlackBoxInline {
         val valid = Input(Bool())
         val count = Input(UInt(32.W))
     })
-
     val code =
     s"""
     |module Icache_MAT_catch(

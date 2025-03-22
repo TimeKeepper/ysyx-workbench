@@ -22,8 +22,8 @@ class IDU_catch extends BlackBox with HasBlackBoxInline {
         val ID = Input(Bool())
         val Inst_Type = Input(UInt(2.W))
     })
-    setInline("IDU_catch.v",
-    """module IDU_catch(
+    val code =
+    s"""module IDU_catch(
     |   input ID,
     |   input [1:0] Inst_Type
     |);
@@ -34,8 +34,9 @@ class IDU_catch extends BlackBox with HasBlackBoxInline {
     |end
     |
     |endmodule
-    |
-    """.stripMargin)
+    """
+
+    setInline("IDU_catch.v", code.stripMargin)
 }
 
 trait DecodeAPI {

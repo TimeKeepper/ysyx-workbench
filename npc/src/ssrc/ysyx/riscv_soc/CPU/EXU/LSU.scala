@@ -15,17 +15,21 @@ import freechips.rocketchip.util._
 
 class LSU_catch extends BlackBox with HasBlackBoxInline {
     val io = IO(new Bundle{
-        val LS = Input(Bool())
+        val clock = Input(Clock())
+        val valid = Input(Bool())
         val diff_skip = Input(Bool())
     })
     val code = 
     s"""module LSU_catch(
-    |   input LS,
+    |   input clock,
+    |   input valid,
     |   input diff_skip
     |);
     |  import "DPI-C" function void LSU_catch(input bit diff_skip);
-    |  always @(posedge LS) begin
-    |       LSU_catch(diff_skip);
+    |  always @(posedge clock) begin
+    |     if(valid) begin
+    |         LSU_catch(diff_skip);
+    |     end
     |  end
     |endmodule
     """
@@ -180,7 +184,8 @@ class LSU(idBits: Int)(implicit p: Parameters) extends LazyModule{
 
         if(Config.Simulate){
             val Catch = Module(new LSU_catch)
-            Catch.io.LS := io.EXU_2_WBU.fire && !reset.asBool
+            Catch.io.clock := clock
+            Catch.io.valid := io.EXU_2_WBU.fire && !reset.asBool
             Catch.io.diff_skip := Config.diff_mis_map.map(_.contains(RegEnable(addr, io.IDU_2_EXU.fire))).reduce(_ || _)
         }
     }

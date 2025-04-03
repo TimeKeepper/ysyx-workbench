@@ -23,9 +23,9 @@ class LSU_catch extends BlackBox with HasBlackBoxInline {
     |   input LS,
     |   input diff_skip
     |);
-    |  import "DPI-C" function void LSU_catch(input int unsigned diff_skip);
+    |  import "DPI-C" function void LSU_catch(input bit diff_skip);
     |  always @(posedge LS) begin
-    |       LSU_catch({31'h00000000, diff_skip});
+    |       LSU_catch(diff_skip);
     |  end
     |endmodule
     """

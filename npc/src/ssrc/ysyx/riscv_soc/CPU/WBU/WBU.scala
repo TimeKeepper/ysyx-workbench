@@ -42,7 +42,7 @@ class WBU_catch extends BlackBox with HasBlackBoxInline {
     |    input [31:0] csr_wdatab
     |);
     |
-    |   import "DPI-C" function void WBU_catch(input int unsigned next_pc, input int unsigned gpr_waddr, input int unsigned gpr_wdata, input int unsigned csr_wena, input int unsigned csr_waddra, input int unsigned csr_wdataa, input int unsigned csr_wenb, input int unsigned csr_waddrb, input int unsigned csr_wdatab);
+    |   import "DPI-C" function void WBU_catch(input bit [31:0] next_pc, input bit [31:0] gpr_waddr, input bit [31:0] gpr_wdata, input bit [31:0] csr_wena, input bit [31:0] csr_waddra, input bit [31:0] csr_wdataa, input bit [31:0] csr_wenb, input bit [31:0] csr_waddrb, input bit [31:0] csr_wdatab);
     |   always @(posedge clock) begin
     |       if(valid) begin
     |           WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wena, csr_waddra, csr_wdataa, csr_wenb, csr_waddrb, csr_wdatab);

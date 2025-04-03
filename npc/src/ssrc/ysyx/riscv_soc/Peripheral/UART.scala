@@ -18,15 +18,15 @@ class UART_bridge extends BlackBox with HasBlackBoxInline {
     })
     setInline("UART_bridge.v",
     """module UART_bridge(
-      |  input  clock,
+      |  input clock,
       |  input valid,
       |  input [7:0] data
       |);
-      |  import "DPI-C" function void Uart_putc(input int c);
+      |  import "DPI-C" function void Uart_putc(input bit [7:0] c);
       |  
       |  always @(posedge clock) begin
       |    if(valid) begin
-      |      Uart_putc({24'h0, data});
+      |      Uart_putc(data);
       |    end
       |  end
       |

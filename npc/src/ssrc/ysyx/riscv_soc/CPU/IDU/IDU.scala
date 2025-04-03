@@ -269,7 +269,7 @@ class IDU extends Module{
         val catchTable = new DecodeTable(instList, Seq(PC_Field))
         val catchResult = catchTable.decode(io.IFU_2_IDU.bits.data)
         val Catch = Module(new IDU_catch)
-        Catch.io.ID := io.IFU_2_IDU.fire && !reset.asBool
+        Catch.io.ID := io.IDU_2_EXU.fire && !reset.asBool
         Catch.io.Inst_Type := catchResult(PC_Field)
     }
 

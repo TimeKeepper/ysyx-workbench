@@ -180,7 +180,7 @@ class LSU(idBits: Int)(implicit p: Parameters) extends LazyModule{
 
         if(Config.Simulate){
             val Catch = Module(new LSU_catch)
-            Catch.io.LS := master.ar.valid || master.aw.valid
+            Catch.io.LS := io.EXU_2_WBU.fire && !reset.asBool
             Catch.io.diff_skip := Config.diff_mis_map.map(_.contains(RegEnable(addr, io.IDU_2_EXU.fire))).reduce(_ || _)
         }
     }

@@ -107,7 +107,7 @@ class WBU extends Module {
     if(Config.Simulate){
         val Catch = Module(new WBU_catch)
         Catch.io.clock := clock
-        Catch.io.valid := io.EXU_2_WBU.fire && !reset.asBool
+        Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool
 
         Catch.io.next_pc := Next_Pc
         

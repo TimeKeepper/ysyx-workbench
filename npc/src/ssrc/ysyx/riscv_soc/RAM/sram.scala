@@ -33,15 +33,15 @@ class sram_bridge extends BlackBox with HasBlackBoxInline {
       |    input  [3:0]  w_strb
       |);
       |
-      |import "DPI-C" function void sram_read (input int addr, output int data);
-      |import "DPI-C" function void sram_write (input int addr, input int data, input int mask);
+      |import "DPI-C" function void sram_read (input bit [31:0] addr, output bit [31:0] data);
+      |import "DPI-C" function void sram_write (input bit [31:0] addr, input bit [31:0] data, input bit [3:0] mask);
       |
       |    always @(posedge clock) begin
       |        if (read) begin
       |            sram_read(r_addr, r_data);
       |        end
       |        if (write) begin
-      |            sram_write(w_addr, w_data, {28'h0, w_strb});
+      |            sram_write(w_addr, w_data, w_strb);
       |        end
       |    end
       |

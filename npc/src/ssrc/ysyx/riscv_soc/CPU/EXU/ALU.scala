@@ -12,15 +12,19 @@ import config._
 
 class ALU_catch extends BlackBox with HasBlackBoxInline {
   val io = IO(new Bundle{
-    val AL = Input(Bool())
+    val clock = Input(Clock())
+    val valid = Input(Bool())
   })
   val code = 
   s"""module ALU_catch(
-  |   input AL
+  |    input clock,
+  |    input valid
   |);
   |  import "DPI-C" function void ALU_catch();
-  |  always @(posedge AL) begin
+  |  always @(posedge clock) begin
+  |     if(valid) begin
   |       ALU_catch();
+  |     end
   |  end
   |endmodule
   """
@@ -105,6 +109,7 @@ class ALU extends Module {
 
   if(Config.Simulate){
     val Catch = Module(new ALU_catch)
-    Catch.io.AL := io.EXU_2_WBU.fire && !reset.asBool
+    Catch.io.clock := clock
+    Catch.io.valid := io.EXU_2_WBU.fire && !reset.asBool
   }
 }

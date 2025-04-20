@@ -9,16 +9,16 @@ import freechips.rocketchip.tilelink.TLMessages.d
 
 class Pipeline_catch extends BlackBox with HasBlackBoxInline{
   val io = IO(new Bundle {
-      val valid = Input(Bool())
+      val clock = Input(Clock())
       val pipeline_flush = Input(Bool())
   })
   setInline("Pipeline_catch.v",
   """module Pipeline_catch(
-  |  input valid,
+  |  input clock,
   |  input pipeline_flush
   |);
   |import "DPI-C" function void Pipeline_catch();
-  |always @(posedge valid) begin
+  |always @(posedge clock) begin
   |    if(pipeline_flush) begin
   |        Pipeline_catch();
   |    end
@@ -76,7 +76,7 @@ class PipelineCtrl extends Module {
 
     if(Config.Simulate) {
         val pipeline_catch = Module(new Pipeline_catch)
-        pipeline_catch.io.valid := io.IFUCtrl.flush
-        pipeline_catch.io.pipeline_flush := io.IFUCtrl.flush
+        pipeline_catch.io.clock := clock
+        pipeline_catch.io.pipeline_flush := RegNext(io.IFUCtrl.flush)
     }
 }

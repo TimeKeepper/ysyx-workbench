@@ -42,7 +42,7 @@ class WBU_catch extends BlackBox with HasBlackBoxInline {
     |    input [31:0] csr_wdatab
     |);
     |
-    |   import "DPI-C" function void WBU_catch(input int unsigned next_pc, input int unsigned gpr_waddr, input int unsigned gpr_wdata, input int unsigned csr_wena, input int unsigned csr_waddra, input int unsigned csr_wdataa, input int unsigned csr_wenb, input int unsigned csr_waddrb, input int unsigned csr_wdatab);
+    |   import "DPI-C" function void WBU_catch(input bit [31:0] next_pc, input bit [31:0] gpr_waddr, input bit [31:0] gpr_wdata, input bit [31:0] csr_wena, input bit [31:0] csr_waddra, input bit [31:0] csr_wdataa, input bit [31:0] csr_wenb, input bit [31:0] csr_waddrb, input bit [31:0] csr_wdatab);
     |   always @(posedge clock) begin
     |       if(valid) begin
     |           WBU_catch(next_pc, gpr_waddr, gpr_wdata, csr_wena, csr_waddra, csr_wdataa, csr_wenb, csr_waddrb, csr_wdatab);
@@ -107,7 +107,7 @@ class WBU extends Module {
     if(Config.Simulate){
         val Catch = Module(new WBU_catch)
         Catch.io.clock := clock
-        Catch.io.valid := io.EXU_2_WBU.fire && !reset.asBool
+        Catch.io.valid := io.WBU_2_IFU.fire && !reset.asBool
 
         Catch.io.next_pc := Next_Pc
         

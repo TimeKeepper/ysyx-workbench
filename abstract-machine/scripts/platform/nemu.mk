@@ -10,7 +10,7 @@ AM_SRCS := platform/nemu/trm.c \
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
                 --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
-LDFLAGS   := -T $(AM_HOME)/scripts/linker_mem.ld $(LDFLAGS) 
+LDFLAGS   := -T $(AM_HOME)/scripts/linker_ysyxsoc_mem.ld $(LDFLAGS) 
 LDFLAGS   += --gc-sections -e _start
 
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt

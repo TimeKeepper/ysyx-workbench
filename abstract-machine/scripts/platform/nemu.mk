@@ -28,12 +28,14 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	# $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-nemu Binfile=$(IMAGE).bin
 
 batch: image
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMU_BATCH_FLAG)" IMG=$(IMAGE).bin
+	# $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMU_BATCH_FLAG)" IMG=$(IMAGE).bin
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin ExtraArgs=-b
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-nemu Binfile=$(IMAGE).bin ExtraArgs=-b
 
 debug: image
 	@$(MAKE) -C $(YSYX_HOME) debug Binfile=$(IMAGE).bin

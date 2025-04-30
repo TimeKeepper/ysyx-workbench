@@ -14,13 +14,15 @@ SECTIONS {
   .text : {
     _stext = .;
 
+    *(entry)
+
     *(.text)
     *(.text*)
     
     . = ALIGN(4);
 
     _etext = .;
-  } > irom AT> irom
+  } > irom AT> irom :text
 
   _srodata_load = LOADADDR(.rodata);
 
@@ -36,7 +38,7 @@ SECTIONS {
     . = ALIGN(4);
 
     _erodata = .;
-  } > irom AT> irom
+  } > irom AT> irom :rodata
 
   _sdata_load = LOADADDR(.data);
 
@@ -53,7 +55,7 @@ SECTIONS {
     . = ALIGN(4);
 
     _edata = .;
-  } > dram AT> dram
+  } > dram AT> irom :data
   
   _sbss_load = LOADADDR(.bss);
 
@@ -70,18 +72,18 @@ SECTIONS {
 
     _ebss = .;
 
-  } > dram AT> dram
+  } > dram AT> irom :bss
 
   .stack (NOLOAD) : {
 
-    _stack_top  = _essbl;
+    _stack_top  = _ebss;
 
     *(.stack)
 
     . = ORIGIN(dram) + 0x10000;
     _stack_pointer = .;
 
-  } > sram AT> sram
+  } > dram AT> dram
 
   .heap (NOLOAD) : {
 

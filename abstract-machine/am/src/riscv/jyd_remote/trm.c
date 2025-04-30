@@ -25,13 +25,22 @@
 #define SERIAL_DLL      (SERIAL_PORT + 0) // divisor latch low
 #define SERIAL_DLM      (SERIAL_PORT + 1) // divisor latch high
 
+extern char _begin, _stext;
+extern char _etext, _srodata;
+extern char _erodata, _sdata;
+extern char _edata;
+
+extern char _srodata_load;
+
+extern char _sdata_load;
+extern char _sdata, _edata;
+
+extern char _sbss_load;
+extern char _sbss, _ebss;
+
+extern char _stack_top, _stack_pointer;
 extern char _sheap, _eheap;
-extern char _sssbl, _essbl, _sssbl_load;
-extern char _stext, _etext, _stext_load;
-extern char _srodata, _erodata, _srodata_load;
-extern char _sdata_extra, _edata_extra, _sdata_extra_load;
-extern char _sdata, _edata, _sdata_load;
-extern char _sbss, _ebss, _sbss_load;
+
 int main(const char *args);
 
 Area heap = RANGE(&_sheap, &_eheap);
@@ -79,53 +88,53 @@ static void inline boot_memcpy(void *dst, const void *src, size_t n){ // 在boot
   }
 }
 
-int FSBL(void){
-  uint32_t *dst = (uint32_t *)&_sssbl;
-  const uint32_t *src = (uint32_t *)&_sssbl_load;
-  size_t n = (size_t)(&_essbl - &_sssbl) / 4;// 确保全部加载
+// int FSBL(void){
+//   uint32_t *dst = (uint32_t *)&_sssbl;
+//   const uint32_t *src = (uint32_t *)&_sssbl_load;
+//   size_t n = (size_t)(&_essbl - &_sssbl) / 4;// 确保全部加载
 
-  boot_memcpy(dst, src, n); // 程序加载
+//   boot_memcpy(dst, src, n); // 程序加载
 
-  return 0;
-}
+//   return 0;
+// }
 
-int SSBL(void) {
-  uint32_t *dst = (uint32_t *)&_stext;
-  const uint32_t *src = (uint32_t *)&_stext_load;
-  size_t n = (size_t)(&_etext - &_stext);// 确保全部加载
+// int SSBL(void) {
+//   uint32_t *dst = (uint32_t *)&_stext;
+//   const uint32_t *src = (uint32_t *)&_stext_load;
+//   size_t n = (size_t)(&_etext - &_stext);// 确保全部加载
 
-  boot_memcpy(dst, src, n); // 程序加载
+//   boot_memcpy(dst, src, n); // 程序加载
 
-  dst = (uint32_t *)&_srodata;
-  src = (uint32_t *)&_srodata_load;
-  n = (size_t)(&_erodata - &_srodata);
+//   dst = (uint32_t *)&_srodata;
+//   src = (uint32_t *)&_srodata_load;
+//   n = (size_t)(&_erodata - &_srodata);
 
-  boot_memcpy(dst, src, n); 
+//   boot_memcpy(dst, src, n); 
 
-  dst = (uint32_t *)&_erodata;
-  src = (uint32_t *)((uint32_t)&_srodata_load + n);
-  n = (size_t)(&_sdata - &_erodata);
+//   dst = (uint32_t *)&_erodata;
+//   src = (uint32_t *)((uint32_t)&_srodata_load + n);
+//   n = (size_t)(&_sdata - &_erodata);
 
-  boot_memcpy(dst, src, n);
+//   boot_memcpy(dst, src, n);
 
-  dst = (uint32_t *)&_sdata;
-  src = (uint32_t *)&_sdata_load;
-  n = (size_t)(&_edata - &_sdata);
+//   dst = (uint32_t *)&_sdata;
+//   src = (uint32_t *)&_sdata_load;
+//   n = (size_t)(&_edata - &_sdata);
 
-  boot_memcpy(dst, src, n); // 数据加载
+//   boot_memcpy(dst, src, n); // 数据加载
 
-  dst = (uint32_t *)&_sbss;
-  src = (uint32_t *)&_sbss_load;
-  n = (size_t)(&_ebss - &_sbss);
+//   dst = (uint32_t *)&_sbss;
+//   src = (uint32_t *)&_sbss_load;
+//   n = (size_t)(&_ebss - &_sbss);
 
-  boot_memcpy(dst, src, n); // bss加载
+//   boot_memcpy(dst, src, n); // bss加载
 
-  *(volatile uint32_t*)GPIO_SEG = 0x23a6a198;//在nvboard的数码管上显示学号
-  uint32_t time = *(volatile uint32_t*)CLINT_BASE; //进行一次读取,初始化clint
-  (void)time; //该数据并用不到
+//   *(volatile uint32_t*)GPIO_SEG = 0x23a6a198;//在nvboard的数码管上显示学号
+//   uint32_t time = *(volatile uint32_t*)CLINT_BASE; //进行一次读取,初始化clint
+//   (void)time; //该数据并用不到
 
-  return 0;
-}
+//   return 0;
+// }
 
 #define READ_CSR(csr, var)                                   \
     do {                                                     \
@@ -154,8 +163,19 @@ void _print_creater_info(void){
   printf("This processor is created by %s_%d\n", ysyx, creater_id);
 }
 
+int BL(void){
+  uint32_t *dst = (uint32_t *)&_sdata;
+  const uint32_t *src = (uint32_t *)&_sdata_load;
+  size_t n = (size_t)(&_edata - &_sdata) / 4;// 确保全部加载
+
+  boot_memcpy(dst, src, n); // 程序加载
+
+  return 0;
+}
+
 void _trm_init() {
   int ret;
+  ret = BL();
 
   ret = main(mainargs);
   halt(ret);

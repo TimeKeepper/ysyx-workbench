@@ -4,8 +4,8 @@ CFLAGS  += -DISA_H=\"riscv/riscv.h\"
 COMMON_CFLAGS += -march=rv32im_zicsr -mabi=ilp32  # overwrite
 LDFLAGS       += -melf32lriscv                     # overwrite
 
-AM_SRCS += riscv/jyd_driver/libgcc/div.S \
-           riscv/jyd_driver/libgcc/muldi3.S \
-           riscv/jyd_driver/libgcc/multi3.c \
-           riscv/jyd_driver/libgcc/ashldi3.c \
-           riscv/jyd_driver/libgcc/unused.c
+AM_SRCS += riscv/jyd_remote/libgcc/div.S \
+           riscv/jyd_remote/libgcc/muldi3.S \
+           riscv/jyd_remote/libgcc/multi3.c \
+           riscv/jyd_remote/libgcc/ashldi3.c \
+           riscv/jyd_remote/libgcc/unused.c

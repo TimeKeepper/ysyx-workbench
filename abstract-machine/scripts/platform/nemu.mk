@@ -38,7 +38,7 @@ batch: image
 	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-nemu Binfile=$(IMAGE).bin ExtraArgs=-b
 
 debug: image
-	@$(MAKE) -C $(YSYX_HOME) debug Binfile=$(IMAGE).bin
+	@$(MAKE) -C $(REMU_HOME) debug Platform=$(ISA)-emu-nemu Binfile=$(IMAGE).bin
 
 gdb: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin

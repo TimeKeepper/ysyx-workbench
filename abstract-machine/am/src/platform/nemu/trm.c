@@ -10,6 +10,15 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #endif
 static const char mainargs[] = MAINARGS;
 
+extern int printf(const char *fmt, ...);
+
+static Context* default_handler(Event ev, Context *c) {
+  switch (c->mcause) {
+    case 0x00000002: printf("IllegalInstruction"); return c;
+    default: printf("Unknown exception: %x", c->mcause); return c;
+  }
+}
+
 void putch(char ch) {
   outb(SERIAL_PORT, ch);
 }
@@ -26,6 +35,7 @@ void halt(int code) {
 }
 
 void _trm_init() {
+  cte_init(default_handler);
   int ret = main(mainargs);
   halt(ret);
 }

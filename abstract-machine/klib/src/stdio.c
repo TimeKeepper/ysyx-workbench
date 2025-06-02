@@ -89,7 +89,7 @@ int sprintf(char *out, const char *fmt, ...) {
 }
 
 int printf(const char *fmt, ...) {
-  char buf[1024];
+  char buf[128];
   va_list args;
   va_start(args, fmt);
   int ret = vsprintf(buf, fmt, args);

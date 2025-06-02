@@ -24,27 +24,15 @@ SECTIONS {
     _etext = .;
   } > irom AT> irom :text
 
-  _srodata_load = LOADADDR(.rodata);
-
-  .rodata : {
-    _srodata = .;
-
-    *(.rodata)
-    *(.rodata*)
-    *(.srodata)
-    *(.srodata*)
-    /* *(.srodata.mainargs) */
-
-    . = ALIGN(4);
-
-    _erodata = .;
-  } > irom AT> irom :rodata
-
   _sdata_load = LOADADDR(.data);
 
   .data : {
     _sdata = .;
 
+    *(.rodata)
+    *(.rodata*)
+    *(.srodata)
+    *(.srodata*)
     *(.data)
     *(.data*)
     *(.data+)

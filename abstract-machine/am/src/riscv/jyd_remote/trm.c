@@ -12,7 +12,7 @@
 
 #define CLINT_BASE (0x2000000)
 
-#define SERIAL_PORT     (0x10000000)
+#define SERIAL_PORT     (0x80140000)
 #define SERIAL_RB       (SERIAL_PORT + 0) // receive buffer
 #define SERIAL_THR      (SERIAL_PORT + 0) // transmit holding register
 #define SERIAL_IE       (SERIAL_PORT + 1) // interrupt enable
@@ -59,13 +59,7 @@ void uart_init(void){
   *((volatile uint8_t  *)SERIAL_LCR) = (*((volatile uint8_t  *)SERIAL_LCR)) & 0x7f;
 }
 
-static uint8_t putch_counter = 0;
-
 void putch(char ch) {
-  if(putch_counter++ == 16){
-    while(!(*((volatile uint8_t  *)SERIAL_LS) & 0x20)); //检查第5位是否为1，表示空闲
-    putch_counter = 0;
-  }
   outb(SERIAL_RB, ch);
 }
 
@@ -175,7 +169,7 @@ int BL(void){
 
 void _trm_init() {
   int ret;
-  ret = BL();
+  // ret = BL(); // useless for now
 
   ret = main(mainargs);
   halt(ret);

@@ -14,8 +14,8 @@ extern int printf(const char *fmt, ...);
 
 static Context* default_handler(Event ev, Context *c) {
   switch (c->mcause) {
-    case 0x00000002: printf("IllegalInstruction"); return c;
-    default: printf("Unknown exception: %x", c->mcause); return c;
+    case 0x00000002: printf("IllegalInstruction"); halt(0); return c;
+    default: printf("Unknown exception: %x", c->mcause); halt(0); return c;
   }
 }
 

@@ -22,9 +22,9 @@ CFLAGS += -DMAINARGS=\"$(mainargs)\"#通过这个宏传递主函数参数
 CFLAGS += -I$(AM_HOME)/am/src/platform/nemu/include
 .PHONY: $(AM_HOME)/am/src/platform/nemu/trm.c
 
-PLATFORMS = dm sc
-ifeq ($(filter $(PLATFORMS), $(PLATFORM)), )
-$(error Expected $$PLATFORM in {$(PLATFORMS)}, Got "$(PLATFORM)")
+TARGETS = dm sc pl
+ifeq ($(filter $(TARGET), $(TARGETS)), )
+$(error Expected $$TARGET in {$(TARGETS)}, Got "$(TARGET)")
 endif
 
 image: $(IMAGE).elf
@@ -35,15 +35,15 @@ image: $(IMAGE).elf
 run: image
 	# $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin
-	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(PLATFORM) Binfile=$(IMAGE).bin
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin
 
 batch: image
 	# $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMU_BATCH_FLAG)" IMG=$(IMAGE).bin
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin ExtraArgs=-b
-	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(PLATFORM) Binfile=$(IMAGE).bin ExtraArgs=-b
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin ExtraArgs=-b
 
 debug: image
-	@$(MAKE) -C $(REMU_HOME) debug Platform=$(ISA)-emu-$(PLATFORM) Binfile=$(IMAGE).bin
+	@$(MAKE) -C $(REMU_HOME) debug Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin
 
 gdb: image
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin

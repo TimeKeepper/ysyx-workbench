@@ -26,7 +26,11 @@ image: $(IMAGE).elf
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc EXTRA_DEFILE=-DNAME=$(NAME)
+	# $(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc EXTRA_DEFILE=-DNAME=$(NAME)
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-nzea-ysyxsoc Binfile=$(IMAGE).bin
+
+debug: image
+	@$(MAKE) -C $(REMU_HOME) debug Platform=$(ISA)-nzea-ysyxsoc Binfile=$(IMAGE).bin
 
 batch: image
 	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPC_BATCH_FLAG)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc EXTRA_DEFILE=-DNAME=$(NAME)

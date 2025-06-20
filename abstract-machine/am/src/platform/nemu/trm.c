@@ -34,6 +34,16 @@ void halt(int code) {
   while (1);
 }
 
+#define READ_CSR(csr, var)                                   \
+    do {                                                     \
+        unsigned long __v;                                   \
+        __asm__ __volatile__ ("csrr %0, " #csr ""      \
+                             : "=r" (__v)                    \
+                             :                               \
+                             : "memory");                     \
+        var = (typeof(var)) __v;                              \
+    } while (0)
+
 void _trm_init() {
   cte_init(default_handler);
   int ret = main(mainargs);

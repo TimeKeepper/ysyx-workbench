@@ -27,6 +27,8 @@ ifeq ($(filter $(TARGET), $(TARGETS)), )
 $(error Expected $$TARGET in {$(TARGETS)}, Got "$(TARGET)")
 endif
 
+EXTRA_ARGS ?=
+
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
@@ -35,12 +37,12 @@ image: $(IMAGE).elf
 run: image
 	# $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin
-	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin ExtraArgs="'$(EXTRA_ARGS)'"
 
 batch: image
 	# $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMU_BATCH_FLAG)" IMG=$(IMAGE).bin
 	# @$(MAKE) -C $(YSYX_HOME) run Binfile=$(IMAGE).bin ExtraArgs=-b
-	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin ExtraArgs=-b
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin ExtraArgs=-e continue
 
 debug: image
 	@$(MAKE) -C $(REMU_HOME) debug Platform=$(ISA)-emu-$(TARGET) Binfile=$(IMAGE).bin

@@ -20,14 +20,21 @@ NPC_BATCH_FLAG += -b
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 .PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c
 
+EXTRA_ARGS ?=
+
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
+	@echo $(EXTRA_ARGS)
 	# $(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin TOPNAME=ysyxSoCFull PLATFORM=ysyxsoc EXTRA_DEFILE=-DNAME=$(NAME)
-	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-nzea-ysyxsoc Binfile=$(IMAGE).bin
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-nzea-ysyxsoc Binfile=$(IMAGE).bin  ExtraCmd="'$(EXTRA_ARGS)'"
+
+perf: image
+	@$(MAKE) -C $(REMU_HOME) run Platform=$(ISA)-nzea-ysyxsoc Binfile=$(IMAGE).bin  ExtraCmd="'continue && times'"
+
 
 debug: image
 	@$(MAKE) -C $(REMU_HOME) debug Platform=$(ISA)-nzea-ysyxsoc Binfile=$(IMAGE).bin
